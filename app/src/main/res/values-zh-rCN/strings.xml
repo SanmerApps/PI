@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Activity -->
+    <string name="install_activity">安装</string>
+    <string name="uninstall_activity">卸载</string>
+
+    <!-- Home -->
+    <string name="home_shizuku_access">Shizuku 权限：%s</string>
+    <string name="home_shizuku_granted">已授权</string>
+    <string name="home_shizuku_not_authorized">未授权</string>
+    <string name="home_shizuku_not_running">Shizuku 未启动</string>
+    <string name="home_shizuku_low_version">需要 Shizuku API 版本 12+</string>
+    <plurals name="home_authorized_apps_count">
+        <item quantity="other">已授权 %d 个应用</item>
+    </plurals>
+    <string name="home_view_authorized_apps">点按以管理授权的应用</string>
+    <string name="home_set_default">设置为默认</string>
+    <string name="home_set_default_desc">将此应用设置为默认的安装器，设置不是总能生效。</string>
+    <string name="home_clear_default">取消默认</string>
+    <string name="home_clear_default_desc">取消不受系统影响，其他应用可能仍然将此应用视为安装器。</string>
+
+    <!-- Apps -->
+    <string name="apps_title">应用管理</string>
+    <string name="apps_empty">空列表</string>
+
+    <!-- Dialog -->
+    <string name="confirmation_message">允许<b>%1$s</b>安装%2$s吗？</string>
+    <string name="confirmation_allow_always">始终允许</string>
+    <string name="confirmation_allow_one_time">仅限这一次</string>
+    <string name="confirmation_deny">拒绝</string>
+
+    <!-- Message -->
+    <string name="message_installing">安装中…</string>
+    <string name="message_install_success">安装成功</string>
+    <string name="message_install_fail">安装失败</string>
+    <string name="message_loading">加载中…</string>
+
+    <!-- Notification -->
+    <string name="notification_name_install">安装服务</string>
+
+    <!-- Other -->
+    <string name="unknown_error">未知错误</string>
+</resources>
