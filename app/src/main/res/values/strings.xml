@@ -2,7 +2,6 @@
 <resources>
     <!-- Activity -->
     <string name="install_activity">Install</string>
-    <string name="uninstall_activity">Uninstall</string>
 
     <!-- Home -->
     <string name="home_shizuku_access">Shizuku Access: %s</string>

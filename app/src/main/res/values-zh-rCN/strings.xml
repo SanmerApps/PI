@@ -2,7 +2,6 @@
 <resources>
     <!-- Activity -->
     <string name="install_activity">安装</string>
-    <string name="uninstall_activity">卸载</string>
 
     <!-- Home -->
     <string name="home_shizuku_access">Shizuku 权限：%s</string>

@@ -44,21 +44,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.UninstallActivity"
-            android:theme="@style/DialogTheme"
-            android:label="@string/uninstall_activity"
-            android:exported="true"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="${applicationId}.UNINSTALL">
-            <intent-filter>
-                <action android:name="android.intent.action.DELETE" />
-                <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="package" />
-            </intent-filter>
-        </activity>
-
         <service
             android:name=".service.InstallService"
             android:foregroundServiceType="specialUse"
