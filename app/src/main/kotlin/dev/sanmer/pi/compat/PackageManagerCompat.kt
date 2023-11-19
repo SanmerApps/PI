@@ -111,6 +111,14 @@ object PackageManagerCompat {
         packageManager.clearPackagePreferredActivities(packageName)
     }
 
+    fun getPreferredActivities(packageName: String?): List<Pair<ComponentName, IntentFilter>> {
+        val outFilters = ArrayList<IntentFilter>()
+        val outActivities = ArrayList<ComponentName>()
+        packageManager.getPreferredActivities(outFilters, outActivities, packageName)
+
+        return outActivities.zip(outFilters)
+    }
+
     fun queryIntentActivities(
         intent: Intent,
         resolvedType: String,
@@ -135,11 +143,7 @@ object PackageManagerCompat {
         return packageManager.getHomeActivities(outHomeCandidates)
     }
 
-    suspend fun install(
-        packageFile: File,
-        packageName: String,
-        originatingPackageName: String?
-    ): Int = withContext(Dispatchers.IO) {
+    suspend fun install(packageFile: File, packageName: String, originatingPackageName: String?): Int = withContext(Dispatchers.IO) {
         try {
             val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
 

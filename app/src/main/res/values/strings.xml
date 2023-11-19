@@ -14,10 +14,8 @@
         <item quantity="other">Authorized %d applications</item>
     </plurals>
     <string name="home_view_authorized_apps">Tap to manage authorized apps</string>
-    <string name="home_set_default">Set as default</string>
-    <string name="home_set_default_desc">Set this app as the default installer, this may not always take effect.</string>
-    <string name="home_clear_default">Clear default</string>
-    <string name="home_clear_default_desc">Clearing is not affected by system, other apps may still consider this app as installer.</string>
+    <string name="home_default_installer">Default Installer</string>
+    <string name="home_default_installer_desc">Set this app as the default installer, only send setup requests to the system</string>
 
     <!-- Apps -->
     <string name="apps_title">Application Management</string>

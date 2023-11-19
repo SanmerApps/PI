@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -28,14 +30,20 @@ import dev.sanmer.pi.ui.component.Logo
 import dev.sanmer.pi.ui.component.OverviewCard
 import dev.sanmer.pi.ui.navigation.navigateToApps
 import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
+import dev.sanmer.pi.ui.screens.home.items.PreferredItem
 import dev.sanmer.pi.ui.screens.home.items.ShizukuItem
 import dev.sanmer.pi.viewmodel.HomeViewModel
+import timber.log.Timber
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(key1 = ShizukuUtils.isEnable) {
+        if (ShizukuUtils.isEnable) viewModel.getPreferred()
+    }
+
     val authorized by viewModel.authorized.collectAsStateWithLifecycle(0)
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -61,20 +69,9 @@ fun HomeScreen(
                 onClick = { navController.navigateToApps() }
             )
 
-            OverviewCard(
-                onClick = viewModel::setPreferred,
-                icon = R.drawable.ufo,
-                title = stringResource(id = R.string.home_set_default),
-                desc = stringResource(id = R.string.home_set_default_desc),
-                enable = ShizukuUtils.isEnable
-            )
-
-            OverviewCard(
-                onClick = viewModel::clearPreferred,
-                icon = R.drawable.ufo_off,
-                title = stringResource(id = R.string.home_clear_default),
-                desc = stringResource(id = R.string.home_clear_default_desc),
-                ShizukuUtils.isEnable
+            PreferredItem(
+                isPreferred = viewModel.isPreferred,
+                toggle = viewModel::togglePreferred
             )
         }
     }

@@ -4,11 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,6 +23,7 @@ fun OverviewCard(
     @DrawableRes icon: Int,
     title: String,
     desc: String? = null,
+    trailingIcon: (@Composable RowScope.() -> Unit)? = null,
     enable: Boolean = true,
 ) = Surface(
     onClick = onClick,
@@ -36,7 +36,8 @@ fun OverviewCard(
         modifier = Modifier
             .padding(all = 16.dp)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Logo(
             modifier = Modifier.size(40.dp),
@@ -45,9 +46,8 @@ fun OverviewCard(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
@@ -64,5 +64,7 @@ fun OverviewCard(
                 )
             }
         }
+
+        trailingIcon?.invoke(this)
     }
 }

@@ -48,6 +48,8 @@ public interface IPackageManager extends IInterface {
 
     void clearPackagePreferredActivities(String packageName) throws RemoteException;
 
+    int getPreferredActivities(List<IntentFilter> outFilters, List<ComponentName> outActivities, String packageName) throws RemoteException;
+
     ParceledListSlice<ResolveInfo> queryIntentActivities(Intent intent, String resolvedType, int flags, int userId) throws RemoteException;
 
     @RequiresApi(33)
