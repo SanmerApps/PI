@@ -111,8 +111,8 @@ class InstallActivity : ComponentActivity() {
         }
 
         withContext(Dispatchers.IO) {
-            val callingUid = ActivityMangerCompat.getCallingUid()
-            sourceInfo = getSourceInfo(callingUid)
+            val callingPackage = ActivityMangerCompat.getCallingPackage(packageName)
+            sourceInfo = getSourceInfo(callingPackage)
             isAuthorized = localRepository.getByPackageInfo(sourceInfo)
 
             Timber.i("From ${sourceInfo?.packageName} (${isAuthorized})")
@@ -139,12 +139,9 @@ class InstallActivity : ComponentActivity() {
         }
     }
 
-    private fun getSourceInfo(callingUid: Int): PackageInfo? {
+    private fun getSourceInfo(callingPackage: String): PackageInfo? {
         return try {
-            val packageName = PackageManagerCompat.getPackagesForUid(callingUid)
-                .firstOrNull() ?: return null
-
-            return PackageManagerCompat.getPackageInfo(packageName, 0, 0)
+            return PackageManagerCompat.getPackageInfo(callingPackage, 0, 0)
         } catch (ex: PackageManager.NameNotFoundException) {
             null
         }

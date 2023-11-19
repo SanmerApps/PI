@@ -77,7 +77,7 @@ object PackageManagerCompat {
         }
     }
 
-    fun getPackageInfo(packageName: String, flags: Int, userId: Int): PackageInfo? {
+    fun getPackageInfo(packageName: String, flags: Int, userId: Int): PackageInfo {
         return if (BuildCompat.atLeastT) {
             packageManager.getPackageInfo(packageName, flags.toLong(), userId)
         } else {
@@ -95,7 +95,7 @@ object PackageManagerCompat {
         return if (packages != null) {
             packages.list
         } else {
-            ArrayList()
+            emptyList()
         }
     }
 
@@ -126,13 +126,13 @@ object PackageManagerCompat {
         return if (resolveInfo != null) {
             resolveInfo.list
         } else {
-            ArrayList()
+            emptyList()
         }
     }
 
-    fun getPackagesForUid(uid: Int): Array<String> {
-        val packages = packageManager.getPackagesForUid(uid)
-        return packages ?: emptyArray()
+    fun getHomeActivities(): ComponentName {
+        val outHomeCandidates = ArrayList<ResolveInfo>()
+        return packageManager.getHomeActivities(outHomeCandidates)
     }
 
     suspend fun install(

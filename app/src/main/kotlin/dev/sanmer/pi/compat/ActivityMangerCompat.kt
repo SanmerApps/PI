@@ -5,6 +5,7 @@ import android.app.IActivityManager
 import android.os.Process
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
+import timber.log.Timber
 
 object ActivityMangerCompat {
     private val activityManager: IActivityManager by lazy {
@@ -30,17 +31,22 @@ object ActivityMangerCompat {
     val runningAppProcesses: List<ActivityManager.RunningAppProcessInfo> get() =
         activityManager.runningAppProcesses ?: emptyList()
 
-    fun getCallingUid(): Int {
-        val processes = runningAppProcesses
-        @Suppress("UNUSED_VARIABLE")
-        val self = processes[0]
-        val before1 = processes[1]
-        val before2 = processes[2]
+    fun getCallingPackage(targetPackageName: String): String {
+        val task = getTasks(1).first()
+        val packageName = task.baseActivity?.packageName
+        if (packageName != null) return packageName
 
-        return if (before1.uid != Process.SYSTEM_UID) {
-            before1.uid
-        } else {
-            before2.uid
+        // unused (maybe)
+        val home = PackageManagerCompat.getHomeActivities()
+        val processes = runningAppProcesses.first {
+            Timber.d("${it.uid}, ${it.pkgList.toList()}")
+            val isTarget = targetPackageName in it.pkgList
+            val isSystem = it.uid == Process.SYSTEM_UID
+            val isHome = home.packageName in it.pkgList
+
+            !(isTarget || isSystem || isHome)
         }
+
+        return processes.pkgList.first()
     }
 }

@@ -45,20 +45,17 @@ class UninstallActivity : ComponentActivity() {
             return
         }
 
-        val callingUid = ActivityMangerCompat.getCallingUid()
-        val sourceInfo = getSourceInfo(callingUid)
+        val callingPackage = ActivityMangerCompat.getCallingPackage(packageName)
+        val sourceInfo = getSourceInfo(callingPackage)
 
         val packageName = packageUri.encodedSchemeSpecificPart
         Timber.d("From ${sourceInfo?.packageName}")
         Timber.d("Uninstall $packageName")
     }
 
-    private fun getSourceInfo(callingUid: Int): PackageInfo? {
+    private fun getSourceInfo(callingPackage: String): PackageInfo? {
         return try {
-            val packageName = PackageManagerCompat.getPackagesForUid(callingUid)
-                .firstOrNull() ?: return null
-
-            return PackageManagerCompat.getPackageInfo(packageName, 0, 0)
+            return PackageManagerCompat.getPackageInfo(callingPackage, 0, 0)
         } catch (ex: PackageManager.NameNotFoundException) {
             null
         }

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.sanmer.pi.stub"
+    namespace = "dev.sanmer.pi.hidden_api"
 }
 
 dependencies {
