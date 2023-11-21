@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.rikka.refine)
 }
 
-val baseVersionName = "0.0.1"
+val baseVersionName = "0.1.0"
 val isDevVersion get() = exec("git tag --contains HEAD").isEmpty()
 val verNameSuffix: String get() = if (isDevVersion) ".dev" else ""
 
