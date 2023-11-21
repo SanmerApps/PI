@@ -13,8 +13,6 @@
         <item quantity="other">已授权 %d 个应用</item>
     </plurals>
     <string name="home_view_authorized_apps">点按以管理授权的应用</string>
-    <string name="home_default_installer">默认安装器</string>
-    <string name="home_default_installer_desc">将此应用设置为默认的安装器，仅向系统发出设定请求</string>
 
     <!-- Apps -->
     <string name="apps_title">应用管理</string>
