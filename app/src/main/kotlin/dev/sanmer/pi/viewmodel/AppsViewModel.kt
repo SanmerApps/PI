@@ -1,13 +1,13 @@
 package dev.sanmer.pi.viewmodel
 
 import android.Manifest
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -66,25 +66,28 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
-        val allPackages: MutableList<PackageInfo> = ArrayList()
-
-        runCatching {
+        val allPackages = runCatching {
             PackageManagerCompat.getInstalledPackages(
-                PackageManager.GET_PERMISSIONS,
-                0
+                PackageManager.GET_PERMISSIONS, 0
             )
-        }.onSuccess {
-            allPackages.addAll(it)
         }.onFailure {
             Timber.e(it, "getInstalledPackages")
-        }
+        }.getOrDefault(emptyList())
 
         val isRequestedInstall: (PackageInfo) -> Boolean = {
-            it.requestedPermissions?.contains(Manifest.permission.REQUEST_INSTALL_PACKAGES) == true
+            it.requestedPermissions?.contains(
+                Manifest.permission.REQUEST_INSTALL_PACKAGES
+            ) == true
+        }
+
+        val isNotSystemApp: (PackageInfo) -> Boolean = {
+            it.applicationInfo.flags and (ApplicationInfo.FLAG_SYSTEM or
+                    ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0
         }
 
         allPackages.filter {
-            isRequestedInstall(it)
+            isRequestedInstall(it) && isNotSystemApp(it) &&
+                    it.applicationInfo.enabled
         }
     }
 

@@ -1,20 +1,21 @@
 package dev.sanmer.pi.ui.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -23,11 +24,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.R
-import dev.sanmer.pi.ui.component.Logo
+import dev.sanmer.pi.app.utils.ShizukuUtils
 import dev.sanmer.pi.ui.navigation.navigateToApps
 import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
+import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
+import dev.sanmer.pi.ui.screens.home.items.RequesterItem
 import dev.sanmer.pi.ui.screens.home.items.ShizukuItem
 import dev.sanmer.pi.viewmodel.HomeViewModel
+import java.lang.IllegalStateException
 
 @Composable
 fun HomeScreen(
@@ -35,8 +39,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val authorized by viewModel.authorized.collectAsStateWithLifecycle(0)
-
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    LaunchedEffect(key1 = ShizukuUtils.isEnable) {
+        viewModel.loadData()
+    }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -58,6 +66,33 @@ fun HomeScreen(
                 count = authorized,
                 onClick = { navController.navigateToApps() }
             )
+
+            var isRequester by remember { mutableStateOf(false) }
+            RequesterItem(
+                pi = viewModel.requester,
+                onClick = { isRequester = true}
+            )
+
+            var isExecutor by remember { mutableStateOf(false) }
+            ExecutorItem(
+                pi = viewModel.executor,
+                onClick = { isExecutor = true}
+            )
+
+            if (isRequester || isExecutor) {
+                AppList(
+                    onDismiss = {
+                        if (isRequester) isRequester = false
+                        if (isExecutor) isExecutor = false
+                    },
+                    packages = viewModel.packages,
+                    onChoose = when {
+                        isRequester -> viewModel::setRequesterPackage
+                        isExecutor -> viewModel::setExecutorPackage
+                        else -> throw IllegalStateException()
+                    }
+                )
+            }
         }
     }
 }
@@ -67,18 +102,5 @@ private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.app_name)) },
-    navigationIcon = {
-        Box(
-            modifier = Modifier.padding(horizontal = 18.dp)
-        ) {
-            Logo(
-                icon = R.drawable.launcher_outline,
-                modifier = Modifier.size(32.dp),
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                containerColor = MaterialTheme.colorScheme.primary,
-                fraction = 0.65f
-            )
-        }
-    },
     scrollBehavior = scrollBehavior
 )

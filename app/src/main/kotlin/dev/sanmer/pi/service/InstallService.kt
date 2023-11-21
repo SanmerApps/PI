@@ -14,9 +14,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.PackageManagerCompat
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.utils.extensions.dp
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -28,10 +30,15 @@ import kotlinx.coroutines.launch
 import me.zhanghai.android.appiconloader.AppIconLoader
 import timber.log.Timber
 import java.io.File
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
     private val taskCount = MutableStateFlow(0)
+
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     init {
         taskCount.drop(1)
@@ -52,7 +59,8 @@ class InstallService: LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
             val packageFile = intent?.packageFile ?: return@launch
-            val originatingPackageName = intent.originatingPackageName
+            val originating = userPreferencesRepository.getRequesterPackageNameOrDefault()
+            val installer = userPreferencesRepository.getExecutorPackageNameOrDefault()
 
             taskCount.value += 1
             val id = taskCount.value
@@ -70,7 +78,8 @@ class InstallService: LifecycleService() {
                 PackageManagerCompat.install(
                     packageFile = packageFile,
                     packageName = archiveInfo.packageName,
-                    originatingPackageName = originatingPackageName
+                    installer = installer,
+                    originating = originating
                 )
             }
 
@@ -165,20 +174,12 @@ class InstallService: LifecycleService() {
         private const val GROUP_KEY = "INSTALL_SERVICE_GROUP_KEY"
 
         private const val PARAM_PACKAGE_PATH = "PACKAGE_PATH"
-        private const val PARAM_ORIGINATING_PACKAGE_NAME = "ORIGINATING_PACKAGE_NAME"
         private val Intent.packagePathOrNull get() = getStringExtra(PARAM_PACKAGE_PATH)
         private val Intent.packageFile get() = checkNotNull(packagePathOrNull).let(::File)
-        private val Intent.originatingPackageName get() = getStringExtra(
-            PARAM_ORIGINATING_PACKAGE_NAME
-        )
 
-        fun Context.startInstallService(
-            packageFile: File,
-            originatingPackageName: String?
-        ) {
+        fun Context.startInstallService(packageFile: File, ) {
             val intent = Intent(this, InstallService::class.java)
             intent.putExtra(PARAM_PACKAGE_PATH, packageFile.path)
-            intent.putExtra(PARAM_ORIGINATING_PACKAGE_NAME, originatingPackageName)
 
             startService(intent)
         }

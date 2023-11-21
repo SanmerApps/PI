@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedQuantity">
     <!-- Activity -->
     <string name="install_activity">安装</string>
 
@@ -13,14 +14,19 @@
         <item quantity="other">已授权 %d 个应用</item>
     </plurals>
     <string name="home_view_authorized_apps">点按以管理授权的应用</string>
+    <string name="home_requester_title">安装请求方</string>
+    <string name="home_executor_title">安装执行方</string>
+    <string name="home_select_app_title">选择应用</string>
 
     <!-- Apps -->
     <string name="apps_title">应用管理</string>
     <string name="apps_empty">空列表</string>
 
     <!-- Dialog -->
-    <string name="confirmation_message">允许<b>%1$s</b>安装%2$s吗？</string>
+    <string name="confirmation_message">允许 %1$s 安装 %2$s 吗？</string>
+    <string name="confirmation_message_unknown">允许安装 %2$s 吗？</string>
     <string name="confirmation_allow_always">始终允许</string>
+    <string name="confirmation_allow_always_unknown">允许</string>
     <string name="confirmation_allow_one_time">仅限这一次</string>
     <string name="confirmation_deny">拒绝</string>
 

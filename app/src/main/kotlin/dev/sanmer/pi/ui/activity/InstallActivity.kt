@@ -3,7 +3,6 @@ package dev.sanmer.pi.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -84,8 +83,7 @@ class InstallActivity : ComponentActivity() {
 
     private fun onOneTime() {
         startInstallService(
-            packageFile = tempFile,
-            originatingPackageName = sourceInfo?.packageName
+            packageFile = tempFile
         )
 
         finish()
@@ -141,11 +139,11 @@ class InstallActivity : ComponentActivity() {
 
     private fun getSourceInfo(callingPackage: String?): PackageInfo? {
         if (callingPackage == null) return null
-        return try {
-            return PackageManagerCompat.getPackageInfo(callingPackage, 0, 0)
-        } catch (ex: PackageManager.NameNotFoundException) {
-            null
-        }
+        return runCatching {
+            PackageManagerCompat.getPackageInfo(
+                callingPackage, 0, 0
+            )
+        }.getOrNull()
     }
 
     private fun getArchiveInfo(archiveFile: File): PackageInfo? {

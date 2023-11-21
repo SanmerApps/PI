@@ -13,7 +13,7 @@ fun AuthorizedAppItem(
     onClick: () -> Unit
 ) = OverviewCard(
     icon = R.drawable.settings,
-    title = pluralStringResource(id = R.plurals.home_authorized_apps_count, count, count),
+    title = pluralStringResource(id = R.plurals.home_authorized_apps_count, count = count, count),
     desc = stringResource(id = R.string.home_view_authorized_apps),
     onClick = onClick,
     enable = ShizukuUtils.isEnable

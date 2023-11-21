@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -26,6 +27,7 @@ import dev.sanmer.pi.ui.component.ConfirmationButtonsCenter
 import dev.sanmer.pi.ui.component.ConfirmationButtonsTop
 import dev.sanmer.pi.ui.component.ConfirmationDialog
 import dev.sanmer.pi.ui.component.LoadingDialog
+import dev.sanmer.pi.ui.utils.formatStringResource
 
 @Composable
 fun InstallScreen(
@@ -59,18 +61,20 @@ private fun ConfirmationDialog(
     onOneTime: () -> Unit,
     onDeny: () -> Unit
 ) = ConfirmationDialog(
-    onDismissRequest = {},
+    onDismissRequest = onDeny,
     icon = {
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppIcon(sourceInfo)
+            if (sourceInfo != null) {
+                AppIcon(sourceInfo)
 
-            Icon(
-                painter = painterResource(id = R.drawable.arrow_right),
-                contentDescription = null
-            )
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow_right),
+                    contentDescription = null
+                )
+            }
 
             AppIcon(archiveInfo)
         }
@@ -79,8 +83,7 @@ private fun ConfirmationDialog(
         val pm = LocalContext.current.packageManager
         val sourceLabel by remember(sourceInfo) {
             derivedStateOf {
-                sourceInfo?.applicationInfo?.loadLabel(pm)
-                    ?: "Unknown Source"
+                sourceInfo?.applicationInfo?.loadLabel(pm) ?: ""
             }
         }
         val archiveLabel by remember(archiveInfo) {
@@ -90,21 +93,32 @@ private fun ConfirmationDialog(
         }
 
         Text(
-            text = stringResource(id = R.string.confirmation_message,
-                sourceLabel, archiveLabel),
+            text = formatStringResource(
+                style = { it.copy(fontStyle = FontStyle.Italic) },
+                id = if (sourceInfo != null) {
+                    R.string.confirmation_message
+                } else {
+                    R.string.confirmation_message_unknown
+                }, sourceLabel, archiveLabel),
             textAlign = TextAlign.Center
         )
     },
     buttons = {
         ConfirmationButtonsTop(
-            text = stringResource(id = R.string.confirmation_allow_always),
+            text = stringResource(id = if (sourceInfo != null) {
+                R.string.confirmation_allow_always
+            } else {
+                R.string.confirmation_allow_always_unknown
+            }),
             onClick = onAlways
         )
 
-        ConfirmationButtonsCenter(
-            text = stringResource(id = R.string.confirmation_allow_one_time),
-            onClick = onOneTime
-        )
+        if (sourceInfo != null) {
+            ConfirmationButtonsCenter(
+                text = stringResource(id = R.string.confirmation_allow_one_time),
+                onClick = onOneTime
+            )
+        }
 
         ConfirmationButtonsBottom(
             text = stringResource(id = R.string.confirmation_deny),

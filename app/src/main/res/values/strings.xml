@@ -14,14 +14,19 @@
         <item quantity="other">Authorized %d applications</item>
     </plurals>
     <string name="home_view_authorized_apps">Tap to manage authorized apps</string>
+    <string name="home_requester_title">Installation Requester</string>
+    <string name="home_executor_title">Installation Executor</string>
+    <string name="home_select_app_title">Select Application</string>
 
     <!-- Apps -->
     <string name="apps_title">Application Management</string>
     <string name="apps_empty">Empty list</string>
 
     <!-- Dialog -->
-    <string name="confirmation_message">Allow <b>%1$s</b> to install %2$s?</string>
+    <string name="confirmation_message">Allow %1$s to install %2$s?</string>
+    <string name="confirmation_message_unknown">Allow to install %2$s?</string>
     <string name="confirmation_allow_always">Allow all the time</string>
+    <string name="confirmation_allow_always_unknown">Allow</string>
     <string name="confirmation_allow_one_time">Only this time</string>
     <string name="confirmation_deny">Deny</string>
 
