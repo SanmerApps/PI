@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.pro.room)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.protobuf)
     alias(libs.plugins.rikka.refine)
 }
 
