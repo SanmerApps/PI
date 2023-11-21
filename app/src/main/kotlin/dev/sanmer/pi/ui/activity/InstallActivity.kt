@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.app.utils.ShizukuUtils
-import dev.sanmer.pi.compat.ActivityMangerCompat
+import dev.sanmer.pi.compat.ActivityCompat
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -111,7 +111,7 @@ class InstallActivity : ComponentActivity() {
         }
 
         withContext(Dispatchers.IO) {
-            val callingPackage = ActivityMangerCompat.getCallingPackage(packageName)
+            val callingPackage = ActivityCompat.getReferrer(this@InstallActivity)
             sourceInfo = getSourceInfo(callingPackage)
             isAuthorized = localRepository.getByPackageInfo(sourceInfo)
 
@@ -139,7 +139,8 @@ class InstallActivity : ComponentActivity() {
         }
     }
 
-    private fun getSourceInfo(callingPackage: String): PackageInfo? {
+    private fun getSourceInfo(callingPackage: String?): PackageInfo? {
+        if (callingPackage == null) return null
         return try {
             return PackageManagerCompat.getPackageInfo(callingPackage, 0, 0)
         } catch (ex: PackageManager.NameNotFoundException) {
