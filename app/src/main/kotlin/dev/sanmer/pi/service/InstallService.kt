@@ -35,17 +35,17 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
-    private val taskCount = MutableStateFlow(0)
+    private val tasks = MutableStateFlow(0)
 
     @Inject
     lateinit var userPreferencesRepository: UserPreferencesRepository
 
     init {
-        taskCount.drop(1)
+        tasks.drop(1)
             .onEach {
                 if (it == 0) {
-                    delay(5000L)
-                    stopSelf()
+                    delay(10_000L)
+                    if (tasks.value == 0) stopSelf()
                 }
             }.launchIn(lifecycleScope)
     }
@@ -62,8 +62,8 @@ class InstallService: LifecycleService() {
             val originating = userPreferencesRepository.getRequesterPackageNameOrDefault()
             val installer = userPreferencesRepository.getExecutorPackageNameOrDefault()
 
-            taskCount.value += 1
-            val id = taskCount.value
+            tasks.value += 1
+            val id = tasks.value
 
             val archiveInfo = getArchiveInfo(packageFile) ?: return@launch
             val label = archiveInfo.applicationInfo
@@ -86,11 +86,11 @@ class InstallService: LifecycleService() {
             val state = install.await()
             when (state) {
                 PackageInstaller.STATUS_SUCCESS -> notifySuccess(id, label, appIcon)
-                PackageInstaller.STATUS_FAILURE -> notifyFailure(id, label)
+                else -> notifyFailure(id, label, appIcon)
             }
 
             packageFile.delete()
-            taskCount.value -= 1
+            tasks.value -= 1
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -115,6 +115,7 @@ class InstallService: LifecycleService() {
         val notification = NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
             .setSilent(true)
+            .setOngoing(true)
             .setGroup(GROUP_KEY)
             .setGroupSummary(true)
             .build()
@@ -125,13 +126,15 @@ class InstallService: LifecycleService() {
     private fun buildNotification(
         title: String,
         message: String,
+        largeIcon: Bitmap? = null,
         silent: Boolean = false,
-        largeIcon: Bitmap? = null
+        ongoing: Boolean = false,
     ) = NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
         .setSmallIcon(R.drawable.launcher_outline)
         .setContentTitle(title)
         .setContentText(message)
         .setSilent(silent)
+        .setOngoing(ongoing)
         .setGroup(GROUP_KEY)
         .apply {
             largeIcon?.let { setLargeIcon(it) }
@@ -151,21 +154,37 @@ class InstallService: LifecycleService() {
 
     private fun notifyInstalling(id: Int, title: String, largeIcon: Bitmap) {
         val message = context.getString(R.string.message_installing)
-        val notification = buildNotification(title, message, true, largeIcon)
+        val notification = buildNotification(
+            title = title,
+            message = message,
+            largeIcon = largeIcon,
+            silent = true,
+            ongoing = true
+        )
 
         notify(id, notification)
     }
 
     private fun notifySuccess(id: Int, title: String, largeIcon: Bitmap) {
         val message = context.getString(R.string.message_install_success)
-        val notification = buildNotification(title, message, true, largeIcon)
+        val notification = buildNotification(
+            title = title,
+            message = message,
+            largeIcon = largeIcon,
+            silent = true
+        )
 
         notify(id, notification)
     }
 
-    private fun notifyFailure(id: Int, title: String) {
+    private fun notifyFailure(id: Int, title: String, largeIcon: Bitmap) {
         val message = context.getString(R.string.message_install_fail)
-        val notification = buildNotification(title, message, false)
+        val notification = buildNotification(
+            title = title,
+            message = message,
+            largeIcon = largeIcon,
+            silent = false
+        )
 
         notify(id, notification)
     }
@@ -177,7 +196,7 @@ class InstallService: LifecycleService() {
         private val Intent.packagePathOrNull get() = getStringExtra(PARAM_PACKAGE_PATH)
         private val Intent.packageFile get() = checkNotNull(packagePathOrNull).let(::File)
 
-        fun Context.startInstallService(packageFile: File, ) {
+        fun Context.startInstallService(packageFile: File) {
             val intent = Intent(this, InstallService::class.java)
             intent.putExtra(PARAM_PACKAGE_PATH, packageFile.path)
 

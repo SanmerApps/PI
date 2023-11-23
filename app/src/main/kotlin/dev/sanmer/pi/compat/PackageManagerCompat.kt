@@ -1,6 +1,5 @@
 package dev.sanmer.pi.compat
 
-import android.content.IntentSender
 import android.content.pm.ApplicationInfo
 import android.content.pm.IPackageInstaller
 import android.content.pm.IPackageInstallerSession
@@ -9,13 +8,10 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageInstallerHidden.SessionParamsHidden
-import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.ParceledListSlice
-import android.content.pm.VersionedPackage
 import android.os.Process
 import dev.rikka.tools.refine.Refine
-import dev.sanmer.pi.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import rikka.shizuku.ShizukuBinderWrapper
@@ -139,7 +135,9 @@ object PackageManagerCompat {
                     session.commit(intentSender)
                 }
 
-                Timber.i("Install successful: $packageName")
+                val msg = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+                if (msg != null) Timber.d("Install finished: $msg")
+
                 intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
             }
         } catch (e: Exception) {
