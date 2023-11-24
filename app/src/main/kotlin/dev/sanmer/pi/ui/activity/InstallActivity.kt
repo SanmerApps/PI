@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.app.Const
-import dev.sanmer.pi.app.utils.ShizukuUtils
+import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.compat.ActivityCompat
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.model.IPackageInfo
@@ -95,7 +95,7 @@ class InstallActivity : ComponentActivity() {
     }
 
     private fun initPackage(intent: Intent?) = lifecycleScope.launch {
-        if (!ShizukuUtils.isEnable) {
+        if (!ShizukuCompat.isEnable) {
             Timber.w("Shizuku not running")
             finish()
             return@launch

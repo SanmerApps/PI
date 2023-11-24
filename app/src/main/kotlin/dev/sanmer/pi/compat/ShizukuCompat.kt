@@ -1,4 +1,4 @@
-package dev.sanmer.pi.app.utils
+package dev.sanmer.pi.compat
 
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import rikka.shizuku.Shizuku
 
-object ShizukuUtils: Shizuku.OnRequestPermissionResultListener {
+object ShizukuCompat: Shizuku.OnRequestPermissionResultListener {
     var isGranted by mutableStateOf(false)
         private set
 

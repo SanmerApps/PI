@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.app.utils.ShizukuUtils
+import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.compat.PackageManagerCompat
@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(
 
     suspend fun loadData() {
         viewModelScope.launch {
-            if (!ShizukuUtils.isEnable) return@launch
+            if (!ShizukuCompat.isEnable) return@launch
 
             val packagesDeferred = async { getPackages() }
 
