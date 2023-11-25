@@ -13,9 +13,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.app.Const
-import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.compat.ActivityCompat
+import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.PackageManagerCompat
+import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.service.InstallService.Companion.startInstallService
@@ -142,7 +143,9 @@ class InstallActivity : ComponentActivity() {
         return runCatching {
             PackageManagerCompat.getPackageInfo(
                 callingPackage, 0, 0
-            )
+            ).let {
+                if (it.isSystemApp) null else it
+            }
         }.getOrNull()
     }
 

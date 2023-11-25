@@ -8,6 +8,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -80,14 +81,8 @@ class AppsViewModel @Inject constructor(
             ) == true
         }
 
-        val isNotSystemApp: (PackageInfo) -> Boolean = {
-            it.applicationInfo.flags and (ApplicationInfo.FLAG_SYSTEM or
-                    ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 0
-        }
-
         allPackages.filter {
-            isRequestedInstall(it) && isNotSystemApp(it) &&
-                    it.applicationInfo.enabled
+            isRequestedInstall(it) && !it.isSystemApp && it.applicationInfo.enabled
         }
     }
 
