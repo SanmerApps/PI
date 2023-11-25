@@ -31,7 +31,6 @@ import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
 import dev.sanmer.pi.ui.screens.home.items.RequesterItem
 import dev.sanmer.pi.ui.screens.home.items.ShizukuItem
 import dev.sanmer.pi.viewmodel.HomeViewModel
-import java.lang.IllegalStateException
 
 @Composable
 fun HomeScreen(

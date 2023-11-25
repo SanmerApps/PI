@@ -1,8 +1,6 @@
 package dev.sanmer.pi.ui.navigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.navigation
 import dev.sanmer.pi.ui.utils.navigatePopUpTo
 
 enum class MainScreen(val route: String) {

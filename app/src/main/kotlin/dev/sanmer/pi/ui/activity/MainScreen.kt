@@ -12,9 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.sanmer.pi.ui.animate.slideInRightToLeft
 import dev.sanmer.pi.ui.animate.slideOutLeftToRight
-import dev.sanmer.pi.ui.screens.home.HomeScreen
 import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.screens.apps.AppsScreen
+import dev.sanmer.pi.ui.screens.home.HomeScreen
 
 @Composable
 fun MainScreen() {

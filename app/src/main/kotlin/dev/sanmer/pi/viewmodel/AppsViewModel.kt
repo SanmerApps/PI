@@ -1,7 +1,6 @@
 package dev.sanmer.pi.viewmodel
 
 import android.Manifest
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.compose.runtime.toMutableStateList

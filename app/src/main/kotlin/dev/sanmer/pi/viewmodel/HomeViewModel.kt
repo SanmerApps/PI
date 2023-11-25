@@ -9,10 +9,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.compat.PackageManagerCompat
+import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers

@@ -1,7 +1,6 @@
 package dev.sanmer.pi.ui.screens.home
 
 import android.content.pm.PackageInfo
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
