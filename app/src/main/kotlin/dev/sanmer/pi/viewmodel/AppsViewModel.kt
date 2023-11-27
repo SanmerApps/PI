@@ -61,7 +61,8 @@ class AppsViewModel @Inject constructor(
 
                 IPackageInfo(
                     packageInfo = pi,
-                    authorized = isAuthorized
+                    authorized = isAuthorized,
+                    pm = pm
                 )
             }.sortedByDescending { it.lastUpdateTime }
                 .toMutableStateList()

@@ -2,7 +2,6 @@ package dev.sanmer.pi.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageInfo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +13,8 @@ import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.compat.ShizukuCompat
+import dev.sanmer.pi.model.IPackageInfo
+import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
@@ -34,11 +35,11 @@ class HomeViewModel @Inject constructor(
     private val pm by lazy { context.packageManager }
 
     val authorized get() = localRepository.getAuthorizedAllAsFlow().map { it.size }
-    var requester: PackageInfo? by mutableStateOf(null)
+    var requester: IPackageInfo? by mutableStateOf(null)
         private set
-    var executor: PackageInfo? by mutableStateOf(null)
+    var executor: IPackageInfo? by mutableStateOf(null)
         private set
-    var packages = listOf<PackageInfo>()
+    var packages = listOf<IPackageInfo>()
         private set
 
     init {
@@ -54,12 +55,12 @@ class HomeViewModel @Inject constructor(
             val requesterPackageName = settingsRepository.getRequesterOrDefault()
             requester = PackageManagerCompat.getPackageInfo(
                 requesterPackageName, 0, context.userId
-            )
+            ).toIPackageInfo(pm = pm)
 
             val executorPackageName = settingsRepository.getExecutorOrDefault()
             executor = PackageManagerCompat.getPackageInfo(
                 executorPackageName, 0, context.userId
-            )
+            ).toIPackageInfo(pm = pm)
 
             packages = packagesDeferred.await()
         }
@@ -74,20 +75,24 @@ class HomeViewModel @Inject constructor(
 
         allPackages.filter {
             !it.isOverlayPackage && !it.isPreinstalled
+        }.map {
+            IPackageInfo(
+                packageInfo = it,
+                pm = pm
+            )
         }.sortedBy {
-            it.applicationInfo.loadLabel(pm)
-                .toString().uppercase()
+            it.label.uppercase()
         }
     }
 
-    fun setRequesterPackage(pi: PackageInfo) {
+    fun setRequesterPackage(pi: IPackageInfo) {
         viewModelScope.launch {
             requester = pi
             settingsRepository.setRequester(pi.packageName)
         }
     }
 
-    fun setExecutorPackage(pi: PackageInfo) {
+    fun setExecutorPackage(pi: IPackageInfo) {
         viewModelScope.launch {
             executor = pi
             settingsRepository.setExecutor(pi.packageName)

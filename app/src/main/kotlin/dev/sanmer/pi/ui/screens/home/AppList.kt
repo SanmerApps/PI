@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.screens.home
 
-import android.content.pm.PackageInfo
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -19,14 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
+import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.screens.home.items.AppItem
 import dev.sanmer.pi.ui.utils.expandedShape
 
 @Composable
 fun AppList(
     onDismiss: () -> Unit,
-    packages: List<PackageInfo>,
-    onChoose: (PackageInfo) -> Unit
+    packages: List<IPackageInfo>,
+    onChoose: (IPackageInfo) -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,

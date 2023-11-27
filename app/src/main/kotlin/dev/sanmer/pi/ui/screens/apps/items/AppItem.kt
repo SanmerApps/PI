@@ -11,9 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,12 +36,6 @@ fun AppItem(
     verticalAlignment = Alignment.CenterVertically
 ) {
     val context = LocalContext.current
-    val label by remember {
-        derivedStateOf {
-            val pm = context.packageManager
-            pi.loadLabel(pm)
-        }
-    }
 
     AsyncImage(
         modifier = Modifier.size(45.dp),
@@ -62,8 +53,8 @@ fun AppItem(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge
+            text = pi.label,
+            style = MaterialTheme.typography.titleMedium
         )
 
         Text(

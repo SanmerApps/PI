@@ -8,18 +8,34 @@ import androidx.compose.runtime.Stable
 data class IPackageInfo(
     val inner: PackageInfo,
     val packageName: String,
+    val authorized: Boolean,
+    val label: String,
     val lastUpdateTime: Long,
-    val enable: Boolean,
-    val authorized: Boolean
+    val enable: Boolean
 ) {
-    constructor(packageInfo: PackageInfo, authorized: Boolean) : this(
+    constructor(
+        packageInfo: PackageInfo,
+        authorized: Boolean = false,
+        pm: PackageManager? = null
+    ) : this(
         inner = packageInfo,
         packageName = packageInfo.packageName,
+        authorized = authorized,
+        label = pm?.let {
+            packageInfo.applicationInfo.loadLabel(it).toString()
+        } ?: packageInfo.packageName,
         lastUpdateTime = packageInfo.lastUpdateTime,
         enable = packageInfo.applicationInfo.enabled,
-        authorized = authorized
     )
 
-    fun loadLabel(pm: PackageManager) =
-        inner.applicationInfo.loadLabel(pm).toString()
+    companion object {
+        fun PackageInfo.toIPackageInfo(
+            authorized: Boolean = false,
+            pm: PackageManager? = null
+        ) = IPackageInfo(
+            packageInfo = this,
+            authorized = authorized,
+            pm = pm
+        )
+    }
 }
