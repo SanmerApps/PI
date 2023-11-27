@@ -15,7 +15,7 @@ import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.repository.LocalRepository
-import dev.sanmer.pi.repository.UserPreferencesRepository
+import dev.sanmer.pi.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.map
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val settingsRepository: SettingsRepository,
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
@@ -51,12 +51,12 @@ class HomeViewModel @Inject constructor(
 
             val packagesDeferred = async { getPackages() }
 
-            val requesterPackageName = userPreferencesRepository.getRequesterPackageNameOrDefault()
+            val requesterPackageName = settingsRepository.getRequesterOrDefault()
             requester = PackageManagerCompat.getPackageInfo(
                 requesterPackageName, 0, context.userId
             )
 
-            val executorPackageName = userPreferencesRepository.getExecutorPackageNameOrDefault()
+            val executorPackageName = settingsRepository.getExecutorOrDefault()
             executor = PackageManagerCompat.getPackageInfo(
                 executorPackageName, 0, context.userId
             )
@@ -83,14 +83,14 @@ class HomeViewModel @Inject constructor(
     fun setRequesterPackage(pi: PackageInfo) {
         viewModelScope.launch {
             requester = pi
-            userPreferencesRepository.setRequesterPackageName(pi.packageName)
+            settingsRepository.setRequester(pi.packageName)
         }
     }
 
     fun setExecutorPackage(pi: PackageInfo) {
         viewModelScope.launch {
             executor = pi
-            userPreferencesRepository.setExecutorPackageName(pi.packageName)
+            settingsRepository.setExecutor(pi.packageName)
         }
     }
 }

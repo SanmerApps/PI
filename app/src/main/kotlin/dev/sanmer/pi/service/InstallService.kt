@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.PackageManagerCompat
-import dev.sanmer.pi.repository.UserPreferencesRepository
+import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -38,7 +38,7 @@ class InstallService: LifecycleService() {
     private val tasks = MutableStateFlow(0)
 
     @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository
+    lateinit var settingsRepository: SettingsRepository
 
     init {
         tasks.drop(1)
@@ -59,8 +59,8 @@ class InstallService: LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
             val packageFile = intent?.packageFile ?: return@launch
-            val originating = userPreferencesRepository.getRequesterPackageNameOrDefault()
-            val installer = userPreferencesRepository.getExecutorPackageNameOrDefault()
+            val originating = settingsRepository.getRequesterOrDefault()
+            val installer = settingsRepository.getExecutorOrDefault()
 
             tasks.value += 1
             val id = tasks.value
