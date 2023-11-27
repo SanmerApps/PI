@@ -1,12 +1,15 @@
 package dev.sanmer.pi.viewmodel
 
 import android.Manifest
+import android.app.Application
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.compose.runtime.toMutableStateList
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.model.IPackageInfo
@@ -24,8 +27,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val localRepository: LocalRepository
-) : ViewModel() {
+    private val localRepository: LocalRepository,
+    application: Application
+) : AndroidViewModel(application) {
+    private val context: Context by lazy { getApplication() }
+    private val pm by lazy { context.packageManager }
+
     private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
     val apps get() = appsFlow.asStateFlow()
 
@@ -68,7 +75,7 @@ class AppsViewModel @Inject constructor(
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
         val allPackages = runCatching {
             PackageManagerCompat.getInstalledPackages(
-                PackageManager.GET_PERMISSIONS, 0
+                PackageManager.GET_PERMISSIONS, context.userId
             )
         }.onFailure {
             Timber.e(it, "getInstalledPackages")

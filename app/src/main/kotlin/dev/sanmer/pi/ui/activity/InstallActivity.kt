@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.ActivityCompat
+import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.PackageManagerCompat
 import dev.sanmer.pi.compat.ShizukuCompat
@@ -142,7 +143,7 @@ class InstallActivity : ComponentActivity() {
         if (callingPackage == null) return null
         return runCatching {
             PackageManagerCompat.getPackageInfo(
-                callingPackage, 0, 0
+                callingPackage, 0, userId
             ).let {
                 if (it.isSystemApp) null else it
             }

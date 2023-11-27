@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.compat.PackageManagerCompat
@@ -52,12 +53,12 @@ class HomeViewModel @Inject constructor(
 
             val requesterPackageName = userPreferencesRepository.getRequesterPackageNameOrDefault()
             requester = PackageManagerCompat.getPackageInfo(
-                requesterPackageName, 0, 0
+                requesterPackageName, 0, context.userId
             )
 
             val executorPackageName = userPreferencesRepository.getExecutorPackageNameOrDefault()
             executor = PackageManagerCompat.getPackageInfo(
-                executorPackageName, 0, 0
+                executorPackageName, 0, context.userId
             )
 
             packages = packagesDeferred.await()
@@ -66,7 +67,7 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
         val allPackages = runCatching {
-            PackageManagerCompat.getInstalledPackages(0, 0)
+            PackageManagerCompat.getInstalledPackages(0, context.userId)
         }.onFailure {
             Timber.e(it, "getInstalledPackages")
         }.getOrDefault(emptyList())
