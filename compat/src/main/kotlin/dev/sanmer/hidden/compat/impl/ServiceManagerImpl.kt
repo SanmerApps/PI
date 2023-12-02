@@ -9,6 +9,7 @@ import dev.sanmer.hidden.compat.BuildConfig
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import dev.sanmer.hidden.compat.stub.IServiceManager
 import dev.sanmer.hidden.compat.stub.IUserManagerCompat
+import kotlin.system.exitProcess
 
 internal class ServiceManagerImpl : IServiceManager.Stub() {
     private val mPackageManager by lazy {
@@ -45,5 +46,9 @@ internal class ServiceManagerImpl : IServiceManager.Stub() {
 
     override fun getUserManagerCompat(): IUserManagerCompat {
         return UserManagerCompatImpl(mUserManager)
+    }
+
+    override fun destroy() {
+        exitProcess(0)
     }
 }
