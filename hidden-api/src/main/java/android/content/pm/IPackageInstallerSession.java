@@ -9,7 +9,7 @@ public interface IPackageInstallerSession extends IInterface {
     abstract class Stub extends Binder implements IPackageInstallerSession {
 
         public static IPackageInstallerSession asInterface(IBinder binder) {
-            throw new UnsupportedOperationException();
+            throw new RuntimeException("Stub!");
         }
     }
 }

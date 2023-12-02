@@ -11,12 +11,12 @@ public interface IIntentSender extends IInterface {
 
     abstract class Stub extends Binder implements IIntentSender {
         public Stub() {
-            throw new UnsupportedOperationException();
+            throw new RuntimeException("Stub!");
         }
 
         @Override
         public android.os.IBinder asBinder() {
-            throw new UnsupportedOperationException();
+            throw new RuntimeException("Stub!");
         }
     }
 }
