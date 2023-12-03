@@ -4,12 +4,15 @@
     <!-- Activity -->
     <string name="install_activity">安装</string>
 
+    <!-- Setup -->
+    <string name="setup_title">工作模式</string>
+    <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
+    <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
+
     <!-- Home -->
-    <string name="home_shizuku_access">Shizuku 权限：%s</string>
-    <string name="home_shizuku_granted">已授权</string>
-    <string name="home_shizuku_not_authorized">未授权</string>
-    <string name="home_shizuku_not_running">Shizuku 未启动</string>
-    <string name="home_shizuku_low_version">需要 Shizuku API 版本 12+</string>
+    <string name="home_service_running">服务正在运行</string>
+    <string name="home_service_not_running">服务未运行</string>
+    <string name="home_service_version">版本 %1$d，%2$s</string>
     <plurals name="home_authorized_apps_count">
         <item quantity="other">已授权 %d 个应用</item>
     </plurals>

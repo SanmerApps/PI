@@ -13,4 +13,9 @@ interface IProvider {
     val isAlive: StateFlow<Boolean>
     fun init()
     fun destroy()
+
+    companion object {
+        const val ROOT_UID = 0
+        const val ADB_UID = 2000
+    }
 }

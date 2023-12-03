@@ -24,12 +24,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.ShizukuCompat
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.ui.navigation.navigateToApps
 import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
 import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
 import dev.sanmer.pi.ui.screens.home.items.RequesterItem
-import dev.sanmer.pi.ui.screens.home.items.ShizukuItem
+import dev.sanmer.pi.ui.screens.home.items.StateItem
 import dev.sanmer.pi.viewmodel.HomeViewModel
 
 @Composable
@@ -40,8 +40,10 @@ fun HomeScreen(
     val authorized by viewModel.authorized.collectAsStateWithLifecycle(0)
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    LaunchedEffect(key1 = ShizukuCompat.isEnable) {
-        viewModel.loadData()
+    LaunchedEffect(ProviderCompat.isAlive) {
+        if (ProviderCompat.isAlive) {
+            viewModel.loadData()
+        }
     }
 
     Scaffold(
@@ -59,7 +61,7 @@ fun HomeScreen(
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            ShizukuItem()
+            StateItem()
 
             AuthorizedAppItem(
                 count = authorized,

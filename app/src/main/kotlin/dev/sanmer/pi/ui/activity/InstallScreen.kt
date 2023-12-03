@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.sanmer.pi.R
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.ui.component.ConfirmationButtonsBottom
 import dev.sanmer.pi.ui.component.ConfirmationButtonsCenter
 import dev.sanmer.pi.ui.component.ConfirmationButtonsTop
@@ -37,19 +38,19 @@ fun InstallScreen(
     onOneTime: () -> Unit,
     onDeny: () -> Unit
 ) = Crossfade(
-    targetState = archiveInfo == null,
+    targetState = archiveInfo != null && ProviderCompat.isAlive,
     label = "InstallScreen"
-) { isLoading ->
-    if (isLoading) {
-        LoadingDialog()
-    } else {
+) { isReady ->
+    if (isReady) {
         ConfirmationDialog(
             sourceInfo = sourceInfo,
-            archiveInfo = archiveInfo!!,
+            archiveInfo = checkNotNull(archiveInfo),
             onAlways = onAlways,
             onOneTime = onOneTime,
             onDeny = onDeny
         )
+    } else {
+        LoadingDialog()
     }
 }
 

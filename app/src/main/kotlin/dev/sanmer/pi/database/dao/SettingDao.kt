@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SettingDao {
     @Query("SELECT value FROM settings WHERE `key` = :key")
-    fun getByKeyAsFlow(key: String): Flow<String>
+    fun getByKeyAsFlow(key: String): Flow<String?>
 
     @Query("SELECT value FROM settings WHERE `key` = :key")
     suspend fun getByKey(key: String): String?

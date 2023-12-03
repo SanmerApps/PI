@@ -7,19 +7,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.app.Const
+import dev.sanmer.pi.app.Settings
 import dev.sanmer.pi.compat.ActivityCompat
-import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
-import dev.sanmer.pi.compat.PackageManagerCompat
-import dev.sanmer.pi.compat.ShizukuCompat
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
+import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.service.InstallService.Companion.startInstallService
 import dev.sanmer.pi.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
@@ -31,14 +33,14 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class InstallActivity : ComponentActivity() {
-    private val tempFile by lazy { externalCacheDir!!.resolve(Const.TEMP_PACKAGE) }
+    @Inject lateinit var localRepository: LocalRepository
+    @Inject lateinit var settingsRepository: SettingsRepository
 
+    private val tempFile by lazy { externalCacheDir!!.resolve(Const.TEMP_PACKAGE) }
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
-    private var isAuthorized by mutableStateOf(false)
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
 
-    @Inject
-    lateinit var localRepository: LocalRepository
+    private var isAuthorized by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.d("InstallActivity onCreate")
@@ -48,9 +50,20 @@ class InstallActivity : ComponentActivity() {
         initPackage(intent)
 
         setContent {
-            if (isAuthorized && archiveInfo != null) {
-                onOneTime()
-                return@setContent
+            val workingMode by settingsRepository.getWorkingModeOrNone()
+                .collectAsStateWithLifecycle(initialValue = Settings.Provider.None)
+
+            LaunchedEffect(workingMode) {
+                ProviderCompat.init(
+                    mode = workingMode,
+                    scope = lifecycleScope
+                )
+            }
+
+            LaunchedEffect(archiveInfo) {
+                if (ProviderCompat.isAlive && isAuthorized) {
+                    onOneTime()
+                }
             }
 
             AppTheme {
@@ -97,12 +110,6 @@ class InstallActivity : ComponentActivity() {
     }
 
     private fun initPackage(intent: Intent?) = lifecycleScope.launch {
-        if (!ShizukuCompat.isEnable) {
-            Timber.w("Shizuku not running")
-            finish()
-            return@launch
-        }
-
         val packageUri = intent?.data
         if (packageUri == null) {
             Timber.i("Failed to get packageUri")
@@ -142,8 +149,8 @@ class InstallActivity : ComponentActivity() {
     private fun getSourceInfo(callingPackage: String?): PackageInfo? {
         if (callingPackage == null) return null
         return runCatching {
-            PackageManagerCompat.getPackageInfo(
-                callingPackage, 0, userId
+            packageManager.getPackageInfo(
+                callingPackage, 0
             ).let {
                 if (it.isSystemApp) null else it
             }

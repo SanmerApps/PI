@@ -11,8 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
-import dev.sanmer.pi.compat.PackageManagerCompat
-import dev.sanmer.pi.compat.ShizukuCompat
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -33,6 +32,7 @@ class HomeViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
+    private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
 
     val authorized get() = localRepository.getAuthorizedAllAsFlow().map { it.size }
     var requester: IPackageInfo? by mutableStateOf(null)
@@ -48,17 +48,15 @@ class HomeViewModel @Inject constructor(
 
     suspend fun loadData() {
         viewModelScope.launch {
-            if (!ShizukuCompat.isEnable) return@launch
-
             val packagesDeferred = async { getPackages() }
 
             val requesterPackageName = settingsRepository.getRequesterOrDefault()
-            requester = PackageManagerCompat.getPackageInfo(
+            requester = pmCompat.getPackageInfo(
                 requesterPackageName, 0, context.userId
             ).toIPackageInfo(pm = pm)
 
             val executorPackageName = settingsRepository.getExecutorOrDefault()
-            executor = PackageManagerCompat.getPackageInfo(
+            executor = pmCompat.getPackageInfo(
                 executorPackageName, 0, context.userId
             ).toIPackageInfo(pm = pm)
 
@@ -68,7 +66,9 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
         val allPackages = runCatching {
-            PackageManagerCompat.getInstalledPackages(0, context.userId)
+            pmCompat.getInstalledPackages(
+                0, context.userId
+            ).list
         }.onFailure {
             Timber.e(it, "getInstalledPackages")
         }.getOrDefault(emptyList())

@@ -7,7 +7,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.ShizukuCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.OverviewCard
 import dev.sanmer.pi.ui.utils.stringResource
@@ -24,7 +23,6 @@ fun ExecutorItem(
 ) {
     Surface(
         onClick = onClick,
-        enabled = ShizukuCompat.isEnable,
         shape = RoundedCornerShape(15.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         color = MaterialTheme.colorScheme.secondaryContainer

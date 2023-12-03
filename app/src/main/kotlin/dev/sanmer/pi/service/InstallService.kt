@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Notification
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ArchiveInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
@@ -17,10 +18,10 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
-import dev.sanmer.pi.compat.PackageManagerCompat
+import dev.sanmer.pi.compat.ContextCompat.userId
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -35,6 +36,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
+    private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
     private val tasks = MutableStateFlow(0)
 
     @Inject
@@ -74,16 +76,12 @@ class InstallService: LifecycleService() {
 
             notifyInstalling(id, label, appIcon)
 
-            val install = async {
-                PackageManagerCompat.install(
-                    packageFile = packageFile,
-                    packageName = archiveInfo.packageName,
-                    installer = installer,
-                    originating = originating
-                )
-            }
+            val state = pmCompat.install(
+                ArchiveInfo(packageFile, archiveInfo.packageName, originating),
+                installer,
+                userId
+            )
 
-            val state = install.await()
             when (state) {
                 PackageInstaller.STATUS_SUCCESS -> notifySuccess(id, label, appIcon)
                 else -> notifyFailure(id, label, appIcon)
