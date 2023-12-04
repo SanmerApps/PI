@@ -23,6 +23,8 @@
     <string name="home_menu_reset_mode">重置工作模式</string>
     <string name="home_menu_restart_service">重启服务</string>
     <string name="home_menu_stop_service">停止服务</string>
+    <string name="home_menu_about">关于</string>
+    <string name="home_about_view_source">在 %s 查看源码</string>
 
     <!-- Apps -->
     <string name="apps_title">应用管理</string>
