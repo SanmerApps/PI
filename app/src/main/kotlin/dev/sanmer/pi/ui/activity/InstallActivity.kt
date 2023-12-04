@@ -3,6 +3,7 @@ package dev.sanmer.pi.ui.activity
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageInfo
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,7 +17,6 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.app.Settings
-import dev.sanmer.pi.compat.ActivityCompat
 import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
@@ -120,8 +120,8 @@ class InstallActivity : ComponentActivity() {
         }
 
         withContext(Dispatchers.IO) {
-            val callingPackage = ActivityCompat.getReferrer(this@InstallActivity)
-            sourceInfo = getSourceInfo(callingPackage)
+            val sourcePackage = getSourcePackageForHost(packageUri)
+            sourceInfo = getSourceInfo(sourcePackage)
             isAuthorized = localRepository.getByPackageInfo(sourceInfo)
 
             Timber.i("From ${sourceInfo?.packageName} (${isAuthorized})")
@@ -146,6 +146,15 @@ class InstallActivity : ComponentActivity() {
                 finish()
             }
         }
+    }
+
+    private fun getSourcePackageForHost(uri: Uri): String? {
+        val host = uri.host ?: return null
+        return runCatching {
+            packageManager.resolveContentProvider(
+                host, 0
+            )?.packageName
+        }.getOrNull()
     }
 
     private fun getSourceInfo(callingPackage: String?): PackageInfo? {
