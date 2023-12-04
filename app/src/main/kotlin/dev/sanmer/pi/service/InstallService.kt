@@ -36,7 +36,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
-    private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
+    private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val tasks = MutableStateFlow(0)
 
     @Inject

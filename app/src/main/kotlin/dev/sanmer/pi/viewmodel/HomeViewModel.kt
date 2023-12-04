@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.app.Settings
 import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
@@ -32,7 +33,7 @@ class HomeViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
-    private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
+    private val pmCompat get() = ProviderCompat.packageManagerCompat
 
     val authorized get() = localRepository.getAuthorizedAllAsFlow().map { it.size }
     var requester: IPackageInfo? by mutableStateOf(null)
@@ -96,6 +97,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             executor = pi
             settingsRepository.setExecutor(pi.packageName)
+        }
+    }
+
+    fun setWorkingMode(mode: Settings.Provider) {
+        viewModelScope.launch {
+            settingsRepository.setWorkingMode(mode)
         }
     }
 }

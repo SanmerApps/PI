@@ -32,7 +32,7 @@ class AppsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
-    private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
+    private val pmCompat get() = ProviderCompat.packageManagerCompat
 
     private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
     val apps get() = appsFlow.asStateFlow()
