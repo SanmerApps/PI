@@ -15,7 +15,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 object ProviderCompat {
+    private var mMode = Settings.Provider.None
+    private val mScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var mProvider: IProvider
+
     var isAlive by mutableStateOf(false)
         private set
 
@@ -29,15 +32,8 @@ object ProviderCompat {
         else -> "unknown"
     }
 
-    private var mMode = Settings.Provider.None
-    private var mScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-
-    fun init(
-        mode: Settings.Provider? = null,
-        scope: CoroutineScope? = null
-    ) {
+    fun init(mode: Settings.Provider? = null) {
         mMode = mode ?: mMode
-        mScope = scope ?: mScope
 
         when (mMode) {
             Settings.Provider.None -> {}

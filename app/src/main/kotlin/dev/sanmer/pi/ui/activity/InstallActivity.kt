@@ -56,10 +56,9 @@ class InstallActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle(initialValue = Settings.Provider.None)
 
             LaunchedEffect(workingMode) {
-                ProviderCompat.init(
-                    mode = workingMode,
-                    scope = lifecycleScope
-                )
+                if (!ProviderCompat.isAlive) {
+                    ProviderCompat.init(workingMode)
+                }
             }
 
             LaunchedEffect(archiveInfo) {

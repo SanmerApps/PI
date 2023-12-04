@@ -44,11 +44,11 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle(initialValue = null)
 
             LaunchedEffect(workingMode) {
-                workingMode?.let {
-                    ProviderCompat.init(
-                        mode = it,
-                        scope = lifecycleScope
-                    )
+                if (workingMode != null) {
+                    if (!ProviderCompat.isAlive) {
+                        ProviderCompat.init(workingMode)
+                    }
+
                     isLoading = false
                 }
             }
