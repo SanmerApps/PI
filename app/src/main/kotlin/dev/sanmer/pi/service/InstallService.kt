@@ -22,6 +22,7 @@ import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
+import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -95,10 +96,7 @@ class InstallService: LifecycleService() {
 
     override fun onDestroy() {
         Timber.d("InstallService onDestroy")
-        externalCacheDir?.listFiles()
-            ?.forEach {
-                if (it.startsWith("temp_package_")) it.delete()
-            }
+        tmpDir.deleteRecursively()
 
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         super.onDestroy()

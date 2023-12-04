@@ -24,6 +24,7 @@ import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.service.InstallService.Companion.startInstallService
 import dev.sanmer.pi.ui.theme.AppTheme
+import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,9 +37,7 @@ class InstallActivity : ComponentActivity() {
     @Inject lateinit var localRepository: LocalRepository
     @Inject lateinit var settingsRepository: SettingsRepository
 
-    private val tempFile by lazy {
-        checkNotNull(externalCacheDir?.resolve(Const.TEMP_PACKAGE))
-    }
+    private val tempFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
 
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
