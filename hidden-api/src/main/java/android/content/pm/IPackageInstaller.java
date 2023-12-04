@@ -15,7 +15,7 @@ public interface IPackageInstaller extends IInterface {
     abstract class Stub extends Binder implements IPackageInstaller {
 
         public static IPackageInstaller asInterface(IBinder binder) {
-            throw new UnsupportedOperationException();
+            throw new RuntimeException("Stub!");
         }
     }
 }

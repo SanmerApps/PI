@@ -3,12 +3,15 @@
     <!-- Activity -->
     <string name="install_activity">Install</string>
 
+    <!-- Setup -->
+    <string name="setup_title">Working Mode</string>
+    <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
+    <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
+
     <!-- Home -->
-    <string name="home_shizuku_access">Shizuku Access: %s</string>
-    <string name="home_shizuku_granted">Granted</string>
-    <string name="home_shizuku_not_authorized">Not authorized</string>
-    <string name="home_shizuku_not_running">Shizuku not running</string>
-    <string name="home_shizuku_low_version">Requires Shizuku API 12+</string>
+    <string name="home_service_running">Service is running</string>
+    <string name="home_service_not_running">Service is not running</string>
+    <string name="home_service_version">Version %1$d, %2$s</string>
     <plurals name="home_authorized_apps_count">
         <item quantity="one">Authorized %d application</item>
         <item quantity="other">Authorized %d applications</item>
@@ -17,6 +20,9 @@
     <string name="home_requester_title">Installation Requester</string>
     <string name="home_executor_title">Installation Executor</string>
     <string name="home_select_app_title">Select Application</string>
+    <string name="home_menu_reset_mode">Reset Working Mode</string>
+    <string name="home_menu_restart_service">Restart Service</string>
+    <string name="home_menu_stop_service">Stop Service</string>
 
     <!-- Apps -->
     <string name="apps_title">Application Management</string>

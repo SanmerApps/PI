@@ -57,12 +57,10 @@ public interface IPackageManager extends IInterface {
 
     String[] getPackagesForUid(int uid) throws RemoteException;
 
-    ComponentName getHomeActivities(List<ResolveInfo> outHomeCandidates) throws RemoteException;
-
     abstract class Stub extends Binder implements IPackageManager {
 
         public static IPackageManager asInterface(IBinder obj) {
-            throw new UnsupportedOperationException();
+            throw new RuntimeException("Stub!");
         }
     }
 }

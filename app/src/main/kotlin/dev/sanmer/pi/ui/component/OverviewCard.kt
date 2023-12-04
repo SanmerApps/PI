@@ -49,7 +49,7 @@ fun OverviewCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(all = 16.dp)
+                .padding(horizontal = 16.dp, vertical = 18.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)

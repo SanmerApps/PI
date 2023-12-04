@@ -79,6 +79,7 @@ android {
 
 dependencies {
     compileOnly(projects.hiddenApi)
+    implementation(projects.compat)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
@@ -96,10 +97,10 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.timber)
 
-    implementation(libs.rikka.refine.runtime)
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
     implementation(libs.hiddenApiBypass)
+    implementation(libs.rikka.refine.runtime)
 
     implementation(libs.appiconloader)
     implementation(libs.appiconloader.coil)

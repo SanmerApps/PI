@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Notification
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ArchiveInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
@@ -17,10 +18,10 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
-import dev.sanmer.pi.compat.PackageManagerCompat
+import dev.sanmer.pi.compat.ContextCompat.userId
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -35,6 +36,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
+    private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val tasks = MutableStateFlow(0)
 
     @Inject
@@ -58,14 +60,14 @@ class InstallService: LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
-            val packageFile = intent?.packageFile ?: return@launch
+            val packagePath = intent?.packagePath ?: return@launch
             val originating = settingsRepository.getRequesterOrDefault()
             val installer = settingsRepository.getExecutorOrDefault()
 
             tasks.value += 1
             val id = tasks.value
 
-            val archiveInfo = getArchiveInfo(packageFile) ?: return@launch
+            val archiveInfo = getArchiveInfo(packagePath) ?: return@launch
             val label = archiveInfo.applicationInfo
                 .loadLabel(context.packageManager)
                 .toString()
@@ -74,22 +76,17 @@ class InstallService: LifecycleService() {
 
             notifyInstalling(id, label, appIcon)
 
-            val install = async {
-                PackageManagerCompat.install(
-                    packageFile = packageFile,
-                    packageName = archiveInfo.packageName,
-                    installer = installer,
-                    originating = originating
-                )
-            }
+            val state = pmCompat.install(
+                ArchiveInfo(packagePath, archiveInfo.packageName, originating),
+                installer,
+                userId
+            )
 
-            val state = install.await()
             when (state) {
                 PackageInstaller.STATUS_SUCCESS -> notifySuccess(id, label, appIcon)
                 else -> notifyFailure(id, label, appIcon)
             }
 
-            packageFile.delete()
             tasks.value -= 1
         }
 
@@ -98,16 +95,21 @@ class InstallService: LifecycleService() {
 
     override fun onDestroy() {
         Timber.d("InstallService onDestroy")
-        super.onDestroy()
+        externalCacheDir?.listFiles()
+            ?.forEach {
+                if (it.startsWith("temp_package_")) it.delete()
+            }
+
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        super.onDestroy()
     }
 
-    private fun getArchiveInfo(archiveFile: File): PackageInfo? {
+    private fun getArchiveInfo(packagePath: String): PackageInfo? {
         return context.packageManager.getPackageArchiveInfo(
-            archiveFile.path, 0
+            packagePath, 0
         )?.also {
-            it.applicationInfo.sourceDir = archiveFile.path
-            it.applicationInfo.publicSourceDir = archiveFile.path
+            it.applicationInfo.sourceDir = packagePath
+            it.applicationInfo.publicSourceDir = packagePath
         }
     }
 
@@ -194,7 +196,7 @@ class InstallService: LifecycleService() {
 
         private const val PARAM_PACKAGE_PATH = "PACKAGE_PATH"
         private val Intent.packagePathOrNull get() = getStringExtra(PARAM_PACKAGE_PATH)
-        private val Intent.packageFile get() = checkNotNull(packagePathOrNull).let(::File)
+        private val Intent.packagePath get() = checkNotNull(packagePathOrNull)
 
         fun Context.startInstallService(packageFile: File) {
             val intent = Intent(this, InstallService::class.java)

@@ -6,6 +6,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io")
     }
 }
 
@@ -21,3 +22,5 @@ pluginManagement {
 rootProject.name = "PackageInstaller"
 include(":app")
 include(":hidden-api")
+include(":compat")
+
