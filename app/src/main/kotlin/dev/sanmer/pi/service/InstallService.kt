@@ -23,6 +23,7 @@ import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.tmpDir
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -60,7 +61,7 @@ class InstallService: LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val packagePath = intent?.packagePath ?: return@launch
             val originating = settingsRepository.getRequesterOrDefault()
             val installer = settingsRepository.getExecutorOrDefault()
