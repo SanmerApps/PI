@@ -22,8 +22,8 @@ import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -124,7 +124,7 @@ internal class PackageManagerCompatImpl(
         installerPackageName: String,
         userId: Int
     ): Int = runBlocking {
-        val state = async(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             install(
                 packageFile = archiveInfo.packageFile,
                 packageName = archiveInfo.packageName,
@@ -133,8 +133,6 @@ internal class PackageManagerCompatImpl(
                 userId = userId
             )
         }
-
-        state.await()
     }
 
     private fun createSession(
