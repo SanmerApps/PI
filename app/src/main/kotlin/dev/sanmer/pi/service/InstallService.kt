@@ -60,14 +60,14 @@ class InstallService: LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
-            val packageFile = intent?.packageFile ?: return@launch
+            val packagePath = intent?.packagePath ?: return@launch
             val originating = settingsRepository.getRequesterOrDefault()
             val installer = settingsRepository.getExecutorOrDefault()
 
             tasks.value += 1
             val id = tasks.value
 
-            val archiveInfo = getArchiveInfo(packageFile) ?: return@launch
+            val archiveInfo = getArchiveInfo(packagePath) ?: return@launch
             val label = archiveInfo.applicationInfo
                 .loadLabel(context.packageManager)
                 .toString()
@@ -77,7 +77,7 @@ class InstallService: LifecycleService() {
             notifyInstalling(id, label, appIcon)
 
             val state = pmCompat.install(
-                ArchiveInfo(packageFile, archiveInfo.packageName, originating),
+                ArchiveInfo(packagePath, archiveInfo.packageName, originating),
                 installer,
                 userId
             )
@@ -87,7 +87,6 @@ class InstallService: LifecycleService() {
                 else -> notifyFailure(id, label, appIcon)
             }
 
-            packageFile.delete()
             tasks.value -= 1
         }
 
@@ -96,16 +95,21 @@ class InstallService: LifecycleService() {
 
     override fun onDestroy() {
         Timber.d("InstallService onDestroy")
-        super.onDestroy()
+        externalCacheDir?.listFiles()
+            ?.forEach {
+                if (it.startsWith("temp_package_")) it.delete()
+            }
+
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        super.onDestroy()
     }
 
-    private fun getArchiveInfo(archiveFile: File): PackageInfo? {
+    private fun getArchiveInfo(packagePath: String): PackageInfo? {
         return context.packageManager.getPackageArchiveInfo(
-            archiveFile.path, 0
+            packagePath, 0
         )?.also {
-            it.applicationInfo.sourceDir = archiveFile.path
-            it.applicationInfo.publicSourceDir = archiveFile.path
+            it.applicationInfo.sourceDir = packagePath
+            it.applicationInfo.publicSourceDir = packagePath
         }
     }
 
@@ -192,7 +196,7 @@ class InstallService: LifecycleService() {
 
         private const val PARAM_PACKAGE_PATH = "PACKAGE_PATH"
         private val Intent.packagePathOrNull get() = getStringExtra(PARAM_PACKAGE_PATH)
-        private val Intent.packageFile get() = checkNotNull(packagePathOrNull).let(::File)
+        private val Intent.packagePath get() = checkNotNull(packagePathOrNull)
 
         fun Context.startInstallService(packageFile: File) {
             val intent = Intent(this, InstallService::class.java)

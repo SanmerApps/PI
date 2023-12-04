@@ -36,7 +36,10 @@ class InstallActivity : ComponentActivity() {
     @Inject lateinit var localRepository: LocalRepository
     @Inject lateinit var settingsRepository: SettingsRepository
 
-    private val tempFile by lazy { externalCacheDir!!.resolve(Const.TEMP_PACKAGE) }
+    private val tempFile by lazy {
+        checkNotNull(externalCacheDir?.resolve(Const.TEMP_PACKAGE))
+    }
+
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
 
