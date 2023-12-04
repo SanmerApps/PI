@@ -67,15 +67,14 @@ fun OverviewCard(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 if (desc != null) {
                     Text(
                         text = desc,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

@@ -46,12 +46,13 @@ fun AppItem(
     ) {
         Text(
             text = pi.label,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.bodyLarge
         )
 
         Text(
             text = pi.packageName,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

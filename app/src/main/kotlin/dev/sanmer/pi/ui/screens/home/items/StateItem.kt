@@ -6,7 +6,6 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.ui.component.OverviewCard
 
-
 @Composable
 fun StateItem() = OverviewCard(
     icon = when {
