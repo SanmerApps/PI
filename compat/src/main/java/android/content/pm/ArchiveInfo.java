@@ -8,12 +8,20 @@ import androidx.annotation.NonNull;
 import java.io.File;
 
 public class ArchiveInfo implements Parcelable {
-    public String path;
-    public String packageName;
-    public String originating;
+    String path;
+    String packageName;
+    String originating;
 
     public File getPackageFile() {
         return new File(path);
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getOriginating() {
+        return originating;
     }
 
     public ArchiveInfo(@NonNull String path, @NonNull String packageName, String originating) {
@@ -46,7 +54,7 @@ public class ArchiveInfo implements Parcelable {
         return 0;
     }
 
-    public static final Creator<ArchiveInfo> CREATOR = new Creator<ArchiveInfo>() {
+    public static final Creator<ArchiveInfo> CREATOR = new Creator<>() {
         @Override
         public ArchiveInfo createFromParcel(Parcel in) {
             return new ArchiveInfo(in);
