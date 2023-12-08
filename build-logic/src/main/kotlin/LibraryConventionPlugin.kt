@@ -1,4 +1,3 @@
-
 import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -18,6 +17,7 @@ class LibraryConventionPlugin : Plugin<Project> {
             extensions.configure<LibraryExtension> {
                 compileSdk = 34
                 buildToolsVersion = "34.0.0"
+
                 defaultConfig {
                     minSdk = 29
                 }

@@ -12,7 +12,7 @@ plugins {
 
 val baseVersionName = "0.2.0"
 val isDevVersion get() = exec("git tag --contains HEAD").isEmpty()
-val verNameSuffix: String get() = if (isDevVersion) ".dev" else ""
+val verNameSuffix get() = if (isDevVersion) ".dev" else ""
 
 android {
     namespace = "dev.sanmer.pi"

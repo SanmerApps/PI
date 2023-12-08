@@ -17,7 +17,7 @@ android {
     buildTypes {
         all {
             buildConfigField("String", "APPLICATION_ID", "\"${applicationId}\"")
-            buildConfigField("int", "VERSION_CODE", commitCount.toString())
+            buildConfigField("int", "VERSION_CODE", versionCode.toString())
         }
     }
 }
