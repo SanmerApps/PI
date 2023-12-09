@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.theme
 
-import android.graphics.Color
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -10,34 +9,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import dev.sanmer.pi.compat.BuildCompat
 
 @Composable
-fun ComponentActivity.AppTheme(
+fun AppTheme(
     darkMode: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val lightScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
-    val darkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)
+    val colorScheme = getColorScheme(darkMode)
 
-    DisposableEffect(darkMode) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(
-                Color.TRANSPARENT,
-                Color.TRANSPARENT,
-            ) { darkMode },
-            navigationBarStyle = SystemBarStyle.auto(
-                lightScrim,
-                darkScrim,
-            ) { darkMode }
-        )
-        onDispose {}
-    }
+    SystemBarStyle(
+        darkMode = darkMode
+    )
 
     MaterialTheme(
-        colorScheme = getColorScheme(darkMode),
+        colorScheme = colorScheme,
         shapes = Shapes,
         typography = Typography,
         content = content
@@ -57,5 +47,33 @@ private fun getColorScheme(darkMode: Boolean): ColorScheme {
             darkMode -> BlueLightColorScheme
             else -> BlueDarkColorScheme
         }
+    }
+}
+
+@Composable
+private fun SystemBarStyle(
+    darkMode: Boolean,
+    statusBarScrim: Color = Color.Transparent,
+    navigationBarScrim: Color = Color.Transparent
+) {
+    val context = LocalContext.current
+    val activity = context as ComponentActivity
+
+    SideEffect {
+        activity.enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                statusBarScrim.toArgb(),
+                statusBarScrim.toArgb(),
+            ) { darkMode },
+            navigationBarStyle = when {
+                darkMode -> SystemBarStyle.dark(
+                    navigationBarScrim.toArgb()
+                )
+                else -> SystemBarStyle.light(
+                    navigationBarScrim.toArgb(),
+                    navigationBarScrim.toArgb(),
+                )
+            }
+        )
     }
 }
