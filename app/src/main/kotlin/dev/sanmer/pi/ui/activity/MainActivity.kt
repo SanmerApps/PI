@@ -43,13 +43,16 @@ class MainActivity : ComponentActivity() {
             val workingMode by settingsRepository.getWorkingModeOrNone()
                 .collectAsStateWithLifecycle(initialValue = null)
 
-            LaunchedEffect(workingMode) {
-                if (workingMode != null) {
-                    if (!ProviderCompat.isAlive) {
-                        ProviderCompat.init(workingMode)
-                    }
+            if (workingMode == null) {
+                // Keep on splash screen
+                return@setContent
+            } else {
+                isLoading = false
+            }
 
-                    isLoading = false
+            LaunchedEffect(workingMode) {
+                if (!ProviderCompat.isAlive) {
+                    ProviderCompat.init(workingMode)
                 }
             }
 
