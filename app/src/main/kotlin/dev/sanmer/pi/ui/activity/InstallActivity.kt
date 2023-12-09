@@ -61,22 +61,25 @@ class InstallActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(archiveInfo) {
+            LaunchedEffect(isAuthorized) {
                 if (ProviderCompat.isAlive && isAuthorized) {
                     onOneTime()
                 }
             }
 
+            if (isAuthorized) {
+                // No confirmation required
+                return@setContent
+            }
+
             AppTheme {
-                if (!isAuthorized) {
-                    InstallScreen(
-                        sourceInfo = sourceInfo,
-                        archiveInfo = archiveInfo,
-                        onAlways = ::onAlways,
-                        onOneTime = ::onOneTime,
-                        onDeny = ::onDeny
-                    )
-                }
+                InstallScreen(
+                    sourceInfo = sourceInfo,
+                    archiveInfo = archiveInfo,
+                    onAlways = ::onAlways,
+                    onOneTime = ::onOneTime,
+                    onDeny = ::onDeny
+                )
             }
         }
     }
