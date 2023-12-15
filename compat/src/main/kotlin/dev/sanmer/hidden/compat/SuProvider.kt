@@ -31,7 +31,7 @@ object SuProvider : IProvider {
     override val isAlive = MutableStateFlow(false)
 
     init {
-        Shell.enableVerboseLogging = BuildConfig.DEBUG
+        Shell.enableVerboseLogging = true
         Shell.setDefaultBuilder(
             Shell.Builder.create()
                 .setInitializers(SuShellInitializer::class.java)
