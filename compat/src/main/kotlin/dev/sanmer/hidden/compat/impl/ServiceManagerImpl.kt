@@ -12,15 +12,19 @@ import dev.sanmer.hidden.compat.stub.IUserManagerCompat
 import kotlin.system.exitProcess
 
 internal class ServiceManagerImpl : IServiceManager.Stub() {
-    private val mPackageManager by lazy {
-        IPackageManager.Stub.asInterface(
-            ServiceManager.getService("package")
+    private val packageManager by lazy {
+        PackageManagerCompatImpl(
+            IPackageManager.Stub.asInterface(
+                ServiceManager.getService("package")
+            )
         )
     }
 
-    private val mUserManager by lazy {
-        IUserManager.Stub.asInterface(
-            ServiceManager.getService("user")
+    private val userManager by lazy {
+        UserManagerCompatImpl(
+            IUserManager.Stub.asInterface(
+                ServiceManager.getService("user")
+            )
         )
     }
 
@@ -41,11 +45,11 @@ internal class ServiceManagerImpl : IServiceManager.Stub() {
     }
 
     override fun getPackageManagerCompat(): IPackageManagerCompat {
-        return PackageManagerCompatImpl(mPackageManager)
+        return packageManager
     }
 
     override fun getUserManagerCompat(): IUserManagerCompat {
-        return UserManagerCompatImpl(mUserManager)
+        return userManager
     }
 
     override fun destroy() {
