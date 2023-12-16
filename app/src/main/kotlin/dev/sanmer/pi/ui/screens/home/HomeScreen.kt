@@ -45,8 +45,6 @@ import com.sanmer.mrepo.ui.component.HtmlText
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
-import dev.sanmer.pi.app.Settings
-import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.ui.navigation.navigateToApps
 import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
 import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
@@ -63,17 +61,17 @@ fun HomeScreen(
     val authorized by viewModel.authorized.collectAsStateWithLifecycle(0)
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    LaunchedEffect(ProviderCompat.isAlive) {
-        if (ProviderCompat.isAlive) {
-            viewModel.loadData()
-        }
+    LaunchedEffect(viewModel.isProviderAlive) {
+        viewModel.loadData()
     }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                onResetMode = viewModel::setWorkingMode,
+                onReset = viewModel::resetWorkingMode,
+                onInit = viewModel::providerInit,
+                onDestroy = viewModel::providerDestroy,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -85,10 +83,15 @@ fun HomeScreen(
                 .padding(all = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            StateItem()
+            StateItem(
+                isAlive = viewModel.isProviderAlive,
+                version = viewModel.providerVersion,
+                platform = viewModel.providerPlatform
+            )
 
             AuthorizedAppItem(
                 count = authorized,
+                isProviderAlive = viewModel.isProviderAlive,
                 onClick = { navController.navigateToApps() }
             )
 
@@ -124,7 +127,9 @@ fun HomeScreen(
 
 @Composable
 private fun TopBar(
-    onResetMode: (Settings.Provider) -> Unit,
+    onReset: () -> Unit,
+    onInit: () -> Unit,
+    onDestroy: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.app_name)) },
@@ -141,8 +146,10 @@ private fun TopBar(
             var show by remember { mutableStateOf(false) }
             Menu(
                 expanded = expanded,
+                onReset = onReset,
+                onInit = onInit,
+                onDestroy = onDestroy,
                 onClose = { expanded = false },
-                onResetMode = onResetMode,
                 onAbout = { show = true }
             )
 
@@ -157,8 +164,10 @@ private fun TopBar(
 @Composable
 private fun Menu(
     expanded: Boolean,
+    onReset: () -> Unit,
+    onInit: () -> Unit,
+    onDestroy: () -> Unit,
     onClose: () -> Unit,
-    onResetMode: (Settings.Provider) -> Unit,
     onAbout: () -> Unit
 ) = ProvideMenuShape {
     DropdownMenu(
@@ -169,8 +178,7 @@ private fun Menu(
         DropdownMenuItem(
             text = { Text(text = stringResource(id = R.string.home_menu_reset_mode)) },
             onClick = {
-                onResetMode(Settings.Provider.None)
-                ProviderCompat.destroy()
+                onReset()
                 onClose()
             }
         )
@@ -178,7 +186,7 @@ private fun Menu(
         DropdownMenuItem(
             text = { Text(text = stringResource(id = R.string.home_menu_restart_service)) },
             onClick = {
-                ProviderCompat.init()
+                onInit()
                 onClose()
             }
         )
@@ -186,7 +194,7 @@ private fun Menu(
         DropdownMenuItem(
             text = { Text(text = stringResource(id = R.string.home_menu_stop_service)) },
             onClick = {
-                ProviderCompat.destroy()
+                onDestroy()
                 onClose()
             }
         )

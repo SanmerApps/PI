@@ -33,6 +33,22 @@ class HomeViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
+
+    val isProviderAlive get() = ProviderCompat.isAlive
+    val providerVersion get() = with(ProviderCompat) {
+        when {
+            isAlive -> version
+            else -> -1
+        }
+    }
+
+    val providerPlatform get() = with(ProviderCompat) {
+        when {
+            isAlive -> platform
+            else -> ""
+        }
+    }
+
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
     val authorized get() = localRepository.getAuthorizedAllAsFlow().map { it.size }
@@ -49,6 +65,8 @@ class HomeViewModel @Inject constructor(
 
     suspend fun loadData() {
         viewModelScope.launch {
+            if (!isProviderAlive) return@launch
+
             val packagesDeferred = async { getPackages() }
 
             val requesterPackageName = settingsRepository.getRequesterOrDefault()
@@ -84,6 +102,19 @@ class HomeViewModel @Inject constructor(
         }.sortedBy {
             it.label.uppercase()
         }
+    }
+
+    fun resetWorkingMode() {
+        setWorkingMode(Settings.Provider.None)
+        ProviderCompat.destroy()
+    }
+
+    fun providerInit() {
+        ProviderCompat.init()
+    }
+
+    fun providerDestroy() {
+        ProviderCompat.destroy()
     }
 
     fun setRequesterPackage(pi: IPackageInfo) {

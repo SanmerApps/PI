@@ -76,6 +76,7 @@ class InstallActivity : ComponentActivity() {
                 InstallScreen(
                     sourceInfo = sourceInfo,
                     archiveInfo = archiveInfo,
+                    isProviderAlive = ProviderCompat.isAlive,
                     onAlways = ::onAlways,
                     onOneTime = ::onOneTime,
                     onDeny = ::onDeny
