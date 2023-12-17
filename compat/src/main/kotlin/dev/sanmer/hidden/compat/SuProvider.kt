@@ -35,7 +35,6 @@ object SuProvider : IProvider {
         Shell.setDefaultBuilder(
             Shell.Builder.create()
                 .setInitializers(SuShellInitializer::class.java)
-                .setFlags(Shell.FLAG_REDIRECT_STDERR or Shell.FLAG_MOUNT_MASTER)
                 .setTimeout(15)
         )
     }
