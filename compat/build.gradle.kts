@@ -30,7 +30,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.libsu.core)
-    implementation(libs.libsu.io)
     implementation(libs.libsu.service)
 
     implementation(libs.rikka.shizuku.api)
