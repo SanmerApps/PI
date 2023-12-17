@@ -15,9 +15,7 @@ import android.content.pm.PackageManagerHidden
 import android.content.pm.ParceledListSlice
 import android.os.Bundle
 import android.os.IBinder
-import android.os.Parcelable
 import android.os.Process
-import androidx.collection.LruCache
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
@@ -32,14 +30,6 @@ internal class PackageManagerCompatImpl(
     private val original: IPackageManager
 ) : IPackageManagerCompat.Stub() {
     private val installer by lazy { original.packageInstaller }
-
-    private val lruCache = LruCache<LruCacheKey, List<Parcelable>>(3)
-
-    private data class LruCacheKey(
-        private val key0: Any,
-        private val key1: Any,
-        private val key2: Any
-    )
 
     override fun getApplicationInfo(
         packageName: String,
@@ -77,42 +67,30 @@ internal class PackageManagerCompatImpl(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun getInstalledPackages(
         flags: Int,
         userId: Int
     ): ParceledListSlice<PackageInfo> {
-        val key = LruCacheKey("getInstalledPackages", flags, userId)
-        if (lruCache[key] == null) {
-            val parceledList = if (BuildCompat.atLeastT) {
-                original.getInstalledPackages(flags.toLong(), userId)
-            } else {
-                original.getInstalledPackages(flags, userId)
-            }
+        val packages = if (BuildCompat.atLeastT) {
+            original.getInstalledPackages(flags.toLong(), userId)
+        } else {
+            original.getInstalledPackages(flags, userId)
+        }.list
 
-            lruCache.put(key, parceledList.list)
-        }
-
-        return ParceledListSlice(lruCache[key] as List<PackageInfo>)
+        return ParceledListSlice(packages)
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun getInstalledApplications(
         flags: Int,
         userId: Int
     ): ParceledListSlice<ApplicationInfo> {
-        val key = LruCacheKey("getInstalledApplications", flags, userId)
-        if (lruCache[key] == null) {
-            val parceledList = if (BuildCompat.atLeastT) {
-                original.getInstalledApplications(flags.toLong(), userId)
-            } else {
-                original.getInstalledApplications(flags, userId)
-            }
+        val applications = if (BuildCompat.atLeastT) {
+            original.getInstalledApplications(flags.toLong(), userId)
+        } else {
+            original.getInstalledApplications(flags, userId)
+        }.list
 
-            lruCache.put(key, parceledList.list)
-        }
-
-        return ParceledListSlice(lruCache[key] as List<ApplicationInfo>)
+        return ParceledListSlice(applications)
     }
 
     override fun getPackagesForUid(uid: Int): Array<String> {

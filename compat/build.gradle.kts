@@ -26,7 +26,6 @@ dependencies {
     compileOnly(projects.hiddenApi)
 
     implementation(libs.androidx.annotation)
-    implementation(libs.androidx.collection.jvm)
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.libsu.core)
