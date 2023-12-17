@@ -40,6 +40,7 @@ class InstallActivity : ComponentActivity() {
     private val apkFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
+    private val isSelf get() = sourceInfo?.packageName == archiveInfo?.packageName
 
     private var started by mutableStateOf(false)
     private var isAuthorized by mutableStateOf(false)
@@ -65,14 +66,13 @@ class InstallActivity : ComponentActivity() {
                 }
             }
 
-            if (
-                archiveInfo != null
-                && ProviderCompat.isAlive
-                && isAuthorized
-                && !started
-            ) {
-                onOneTime()
-                started = true
+            LaunchedEffect(archiveInfo, ProviderCompat.isAlive) {
+                if (archiveInfo == null) return@LaunchedEffect
+                if (!ProviderCompat.isAlive) return@LaunchedEffect
+
+                if (isAuthorized) {
+                    onOneTime()
+                }
             }
 
             AppTheme {
@@ -97,23 +97,24 @@ class InstallActivity : ComponentActivity() {
 
     private fun onAlways() {
         lifecycleScope.launch {
-            sourceInfo?.let {
-                val pi = IPackageInfo(it, true)
-                launch { localRepository.insert(pi) }.join()
-            }
+            val pi = IPackageInfo(sourceInfo!!, true)
+            localRepository.insert(pi)
+
+            onOneTime()
         }
-        onOneTime()
     }
 
     private fun onOneTime() {
-        startInstallService(
-            packageFile = apkFile
-        )
+        if (!started) {
+            startInstallService(packageFile = apkFile)
+            started = true
 
-        finish()
+            finish()
+        }
     }
 
     private fun onDeny() {
+        apkFile.delete()
         finish()
     }
 
@@ -137,6 +138,8 @@ class InstallActivity : ComponentActivity() {
             if (archiveInfo == null) {
                 finish()
             }
+
+            isAuthorized = isAuthorized or isSelf
         }
     }
 
