@@ -37,11 +37,11 @@ class InstallActivity : ComponentActivity() {
     @Inject lateinit var localRepository: LocalRepository
     @Inject lateinit var settingsRepository: SettingsRepository
 
-    private val tempFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
-
+    private val apkFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
 
+    private var started by mutableStateOf(false)
     private var isAuthorized by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,11 @@ class InstallActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        initPackage(intent)
+        if (intent.data == null) {
+            finish()
+        } else {
+            initPackage(intent)
+        }
 
         setContent {
             val workingMode by settingsRepository.getWorkingModeOrNone()
@@ -61,15 +65,14 @@ class InstallActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(isAuthorized) {
-                if (ProviderCompat.isAlive && isAuthorized) {
-                    onOneTime()
-                }
-            }
-
-            if (isAuthorized) {
-                // No confirmation required
-                return@setContent
+            if (
+                archiveInfo != null
+                && ProviderCompat.isAlive
+                && isAuthorized
+                && !started
+            ) {
+                onOneTime()
+                started = true
             }
 
             AppTheme {
@@ -77,6 +80,7 @@ class InstallActivity : ComponentActivity() {
                     sourceInfo = sourceInfo,
                     archiveInfo = archiveInfo,
                     isProviderAlive = ProviderCompat.isAlive,
+                    isAuthorized = isAuthorized,
                     onAlways = ::onAlways,
                     onOneTime = ::onOneTime,
                     onDeny = ::onDeny
@@ -103,49 +107,34 @@ class InstallActivity : ComponentActivity() {
 
     private fun onOneTime() {
         startInstallService(
-            packageFile = tempFile
+            packageFile = apkFile
         )
 
         finish()
     }
 
     private fun onDeny() {
-        tempFile.delete()
         finish()
     }
 
-    private fun initPackage(intent: Intent?) = lifecycleScope.launch {
-        val packageUri = intent?.data
-        if (packageUri == null) {
-            Timber.i("Failed to get packageUri")
-            finish()
-            return@launch
-        }
+    private fun initPackage(intent: Intent) = lifecycleScope.launch {
+        val packageUri = checkNotNull(intent.data)
 
         withContext(Dispatchers.IO) {
             val sourcePackage = getSourcePackageForHost(packageUri)
             sourceInfo = getSourceInfo(sourcePackage)
             isAuthorized = localRepository.getByPackageInfo(sourceInfo)
-
-            Timber.i("From ${sourceInfo?.packageName} (${isAuthorized})")
         }
 
         withContext(Dispatchers.IO) {
-            val input = contentResolver.openInputStream(packageUri)
-            if (input == null) {
-                Timber.e("Failed to create inputStream")
-                return@withContext
-            }
-
-            input.use {
-                tempFile.outputStream().use {output ->
+            contentResolver.openInputStream(packageUri)?.use { input ->
+                apkFile.outputStream().use { output ->
                     input.copyTo(output)
                 }
             }
 
-            archiveInfo = getArchiveInfo(tempFile)
+            archiveInfo = getArchiveInfo(apkFile)
             if (archiveInfo == null) {
-                Timber.e("Failed to get archiveInfo")
                 finish()
             }
         }

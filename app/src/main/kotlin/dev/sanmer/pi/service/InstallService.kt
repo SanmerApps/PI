@@ -25,10 +25,7 @@ import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import me.zhanghai.android.appiconloader.AppIconLoader
 import timber.log.Timber
@@ -39,19 +36,18 @@ import javax.inject.Inject
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
-    private val tasks = MutableStateFlow(0)
+    private val tasks = mutableListOf<String>()
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
     init {
-        tasks.drop(1)
-            .onEach {
-                if (it == 0) {
-                    delay(10_000L)
-                    if (tasks.value == 0) stopSelf()
-                }
-            }.launchIn(lifecycleScope)
+        lifecycleScope.launch {
+            while (isActive) {
+                delay(10_000L)
+                if (tasks.isEmpty()) stopSelf()
+            }
+        }
     }
 
     override fun onCreate() {
@@ -66,9 +62,6 @@ class InstallService: LifecycleService() {
             val originating = settingsRepository.getRequesterOrDefault()
             val installer = settingsRepository.getExecutorOrDefault()
 
-            tasks.value += 1
-            val id = tasks.value
-
             val archiveInfo = getArchiveInfo(packagePath) ?: return@launch
             val label = archiveInfo.applicationInfo
                 .loadLabel(context.packageManager)
@@ -76,8 +69,11 @@ class InstallService: LifecycleService() {
             val appIcon = AppIconLoader(40.dp, true, context)
                 .loadIcon(archiveInfo.applicationInfo)
 
+            val id = System.currentTimeMillis().toInt()
             notifyInstalling(id, label, appIcon)
 
+            Timber.d("packageName: ${archiveInfo.packageName}")
+            tasks.add(archiveInfo.packageName)
             val state = pmCompat.install(
                 ArchiveInfo(packagePath, archiveInfo.packageName, originating),
                 installer,
@@ -89,7 +85,7 @@ class InstallService: LifecycleService() {
                 else -> notifyFailure(id, label, appIcon)
             }
 
-            tasks.value -= 1
+            tasks.remove(archiveInfo.packageName)
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -115,6 +111,7 @@ class InstallService: LifecycleService() {
     private fun setForeground() {
         val notification = NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
+            .setContentTitle(getString(R.string.notification_name_install))
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)

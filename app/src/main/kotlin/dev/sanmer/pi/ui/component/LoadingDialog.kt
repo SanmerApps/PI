@@ -13,11 +13,12 @@ import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun LoadingDialog(
+    onClose: () -> Unit,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
 ) {
     AlertDialog(
-        onDismissRequest = {},
+        onDismissRequest = onClose,
         modifier = modifier,
         properties = properties
     ) {

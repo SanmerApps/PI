@@ -34,6 +34,7 @@ fun InstallScreen(
     sourceInfo: PackageInfo?,
     archiveInfo: PackageInfo?,
     isProviderAlive: Boolean,
+    isAuthorized: Boolean,
     onAlways: () -> Unit,
     onOneTime: () -> Unit,
     onDeny: () -> Unit
@@ -41,7 +42,7 @@ fun InstallScreen(
     targetState = archiveInfo != null && isProviderAlive,
     label = "InstallScreen"
 ) { isReady ->
-    if (isReady) {
+    if (isReady && !isAuthorized) {
         ConfirmationDialog(
             sourceInfo = sourceInfo,
             archiveInfo = checkNotNull(archiveInfo),
@@ -50,7 +51,9 @@ fun InstallScreen(
             onDeny = onDeny
         )
     } else {
-        LoadingDialog()
+        LoadingDialog(
+            onClose = onDeny
+        )
     }
 }
 
