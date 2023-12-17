@@ -36,10 +36,6 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { isLoading }
 
         setContent {
-            if (BuildCompat.atLeastT) {
-                NotificationUtils.PermissionState()
-            }
-
             val workingMode by settingsRepository.getWorkingModeOrNone()
                 .collectAsStateWithLifecycle(initialValue = null)
 
@@ -69,6 +65,10 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+            }
+
+            if (BuildCompat.atLeastT) {
+                NotificationUtils.PermissionState()
             }
         }
     }
