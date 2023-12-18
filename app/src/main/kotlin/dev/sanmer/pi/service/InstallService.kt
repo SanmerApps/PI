@@ -2,6 +2,7 @@ package dev.sanmer.pi.service
 
 import android.Manifest
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ArchiveInfo
@@ -9,10 +10,10 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -81,8 +82,17 @@ class InstallService: LifecycleService() {
             )
 
             when (state) {
-                PackageInstaller.STATUS_SUCCESS -> notifySuccess(id, label, appIcon)
-                else -> notifyFailure(id, label, appIcon)
+                PackageInstaller.STATUS_SUCCESS -> notifySuccess(
+                    id = id,
+                    title = label,
+                    largeIcon = appIcon,
+                    packageName = archiveInfo.packageName
+                )
+                else -> notifyFailure(
+                    id = id,
+                    title = label,
+                    largeIcon = appIcon,
+                )
             }
 
             tasks.remove(archiveInfo.packageName)
@@ -134,15 +144,12 @@ class InstallService: LifecycleService() {
         .setSilent(silent)
         .setOngoing(ongoing)
         .setGroup(GROUP_KEY)
-        .apply {
-            largeIcon?.let { setLargeIcon(it) }
-        }
-        .build()
+        .setLargeIcon(largeIcon)
 
     private fun notify(id: Int, notification: Notification) {
         val notificationId = NotificationUtils.NOTIFICATION_ID_INSTALL + id
         NotificationManagerCompat.from(this).apply {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) return
 
@@ -160,19 +167,32 @@ class InstallService: LifecycleService() {
             ongoing = true
         )
 
-        notify(id, notification)
+        notify(id, notification.build())
     }
 
-    private fun notifySuccess(id: Int, title: String, largeIcon: Bitmap) {
+    private fun notifySuccess(
+        id: Int,
+        title: String,
+        largeIcon: Bitmap,
+        packageName: String
+    ) {
         val message = context.getString(R.string.message_install_success)
+        val intent = pmCompat.getLaunchIntentForPackage(packageName, userId)?.let {
+            PendingIntent.getActivity(
+                this, 0, it, PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
         val notification = buildNotification(
             title = title,
             message = message,
             largeIcon = largeIcon,
             silent = true
-        )
+        ).apply {
+            setContentIntent(intent)
+        }
 
-        notify(id, notification)
+        notify(id, notification.build())
     }
 
     private fun notifyFailure(id: Int, title: String, largeIcon: Bitmap) {
@@ -184,7 +204,7 @@ class InstallService: LifecycleService() {
             silent = false
         )
 
-        notify(id, notification)
+        notify(id, notification.build())
     }
 
     companion object {

@@ -1,9 +1,11 @@
 package dev.sanmer.hidden.compat.stub;
 
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.ArchiveInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.ParceledListSlice;
-import android.content.pm.ArchiveInfo;
+import android.content.pm.ResolveInfo;
 
 interface IPackageManagerCompat {
     ApplicationInfo getApplicationInfo(String packageName, int flags, int userId);
@@ -11,6 +13,9 @@ interface IPackageManagerCompat {
     int getPackageUid(String packageName, int flags, int userId);
     ParceledListSlice<PackageInfo> getInstalledPackages(int flags, int userId);
     ParceledListSlice<ApplicationInfo> getInstalledApplications(int flags, int userId);
+    ParceledListSlice<ResolveInfo> queryIntentActivities(in Intent intent, String resolvedType, int flags, int userId);
     String[] getPackagesForUid(int uid);
+
+    Intent getLaunchIntentForPackage(String packageName, int userId);
     int install(in ArchiveInfo archiveInfo, String installerPackageName, int userId);
 }

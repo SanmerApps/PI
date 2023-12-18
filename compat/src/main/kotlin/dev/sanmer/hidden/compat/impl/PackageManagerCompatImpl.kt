@@ -13,6 +13,7 @@ import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageManagerHidden
 import android.content.pm.ParceledListSlice
+import android.content.pm.ResolveInfo
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Process
@@ -93,8 +94,46 @@ internal class PackageManagerCompatImpl(
         return ParceledListSlice(applications)
     }
 
+    override fun queryIntentActivities(
+        intent: Intent,
+        resolvedType: String?,
+        flags: Int,
+        userId: Int
+    ): ParceledListSlice<ResolveInfo> {
+        val activities = if (BuildCompat.atLeastT) {
+            original.queryIntentActivities(intent, resolvedType, flags.toLong(), userId)
+        } else {
+            original.queryIntentActivities(intent, resolvedType, flags, userId)
+        }.list
+
+        return ParceledListSlice(activities)
+    }
+
     override fun getPackagesForUid(uid: Int): Array<String> {
         return original.getPackagesForUid(uid)
+    }
+
+    override fun getLaunchIntentForPackage(packageName: String, userId: Int): Intent? {
+        val intentToResolve = Intent(Intent.ACTION_MAIN)
+        intentToResolve.addCategory(Intent.CATEGORY_LAUNCHER)
+        intentToResolve.setPackage(packageName)
+
+        val ris: List<ResolveInfo> = queryIntentActivities(
+            intentToResolve, null, 0, userId
+        ).list
+
+        if (ris.isEmpty()) {
+            return null
+        }
+
+        val intent = Intent(intentToResolve)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.setClassName(
+            ris[0].activityInfo.packageName,
+            ris[0].activityInfo.name
+        )
+
+        return intent
     }
 
     override fun install(
