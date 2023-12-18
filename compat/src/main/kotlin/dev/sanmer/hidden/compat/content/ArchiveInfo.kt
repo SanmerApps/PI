@@ -1,26 +1,28 @@
 package dev.sanmer.hidden.compat.content
 
+import android.content.pm.PackageInfo
 import android.os.Parcel
 import android.os.Parcelable
+import dev.sanmer.hidden.compat.utils.readParcelable
 import java.io.File
 
 data class ArchiveInfo(
-    private val path: String,
-    val packageName: String,
-    val originating: String
+    private val archiveFilePath: String,
+    val originatingPackageName: String,
+    val archivePackageInfo: PackageInfo,
 ) : Parcelable {
-    val packageFile: File get() = File(path)
+    val archiveFile: File get() = File(archiveFilePath)
 
     constructor(parcel: Parcel) : this(
-        path = parcel.readString() ?: "",
-        packageName = parcel.readString() ?: "",
-        originating = parcel.readString() ?: ""
+        archiveFilePath = checkNotNull(parcel.readString()),
+        originatingPackageName = checkNotNull(parcel.readString()),
+        archivePackageInfo = checkNotNull(parcel.readParcelable(PackageInfo::class.java))
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(path)
-        parcel.writeString(packageName)
-        parcel.writeString(originating)
+        parcel.writeString(archiveFilePath)
+        parcel.writeString(originatingPackageName)
+        parcel.writeParcelable(archivePackageInfo, flags)
     }
 
     override fun describeContents(): Int {

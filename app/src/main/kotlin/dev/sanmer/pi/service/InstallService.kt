@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
@@ -17,6 +16,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.hidden.compat.content.ArchiveInfo
+import dev.sanmer.hidden.compat.stub.IInstallCallback
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.ContextCompat.userId
@@ -39,8 +39,7 @@ class InstallService: LifecycleService() {
     private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val tasks = mutableListOf<String>()
 
-    @Inject
-    lateinit var settingsRepository: SettingsRepository
+    @Inject lateinit var settingsRepository: SettingsRepository
 
     init {
         lifecycleScope.launch {
@@ -64,38 +63,48 @@ class InstallService: LifecycleService() {
             val installer = settingsRepository.getExecutorOrDefault()
 
             val archiveInfo = getArchiveInfo(packagePath) ?: return@launch
+
             val label = archiveInfo.applicationInfo
                 .loadLabel(context.packageManager)
                 .toString()
+
             val appIcon = AppIconLoader(40.dp, true, context)
                 .loadIcon(archiveInfo.applicationInfo)
 
             val id = System.currentTimeMillis().toInt()
-            notifyInstalling(id, label, appIcon)
+            val callback = object : IInstallCallback.Stub() {
+                override fun onSuccess(intent: Intent) {
+                    Timber.d("onSuccess: ${archiveInfo.packageName}")
+                    notifySuccess(
+                        id = id,
+                        title = label,
+                        largeIcon = appIcon,
+                        packageName = archiveInfo.packageName
+                    )
 
-            Timber.d("packageName: ${archiveInfo.packageName}")
-            tasks.add(archiveInfo.packageName)
-            val state = pmCompat.install(
-                ArchiveInfo(packagePath, archiveInfo.packageName, originating),
-                installer,
-                userId
-            )
+                    tasks.remove(archiveInfo.packageName)
+                }
 
-            when (state) {
-                PackageInstaller.STATUS_SUCCESS -> notifySuccess(
-                    id = id,
-                    title = label,
-                    largeIcon = appIcon,
-                    packageName = archiveInfo.packageName
-                )
-                else -> notifyFailure(
-                    id = id,
-                    title = label,
-                    largeIcon = appIcon,
-                )
+                override fun onFailure(intent: Intent?, msg: String?) {
+                    Timber.d("onFailure: ${archiveInfo.packageName}")
+                    Timber.e("msg: $msg")
+
+                    notifyFailure(
+                        id = id,
+                        title = label,
+                        largeIcon = appIcon,
+                    )
+
+                    tasks.remove(archiveInfo.packageName)
+                }
             }
 
-            tasks.remove(archiveInfo.packageName)
+            Timber.d("installPackage: ${archiveInfo.packageName}")
+            tasks.add(archiveInfo.packageName)
+            notifyInstalling(id, label, appIcon)
+
+            val info = ArchiveInfo(packagePath, originating, archiveInfo)
+            pmCompat.installPackage(info, installer, callback, userId)
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -137,7 +146,7 @@ class InstallService: LifecycleService() {
         largeIcon: Bitmap? = null,
         silent: Boolean = false,
         ongoing: Boolean = false,
-    ) = NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
+    ) = NotificationCompat.Builder(context, NotificationUtils.CHANNEL_ID_INSTALL)
         .setSmallIcon(R.drawable.launcher_outline)
         .setContentTitle(title)
         .setContentText(message)
@@ -148,7 +157,7 @@ class InstallService: LifecycleService() {
 
     private fun notify(id: Int, notification: Notification) {
         val notificationId = NotificationUtils.NOTIFICATION_ID_INSTALL + id
-        NotificationManagerCompat.from(this).apply {
+        NotificationManagerCompat.from(context).apply {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED
             ) return
@@ -179,7 +188,7 @@ class InstallService: LifecycleService() {
         val message = context.getString(R.string.message_install_success)
         val intent = pmCompat.getLaunchIntentForPackage(packageName, userId)?.let {
             PendingIntent.getActivity(
-                this, 0, it, PendingIntent.FLAG_IMMUTABLE
+                context, 0, it, PendingIntent.FLAG_IMMUTABLE
             )
         }
 
