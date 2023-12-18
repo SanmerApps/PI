@@ -2,10 +2,10 @@ package dev.sanmer.hidden.compat.stub;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.ArchiveInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.ParceledListSlice;
 import android.content.pm.ResolveInfo;
+import dev.sanmer.hidden.compat.content.ArchiveInfo;
 
 interface IPackageManagerCompat {
     ApplicationInfo getApplicationInfo(String packageName, int flags, int userId);

@@ -1,4 +1,4 @@
-package android.content.pm
+package dev.sanmer.hidden.compat.content
 
 import android.os.Parcel
 import android.os.Parcelable

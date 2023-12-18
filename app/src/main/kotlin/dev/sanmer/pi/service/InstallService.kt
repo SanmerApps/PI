@@ -5,7 +5,6 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ArchiveInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
@@ -17,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import dev.sanmer.hidden.compat.content.ArchiveInfo
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.ContextCompat.userId

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.IntentSenderHidden
 import android.content.pm.ApplicationInfo
-import android.content.pm.ArchiveInfo
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
@@ -19,6 +18,7 @@ import android.os.IBinder
 import android.os.Process
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
+import dev.sanmer.hidden.compat.content.ArchiveInfo
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
