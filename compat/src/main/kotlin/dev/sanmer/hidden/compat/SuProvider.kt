@@ -44,6 +44,7 @@ object SuProvider : IProvider {
             mServiceOrNull = IServiceManager.Stub.asInterface(service)
             isAlive.value = true
             Log.i(TAG, "IServiceManager created")
+            Log.d(TAG, "uid = $uid, pid = $pid, context = $seLinuxContext")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
