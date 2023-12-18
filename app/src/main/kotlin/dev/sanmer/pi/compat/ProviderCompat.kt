@@ -1,5 +1,6 @@
 package dev.sanmer.pi.compat
 
+import android.os.Process
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,8 +27,8 @@ object ProviderCompat {
 
     val version get() = mProvider.version
     val platform get() = when (mProvider.uid) {
-        IProvider.ROOT_UID -> "root"
-        IProvider.ADB_UID -> "adb"
+        Process.ROOT_UID -> "root"
+        Process.SHELL_UID -> "adb"
         else -> "unknown"
     }
 
