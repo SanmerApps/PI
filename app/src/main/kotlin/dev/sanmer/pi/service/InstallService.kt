@@ -25,7 +25,6 @@ import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.parcelable
 import dev.sanmer.pi.utils.extensions.tmpDir
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -37,7 +36,7 @@ import javax.inject.Inject
 class InstallService: LifecycleService() {
     private val context: Context by lazy { applicationContext }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
-    private val tasks = mutableListOf<String>()
+    private val tasks = mutableListOf<PackageInfo>()
 
     @Inject lateinit var settingsRepository: SettingsRepository
 
@@ -57,7 +56,7 @@ class InstallService: LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val archivePath = intent?.archiveFilePathOrNull ?: return@launch
             val archiveInfo = intent.archivePackageInfoOrNull ?: return@launch
 
@@ -82,7 +81,7 @@ class InstallService: LifecycleService() {
                         packageName = archiveInfo.packageName
                     )
 
-                    tasks.remove(archiveInfo.packageName)
+                    tasks.remove(archiveInfo)
                 }
 
                 override fun onFailure(intent: Intent?, msg: String?) {
@@ -95,12 +94,12 @@ class InstallService: LifecycleService() {
                         largeIcon = appIcon,
                     )
 
-                    tasks.remove(archiveInfo.packageName)
+                    tasks.remove(archiveInfo)
                 }
             }
 
             Timber.d("installPackage: ${archiveInfo.packageName}")
-            tasks.add(archiveInfo.packageName)
+            tasks.add(archiveInfo)
             notifyInstalling(id, label, appIcon)
 
             val info = ArchiveInfo(archivePath, originating, archiveInfo)
