@@ -22,7 +22,7 @@ import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.SettingsRepository
-import dev.sanmer.pi.service.InstallService.Companion.startInstallService
+import dev.sanmer.pi.service.InstallService
 import dev.sanmer.pi.ui.theme.AppTheme
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +37,7 @@ class InstallActivity : ComponentActivity() {
     @Inject lateinit var localRepository: LocalRepository
     @Inject lateinit var settingsRepository: SettingsRepository
 
-    private val apkFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
+    private val tmpFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
     private val isSelf get() = sourceInfo?.packageName == archiveInfo?.packageName
@@ -106,15 +106,19 @@ class InstallActivity : ComponentActivity() {
 
     private fun onOneTime() {
         if (!started) {
-            startInstallService(packageFile = apkFile)
-            started = true
+            InstallService.start(
+                context = this,
+                archiveFilePath = tmpFile.path,
+                archivePackageInfo = archiveInfo!!
+            )
 
+            started = true
             finish()
         }
     }
 
     private fun onDeny() {
-        apkFile.delete()
+        tmpFile.delete()
         finish()
     }
 
@@ -129,12 +133,12 @@ class InstallActivity : ComponentActivity() {
 
         withContext(Dispatchers.IO) {
             contentResolver.openInputStream(packageUri)?.use { input ->
-                apkFile.outputStream().use { output ->
+                tmpFile.outputStream().use { output ->
                     input.copyTo(output)
                 }
             }
 
-            archiveInfo = getArchiveInfo(apkFile)
+            archiveInfo = getArchiveInfo(tmpFile)
             if (archiveInfo == null) {
                 finish()
             }

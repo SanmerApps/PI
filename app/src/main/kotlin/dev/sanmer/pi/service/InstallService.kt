@@ -23,6 +23,7 @@ import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp
+import dev.sanmer.pi.utils.extensions.parcelable
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -30,7 +31,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import me.zhanghai.android.appiconloader.AppIconLoader
 import timber.log.Timber
-import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,11 +58,11 @@ class InstallService: LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
-            val packagePath = intent?.packagePath ?: return@launch
+            val archivePath = intent?.archiveFilePathOrNull ?: return@launch
+            val archiveInfo = intent.archivePackageInfoOrNull ?: return@launch
+
             val originating = settingsRepository.getRequesterOrDefault()
             val installer = settingsRepository.getExecutorOrDefault()
-
-            val archiveInfo = getArchiveInfo(packagePath) ?: return@launch
 
             val label = archiveInfo.applicationInfo
                 .loadLabel(context.packageManager)
@@ -103,7 +103,7 @@ class InstallService: LifecycleService() {
             tasks.add(archiveInfo.packageName)
             notifyInstalling(id, label, appIcon)
 
-            val info = ArchiveInfo(packagePath, originating, archiveInfo)
+            val info = ArchiveInfo(archivePath, originating, archiveInfo)
             pmCompat.installPackage(info, installer, callback, userId)
         }
 
@@ -116,15 +116,6 @@ class InstallService: LifecycleService() {
 
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         super.onDestroy()
-    }
-
-    private fun getArchiveInfo(packagePath: String): PackageInfo? {
-        return context.packageManager.getPackageArchiveInfo(
-            packagePath, 0
-        )?.also {
-            it.applicationInfo.sourceDir = packagePath
-            it.applicationInfo.publicSourceDir = packagePath
-        }
     }
 
     private fun setForeground() {
@@ -219,15 +210,23 @@ class InstallService: LifecycleService() {
     companion object {
         private const val GROUP_KEY = "INSTALL_SERVICE_GROUP_KEY"
 
-        private const val PARAM_PACKAGE_PATH = "PACKAGE_PATH"
-        private val Intent.packagePathOrNull get() = getStringExtra(PARAM_PACKAGE_PATH)
-        private val Intent.packagePath get() = checkNotNull(packagePathOrNull)
+        private const val PARAM_ARCHIVE_FILE_PATH = "ARCHIVE_FILE_PATH"
+        private const val PARAM_ARCHIVE_PACKAGE_INFO = "ARCHIVE_PACKAGE_INFO"
+        private val Intent.archiveFilePathOrNull get() =
+            getStringExtra(PARAM_ARCHIVE_FILE_PATH)
+        private val Intent.archivePackageInfoOrNull: PackageInfo? get() =
+            parcelable(PARAM_ARCHIVE_PACKAGE_INFO)
 
-        fun Context.startInstallService(packageFile: File) {
-            val intent = Intent(this, InstallService::class.java)
-            intent.putExtra(PARAM_PACKAGE_PATH, packageFile.path)
+        fun start(
+            context: Context,
+            archiveFilePath: String,
+            archivePackageInfo: PackageInfo
+        ) {
+            val intent = Intent(context, InstallService::class.java)
+            intent.putExtra(PARAM_ARCHIVE_FILE_PATH, archiveFilePath)
+            intent.putExtra(PARAM_ARCHIVE_PACKAGE_INFO, archivePackageInfo)
 
-            startService(intent)
+            context.startService(intent)
         }
     }
 }
