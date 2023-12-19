@@ -97,8 +97,10 @@ class InstallActivity : ComponentActivity() {
 
     private fun onAlways() {
         lifecycleScope.launch {
-            val pi = IPackageInfo(sourceInfo!!, true)
-            localRepository.insert(pi)
+            sourceInfo?.let {
+                val pi = IPackageInfo(it, true)
+                localRepository.insert(pi)
+            }
 
             onOneTime()
         }
