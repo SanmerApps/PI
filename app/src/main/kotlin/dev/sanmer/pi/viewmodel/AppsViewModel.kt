@@ -9,8 +9,8 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.compat.ContextCompat.userId
-import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
+import dev.sanmer.hidden.compat.ContextCompat.userId
+import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository

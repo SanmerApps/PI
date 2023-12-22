@@ -3,22 +3,11 @@ plugins {
     alias(libs.plugins.rikka.refine)
 }
 
-val applicationId = "dev.sanmer.pi"
-val versionCode = commitCount
-
 android {
     namespace = "dev.sanmer.hidden.compat"
 
     buildFeatures {
         aidl = true
-        buildConfig = true
-    }
-
-    buildTypes {
-        all {
-            buildConfigField("String", "APPLICATION_ID", "\"${applicationId}\"")
-            buildConfigField("int", "VERSION_CODE", versionCode.toString())
-        }
     }
 }
 

@@ -15,9 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.app.Settings
-import dev.sanmer.pi.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository

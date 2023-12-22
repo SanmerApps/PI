@@ -15,11 +15,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.content.ArchiveInfo
 import dev.sanmer.hidden.compat.stub.IInstallCallback
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
-import dev.sanmer.pi.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.SettingsRepository
 import dev.sanmer.pi.utils.extensions.dp

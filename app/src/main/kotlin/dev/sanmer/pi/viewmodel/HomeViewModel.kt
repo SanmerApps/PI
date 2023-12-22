@@ -8,10 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.hidden.compat.ContextCompat.userId
+import dev.sanmer.hidden.compat.PackageInfoCompat.isOverlayPackage
+import dev.sanmer.hidden.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.app.Settings
-import dev.sanmer.pi.compat.ContextCompat.userId
-import dev.sanmer.pi.compat.PackageInfoCompat.isOverlayPackage
-import dev.sanmer.pi.compat.PackageInfoCompat.isPreinstalled
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo

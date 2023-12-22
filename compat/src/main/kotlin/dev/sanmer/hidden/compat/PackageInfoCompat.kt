@@ -1,4 +1,4 @@
-package dev.sanmer.pi.compat
+package dev.sanmer.hidden.compat
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
