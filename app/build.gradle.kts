@@ -5,9 +5,6 @@ plugins {
     alias(libs.plugins.pro.compose)
     alias(libs.plugins.pro.hilt)
     alias(libs.plugins.pro.room)
-    alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.rikka.refine)
 }
 
 val baseVersionName = "0.3.1"
@@ -86,7 +83,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.documentfile)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.service)
@@ -99,7 +95,6 @@ dependencies {
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
     implementation(libs.hiddenApiBypass)
-    implementation(libs.rikka.refine.runtime)
 
     implementation(libs.appiconloader)
     implementation(libs.appiconloader.coil)

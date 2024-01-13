@@ -21,6 +21,5 @@ dependencies {
     implementation(libs.libsu.service)
 
     implementation(libs.rikka.shizuku.api)
-    implementation(libs.rikka.shizuku.provider)
     implementation(libs.rikka.refine.runtime)
 }
