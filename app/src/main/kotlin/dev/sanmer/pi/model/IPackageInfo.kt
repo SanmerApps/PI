@@ -2,9 +2,9 @@ package dev.sanmer.pi.model
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 
-@Stable
+@Immutable
 data class IPackageInfo(
     val inner: PackageInfo,
     val packageName: String,
