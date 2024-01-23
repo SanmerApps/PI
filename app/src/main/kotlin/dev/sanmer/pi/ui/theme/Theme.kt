@@ -44,8 +44,8 @@ private fun getColorScheme(darkMode: Boolean): ColorScheme {
         }
     } else {
         when {
-            darkMode -> BlueLightColorScheme
-            else -> BlueDarkColorScheme
+            darkMode -> PourvilleDarkScheme
+            else -> PourvilleLightScheme
         }
     }
 }
