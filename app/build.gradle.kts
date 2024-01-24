@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.pro.room)
 }
 
-val baseVersionName = "0.3.1"
+val baseVersionName = "0.3.2"
 val isDevVersion get() = exec("git tag --contains HEAD").isEmpty()
 val verNameSuffix get() = if (isDevVersion) ".dev" else ""
 
