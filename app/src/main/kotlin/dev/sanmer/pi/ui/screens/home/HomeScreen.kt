@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -212,7 +212,7 @@ private fun Menu(
 @Composable
 private fun AboutDialog(
     onClose: () -> Unit
-) = AlertDialog(
+) = BasicAlertDialog(
     onDismissRequest = onClose
 ) {
     Surface(

@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
@@ -30,7 +30,7 @@ fun ConfirmationDialog(
     message: @Composable () -> Unit,
     buttons: @Composable ColumnScope.() -> Unit,
     properties: DialogProperties = DialogProperties(),
-) = AlertDialog(
+) = BasicAlertDialog(
     onDismissRequest = onDismissRequest,
     modifier = modifier,
     properties = properties
