@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import dev.sanmer.hidden.compat.ShizukuProvider
 import dev.sanmer.hidden.compat.SuProvider
 import dev.sanmer.hidden.compat.stub.IProvider
-import dev.sanmer.pi.app.Settings
+import dev.sanmer.pi.datastore.Provider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 object ProviderCompat {
-    private var mMode = Settings.Provider.None
+    private var mMode = Provider.None
     private val mScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var mProvider: IProvider
 
@@ -32,12 +32,11 @@ object ProviderCompat {
         else -> "unknown"
     }
 
-    fun init(mode: Settings.Provider? = null) {
+    fun init(mode: Provider? = null) {
         mMode = mode ?: mMode
 
         when (mMode) {
-            Settings.Provider.None -> {}
-            Settings.Provider.Shizuku -> {
+            Provider.Shizuku -> {
                 ShizukuProvider.apply {
                     mProvider = this
                     init()
@@ -47,7 +46,7 @@ object ProviderCompat {
                     .onEach { isAlive = it }
                     .launchIn(mScope)
             }
-            Settings.Provider.SuperUser -> {
+            Provider.Superuser -> {
                 SuProvider.apply {
                     mProvider = this
                     init()
@@ -57,12 +56,19 @@ object ProviderCompat {
                     .onEach { isAlive = it }
                     .launchIn(mScope)
             }
+            else -> {}
         }
     }
 
     fun destroy() = when (mMode) {
-        Settings.Provider.None -> {}
-        Settings.Provider.Shizuku -> ShizukuProvider.destroy()
-        Settings.Provider.SuperUser -> SuProvider.destroy()
+        Provider.Shizuku -> {
+            isAlive = false // No wait for provider
+            ShizukuProvider.destroy()
+        }
+        Provider.Superuser -> {
+            isAlive = false
+            SuProvider.destroy()
+        }
+        else -> {}
     }
 }

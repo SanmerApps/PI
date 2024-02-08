@@ -9,6 +9,7 @@ androidxComposeCompiler = "1.5.8"
 androidxComposeMaterial3 = "1.2.0"
 androidxCore = "1.12.0"
 androidxCoreSplashscreen = "1.0.1"
+androidxDataStore = "1.0.0"
 androidxHiltNavigationCompose = "1.1.0"
 androidxLifecycle = "2.7.0"
 androidxNavigation = "2.7.7"
@@ -22,6 +23,8 @@ kotlinxCoroutines = "1.7.3"
 kotlinxDatetime = "0.5.0"
 ksp = "1.9.22-1.0.17"
 libsu = "5.2.2"
+protobuf = "3.25.2"
+protobufPlugin = "0.9.4"
 shizuku = "13.1.5"
 
 [libraries]
@@ -36,6 +39,7 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util", version.ref = "androidxCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidxCoreSplashscreen" }
+androidx-datastore-core = { group = "androidx.datastore", name = "datastore", version.ref = "androidxDataStore" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "androidxLifecycle" }
@@ -54,6 +58,8 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 libsu-core = { group = "com.github.topjohnwu.libsu", name = "core", version.ref = "libsu" }
 libsu-service = { group = "com.github.topjohnwu.libsu", name = "service", version.ref = "libsu" }
+protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
+protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "protobuf" }
 rikka-refine-annotation = { module = "dev.rikka.tools.refine:annotation", version.ref = "hiddenApiRefine" }
 rikka-refine-compiler = { module = "dev.rikka.tools.refine:annotation-processor", version.ref = "hiddenApiRefine" }
 rikka-refine-runtime = { module = "dev.rikka.tools.refine:runtime", version.ref = "hiddenApiRefine" }
@@ -75,6 +81,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 rikka-refine = { id = "dev.rikka.tools.refine", version.ref = "hiddenApiRefine" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 
 # Plugins defined by this project
 pro-application = { id = "pro.application", version = "unspecified" }

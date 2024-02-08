@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,12 +18,12 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.app.Const
-import dev.sanmer.pi.app.Settings
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
-import dev.sanmer.pi.repository.SettingsRepository
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.service.InstallService
+import dev.sanmer.pi.ui.providable.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class InstallActivity : ComponentActivity() {
     @Inject lateinit var localRepository: LocalRepository
-    @Inject lateinit var settingsRepository: SettingsRepository
+    @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private val tmpFile by lazy { tmpDir.resolve(Const.TEMP_PACKAGE) }
     private var sourceInfo: PackageInfo? by mutableStateOf(null)
@@ -57,12 +58,16 @@ class InstallActivity : ComponentActivity() {
         }
 
         setContent {
-            val workingMode by settingsRepository.getWorkingModeOrNone()
-                .collectAsStateWithLifecycle(initialValue = Settings.Provider.None)
+            val userPreferences by userPreferencesRepository.data
+                .collectAsStateWithLifecycle(initialValue = null)
 
-            LaunchedEffect(workingMode) {
+            if (userPreferences == null) {
+                return@setContent
+            }
+
+            LaunchedEffect(userPreferences) {
                 if (!ProviderCompat.isAlive) {
-                    ProviderCompat.init(workingMode)
+                    ProviderCompat.init(userPreferences!!.provider)
                 }
             }
 
@@ -75,16 +80,22 @@ class InstallActivity : ComponentActivity() {
                 }
             }
 
-            AppTheme {
-                InstallScreen(
-                    sourceInfo = sourceInfo,
-                    archiveInfo = archiveInfo,
-                    isProviderAlive = ProviderCompat.isAlive,
-                    isAuthorized = isAuthorized,
-                    onAlways = ::onAlways,
-                    onOneTime = ::onOneTime,
-                    onDeny = ::onDeny
-                )
+            CompositionLocalProvider(
+                LocalUserPreferences provides userPreferences!!
+            ) {
+                AppTheme(
+                    dynamicColor = userPreferences!!.dynamicColor
+                ) {
+                    InstallScreen(
+                        sourceInfo = sourceInfo,
+                        archiveInfo = archiveInfo,
+                        isProviderAlive = ProviderCompat.isAlive,
+                        isAuthorized = isAuthorized,
+                        onAlways = ::onAlways,
+                        onOneTime = ::onOneTime,
+                        onDeny = ::onDeny
+                    )
+                }
             }
         }
     }

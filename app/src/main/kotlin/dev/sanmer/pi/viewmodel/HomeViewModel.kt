@@ -11,14 +11,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.hidden.compat.PackageInfoCompat.isPreinstalled
-import dev.sanmer.pi.app.Settings
 import dev.sanmer.pi.compat.ProviderCompat
+import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
-import dev.sanmer.pi.repository.SettingsRepository
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,7 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    private val settingsRepository: SettingsRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
@@ -68,15 +69,14 @@ class HomeViewModel @Inject constructor(
             if (!isProviderAlive) return@launch
 
             val packagesDeferred = async { getPackages() }
+            val userPreferences = userPreferencesRepository.data.first()
 
-            val requesterPackageName = settingsRepository.getRequesterOrDefault()
             requester = pmCompat.getPackageInfo(
-                requesterPackageName, 0, context.userId
+                userPreferences.requester, 0, context.userId
             ).toIPackageInfo(pm = pm)
 
-            val executorPackageName = settingsRepository.getExecutorOrDefault()
             executor = pmCompat.getPackageInfo(
-                executorPackageName, 0, context.userId
+                userPreferences.executor, 0, context.userId
             ).toIPackageInfo(pm = pm)
 
             packages = packagesDeferred.await()
@@ -104,9 +104,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetWorkingMode() {
-        setWorkingMode(Settings.Provider.None)
-        ProviderCompat.destroy()
+    fun resetProvider() {
+        userPreferencesRepository.setProvider(Provider.None)
+        providerDestroy()
     }
 
     fun providerInit() {
@@ -118,22 +118,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun setRequesterPackage(pi: IPackageInfo) {
-        viewModelScope.launch {
-            requester = pi
-            settingsRepository.setRequester(pi.packageName)
-        }
+        requester = pi
+        userPreferencesRepository.setRequester(pi.packageName)
     }
 
     fun setExecutorPackage(pi: IPackageInfo) {
-        viewModelScope.launch {
-            executor = pi
-            settingsRepository.setExecutor(pi.packageName)
-        }
-    }
-
-    fun setWorkingMode(mode: Settings.Provider) {
-        viewModelScope.launch {
-            settingsRepository.setWorkingMode(mode)
-        }
+        executor = pi
+        userPreferencesRepository.setExecutor(pi.packageName)
     }
 }

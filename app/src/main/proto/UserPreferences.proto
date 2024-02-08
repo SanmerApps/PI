@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "Provider.proto";
+
+option java_package = "dev.sanmer.pi.datastore";
+option java_multiple_files = true;
+
+message UserPreferences {
+  Provider provider = 1;
+  bool dynamicColor = 2;
+  string requester = 3;
+  string executor = 4;
+}

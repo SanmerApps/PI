@@ -21,11 +21,12 @@ import dev.sanmer.hidden.compat.stub.IInstallCallback
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.ProviderCompat
-import dev.sanmer.pi.repository.SettingsRepository
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.parcelable
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import me.zhanghai.android.appiconloader.AppIconLoader
@@ -38,7 +39,7 @@ class InstallService: LifecycleService() {
     private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val tasks = mutableListOf<PackageInfo>()
 
-    @Inject lateinit var settingsRepository: SettingsRepository
+    @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
 
     init {
         lifecycleScope.launch {
@@ -60,8 +61,9 @@ class InstallService: LifecycleService() {
             val archivePath = intent?.archiveFilePathOrNull ?: return@launch
             val archiveInfo = intent.archivePackageInfoOrNull ?: return@launch
 
-            val originating = settingsRepository.getRequesterOrDefault()
-            val installer = settingsRepository.getExecutorOrDefault()
+            val userPreferences = userPreferencesRepository.data.first()
+            val originating = userPreferences.requester
+            val installer = userPreferences.executor
 
             val label = archiveInfo.applicationInfo
                 .loadLabel(context.packageManager)

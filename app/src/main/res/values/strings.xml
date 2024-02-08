@@ -30,6 +30,11 @@
     <string name="apps_title">Application Management</string>
     <string name="apps_empty">Empty list</string>
 
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_dynamic_color">Dynamic Color</string>
+    <string name="settings_dynamic_color_desc">Use Material You color scheme</string>
+
     <!-- Dialog -->
     <string name="confirmation_message">Allow %1$s to install %2$s?</string>
     <string name="confirmation_message_unknown">Allow to install %2$s?</string>

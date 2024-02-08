@@ -6,20 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import dev.sanmer.pi.database.dao.PackageDao
-import dev.sanmer.pi.database.dao.SettingDao
 import dev.sanmer.pi.database.entity.PackageInfoEntity
-import dev.sanmer.pi.database.entity.SettingEntity
 
-@Database(entities = [PackageInfoEntity::class,SettingEntity::class], version = 2)
+@Database(entities = [PackageInfoEntity::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun packageDao(): PackageDao
-    abstract fun settingDao(): SettingDao
 
     companion object {
         fun build(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, "pi")
                 .addMigrations(
-                    MIGRATION_1_2
+                    MIGRATION_1_2,
+                    MIGRATION_2_3
                 )
                 .build()
         }
@@ -29,6 +27,10 @@ abstract class AppDatabase : RoomDatabase() {
                     "key TEXT NOT NULL, " +
                     "value TEXT NOT NULL, " +
                     "PRIMARY KEY(key))")
+        }
+
+        private val MIGRATION_2_3 = Migration(2, 3) {
+            it.execSQL("DROP TABLE settings")
         }
     }
 }

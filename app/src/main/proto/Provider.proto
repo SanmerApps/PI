@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "dev.sanmer.pi.datastore";
+option java_multiple_files = true;
+
+enum Provider {
+  None = 0;
+  Shizuku = 1;
+  Superuser = 2;
+}
