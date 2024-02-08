@@ -15,6 +15,7 @@ import dev.sanmer.pi.ui.animate.slideOutLeftToRight
 import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.screens.apps.AppsScreen
 import dev.sanmer.pi.ui.screens.home.HomeScreen
+import dev.sanmer.pi.ui.screens.settings.SettingsScreen
 
 @Composable
 fun MainScreen() {
@@ -44,6 +45,16 @@ fun MainScreen() {
                 exitTransition = { slideOutLeftToRight() + fadeOut() }
             ) {
                 AppsScreen(
+                    navController = navController
+                )
+            }
+
+            composable(
+                route = MainScreen.Settings.route,
+                enterTransition = { slideInRightToLeft() + fadeIn() },
+                exitTransition = { slideOutLeftToRight() + fadeOut() }
+            ) {
+                SettingsScreen(
                     navController = navController
                 )
             }

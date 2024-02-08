@@ -46,6 +46,7 @@ import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.ui.navigation.navigateToApps
+import dev.sanmer.pi.ui.navigation.navigateToSettings
 import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
 import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
 import dev.sanmer.pi.ui.screens.home.items.RequesterItem
@@ -69,9 +70,10 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                onReset = viewModel::resetWorkingMode,
+                onReset = viewModel::resetProvider,
                 onInit = viewModel::providerInit,
                 onDestroy = viewModel::providerDestroy,
+                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -89,11 +91,12 @@ fun HomeScreen(
                 platform = viewModel.providerPlatform
             )
 
-            AuthorizedAppItem(
-                count = authorized,
-                isProviderAlive = viewModel.isProviderAlive,
-                onClick = { navController.navigateToApps() }
-            )
+            if (viewModel.isProviderAlive) {
+                AuthorizedAppItem(
+                    count = authorized,
+                    onClick = { navController.navigateToApps() }
+                )
+            }
 
             var isRequester by remember { mutableStateOf(false) }
             RequesterItem(
@@ -130,10 +133,20 @@ private fun TopBar(
     onReset: () -> Unit,
     onInit: () -> Unit,
     onDestroy: () -> Unit,
+    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.app_name)) },
     actions = {
+        IconButton(
+            onClick = { navController.navigateToSettings() }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.settings),
+                contentDescription = null
+            )
+        }
+
         var expanded by remember { mutableStateOf(false) }
         IconButton(
             onClick = { expanded = true }

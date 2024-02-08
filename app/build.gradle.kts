@@ -1,10 +1,12 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.pro.application)
     alias(libs.plugins.pro.compose)
     alias(libs.plugins.pro.hilt)
     alias(libs.plugins.pro.room)
+    alias(libs.plugins.protobuf)
 }
 
 val baseVersionName = "0.3.2"
@@ -73,6 +75,38 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                register("java") {
+                    option("lite")
+                }
+                register("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
+// Workaround for https://github.com/google/ksp/issues/1590
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        afterEvaluate {
+            @Suppress("DEPRECATION")
+            val capName = variant.name.capitalize()
+            tasks.getByName<KotlinCompile>("ksp${capName}Kotlin") {
+                setSource(tasks.getByName("generate${capName}Proto").outputs)
+            }
+        }
+    }
+}
+
 dependencies {
     compileOnly(projects.hiddenApi)
     implementation(projects.compat)
@@ -83,6 +117,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.service)
@@ -90,6 +125,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.protobuf.kotlin.lite)
     implementation(libs.timber)
 
     implementation(libs.rikka.shizuku.api)

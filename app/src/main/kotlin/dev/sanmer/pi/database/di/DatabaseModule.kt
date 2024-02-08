@@ -8,7 +8,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.sanmer.pi.database.AppDatabase
 import dev.sanmer.pi.database.dao.PackageDao
-import dev.sanmer.pi.database.dao.SettingDao
 import javax.inject.Singleton
 
 @Module
@@ -23,8 +22,4 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun providesPackageDao(db: AppDatabase): PackageDao = db.packageDao()
-
-    @Provides
-    @Singleton
-    fun providesSettingDao(db: AppDatabase): SettingDao = db.settingDao()
 }

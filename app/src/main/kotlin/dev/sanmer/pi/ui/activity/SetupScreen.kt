@@ -21,11 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
-import dev.sanmer.pi.app.Settings
+import dev.sanmer.pi.datastore.Provider
 
 @Composable
 fun SetupScreen(
-    setMode: (Settings.Provider) -> Unit
+    setProvider: (Provider) -> Unit
 ) = Column(
     modifier = Modifier
         .background(color = MaterialTheme.colorScheme.background)
@@ -44,7 +44,7 @@ fun SetupScreen(
         title = stringResource(id = R.string.setup_shizuku_title),
         desc = stringResource(id = R.string.setup_shizuku_desc),
         modifier = Modifier.requiredHeightIn(min = 150.dp),
-        onClick = { setMode(Settings.Provider.Shizuku) }
+        onClick = { setProvider(Provider.Shizuku) }
     )
 
     Spacer(modifier = Modifier.height(20.dp))
@@ -52,7 +52,7 @@ fun SetupScreen(
         title = stringResource(id = R.string.setup_root_title),
         desc = stringResource(id = R.string.setup_root_desc),
         modifier = Modifier.requiredHeightIn(min = 150.dp),
-        onClick = { setMode(Settings.Provider.SuperUser) }
+        onClick = { setProvider(Provider.Superuser) }
     )
 }
 

@@ -29,6 +29,11 @@
     <string name="apps_title">应用管理</string>
     <string name="apps_empty">空列表</string>
 
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_dynamic_color">动态颜色</string>
+    <string name="settings_dynamic_color_desc">使用 Material You 配色方案</string>
+
     <!-- Dialog -->
     <string name="confirmation_message">允许 %1$s 安装 %2$s 吗？</string>
     <string name="confirmation_message_unknown">允许安装 %2$s 吗？</string>
