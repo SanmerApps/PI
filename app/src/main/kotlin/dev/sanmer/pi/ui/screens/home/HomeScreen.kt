@@ -98,32 +98,17 @@ fun HomeScreen(
                 )
             }
 
-            var isRequester by remember { mutableStateOf(false) }
             RequesterItem(
                 pi = viewModel.requester,
-                onClick = { isRequester = true}
+                packages = viewModel.packages,
+                onChange = viewModel::setRequesterPackage
             )
 
-            var isExecutor by remember { mutableStateOf(false) }
             ExecutorItem(
                 pi = viewModel.executor,
-                onClick = { isExecutor = true}
+                packages = viewModel.packages,
+                onChange = viewModel::setExecutorPackage
             )
-
-            if (isRequester || isExecutor) {
-                AppList(
-                    onDismiss = {
-                        if (isRequester) isRequester = false
-                        if (isExecutor) isExecutor = false
-                    },
-                    packages = viewModel.packages,
-                    onChoose = when {
-                        isRequester -> viewModel::setRequesterPackage
-                        isExecutor -> viewModel::setExecutorPackage
-                        else -> throw IllegalStateException()
-                    }
-                )
-            }
         }
     }
 }

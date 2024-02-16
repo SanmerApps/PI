@@ -57,7 +57,7 @@ class HomeViewModel @Inject constructor(
         private set
     var executor: IPackageInfo? by mutableStateOf(null)
         private set
-    var packages = listOf<IPackageInfo>()
+    var packages: List<IPackageInfo> by mutableStateOf(emptyList())
         private set
 
     init {
