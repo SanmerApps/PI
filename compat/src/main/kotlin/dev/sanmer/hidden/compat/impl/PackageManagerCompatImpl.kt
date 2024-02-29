@@ -150,7 +150,8 @@ internal class PackageManagerCompatImpl(
 
         var flags = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(params).installFlags
         flags = flags or PackageManagerHidden.INSTALL_ALLOW_TEST or
-                PackageManagerHidden.INSTALL_REPLACE_EXISTING
+                PackageManagerHidden.INSTALL_REPLACE_EXISTING or
+                PackageManagerHidden.INSTALL_REQUEST_DOWNGRADE
 
         if (BuildCompat.atLeastU) {
             flags = flags or PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
