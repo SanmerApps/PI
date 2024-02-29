@@ -152,6 +152,10 @@ internal class PackageManagerCompatImpl(
         flags = flags or PackageManagerHidden.INSTALL_ALLOW_TEST or
                 PackageManagerHidden.INSTALL_REPLACE_EXISTING
 
+        if (BuildCompat.atLeastU) {
+            flags = flags or PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
+        }
+
         Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(params).installFlags = flags
 
         val input = archiveInfo.archiveFile.inputStream()
