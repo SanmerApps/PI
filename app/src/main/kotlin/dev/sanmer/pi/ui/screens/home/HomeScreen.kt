@@ -109,7 +109,7 @@ fun HomeScreen(
                         )
                     )
                 },
-                enabled = viewModel.packages.isNotEmpty()
+                enabled = viewModel.isProviderAlive
             )
 
             ExecutorItem(
@@ -121,7 +121,7 @@ fun HomeScreen(
                         )
                     )
                 },
-                enabled = viewModel.packages.isNotEmpty()
+                enabled = viewModel.isProviderAlive
             )
         }
     }
