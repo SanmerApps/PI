@@ -48,6 +48,9 @@
     <string name="message_install_fail">安装失败</string>
     <string name="message_loading">加载中…</string>
 
+    <!-- Search -->
+    <string name="search_placeholder">搜索…</string>
+
     <!-- Notification -->
     <string name="notification_name_install">安装服务</string>
 

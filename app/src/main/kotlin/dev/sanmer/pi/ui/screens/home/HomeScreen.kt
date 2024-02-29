@@ -52,6 +52,8 @@ import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
 import dev.sanmer.pi.ui.screens.home.items.RequesterItem
 import dev.sanmer.pi.ui.screens.home.items.StateItem
 import dev.sanmer.pi.ui.utils.ProvideMenuShape
+import dev.sanmer.pi.ui.utils.navigateSingleTopTo
+import dev.sanmer.pi.viewmodel.AppListViewModel
 import dev.sanmer.pi.viewmodel.HomeViewModel
 
 @Composable
@@ -100,14 +102,26 @@ fun HomeScreen(
 
             RequesterItem(
                 pi = viewModel.requester,
-                packages = viewModel.packages,
-                onChange = viewModel::setRequesterPackage
+                openSelector = {
+                    navController.navigateSingleTopTo(
+                        AppListViewModel.putTarget(
+                            AppListViewModel.Target.Requester
+                        )
+                    )
+                },
+                enabled = viewModel.packages.isNotEmpty()
             )
 
             ExecutorItem(
                 pi = viewModel.executor,
-                packages = viewModel.packages,
-                onChange = viewModel::setExecutorPackage
+                openSelector = {
+                    navController.navigateSingleTopTo(
+                        AppListViewModel.putTarget(
+                            AppListViewModel.Target.Executor
+                        )
+                    )
+                },
+                enabled = viewModel.packages.isNotEmpty()
             )
         }
     }

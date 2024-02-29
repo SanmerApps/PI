@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.home.items
+package dev.sanmer.pi.ui.screens.applist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,4 +56,20 @@ fun AppItem(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+@Composable
+fun AppItem(
+    pi: IPackageInfo,
+    onClick: () -> Unit,
+    selected: Boolean
+) = Surface(
+    onClick = onClick,
+    color = if (selected) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+) {
+    AppItem(pi = pi)
 }

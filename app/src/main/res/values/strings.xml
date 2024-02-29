@@ -49,6 +49,9 @@
     <string name="message_install_fail">Install failed</string>
     <string name="message_loading">Loading…</string>
 
+    <!-- Search -->
+    <string name="search_placeholder">Search…</string>
+
     <!-- Notification -->
     <string name="notification_name_install">Install Service</string>
 

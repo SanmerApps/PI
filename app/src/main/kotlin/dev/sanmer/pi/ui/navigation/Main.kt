@@ -6,7 +6,8 @@ import dev.sanmer.pi.ui.utils.navigatePopUpTo
 enum class MainScreen(val route: String) {
     Home("HomeScreen"),
     Apps("AppsScreen"),
-    Settings("SettingsScreen")
+    Settings("SettingsScreen"),
+    AppList("AppList/{target}")
 }
 
 fun NavController.navigateToApps() = navigatePopUpTo(MainScreen.Apps.route)
