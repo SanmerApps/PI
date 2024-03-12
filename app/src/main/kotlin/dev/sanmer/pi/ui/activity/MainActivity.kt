@@ -41,27 +41,27 @@ class MainActivity : ComponentActivity() {
             val userPreferences by userPreferencesRepository.data
                 .collectAsStateWithLifecycle(initialValue = null)
 
-            if (userPreferences == null) {
-                // Keep on splash screen
+            val preferences = if (userPreferences == null) {
                 return@setContent
             } else {
                 isLoading = false
+                checkNotNull(userPreferences)
             }
 
             LaunchedEffect(userPreferences) {
                 if (!ProviderCompat.isAlive) {
-                    ProviderCompat.init(userPreferences!!.provider)
+                    ProviderCompat.init(preferences.provider)
                 }
             }
 
             CompositionLocalProvider(
-                LocalUserPreferences provides userPreferences!!
+                LocalUserPreferences provides preferences
             ) {
                 AppTheme(
-                    dynamicColor = userPreferences!!.dynamicColor
+                    dynamicColor = preferences.dynamicColor
                 ) {
                     Crossfade(
-                        targetState = userPreferences!!.provider != Provider.None,
+                        targetState = preferences.provider != Provider.None,
                         label = "MainActivity"
                     ) { isReady ->
                         if (isReady) {
