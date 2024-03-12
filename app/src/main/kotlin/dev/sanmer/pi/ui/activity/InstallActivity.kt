@@ -43,7 +43,7 @@ class InstallActivity : ComponentActivity() {
     private var archiveInfo: PackageInfo? by mutableStateOf(null)
     private val isSelf get() = sourceInfo?.packageName == archiveInfo?.packageName
 
-    private var started by mutableStateOf(false)
+    private var started = false
     private var isAuthorized by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,13 +61,15 @@ class InstallActivity : ComponentActivity() {
             val userPreferences by userPreferencesRepository.data
                 .collectAsStateWithLifecycle(initialValue = null)
 
-            if (userPreferences == null) {
+            val preferences = if (userPreferences == null) {
                 return@setContent
+            } else {
+                checkNotNull(userPreferences)
             }
 
             LaunchedEffect(userPreferences) {
                 if (!ProviderCompat.isAlive) {
-                    ProviderCompat.init(userPreferences!!.provider)
+                    ProviderCompat.init(preferences.provider)
                 }
             }
 
@@ -81,10 +83,10 @@ class InstallActivity : ComponentActivity() {
             }
 
             CompositionLocalProvider(
-                LocalUserPreferences provides userPreferences!!
+                LocalUserPreferences provides preferences
             ) {
                 AppTheme(
-                    dynamicColor = userPreferences!!.dynamicColor
+                    dynamicColor = preferences.dynamicColor
                 ) {
                     InstallScreen(
                         sourceInfo = sourceInfo,
