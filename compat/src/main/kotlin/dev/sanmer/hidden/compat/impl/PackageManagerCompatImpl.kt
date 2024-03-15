@@ -183,13 +183,9 @@ internal class PackageManagerCompatImpl(
                         PackageInstaller.STATUS_FAILURE
                     )
 
-                    val msg = intent.getStringExtra(
-                        PackageInstaller.EXTRA_STATUS_MESSAGE
-                    )
-
                     when(status) {
                         PackageInstaller.STATUS_SUCCESS -> callback.onSuccess(intent)
-                        else -> callback.onFailure(intent, msg)
+                        else -> callback.onFailure(intent)
                     }
                 }
             }

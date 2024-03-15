@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
@@ -86,9 +87,9 @@ class InstallService: LifecycleService() {
                     tasks.remove(archiveInfo)
                 }
 
-                override fun onFailure(intent: Intent?, msg: String?) {
-                    Timber.d("onFailure: ${archiveInfo.packageName}")
-                    Timber.e("msg: $msg")
+                override fun onFailure(intent: Intent?) {
+                    val msg = intent?.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+                    Timber.e("onFailure: ${archiveInfo.packageName}, $msg")
 
                     notifyFailure(
                         id = id,
