@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,7 +56,8 @@ fun InstallScreen(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = onDeny,
         scrimColor = Color.Transparent,
-        shape = BottomSheetDefaults.expandedShape(20.dp)
+        shape = BottomSheetDefaults.expandedShape(20.dp),
+        windowInsets = WindowInsets(0)
     ) {
         Crossfade(
             targetState = viewModel.isReady,
@@ -117,8 +121,11 @@ private fun InstallContent(
         }
     }
 
+    val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .padding(navigationBarsPadding)
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
