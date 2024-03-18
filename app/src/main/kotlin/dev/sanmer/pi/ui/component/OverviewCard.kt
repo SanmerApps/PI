@@ -62,8 +62,7 @@ fun OverviewCard(
             )
 
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = title,

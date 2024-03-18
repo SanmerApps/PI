@@ -1,7 +1,6 @@
 package dev.sanmer.pi.ui.screens.apps.items
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,8 +48,7 @@ fun AppItem(
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .weight(1f),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+            .weight(1f)
     ) {
         Text(
             text = pi.label,
