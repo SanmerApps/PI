@@ -27,7 +27,7 @@ fun ExecutorItem(
         onClick = openSelector,
         enabled = enabled,
         shape = RoundedCornerShape(15.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         color = MaterialTheme.colorScheme.secondaryContainer
     ) {
         AppItem(pi = checkNotNull(pi))
