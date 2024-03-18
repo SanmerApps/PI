@@ -1,6 +1,7 @@
 package dev.sanmer.pi.repository
 
 import android.content.pm.PackageInfo
+import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 import dev.sanmer.pi.database.dao.PackageDao
 import dev.sanmer.pi.database.entity.PackageInfoEntity
 import dev.sanmer.pi.model.IPackageInfo
@@ -8,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class LocalRepository @Inject constructor(
@@ -22,8 +22,8 @@ class LocalRepository @Inject constructor(
         packageDao.getAll()
     }
 
-    suspend fun getByPackageInfo(value: PackageInfo?) = withContext(Dispatchers.IO) {
-        if (value == null) return@withContext false
+    suspend fun getByPackageInfo(value: PackageInfo) = withContext(Dispatchers.IO) {
+        if (value.isEmpty) return@withContext false
         packageDao.getByPackageNameOrNull(value.packageName)?.authorized ?: false
     }
 

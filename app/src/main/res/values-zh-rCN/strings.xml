@@ -34,13 +34,10 @@
     <string name="settings_dynamic_color">动态颜色</string>
     <string name="settings_dynamic_color_desc">使用 Material You 配色方案</string>
 
-    <!-- Dialog -->
-    <string name="confirmation_message">允许 %1$s 安装 %2$s 吗？</string>
-    <string name="confirmation_message_unknown">允许安装 %2$s 吗？</string>
-    <string name="confirmation_allow_always">始终允许</string>
-    <string name="confirmation_allow_always_unknown">允许</string>
-    <string name="confirmation_allow_one_time">仅限这一次</string>
-    <string name="confirmation_deny">拒绝</string>
+    <!-- Install -->
+    <string name="package_title">安装包</string>
+    <string name="button_install">安装</string>
+    <string name="button_cancel">取消</string>
 
     <!-- Message -->
     <string name="message_installing">安装中…</string>

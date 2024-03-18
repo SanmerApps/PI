@@ -37,5 +37,14 @@ data class IPackageInfo(
             authorized = authorized,
             pm = pm
         )
+
+        fun empty() = IPackageInfo(
+            inner = PackageInfo(),
+            packageName = "",
+            authorized = false,
+            label = "",
+            lastUpdateTime = 0L,
+            enable = false
+        )
     }
 }

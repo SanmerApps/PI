@@ -35,13 +35,10 @@
     <string name="settings_dynamic_color">Dynamic Color</string>
     <string name="settings_dynamic_color_desc">Use Material You color scheme</string>
 
-    <!-- Dialog -->
-    <string name="confirmation_message">Allow %1$s to install %2$s?</string>
-    <string name="confirmation_message_unknown">Allow to install %2$s?</string>
-    <string name="confirmation_allow_always">Allow all the time</string>
-    <string name="confirmation_allow_always_unknown">Allow</string>
-    <string name="confirmation_allow_one_time">Only this time</string>
-    <string name="confirmation_deny">Deny</string>
+    <!-- Install -->
+    <string name="package_title">Installation Package</string>
+    <string name="button_install">Install</string>
+    <string name="button_cancel">Cancel</string>
 
     <!-- Message -->
     <string name="message_installing">Installing…</string>
