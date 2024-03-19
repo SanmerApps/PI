@@ -1,2 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="install_activity">Instalar</string>
+    <string name="setup_title">Modo de trabalho</string>
+    <string name="setup_root_desc">Requer permissões root fornecidas por Magisk ou KernelSU</string>
+    <string name="home_service_running">O serviço está em execução</string>
+    <string name="home_service_not_running">O serviço não está em execução</string>
+    <string name="home_service_version">Versão %1$d, %2$s</string>
+    <string name="home_view_authorized_apps">Toque para gerenciar apps autorizados</string>
+    <string name="home_requester_title">Solicitante de instalação</string>
+    <string name="home_executor_title">Executor de instalação</string>
+    <string name="home_select_app_title">Selecionar app</string>
+    <string name="home_menu_reset_mode">Redefinir modo de trabalho</string>
+    <string name="home_menu_restart_service">Reiniciar serviço</string>
+    <string name="home_menu_stop_service">Parar serviço</string>
+    <string name="home_menu_about">Sobre</string>
+    <string name="home_about_view_source">Veja o código-fonte no %s</string>
+    <string name="apps_title">Gerenciamento de apps</string>
+    <string name="apps_empty">Lista vazia</string>
+    <string name="settings_dynamic_color">Cor dinâmica</string>
+    <string name="settings_dynamic_color_desc">Use o esquema de cores do Material You</string>
+    <string name="package_title">Pacote de instalação</string>
+    <string name="button_install">Instalar</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="message_installing">Instalando…</string>
+    <string name="message_install_fail">Falha na instalação</string>
+    <string name="message_loading">Carregando…</string>
+    <string name="search_placeholder">Pesquisando…</string>
+    <string name="setup_shizuku_desc">Requer permissão fornecida por Sui ou Shizuku</string>
+    <plurals name="home_authorized_apps_count">
+        <item quantity="one">%d app autorizado</item>
+        <item quantity="many">%d apps autorizados</item>
+        <item quantity="other">%d apps autorizados</item>
+    </plurals>
+    <string name="settings_title">Configurações</string>
+    <string name="message_install_success">Instalação bem-sucedida</string>
+    <string name="notification_name_install">Instalar serviço</string>
+    <string name="unknown_error">Erro desconhecido</string>
+</resources>
