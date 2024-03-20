@@ -19,7 +19,6 @@
     <string name="home_view_authorized_apps">Tap to manage authorized apps</string>
     <string name="home_requester_title">Installation Requester</string>
     <string name="home_executor_title">Installation Executor</string>
-    <string name="home_select_app_title">Select Application</string>
     <string name="home_menu_reset_mode">Reset Working Mode</string>
     <string name="home_menu_restart_service">Restart Service</string>
     <string name="home_menu_stop_service">Stop Service</string>

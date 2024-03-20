@@ -9,7 +9,6 @@
     <string name="home_view_authorized_apps">Toque para gerenciar apps autorizados</string>
     <string name="home_requester_title">Solicitante de instalação</string>
     <string name="home_executor_title">Executor de instalação</string>
-    <string name="home_select_app_title">Selecionar app</string>
     <string name="home_menu_reset_mode">Redefinir modo de trabalho</string>
     <string name="home_menu_restart_service">Reiniciar serviço</string>
     <string name="home_menu_stop_service">Parar serviço</string>
