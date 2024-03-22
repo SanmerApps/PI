@@ -32,9 +32,14 @@ object ProviderCompat {
         else -> "unknown"
     }
 
-    fun init(mode: Provider? = null) {
-        mMode = mode ?: mMode
+    fun init(mode: Provider) {
+        if (mMode == mode) {
+            if (isAlive) return
+        } else {
+            if (isAlive) destroy()
+        }
 
+        mMode = mode
         when (mMode) {
             Provider.Shizuku -> {
                 ShizukuProvider.apply {
@@ -62,7 +67,7 @@ object ProviderCompat {
 
     fun destroy() = when (mMode) {
         Provider.Shizuku -> {
-            isAlive = false // No wait for provider
+            isAlive = false
             ShizukuProvider.destroy()
         }
         Provider.Superuser -> {

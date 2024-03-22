@@ -78,7 +78,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun providerInit() {
-        ProviderCompat.init()
+        viewModelScope.launch {
+            val userPreferences = userPreferencesRepository.data.first()
+            ProviderCompat.init(userPreferences.provider)
+        }
     }
 
     fun providerDestroy() {
