@@ -35,8 +35,6 @@ class InstallActivity : ComponentActivity() {
 
         if (intent.data == null) {
             finish()
-        } else {
-            initPackage(intent)
         }
 
         setContent {
@@ -49,8 +47,10 @@ class InstallActivity : ComponentActivity() {
                 checkNotNull(userPreferences)
             }
 
-            LaunchedEffect(userPreferences) {
-                if (!ProviderCompat.isAlive) {
+            LaunchedEffect(ProviderCompat.isAlive) {
+                if (ProviderCompat.isAlive) {
+                    initPackage(intent)
+                } else {
                     ProviderCompat.init(preferences.provider)
                 }
             }
