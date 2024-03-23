@@ -11,13 +11,21 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.pi.R
+import dev.sanmer.pi.app.Const
+import dev.sanmer.pi.compat.BuildCompat
+import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
+import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
+import dev.sanmer.pi.ui.navigation.graphs.SettingsScreen
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
+import dev.sanmer.pi.ui.utils.navigateSingleTopTo
+import dev.sanmer.pi.utils.extensions.openUrl
 import dev.sanmer.pi.viewmodel.SettingsViewModel
 
 @Composable
@@ -25,6 +33,7 @@ fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val userPreferences = LocalUserPreferences.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -43,12 +52,35 @@ fun SettingsScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
+            SettingNormalItem(
+                icon = R.drawable.components,
+                title = stringResource(id = R.string.setup_title),
+                desc = stringResource(id = when (userPreferences.provider) {
+                    Provider.Superuser -> R.string.setup_root_title
+                    Provider.Shizuku -> R.string.setup_shizuku_title
+                    else -> throw IllegalStateException()
+                }),
+                onClick = {
+                    navController.navigateSingleTopTo(SettingsScreen.WorkingMode.route)
+                }
+            )
+
             SettingSwitchItem(
                 icon = R.drawable.color_swatch,
                 title = stringResource(id = R.string.settings_dynamic_color),
                 desc = stringResource(id = R.string.settings_dynamic_color_desc),
                 checked = userPreferences.dynamicColor,
-                onChange = viewModel::setDynamicColor
+                onChange = viewModel::setDynamicColor,
+                enabled = BuildCompat.atLeastS
+            )
+
+            SettingNormalItem(
+                icon = R.drawable.language,
+                title = stringResource(id = R.string.settings_translation),
+                desc = stringResource(id = R.string.settings_translation_desc),
+                onClick = {
+                    context.openUrl(Const.TRANSLATE_URL)
+                }
             )
         }
     }

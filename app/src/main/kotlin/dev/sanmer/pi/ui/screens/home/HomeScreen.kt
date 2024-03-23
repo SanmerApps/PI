@@ -9,11 +9,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +33,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,13 +43,12 @@ import com.sanmer.mrepo.ui.component.HtmlText
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
-import dev.sanmer.pi.ui.navigation.navigateToApps
+import dev.sanmer.pi.ui.navigation.graphs.HomeScreen
 import dev.sanmer.pi.ui.navigation.navigateToSettings
 import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
 import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
 import dev.sanmer.pi.ui.screens.home.items.RequesterItem
 import dev.sanmer.pi.ui.screens.home.items.StateItem
-import dev.sanmer.pi.ui.utils.ProvideMenuShape
 import dev.sanmer.pi.ui.utils.navigateSingleTopTo
 import dev.sanmer.pi.viewmodel.AppListViewModel
 import dev.sanmer.pi.viewmodel.HomeViewModel
@@ -72,9 +69,6 @@ fun HomeScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                onReset = viewModel::resetProvider,
-                onInit = viewModel::providerInit,
-                onDestroy = viewModel::providerDestroy,
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
@@ -96,7 +90,7 @@ fun HomeScreen(
             if (viewModel.isProviderAlive) {
                 AuthorizedAppItem(
                     count = authorized,
-                    onClick = { navController.navigateToApps() }
+                    onClick = { navController.navigateSingleTopTo(HomeScreen.Apps.route) }
                 )
             }
 
@@ -129,9 +123,6 @@ fun HomeScreen(
 
 @Composable
 private fun TopBar(
-    onReset: () -> Unit,
-    onInit: () -> Unit,
-    onDestroy: () -> Unit,
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
@@ -146,23 +137,13 @@ private fun TopBar(
             )
         }
 
-        var expanded by remember { mutableStateOf(false) }
+        var show by remember { mutableStateOf(false) }
         IconButton(
-            onClick = { expanded = true }
+            onClick = { show = true }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.dots_vertical),
                 contentDescription = null
-            )
-
-            var show by remember { mutableStateOf(false) }
-            Menu(
-                expanded = expanded,
-                onReset = onReset,
-                onInit = onInit,
-                onDestroy = onDestroy,
-                onClose = { expanded = false },
-                onAbout = { show = true }
             )
 
             if (show) AboutDialog(
@@ -174,61 +155,13 @@ private fun TopBar(
 )
 
 @Composable
-private fun Menu(
-    expanded: Boolean,
-    onReset: () -> Unit,
-    onInit: () -> Unit,
-    onDestroy: () -> Unit,
-    onClose: () -> Unit,
-    onAbout: () -> Unit
-) = ProvideMenuShape {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onClose,
-        offset = DpOffset(0.dp, 10.dp)
-    ) {
-        DropdownMenuItem(
-            text = { Text(text = stringResource(id = R.string.home_menu_reset_mode)) },
-            onClick = {
-                onReset()
-                onClose()
-            }
-        )
-
-        DropdownMenuItem(
-            text = { Text(text = stringResource(id = R.string.home_menu_restart_service)) },
-            onClick = {
-                onInit()
-                onClose()
-            }
-        )
-
-        DropdownMenuItem(
-            text = { Text(text = stringResource(id = R.string.home_menu_stop_service)) },
-            onClick = {
-                onDestroy()
-                onClose()
-            }
-        )
-
-        DropdownMenuItem(
-            text = { Text(text = stringResource(id = R.string.home_menu_about)) },
-            onClick = {
-                onAbout()
-                onClose()
-            }
-        )
-    }
-}
-
-@Composable
 private fun AboutDialog(
     onClose: () -> Unit
 ) = BasicAlertDialog(
     onDismissRequest = onClose
 ) {
     Surface(
-        shape = AlertDialogDefaults.shape,
+        shape = RoundedCornerShape(20.dp),
         color = AlertDialogDefaults.containerColor,
         tonalElevation = AlertDialogDefaults.TonalElevation,
     ) {

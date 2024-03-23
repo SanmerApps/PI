@@ -18,10 +18,6 @@
     <string name="home_view_authorized_apps">点按以管理授权的应用</string>
     <string name="home_requester_title">安装请求方</string>
     <string name="home_executor_title">安装执行方</string>
-    <string name="home_menu_reset_mode">重置工作模式</string>
-    <string name="home_menu_restart_service">重启服务</string>
-    <string name="home_menu_stop_service">停止服务</string>
-    <string name="home_menu_about">关于</string>
     <string name="home_about_view_source">在 %s 查看源码</string>
 
     <!-- Apps -->
@@ -31,7 +27,9 @@
     <!-- Settings -->
     <string name="settings_title">设置</string>
     <string name="settings_dynamic_color">动态颜色</string>
-    <string name="settings_dynamic_color_desc">使用 Material You 配色方案</string>
+    <string name="settings_dynamic_color_desc">使用 Material You 配色方案 (Android 12+)</string>
+    <string name="settings_translation">参与翻译</string>
+    <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
 
     <!-- Install -->
     <string name="package_title">安装包</string>

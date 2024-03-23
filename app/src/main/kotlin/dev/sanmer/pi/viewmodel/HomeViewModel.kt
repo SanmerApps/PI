@@ -10,7 +10,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.pi.compat.ProviderCompat
-import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -70,21 +69,5 @@ class HomeViewModel @Inject constructor(
             ).toIPackageInfo(pm = pm)
 
         }
-    }
-
-    fun resetProvider() {
-        userPreferencesRepository.setProvider(Provider.None)
-        providerDestroy()
-    }
-
-    fun providerInit() {
-        viewModelScope.launch {
-            val userPreferences = userPreferencesRepository.data.first()
-            ProviderCompat.init(userPreferences.provider)
-        }
-    }
-
-    fun providerDestroy() {
-        ProviderCompat.destroy()
     }
 }

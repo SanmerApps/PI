@@ -15,7 +15,7 @@ import dev.sanmer.hidden.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
-import dev.sanmer.pi.ui.navigation.MainScreen
+import dev.sanmer.pi.ui.navigation.graphs.HomeScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -138,7 +138,7 @@ class AppListViewModel @Inject constructor(
 
     companion object {
         fun putTarget(target: Target) =
-            MainScreen.AppList.route.replace(
+            HomeScreen.AppList.route.replace(
                 "{target}", target.name
             )
 

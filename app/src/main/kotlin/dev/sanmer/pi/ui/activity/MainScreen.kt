@@ -1,25 +1,15 @@
 package dev.sanmer.pi.ui.activity
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import dev.sanmer.pi.ui.animate.slideInRightToLeft
-import dev.sanmer.pi.ui.animate.slideOutLeftToRight
 import dev.sanmer.pi.ui.navigation.MainScreen
-import dev.sanmer.pi.ui.screens.applist.AppListScreen
-import dev.sanmer.pi.ui.screens.apps.AppsScreen
-import dev.sanmer.pi.ui.screens.home.HomeScreen
-import dev.sanmer.pi.ui.screens.settings.SettingsScreen
+import dev.sanmer.pi.ui.navigation.graphs.homeScreen
+import dev.sanmer.pi.ui.navigation.graphs.settingsScreen
 
 @Composable
 fun MainScreen() {
@@ -33,46 +23,12 @@ fun MainScreen() {
             navController = navController,
             startDestination = MainScreen.Home.route
         ) {
-            composable(
-                route = MainScreen.Home.route,
-                enterTransition = { fadeIn() },
-                exitTransition = { fadeOut() }
-            ) {
-                HomeScreen(
-                    navController = navController
-                )
-            }
-
-            composable(
-                route = MainScreen.Apps.route,
-                enterTransition = { slideInRightToLeft() + fadeIn() },
-                exitTransition = { slideOutLeftToRight() + fadeOut() }
-            ) {
-                AppsScreen(
-                    navController = navController
-                )
-            }
-
-            composable(
-                route = MainScreen.Settings.route,
-                enterTransition = { slideInRightToLeft() + fadeIn() },
-                exitTransition = { slideOutLeftToRight() + fadeOut() }
-            ) {
-                SettingsScreen(
-                    navController = navController
-                )
-            }
-
-            composable(
-                route = MainScreen.AppList.route,
-                arguments = listOf(navArgument("target") { type = NavType.StringType }),
-                enterTransition = { scaleIn() + fadeIn() },
-                exitTransition = { fadeOut() }
-            ) {
-                AppListScreen(
-                    navController = navController
-                )
-            }
+            homeScreen(
+                navController = navController
+            )
+            settingsScreen(
+                navController = navController
+            )
         }
     }
 }

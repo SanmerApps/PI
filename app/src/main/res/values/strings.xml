@@ -19,10 +19,6 @@
     <string name="home_view_authorized_apps">Tap to manage authorized apps</string>
     <string name="home_requester_title">Installation Requester</string>
     <string name="home_executor_title">Installation Executor</string>
-    <string name="home_menu_reset_mode">Reset Working Mode</string>
-    <string name="home_menu_restart_service">Restart Service</string>
-    <string name="home_menu_stop_service">Stop Service</string>
-    <string name="home_menu_about">About</string>
     <string name="home_about_view_source">View source code at %s</string>
 
     <!-- Apps -->
@@ -32,7 +28,9 @@
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_dynamic_color">Dynamic Color</string>
-    <string name="settings_dynamic_color_desc">Use Material You color scheme</string>
+    <string name="settings_dynamic_color_desc">Use Material You color scheme (Android 12+)</string>
+    <string name="settings_translation">Participate in translation</string>
+    <string name="settings_translation_desc">Help us translate PI into your language</string>
 
     <!-- Install -->
     <string name="package_title">Installation Package</string>

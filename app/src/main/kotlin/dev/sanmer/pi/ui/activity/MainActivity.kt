@@ -49,9 +49,7 @@ class MainActivity : ComponentActivity() {
             }
 
             LaunchedEffect(userPreferences) {
-                if (!ProviderCompat.isAlive) {
-                    ProviderCompat.init(preferences.provider)
-                }
+                ProviderCompat.init(preferences.provider)
             }
 
             CompositionLocalProvider(
