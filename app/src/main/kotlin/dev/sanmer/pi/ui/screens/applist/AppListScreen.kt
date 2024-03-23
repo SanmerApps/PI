@@ -161,7 +161,7 @@ private fun BottomBar(
                     imeAction = ImeAction.Search
                 ),
                 keyboardActions = KeyboardActions {
-                    defaultKeyboardAction(ImeAction.Search)
+                    defaultKeyboardAction(ImeAction.Done)
                 },
                 shape = RoundedCornerShape(15.dp),
                 colors = OutlinedTextFieldDefaults.colors(
