@@ -1,5 +1,6 @@
 package dev.sanmer.pi.ui.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import dev.sanmer.pi.compat.BuildCompat
+import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
@@ -35,6 +38,18 @@ class InstallActivity : ComponentActivity() {
 
         if (intent.data == null) {
             finish()
+        }
+
+        if (BuildCompat.atLeastT) {
+            val permission = listOf(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+
+            PermissionCompat.requestPermissions(this, permission) { state ->
+                if (!state.allGranted) {
+                    Timber.w("permission: $state")
+                }
+            }
         }
 
         setContent {

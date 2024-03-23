@@ -14,8 +14,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import dev.sanmer.pi.app.utils.NotificationUtils
-import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -71,10 +69,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-            }
-
-            if (BuildCompat.atLeastT) {
-                NotificationUtils.PermissionState()
             }
         }
     }
