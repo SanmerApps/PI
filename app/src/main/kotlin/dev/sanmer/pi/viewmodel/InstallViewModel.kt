@@ -8,7 +8,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,8 +16,8 @@ import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.app.Const
-import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.ProviderCompat
+import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -50,8 +49,8 @@ class InstallViewModel @Inject constructor(
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
     val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
-    val versionDiff by lazy { getVersionDiff(currentInfo, archiveInfo) }
-    val sdkDiff by lazy { getSdkDiff(currentInfo, archiveInfo) }
+    val versionDiff by lazy { VersionCompat.getVersionDiff(currentInfo, archiveInfo) }
+    val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
 
     val isReady by derivedStateOf { archiveInfo.isNotEmpty && ProviderCompat.isAlive }
 
@@ -141,73 +140,5 @@ class InstallViewModel @Inject constructor(
             it.applicationInfo.sourceDir = archiveFile.path
             it.applicationInfo.publicSourceDir = archiveFile.path
         } ?: PackageInfo()
-    }
-
-    private fun getVersionDiff(
-        old: PackageInfo,
-        new: PackageInfo
-    ) = buildAnnotatedString {
-        if (old.longVersionCode != new.longVersionCode && old.isNotEmpty) {
-            append("${old.versionName} (${old.longVersionCode})")
-
-            if (old.longVersionCode < new.longVersionCode) {
-                append(" $ARROW ")
-            } else {
-                append(" $ARROW_REVERT ")
-            }
-        }
-
-        append("${new.versionName} (${new.longVersionCode})")
-    }
-
-    private fun getSdkDiff(
-        old: PackageInfo,
-        new: PackageInfo
-    ) = buildAnnotatedString {
-        fun getIntDiff(v1: Int, v2: Int) {
-            append("$v1")
-            if (v1 == v2) return
-            if (v1 < v2) append(" $ARROW ")
-            if (v1 > v2) append(" $ARROW_REVERT ")
-            append("$v2")
-        }
-
-        if (old.isEmpty) {
-            with(new.applicationInfo) {
-                append("Target: ")
-                append("$targetSdkVersion")
-
-                append(", ")
-                append("Min: ")
-                append("$minSdkVersion")
-
-                if (BuildCompat.atLeastS) {
-                    append(", ")
-                    append("Compile: ")
-                    append("$compileSdkVersion")
-                }
-            }
-        } else {
-            val info = old.applicationInfo
-            with(new.applicationInfo) {
-                append("Target: ")
-                getIntDiff(info.targetSdkVersion, targetSdkVersion)
-
-                append(", ")
-                append("Min: ")
-                getIntDiff(info.minSdkVersion, minSdkVersion)
-
-                if (BuildCompat.atLeastS) {
-                    append(", ")
-                    append("Compile: ")
-                    getIntDiff(info.compileSdkVersion, compileSdkVersion)
-                }
-            }
-        }
-    }
-
-    companion object {
-        const val ARROW = "→"
-        const val ARROW_REVERT = "←"
     }
 }
