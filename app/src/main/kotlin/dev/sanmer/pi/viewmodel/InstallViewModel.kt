@@ -38,6 +38,7 @@ class InstallViewModel @Inject constructor(
     private val pm by lazy { context.packageManager }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
+    private var archiveUri = Uri.EMPTY
     private val tmpFile by lazy { context.tmpDir.resolve(Const.TEMP_PACKAGE) }
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
         private set
@@ -74,12 +75,14 @@ class InstallViewModel @Inject constructor(
 
         val archive = getArchiveInfo(tmpFile)
         if (archive.isNotEmpty) {
+            archiveUri = uri
             archiveInfo = archive
             isAuthorized = isAuthorized or isSelf
-            return@withContext true
-        }
 
-        return@withContext false
+            true
+        } else {
+            false
+        }
     }
 
     fun toggleAuthorized() {
@@ -97,8 +100,8 @@ class InstallViewModel @Inject constructor(
     fun startInstall() {
         InstallService.start(
             context = context,
-            archiveFilePath = tmpFile.path,
-            archivePackageInfo = archiveInfo
+            archiveUri = archiveUri,
+            archiveInfo = archiveInfo
         )
     }
 

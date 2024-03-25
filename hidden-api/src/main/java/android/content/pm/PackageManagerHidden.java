@@ -8,7 +8,9 @@ import dev.rikka.tools.refine.RefineAs;
 public class PackageManagerHidden {
 
     public static int INSTALL_REPLACE_EXISTING;
+
     public static int INSTALL_ALLOW_TEST;
+
     public static int INSTALL_REQUEST_DOWNGRADE;
 
     @RequiresApi(34)

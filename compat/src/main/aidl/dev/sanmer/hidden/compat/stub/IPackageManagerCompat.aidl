@@ -5,10 +5,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.ParceledListSlice;
 import android.content.pm.ResolveInfo;
-import dev.sanmer.hidden.compat.content.ArchiveInfo;
-import dev.sanmer.hidden.compat.stub.IInstallCallback;
+import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat;
 
 interface IPackageManagerCompat {
+    IPackageInstallerCompat getPackageInstallerCompat();
     ApplicationInfo getApplicationInfo(String packageName, int flags, int userId);
     PackageInfo getPackageInfo(String packageName, int flags, int userId);
     int getPackageUid(String packageName, int flags, int userId);
@@ -16,7 +16,5 @@ interface IPackageManagerCompat {
     ParceledListSlice<ApplicationInfo> getInstalledApplications(int flags, int userId);
     ParceledListSlice<ResolveInfo> queryIntentActivities(in Intent intent, String resolvedType, int flags, int userId);
     String[] getPackagesForUid(int uid);
-
     Intent getLaunchIntentForPackage(String packageName, int userId);
-    oneway void installPackage(in ArchiveInfo archiveInfo, String installerPackageName, IInstallCallback callback, int userId);
 }
