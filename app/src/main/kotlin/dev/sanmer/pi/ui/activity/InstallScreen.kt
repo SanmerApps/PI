@@ -127,7 +127,7 @@ private fun InstallContent(
             .padding(navigationBarsPadding)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(15.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
