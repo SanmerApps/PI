@@ -59,7 +59,7 @@ internal class PackageInstallerCompatImpl(
     override fun unregisterCallback(callback: ISessionCallback) {
         val binder = callback.asBinder()
         val delegate = mCallbacks.remove(binder)
-        if (delegate != null && delegate is IPackageInstallerCallback) {
+        if (delegate is IPackageInstallerCallback) {
             original.unregisterCallback(delegate)
         }
     }

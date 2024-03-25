@@ -104,9 +104,7 @@ class PackageInstallerDelegate(
             )
         } else {
             FileBridge.FileBridgeOutputStream(
-                installer.openWrite(
-                    sessionId, name, offsetBytes, lengthBytes
-                )
+                installer.openWrite(sessionId, name, offsetBytes, lengthBytes)
             )
         }
     }
@@ -114,7 +112,7 @@ class PackageInstallerDelegate(
     fun fsync(out: OutputStream) {
         if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
             if (out is ParcelFileDescriptor.AutoCloseOutputStream) {
-                Os.fsync(out.getFD())
+                Os.fsync(out.fd)
             } else {
                 throw IllegalArgumentException("Unrecognized stream")
             }
@@ -167,11 +165,11 @@ class PackageInstallerDelegate(
             }
         }
 
-        val intentSender: IntentSender
-            get() = Refine.unsafeCast(IntentSenderHidden(mLocalSender))
+        val intentSender: IntentSender get() =
+            Refine.unsafeCast(IntentSenderHidden(mLocalSender))
 
-        val result: Intent
-            get() = try {
+        val result: Intent get() =
+            try {
                 mResult.take()
             } catch (e: InterruptedException) {
                 throw RuntimeException(e)

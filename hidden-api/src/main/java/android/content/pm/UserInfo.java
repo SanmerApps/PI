@@ -2,7 +2,7 @@ package android.content.pm;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.UserHandleHidden;
+import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -28,7 +28,7 @@ public class UserInfo implements Parcelable {
         throw new RuntimeException("Stub!");
     }
 
-    public UserHandleHidden getUserHandle() {
+    public UserHandle getUserHandle() {
         throw new RuntimeException("Stub!");
     }
 
