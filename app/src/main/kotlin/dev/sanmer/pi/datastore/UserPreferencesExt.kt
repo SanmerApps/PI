@@ -28,12 +28,6 @@ data class UserPreferencesExt(
         .setSelfUpdate(selfUpdate)
         .build()
 
-    fun copy(
-        block: UserPreferencesKt.Dsl.() -> Unit
-    ) {
-        toProto().copy(block)
-    }
-
     companion object {
         fun default() = UserPreferencesExt(
             provider = Provider.None,
