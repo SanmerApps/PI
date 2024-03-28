@@ -1,31 +1,27 @@
 package dev.sanmer.hidden.compat.impl
 
-import android.content.IIntentReceiver
-import android.content.IIntentSender
 import android.content.Intent
-import android.content.IntentSender
-import android.content.IntentSenderHidden
 import android.content.pm.ApplicationInfo
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInfo
-import android.content.pm.PackageInstaller
-import android.content.pm.PackageInstallerHidden
-import android.content.pm.PackageManagerHidden
 import android.content.pm.ParceledListSlice
 import android.content.pm.ResolveInfo
-import android.os.Bundle
-import android.os.IBinder
-import android.os.Process
-import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
-import dev.sanmer.hidden.compat.content.ArchiveInfo
-import dev.sanmer.hidden.compat.stub.IInstallCallback
+import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 
 internal class PackageManagerCompatImpl(
     private val original: IPackageManager
 ) : IPackageManagerCompat.Stub() {
-    private val installer by lazy { original.packageInstaller }
+    private val packageInstallerCompat by lazy {
+        PackageInstallerCompatImpl(
+            original.packageInstaller
+        )
+    }
+
+    override fun getPackageInstallerCompat(): IPackageInstallerCompat {
+        return packageInstallerCompat
+    }
 
     override fun getApplicationInfo(
         packageName: String,
@@ -129,89 +125,5 @@ internal class PackageManagerCompatImpl(
         )
 
         return intent
-    }
-
-    override fun installPackage(
-        archiveInfo: ArchiveInfo,
-        installerPackageName: String,
-        callback: IInstallCallback,
-        userId: Int
-    ) {
-        val newPackageInfo = archiveInfo.archivePackageInfo
-        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-
-        val originatingUid = runCatching {
-            getPackageUid(archiveInfo.originatingPackageName, 0, 0)
-        }.getOrDefault(Process.INVALID_UID)
-
-        if (originatingUid != Process.INVALID_UID) {
-            params.setOriginatingUid(originatingUid)
-        }
-
-        var flags = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(params).installFlags
-        flags = flags or PackageManagerHidden.INSTALL_ALLOW_TEST or
-                PackageManagerHidden.INSTALL_REPLACE_EXISTING or
-                PackageManagerHidden.INSTALL_REQUEST_DOWNGRADE
-
-        if (BuildCompat.atLeastU) {
-            flags = flags or PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
-        }
-
-        Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(params).installFlags = flags
-
-        val input = archiveInfo.archiveFile.inputStream()
-        createSession(params, installerPackageName, userId).use { session ->
-            session.openWrite(newPackageInfo.packageName, 0, input.available().toLong()).use { output ->
-                input.copyTo(output)
-                session.fsync(output)
-
-                input.close()
-            }
-
-            val target = object : IIntentSender.Stub() {
-                override fun send(
-                    code: Int,
-                    intent: Intent,
-                    resolvedType: String?,
-                    whitelistToken: IBinder?,
-                    finishedReceiver: IIntentReceiver?,
-                    requiredPermission: String?,
-                    options: Bundle?
-                ) {
-                    val status = intent.getIntExtra(
-                        PackageInstaller.EXTRA_STATUS,
-                        PackageInstaller.STATUS_FAILURE
-                    )
-
-                    when(status) {
-                        PackageInstaller.STATUS_SUCCESS -> callback.onSuccess(intent)
-                        else -> callback.onFailure(intent)
-                    }
-                }
-            }
-
-            val statusReceiver: IntentSender = Refine.unsafeCast(IntentSenderHidden(target))
-            session.commit(statusReceiver)
-        }
-    }
-
-    private fun createSession(
-        params: PackageInstaller.SessionParams,
-        installerPackageName: String,
-        userId: Int
-    ): PackageInstaller.Session {
-        val packageInstaller: PackageInstaller = if (BuildCompat.atLeastS) {
-            Refine.unsafeCast(
-                PackageInstallerHidden(installer, installerPackageName, null, userId)
-            )
-        } else {
-            Refine.unsafeCast(
-                PackageInstallerHidden(installer, installerPackageName, userId)
-            )
-        }
-
-        val sessionId = packageInstaller.createSession(params)
-        val session = installer.openSession(sessionId)
-        return Refine.unsafeCast(PackageInstallerHidden.SessionHidden(session))
     }
 }
