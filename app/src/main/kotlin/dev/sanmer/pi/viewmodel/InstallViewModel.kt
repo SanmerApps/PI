@@ -48,7 +48,7 @@ class InstallViewModel @Inject constructor(
     var archiveInfo by mutableStateOf(PackageInfo())
         private set
     private val isSelf get() = sourceInfo.packageName == archiveInfo.packageName
-    var isAuthorized by mutableStateOf(false)
+    var isAuthorized = false
         private set
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
