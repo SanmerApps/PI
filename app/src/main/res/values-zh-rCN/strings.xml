@@ -30,6 +30,8 @@
     <string name="settings_dynamic_color_desc">使用 Material You 配色方案 (Android 12+)</string>
     <string name="settings_translation">参与翻译</string>
     <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
+    <string name="settings_self_update">自更新</string>
+    <string name="settings_self_update_desc">自动允许由应用自己发出的安装请求</string>
 
     <!-- Install -->
     <string name="package_title">安装包</string>

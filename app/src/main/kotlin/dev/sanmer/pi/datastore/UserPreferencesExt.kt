@@ -9,34 +9,44 @@ data class UserPreferencesExt(
     val provider: Provider,
     val dynamicColor: Boolean,
     val requester: String,
-    val executor: String
+    val executor: String,
+    val selfUpdate: Boolean
 ) {
+    constructor(original: UserPreferences) : this(
+        provider = original.provider,
+        dynamicColor = original.dynamicColor,
+        requester = original.requester,
+        executor = original.executor,
+        selfUpdate = original.selfUpdate
+    )
+
+    fun toProto(): UserPreferences = UserPreferences.newBuilder()
+        .setProvider(provider)
+        .setDynamicColor(dynamicColor)
+        .setRequester(requester)
+        .setExecutor(executor)
+        .setSelfUpdate(selfUpdate)
+        .build()
+
+    fun copy(
+        block: UserPreferencesKt.Dsl.() -> Unit
+    ) {
+        toProto().copy(block)
+    }
+
     companion object {
         fun default() = UserPreferencesExt(
             provider = Provider.None,
             dynamicColor = BuildCompat.atLeastS,
             requester = BuildConfig.APPLICATION_ID,
-            executor = BuildConfig.APPLICATION_ID
+            executor = BuildConfig.APPLICATION_ID,
+            selfUpdate = true
         )
+
+        fun UserPreferences.new(
+            block: UserPreferencesKt.Dsl.() -> Unit
+        ) = UserPreferencesExt(this)
+            .toProto()
+            .copy(block)
     }
 }
-
-fun UserPreferencesExt.toProto(): UserPreferences = UserPreferences.newBuilder()
-    .setProvider(provider)
-    .setDynamicColor(dynamicColor)
-    .setRequester(requester)
-    .setExecutor(executor)
-    .build()
-
-fun UserPreferences.toExt() = UserPreferencesExt(
-    provider = provider,
-    dynamicColor = dynamicColor,
-    requester = requester,
-    executor = executor
-)
-
-fun UserPreferences.new(
-    block: UserPreferencesKt.Dsl.() -> Unit
-) = toExt()
-    .toProto()
-    .copy(block)

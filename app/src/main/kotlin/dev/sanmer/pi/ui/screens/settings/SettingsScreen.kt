@@ -66,6 +66,14 @@ fun SettingsScreen(
             )
 
             SettingSwitchItem(
+                icon = R.drawable.device_mobile_up,
+                title = stringResource(id = R.string.settings_self_update),
+                desc = stringResource(id = R.string.settings_self_update_desc),
+                checked = userPreferences.selfUpdate,
+                onChange = viewModel::setSelfUpdate,
+            )
+
+            SettingSwitchItem(
                 icon = R.drawable.color_swatch,
                 title = stringResource(id = R.string.settings_dynamic_color),
                 desc = stringResource(id = R.string.settings_dynamic_color_desc),

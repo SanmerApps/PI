@@ -30,4 +30,8 @@ class UserPreferencesRepository @Inject constructor(
     fun setExecutor(value: String) = applicationScope.launch {
         userPreferencesDataSource.setExecutor(value)
     }
+
+    fun setSelfUpdate(value: Boolean) = applicationScope.launch {
+        userPreferencesDataSource.setSelfUpdate(value)
+    }
 }

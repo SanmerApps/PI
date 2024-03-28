@@ -31,6 +31,8 @@
     <string name="settings_dynamic_color_desc">Use Material You color scheme (Android 12+)</string>
     <string name="settings_translation">Participate in translation</string>
     <string name="settings_translation_desc">Help us translate PI into your language</string>
+    <string name="settings_self_update">Self-update</string>
+    <string name="settings_self_update_desc">Automatically allow installation requests made by the app itself</string>
 
     <!-- Install -->
     <string name="package_title">Installation Package</string>

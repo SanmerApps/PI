@@ -15,9 +15,12 @@ class SettingsViewModel @Inject constructor(
         Timber.d("SettingsViewModel init")
     }
 
-    fun setDynamicColor(dynamicColor: Boolean) =
-        userPreferencesRepository.setDynamicColor(dynamicColor)
+    fun setDynamicColor(value: Boolean) =
+        userPreferencesRepository.setDynamicColor(value)
 
-    fun setProvider(provider: Provider) =
-        userPreferencesRepository.setProvider(provider)
+    fun setProvider(value: Provider) =
+        userPreferencesRepository.setProvider(value)
+
+    fun setSelfUpdate(value: Boolean) =
+        userPreferencesRepository.setSelfUpdate(value)
 }

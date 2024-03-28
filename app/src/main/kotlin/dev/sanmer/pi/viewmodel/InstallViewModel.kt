@@ -21,9 +21,11 @@ import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.service.InstallService
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -32,6 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class InstallViewModel @Inject constructor(
     private val localRepository: LocalRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
@@ -56,6 +59,9 @@ class InstallViewModel @Inject constructor(
     val isReady by derivedStateOf { archiveInfo.isNotEmpty && ProviderCompat.isAlive }
 
     suspend fun loadData(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+        val userPreferences = userPreferencesRepository.data.first()
+        val selfUpdate = userPreferences.selfUpdate
+
         val sourcePackage = getSourcePackageForHost(uri)
         val source = getPackageInfo(sourcePackage)
         if (!source.isSystemApp) {
@@ -77,7 +83,7 @@ class InstallViewModel @Inject constructor(
         if (archive.isNotEmpty) {
             archiveUri = uri
             archiveInfo = archive
-            isAuthorized = isAuthorized or isSelf
+            isAuthorized = isAuthorized || (isSelf && selfUpdate)
 
             true
         } else {
