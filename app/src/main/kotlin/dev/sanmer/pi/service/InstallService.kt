@@ -57,8 +57,8 @@ class InstallService: LifecycleService() {
 
             onProgressChanged(
                 id = sessionId,
-                title = session.appLabel.toString(),
-                largeIcon = session.appIcon,
+                appLabel = session.appLabel.toString(),
+                appIcon = session.appIcon,
                 progress = 0f
             )
         }
@@ -69,8 +69,8 @@ class InstallService: LifecycleService() {
 
             onProgressChanged(
                 id = sessionId,
-                title = session.appLabel.toString(),
-                largeIcon = session.appIcon,
+                appLabel = session.appLabel.toString(),
+                appIcon = session.appIcon,
                 progress = progress
             )
         }
@@ -95,7 +95,7 @@ class InstallService: LifecycleService() {
     override fun onDestroy() {
         tmpDir.deleteRecursively()
         delegate.unregisterCallback(mCallback)
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
         Timber.d("InstallService onDestroy")
         super.onDestroy()
@@ -159,8 +159,8 @@ class InstallService: LifecycleService() {
                     Timber.i("onSucceeded: packageName = ${archiveInfo.packageName}")
                     onInstallSucceeded(
                         id = sessionId,
-                        title = appLabel,
-                        largeIcon = appIcon,
+                        appLabel = appLabel,
+                        appIcon = appIcon,
                         packageName = archiveInfo.packageName
                     )
                 }
@@ -169,8 +169,8 @@ class InstallService: LifecycleService() {
                     Timber.e("onFailed: packageName = ${archiveInfo.packageName}, msg = $msg")
                     onInstallFailed(
                         id = sessionId,
-                        title = appLabel,
-                        largeIcon = appIcon,
+                        appLabel = appLabel,
+                        appIcon = appIcon,
                     )
                 }
             }
@@ -188,66 +188,62 @@ class InstallService: LifecycleService() {
 
     private fun onProgressChanged(
         id: Int,
-        title: String,
-        largeIcon: Bitmap?,
+        appLabel: String,
+        appIcon: Bitmap?,
         progress: Float
     ) {
-        val p = (100 * progress).toInt()
-        val notification = buildNotification(
-            title = title,
-            message = null,
-            largeIcon = largeIcon,
-            silent = true,
-            ongoing = true
-        ).apply {
-            setProgress(100, p, false)
-        }
+        val notification = baseNotificationBuilder()
+            .setLargeIcon(appIcon)
+            .setContentTitle(appLabel)
+            .setSilent(true)
+            .setOngoing(true)
+            .setGroup(GROUP_KEY)
+            .setProgress(100, (100 * progress).toInt(), false)
+            .build()
 
-        notify(id, notification.build())
+        notify(id, notification)
     }
 
     private fun onInstallSucceeded(
         id: Int,
-        title: String,
-        largeIcon: Bitmap,
+        appLabel: String,
+        appIcon: Bitmap,
         packageName: String
     ) {
-        val message = context.getString(R.string.message_install_success)
         val intent = pmCompat.getLaunchIntentForPackage(packageName, userId)?.let {
             PendingIntent.getActivity(
-                context, 0, it, PendingIntent.FLAG_IMMUTABLE
+                this, 0, it, PendingIntent.FLAG_IMMUTABLE
             )
         }
 
-        val notification = buildNotification(
-            title = title,
-            message = message,
-            largeIcon = largeIcon,
-            silent = true,
-            ongoing = false
-        ).apply {
-            setContentIntent(intent)
-        }
+        val notification = baseNotificationBuilder()
+            .setSmallIcon(R.drawable.launcher_outline)
+            .setLargeIcon(appIcon)
+            .setContentTitle(appLabel)
+            .setContentText(getString(R.string.message_install_success))
+            .setContentIntent(intent)
+            .setSilent(true)
+            .build()
 
-        notify(id, notification.build())
+        notify(id, notification)
     }
 
-    private fun onInstallFailed(id: Int, title: String, largeIcon: Bitmap) {
-        val message = context.getString(R.string.message_install_fail)
-        val notification = buildNotification(
-            title = title,
-            message = message,
-            largeIcon = largeIcon,
-            silent = false,
-            ongoing = false
-        )
+    private fun onInstallFailed(
+        id: Int,
+        appLabel: String,
+        appIcon: Bitmap
+    ) {
+        val notification = baseNotificationBuilder()
+            .setLargeIcon(appIcon)
+            .setContentTitle(appLabel)
+            .setContentText(getString(R.string.message_install_fail))
+            .build()
 
-        notify(id, notification.build())
+        notify(id, notification)
     }
 
     private fun setForeground() {
-        val notification = NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
-            .setSmallIcon(R.drawable.launcher_outline)
+        val notification = baseNotificationBuilder()
             .setContentTitle(getString(R.string.notification_name_install))
             .setSilent(true)
             .setOngoing(true)
@@ -258,20 +254,9 @@ class InstallService: LifecycleService() {
         startForeground(NotificationUtils.NOTIFICATION_ID_INSTALL, notification)
     }
 
-    private fun buildNotification(
-        title: String,
-        message: String?,
-        largeIcon: Bitmap?,
-        silent: Boolean,
-        ongoing: Boolean,
-    ) = NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
-        .setSmallIcon(R.drawable.launcher_outline)
-        .setContentTitle(title)
-        .setContentText(message)
-        .setSilent(silent)
-        .setOngoing(ongoing)
-        .setGroup(GROUP_KEY)
-        .setLargeIcon(largeIcon)
+    private fun baseNotificationBuilder() =
+        NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
+            .setSmallIcon(R.drawable.launcher_outline)
 
     @SuppressLint("MissingPermission")
     private fun notify(id: Int, notification: Notification) {
@@ -291,12 +276,12 @@ class InstallService: LifecycleService() {
 
     companion object {
         private const val GROUP_KEY = "INSTALL_SERVICE_GROUP_KEY"
-        private const val PARAM_ARCHIVE_URI = "ARCHIVE_URI"
-        private const val PARAM_ARCHIVE_INFO = "ARCHIVE_PACKAGE_INFO"
+        private const val EXTRA_ARCHIVE_URI = "dev.sanmer.pi.extra.ARCHIVE_URI"
+        private const val EXTRA_ARCHIVE_INFO = "dev.sanmer.pi.extra.ARCHIVE_PACKAGE_INFO"
         private val Intent.archiveUriOrNull: Uri? get() =
-            parcelable(PARAM_ARCHIVE_URI)
+            parcelable(EXTRA_ARCHIVE_URI)
         private val Intent.archiveInfoOrNull: PackageInfo? get() =
-            parcelable(PARAM_ARCHIVE_INFO)
+            parcelable(EXTRA_ARCHIVE_INFO)
 
         fun start(
             context: Context,
@@ -304,8 +289,8 @@ class InstallService: LifecycleService() {
             archiveInfo: PackageInfo
         ) {
             val intent = Intent(context, InstallService::class.java)
-            intent.putExtra(PARAM_ARCHIVE_URI, archiveUri)
-            intent.putExtra(PARAM_ARCHIVE_INFO, archiveInfo)
+            intent.putExtra(EXTRA_ARCHIVE_URI, archiveUri)
+            intent.putExtra(EXTRA_ARCHIVE_INFO, archiveInfo)
 
             context.startService(intent)
         }
