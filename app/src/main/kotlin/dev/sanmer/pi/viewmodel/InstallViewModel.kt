@@ -15,7 +15,7 @@ import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
-import dev.sanmer.pi.app.Const
+import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +43,8 @@ class InstallViewModel @Inject constructor(
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
     private var archiveUri = Uri.EMPTY
-    private val tmpFile by lazy { context.tmpDir.resolve(Const.TEMP_PACKAGE) }
+    private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
+
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
         private set
     var archiveInfo by mutableStateOf(PackageInfo())
@@ -52,13 +54,13 @@ class InstallViewModel @Inject constructor(
         private set
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
-    val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
+    private val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
     val versionDiff by lazy { VersionCompat.getVersionDiff(currentInfo, archiveInfo) }
     val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
 
     val isReady by derivedStateOf { archiveInfo.isNotEmpty && ProviderCompat.isAlive }
 
-    suspend fun loadData(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+    suspend fun loadPackage(uri: Uri): Boolean = withContext(Dispatchers.IO) {
         val userPreferences = userPreferencesRepository.data.first()
         val selfUpdate = userPreferences.selfUpdate
 
@@ -72,14 +74,8 @@ class InstallViewModel @Inject constructor(
             )
         }
 
-        val cr = context.contentResolver
-        cr.openInputStream(uri)?.use { input ->
-            tmpFile.outputStream().use { output ->
-                input.copyTo(output)
-            }
-        } ?: return@withContext false
-
-        val archive = getArchiveInfo(tmpFile)
+        val tempFile = context.copyToDir(uri, tempDir)
+        val archive = getArchiveInfo(tempFile)
         if (archive.isNotEmpty) {
             archiveUri = uri
             archiveInfo = archive
@@ -111,8 +107,8 @@ class InstallViewModel @Inject constructor(
         )
     }
 
-    fun clearFile() {
-        tmpFile.apply { if (exists()) delete() }
+    fun deleteTempDir() {
+        tempDir.deleteRecursively()
     }
 
     private fun getSourcePackageForHost(uri: Uri): String? {

@@ -92,8 +92,8 @@ class InstallActivity : ComponentActivity() {
 
     private fun initPackage(intent: Intent) = lifecycleScope.launch {
         val packageUri = checkNotNull(intent.data)
-        val isOk = viewModel.loadData(packageUri)
-        if (isOk && viewModel.isAuthorized) {
+        val ok = viewModel.loadPackage(packageUri)
+        if (ok && viewModel.isAuthorized) {
             viewModel.startInstall()
             finish()
         }

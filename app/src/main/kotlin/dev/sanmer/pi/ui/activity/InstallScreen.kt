@@ -48,7 +48,7 @@ fun InstallScreen(
     onFinish: () -> Unit
 ) {
     val onDeny: () -> Unit = {
-        viewModel.clearFile()
+        viewModel.deleteTempDir()
         onFinish()
     }
 
