@@ -30,6 +30,7 @@ import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.parcelable
 import dev.sanmer.pi.utils.extensions.tmpDir
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.zhanghai.android.appiconloader.AppIconLoader
@@ -102,7 +103,7 @@ class InstallService: LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val archiveUri = intent?.archiveUriOrNull ?: return@launch
             val archiveInfo = intent.archiveInfoOrNull ?: return@launch
 
