@@ -42,7 +42,9 @@ import javax.inject.Inject
 class InstallService: LifecycleService() {
     @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
 
-    private val context: Context by lazy { applicationContext }
+    private val appIconLoader by lazy {
+        AppIconLoader(45.dp, true, this)
+    }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val delegate by lazy {
         PackageInstallerDelegate(
@@ -107,25 +109,23 @@ class InstallService: LifecycleService() {
             val archiveUri = intent?.archiveUriOrNull ?: return@launch
             val archiveInfo = intent.archiveInfoOrNull ?: return@launch
 
-            Timber.i("onCreated: packageName = ${archiveInfo.packageName}")
-            val params = PackageInstallerDelegate.createSessionParams()
-            val sessionId = delegate.createSession(params)
+            val appIcon = appIconLoader.loadIcon(archiveInfo.applicationInfo)
+            val appLabel = archiveInfo.applicationInfo.loadLabel(packageManager).toString()
 
             val userPreferences = userPreferencesRepository.data.first()
             val originating = userPreferences.requester
             delegate.installerPackageName = userPreferences.executor
+            delegate.installerAttributionTag = userPreferences.executor
 
+            Timber.i("onCreated: packageName = ${archiveInfo.packageName}")
+            val params = PackageInstallerDelegate.createSessionParams()
             val uid = getPackageUid(originating)
             if (uid != Process.INVALID_UID) {
                 params.setOriginatingUid(uid)
             }
 
-            val appIcon = AppIconLoader(45.dp, true, context)
-                .loadIcon(archiveInfo.applicationInfo)
+            val sessionId = delegate.createSession(params)
             delegate.setAppIcon(sessionId, appIcon)
-
-            val appLabel = archiveInfo.applicationInfo
-                .loadLabel(packageManager).toString()
             delegate.setAppLabel(sessionId, appLabel)
 
             val cr = contentResolver
@@ -263,7 +263,7 @@ class InstallService: LifecycleService() {
     private fun notify(id: Int, notification: Notification) {
         val granted = if (BuildCompat.atLeastT) {
             PermissionCompat.checkPermissions(
-                context,
+                this,
                 listOf(Manifest.permission.POST_NOTIFICATIONS)
             ).allGranted
         } else {
