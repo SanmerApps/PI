@@ -20,7 +20,7 @@ internal class PackageInstallerCompatImpl(
     override fun createSession(
         params: PackageInstaller.SessionParams,
         installerPackageName: String,
-        installerAttributionTag: String?,
+        installerAttributionTag: String,
         userId: Int
     ): Int {
         return if (BuildCompat.atLeastS) {

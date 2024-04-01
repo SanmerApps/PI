@@ -7,7 +7,7 @@ import android.graphics.Bitmap
 import android.os.ParcelFileDescriptor
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 
-class PackageInstallerSessionCompatImpl(
+internal class PackageInstallerSessionCompatImpl(
     private val sessionId: Int,
     private val original: IPackageInstallerSession,
     private val installer: IPackageInstaller
