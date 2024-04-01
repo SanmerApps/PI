@@ -18,6 +18,7 @@ import android.system.Os
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
+import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 import dev.sanmer.hidden.compat.stub.ISessionCallback
 import java.io.InputStream
 import java.io.OutputStream
@@ -58,12 +59,10 @@ class PackageInstallerDelegate(
         )
     }
 
-    fun setAppIcon(sessionId: Int, appIcon: Bitmap) {
-        installer.updateSessionAppIcon(sessionId, appIcon)
-    }
-
-    fun setAppLabel(sessionId: Int, appLabel: String) {
-        installer.updateSessionAppLabel(sessionId, appLabel)
+    fun openSession(sessionId: Int): SessionDelegate {
+        return SessionDelegate(
+            session = installer.openSession(sessionId)
+        )
     }
 
     fun getSessionInfo(sessionId: Int): PackageInstaller.SessionInfo? {
@@ -76,7 +75,7 @@ class PackageInstallerDelegate(
     }
 
     fun getMySessions(): List<PackageInstaller.SessionInfo> {
-        val sessions = installer.getAllSessions(userId).list
+        val sessions = getAllSessions()
         return if (BuildCompat.atLeastS) {
             sessions.filter {
                 it.installerPackageName == installerPackageName
@@ -95,54 +94,6 @@ class PackageInstallerDelegate(
 
     fun unregisterCallback(callback: ISessionCallback) {
         installer.unregisterCallback(callback)
-    }
-
-    fun openWrite(sessionId: Int, name: String, offsetBytes: Long, lengthBytes: Long): OutputStream {
-        return if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
-            ParcelFileDescriptor.AutoCloseOutputStream(
-                installer.openWrite(sessionId, name, offsetBytes, lengthBytes)
-            )
-        } else {
-            FileBridge.FileBridgeOutputStream(
-                installer.openWrite(sessionId, name, offsetBytes, lengthBytes)
-            )
-        }
-    }
-
-    fun fsync(out: OutputStream) {
-        if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
-            if (out is ParcelFileDescriptor.AutoCloseOutputStream) {
-                Os.fsync(out.fd)
-            } else {
-                throw IllegalArgumentException("Unrecognized stream")
-            }
-        } else {
-            if (out is FileBridge.FileBridgeOutputStream) {
-                out.fsync()
-            } else {
-                throw IllegalArgumentException("Unrecognized stream")
-            }
-        }
-    }
-
-    fun write(sessionId: Int, name: String, offsetBytes: Long, lengthBytes: Long, fd: ParcelFileDescriptor) {
-        installer.write(sessionId, name, offsetBytes, lengthBytes, fd);
-    }
-
-    fun openRead(sessionId: Int, name: String): InputStream {
-        val pfd: ParcelFileDescriptor = installer.openRead(sessionId, name)
-        return ParcelFileDescriptor.AutoCloseInputStream(pfd)
-    }
-
-    fun close(sessionId: Int) {
-        installer.close(sessionId)
-    }
-
-    fun commit(sessionId: Int): Intent {
-        val receiver = LocalIntentReceiver()
-        installer.commit(sessionId, receiver.intentSender, false)
-
-        return receiver.result
     }
 
     internal class LocalIntentReceiver {
@@ -174,6 +125,70 @@ class PackageInstallerDelegate(
             } catch (e: InterruptedException) {
                 throw RuntimeException(e)
             }
+    }
+
+    class SessionDelegate(
+        private val session: IPackageInstallerSessionCompat
+    ) {
+        fun openWrite(name: String, offsetBytes: Long, lengthBytes: Long): OutputStream {
+            return if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
+                ParcelFileDescriptor.AutoCloseOutputStream(
+                    session.openWrite(name, offsetBytes, lengthBytes)
+                )
+            } else {
+                FileBridge.FileBridgeOutputStream(
+                    session.openWrite(name, offsetBytes, lengthBytes)
+                )
+            }
+        }
+
+        fun fsync(out: OutputStream) {
+            if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
+                if (out is ParcelFileDescriptor.AutoCloseOutputStream) {
+                    Os.fsync(out.fd)
+                } else {
+                    throw IllegalArgumentException("Unrecognized stream")
+                }
+            } else {
+                if (out is FileBridge.FileBridgeOutputStream) {
+                    out.fsync()
+                } else {
+                    throw IllegalArgumentException("Unrecognized stream")
+                }
+            }
+        }
+
+        fun write(name: String, offsetBytes: Long, lengthBytes: Long, fd: ParcelFileDescriptor) {
+            session.write(name, offsetBytes, lengthBytes, fd);
+        }
+
+        fun openRead(name: String): InputStream {
+            val pfd: ParcelFileDescriptor = session.openRead(name)
+            return ParcelFileDescriptor.AutoCloseInputStream(pfd)
+        }
+
+        fun close() {
+            session.close()
+        }
+
+        fun commit(): Intent {
+            val receiver = LocalIntentReceiver()
+            session.commit(receiver.intentSender, false)
+
+            return receiver.result
+        }
+
+        fun abandon() {
+            session.abandon()
+        }
+
+        fun updateAppIcon(appIcon: Bitmap) {
+            session.updateAppIcon(appIcon)
+        }
+
+        fun updateAppLabel(appLabel: String) {
+            session.updateAppLabel(appLabel)
+        }
     }
 
     companion object {

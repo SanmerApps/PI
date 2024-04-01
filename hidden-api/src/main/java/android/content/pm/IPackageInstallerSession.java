@@ -19,6 +19,8 @@ public interface IPackageInstallerSession extends IInterface {
 
     void commit(IntentSender statusReceiver, boolean forTransferred) throws RemoteException;
 
+    void abandon() throws RemoteException;
+
     abstract class Stub extends Binder implements IPackageInstallerSession {
 
         public static IPackageInstallerSession asInterface(IBinder binder) {

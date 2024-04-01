@@ -80,7 +80,7 @@ class InstallService: LifecycleService() {
 
         override fun onFinished(sessionId: Int, success: Boolean) {
             Timber.d("onFinished: sessionId = $sessionId, success = $success")
-            val sessions = delegate.getMySessions()
+            val sessions = delegate.getMySessions().filter { it.isActive }
             if (sessions.isEmpty()) {
                 stopSelf()
             }
@@ -125,8 +125,9 @@ class InstallService: LifecycleService() {
             }
 
             val sessionId = delegate.createSession(params)
-            delegate.setAppIcon(sessionId, appIcon)
-            delegate.setAppLabel(sessionId, appLabel)
+            val session = delegate.openSession(sessionId)
+            session.updateAppIcon(appIcon)
+            session.updateAppLabel(appLabel)
 
             val cr = contentResolver
             val (filename, statSize) = checkNotNull(
@@ -142,14 +143,12 @@ class InstallService: LifecycleService() {
             val input = checkNotNull(
                 cr.openInputStream(archiveUri)?.buffered()
             )
-            delegate.openWrite(
-                sessionId, filename, 0, statSize
-            ).use {
+            session.openWrite(filename, 0, statSize).use {
                 input.copyTo(it)
                 input.close()
             }
 
-            val result = delegate.commit(sessionId)
+            val result = session.commit()
             val status = result.getIntExtra(
                 PackageInstaller.EXTRA_STATUS,
                 PackageInstaller.STATUS_FAILURE
