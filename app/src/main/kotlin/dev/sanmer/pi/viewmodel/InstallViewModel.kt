@@ -42,7 +42,7 @@ class InstallViewModel @Inject constructor(
     private val pm by lazy { context.packageManager }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
-    private var archiveUri = Uri.EMPTY
+    private var archivePath = File("")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
 
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
@@ -74,10 +74,9 @@ class InstallViewModel @Inject constructor(
             )
         }
 
-        val tempFile = context.copyToDir(uri, tempDir)
-        val archive = getArchiveInfo(tempFile)
+        archivePath = context.copyToDir(uri, tempDir)
+        val archive = getArchiveInfo(archivePath)
         if (archive.isNotEmpty) {
-            archiveUri = uri
             archiveInfo = archive
             isAuthorized = isAuthorized || (isSelf && selfUpdate)
 
@@ -102,7 +101,7 @@ class InstallViewModel @Inject constructor(
     fun startInstall() {
         InstallService.start(
             context = context,
-            archiveUri = archiveUri,
+            archivePath = archivePath,
             archiveInfo = archiveInfo
         )
     }

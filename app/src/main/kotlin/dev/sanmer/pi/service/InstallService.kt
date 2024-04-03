@@ -9,9 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Process
-import android.system.Os
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -106,7 +104,7 @@ class InstallService: LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
-            val archiveUri = intent?.archiveUriOrNull ?: return@launch
+            val archivePath = intent?.archivePathOrNull ?: return@launch
             val archiveInfo = intent.archiveInfoOrNull ?: return@launch
 
             val appIcon = appIconLoader.loadIcon(archiveInfo.applicationInfo)
@@ -129,23 +127,12 @@ class InstallService: LifecycleService() {
             session.updateAppIcon(appIcon)
             session.updateAppLabel(appLabel)
 
-            val cr = contentResolver
-            val (filename, statSize) = checkNotNull(
-                cr.openFileDescriptor(archiveUri, "r")
-            ).use {
-                val path = Os.readlink("/proc/self/fd/${it.fd}")
-                val file = File(path)
-                Timber.d("path = $path")
-
-                file.name to it.statSize
-            }
-
-            val input = checkNotNull(
-                cr.openInputStream(archiveUri)?.buffered()
-            )
-            session.openWrite(filename, 0, statSize).use {
-                input.copyTo(it)
-                input.close()
+            with(archivePath) {
+                session.openWrite(name, 0, length()).use { output ->
+                    inputStream().buffered().use { input ->
+                        input.copyTo(output)
+                    }
+                }
             }
 
             val result = session.commit()
@@ -276,20 +263,20 @@ class InstallService: LifecycleService() {
 
     companion object {
         private const val GROUP_KEY = "INSTALL_SERVICE_GROUP_KEY"
-        private const val EXTRA_ARCHIVE_URI = "dev.sanmer.pi.extra.ARCHIVE_URI"
+        private const val EXTRA_ARCHIVE_PATH = "dev.sanmer.pi.extra.ARCHIVE_PATH"
         private const val EXTRA_ARCHIVE_INFO = "dev.sanmer.pi.extra.ARCHIVE_PACKAGE_INFO"
-        private val Intent.archiveUriOrNull: Uri? get() =
-            parcelable(EXTRA_ARCHIVE_URI)
+        private val Intent.archivePathOrNull: File? get() =
+            getStringExtra(EXTRA_ARCHIVE_PATH)?.let(::File)
         private val Intent.archiveInfoOrNull: PackageInfo? get() =
             parcelable(EXTRA_ARCHIVE_INFO)
 
         fun start(
             context: Context,
-            archiveUri: Uri,
+            archivePath: File,
             archiveInfo: PackageInfo
         ) {
             val intent = Intent(context, InstallService::class.java)
-            intent.putExtra(EXTRA_ARCHIVE_URI, archiveUri)
+            intent.putExtra(EXTRA_ARCHIVE_PATH, archivePath.path)
             intent.putExtra(EXTRA_ARCHIVE_INFO, archiveInfo)
 
             context.startService(intent)
