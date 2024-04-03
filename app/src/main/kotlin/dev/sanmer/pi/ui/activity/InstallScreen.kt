@@ -37,7 +37,7 @@ import coil.request.ImageRequest
 import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
-import dev.sanmer.pi.ui.screens.apps.items.AppItem
+import dev.sanmer.pi.ui.screens.apps.AppItem
 import dev.sanmer.pi.ui.utils.expandedShape
 import dev.sanmer.pi.ui.utils.stringResource
 import dev.sanmer.pi.viewmodel.InstallViewModel

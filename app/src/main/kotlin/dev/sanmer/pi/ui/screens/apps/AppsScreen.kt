@@ -21,7 +21,6 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.PageIndicator
-import dev.sanmer.pi.ui.screens.apps.items.AppItem
 import dev.sanmer.pi.viewmodel.AppsViewModel
 
 @Composable

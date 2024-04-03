@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.apps.items
+package dev.sanmer.pi.ui.screens.apps
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
