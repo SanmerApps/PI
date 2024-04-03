@@ -18,11 +18,16 @@
     <string name="home_view_authorized_apps">点按以管理授权的应用</string>
     <string name="home_requester_title">安装请求方</string>
     <string name="home_executor_title">安装执行方</string>
+    <string name="home_menu_view_sessions">查看安装会话</string>
+    <string name="home_menu_about">关于</string>
     <string name="home_about_view_source">在 %s 查看源码</string>
 
     <!-- Apps -->
     <string name="apps_title">应用管理</string>
     <string name="apps_empty">空列表</string>
+
+    <!-- Sessions -->
+    <string name="sessions_title">安装会话</string>
 
     <!-- Settings -->
     <string name="settings_title">设置</string>

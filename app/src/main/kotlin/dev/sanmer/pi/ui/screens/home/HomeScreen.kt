@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +35,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +52,7 @@ import dev.sanmer.pi.ui.screens.home.items.AuthorizedAppItem
 import dev.sanmer.pi.ui.screens.home.items.ExecutorItem
 import dev.sanmer.pi.ui.screens.home.items.RequesterItem
 import dev.sanmer.pi.ui.screens.home.items.StateItem
+import dev.sanmer.pi.ui.utils.ProvideMenuShape
 import dev.sanmer.pi.ui.utils.navigateSingleTopTo
 import dev.sanmer.pi.viewmodel.AppListViewModel
 import dev.sanmer.pi.viewmodel.HomeViewModel
@@ -137,13 +141,21 @@ private fun TopBar(
             )
         }
 
-        var show by remember { mutableStateOf(false) }
+        var expanded by remember { mutableStateOf(false) }
         IconButton(
-            onClick = { show = true }
+            onClick = { expanded = true }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.dots_vertical),
                 contentDescription = null
+            )
+
+            var show by remember { mutableStateOf(false) }
+            Menu(
+                expanded = expanded,
+                onClose = { expanded = false },
+                onSessions = { navController.navigateSingleTopTo(HomeScreen.Sessions.route) },
+                onAbout = { show = true }
             )
 
             if (show) AboutDialog(
@@ -153,6 +165,36 @@ private fun TopBar(
     },
     scrollBehavior = scrollBehavior
 )
+
+@Composable
+private fun Menu(
+    expanded: Boolean,
+    onClose: () -> Unit,
+    onSessions: () -> Unit,
+    onAbout: () -> Unit
+) = ProvideMenuShape {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onClose,
+        offset = DpOffset(0.dp, 10.dp)
+    ) {
+        DropdownMenuItem(
+            text = { Text(text = stringResource(id = R.string.home_menu_view_sessions)) },
+            onClick = {
+                onSessions()
+                onClose()
+            }
+        )
+
+        DropdownMenuItem(
+            text = { Text(text = stringResource(id = R.string.home_menu_about)) },
+            onClick = {
+                onAbout()
+                onClose()
+            }
+        )
+    }
+}
 
 @Composable
 private fun AboutDialog(

@@ -14,11 +14,13 @@ import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.screens.applist.AppListScreen
 import dev.sanmer.pi.ui.screens.apps.AppsScreen
 import dev.sanmer.pi.ui.screens.home.HomeScreen
+import dev.sanmer.pi.ui.screens.sessions.SessionsScreen
 
 enum class HomeScreen(val route: String) {
     Home("Home"),
     Apps("AppsScreen"),
-    AppList("AppList/{target}")
+    AppList("AppList/{target}"),
+    Sessions("Sessions")
 }
 
 fun NavGraphBuilder.homeScreen(
@@ -54,6 +56,16 @@ fun NavGraphBuilder.homeScreen(
         exitTransition = { slideOutLeftToRight() + fadeOut() }
     ) {
         AppListScreen(
+            navController = navController
+        )
+    }
+
+    composable(
+        route = HomeScreen.Sessions.route,
+        enterTransition = { slideInRightToLeft() + fadeIn() },
+        exitTransition = { slideOutLeftToRight() + fadeOut() }
+    ) {
+        SessionsScreen(
             navController = navController
         )
     }

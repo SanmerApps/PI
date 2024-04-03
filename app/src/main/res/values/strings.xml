@@ -19,11 +19,16 @@
     <string name="home_view_authorized_apps">Tap to manage authorized apps</string>
     <string name="home_requester_title">Installation Requester</string>
     <string name="home_executor_title">Installation Executor</string>
+    <string name="home_menu_view_sessions">View installation sessions</string>
+    <string name="home_menu_about">About</string>
     <string name="home_about_view_source">View source code at %s</string>
 
     <!-- Apps -->
     <string name="apps_title">Application Management</string>
     <string name="apps_empty">Empty list</string>
+
+    <!-- Sessions -->
+    <string name="sessions_title">Installation Sessions</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
