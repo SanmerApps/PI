@@ -31,18 +31,8 @@ class HomeViewModel @Inject constructor(
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
     val isProviderAlive get() = ProviderCompat.isAlive
-    val providerVersion get() = with(ProviderCompat) {
-        when {
-            isAlive -> version
-            else -> -1
-        }
-    }
-    val providerPlatform get() = with(ProviderCompat) {
-        when {
-            isAlive -> platform
-            else -> ""
-        }
-    }
+    val providerVersion get() = ProviderCompat.get({ it.version }, -1)
+    val providerPlatform get() = ProviderCompat.get({ it.platform }, "")
 
     val authorized get() = localRepository.getAuthorizedAllAsFlow().map { it.size }
     var requester: IPackageInfo? by mutableStateOf(null)
@@ -56,9 +46,11 @@ class HomeViewModel @Inject constructor(
 
     fun loadData() {
         viewModelScope.launch {
-            if (!isProviderAlive) return@launch
-
-            val userPreferences = userPreferencesRepository.data.first()
+            val userPreferences = if (isProviderAlive) {
+                userPreferencesRepository.data.first()
+            } else {
+                return@launch
+            }
 
             requester = pmCompat.getPackageInfo(
                 userPreferences.requester, 0, context.userId

@@ -32,6 +32,13 @@ object ProviderCompat {
         else -> "unknown"
     }
 
+    fun <T> get(block: (ProviderCompat) -> T, default: T): T {
+        return when {
+            isAlive -> block(this)
+            else -> default
+        }
+    }
+
     fun init(mode: Provider) {
         if (mMode == mode) {
             if (isAlive) return
