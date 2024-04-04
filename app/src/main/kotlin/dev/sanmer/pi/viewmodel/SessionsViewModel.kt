@@ -11,12 +11,14 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
+import dev.sanmer.hidden.compat.delegate.SessionCallbackDelegate
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.ISessionInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -32,31 +34,59 @@ class SessionsViewModel @Inject constructor(
         )
     }
 
+    private val isProviderAlive get() = ProviderCompat.isAlive
+
     private val sessionsFlow = MutableStateFlow(listOf<ISessionInfo>())
     val sessions get() = sessionsFlow.asStateFlow()
 
     var isLoading by mutableStateOf(true)
         private set
 
-    init {
-        Timber.d("SessionsViewModel init")
+    private val mCallback = object : SessionCallbackDelegate() {
+        override fun onCreated(sessionId: Int) {
+            loadData()
+        }
+
+        override fun onFinished(sessionId: Int, success: Boolean) {
+            loadData()
+        }
     }
 
-    fun loadData() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (!ProviderCompat.isAlive) return@launch
+    init {
+        Timber.d("SessionsViewModel init")
+        loadData()
+    }
 
-            sessionsFlow.value = delegate.getAllSessions()
-                .map {
-                    ISessionInfo(
-                        sessionInfo = it,
-                        installer = it.installerPackageName?.let(::getPackageInfo),
-                        app = it.appPackageName?.let(::getPackageInfo)
-                    )
-                }
+    fun registerCallback() {
+        if (!isProviderAlive) return
 
+        delegate.registerCallback(mCallback)
+    }
+
+    fun unregisterCallback() {
+        if (!isProviderAlive) return
+
+        delegate.unregisterCallback(mCallback)
+    }
+
+    private fun loadData() {
+        if (!isProviderAlive) return
+
+        viewModelScope.launch {
+            sessionsFlow.value = getAllSessions()
             isLoading = false
         }
+    }
+
+    private suspend fun getAllSessions() = withContext(Dispatchers.IO) {
+        delegate.getAllSessions()
+            .map {
+                ISessionInfo(
+                    sessionInfo = it,
+                    installer = it.installerPackageName?.let(::getPackageInfo),
+                    app = it.appPackageName?.let(::getPackageInfo)
+                )
+            }
     }
 
     private fun getPackageInfo(packageName: String): PackageInfo? =

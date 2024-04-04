@@ -32,8 +32,8 @@ fun SessionsScreen(
     viewModel: SessionsViewModel = hiltViewModel()
 ) {
     DisposableEffect(viewModel) {
-        viewModel.loadData()
-        onDispose {}
+        viewModel.registerCallback()
+        onDispose { viewModel.unregisterCallback() }
     }
 
     val list by viewModel.sessions.collectAsStateWithLifecycle()
