@@ -39,6 +39,11 @@
 
     <!-- Install -->
     <string name="package_title">安装包</string>
+    <string name="config_feature_title">动态特征</string>
+    <string name="config_abi_title">ABI</string>
+    <string name="config_density_title">屏幕密度</string>
+    <string name="config_language_title">语言</string>
+    <string name="config_unspecified_title">未知</string>
     <string name="button_install">安装</string>
     <string name="button_cancel">取消</string>
 
