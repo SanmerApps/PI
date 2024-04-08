@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,7 +73,8 @@ fun InstallScreen(
         onDismissRequest = onDeny,
         scrimColor = Color.Transparent,
         shape = BottomSheetDefaults.expandedShape(20.dp),
-        windowInsets = WindowInsets(0)
+        windowInsets = WindowInsets.statusBars,
+        dragHandle = null
     ) {
         Crossfade(
             targetState = viewModel.isReady,
@@ -98,7 +100,7 @@ private fun InstallContent(
     onFinish: () -> Unit
 ) = Column(
     modifier = Modifier
-        .padding(bottom = 15.dp)
+        .padding(top = 20.dp, bottom = 15.dp)
         .padding(horizontal = 15.dp)
         .fillMaxWidth(),
     verticalArrangement = Arrangement.spacedBy(15.dp),
