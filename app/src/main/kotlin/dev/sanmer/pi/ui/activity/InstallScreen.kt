@@ -112,20 +112,21 @@ private fun InstallContent(
         apkSize = viewModel.formattedApkSize
     )
 
-    if (viewModel.hasSourceInfo && !viewModel.isAppBundle) {
-        RequesterItem(
-            sourceInfo = viewModel.sourceInfo,
-            toggleAuthorized = viewModel::toggleAuthorized
-        )
-    }
-
-    if (viewModel.isAppBundle) {
-        AppBundlesItem(
-            configs = viewModel.splitConfigs,
-            isRequiredConfig = viewModel::isRequiredConfig,
-            toggleSplitConfig = viewModel::toggleSplitConfig,
-            modifier = Modifier.weight(1f)
-        )
+    when {
+        viewModel.isAppBundle -> {
+            AppBundlesItem(
+                configs = viewModel.splitConfigs,
+                isRequiredConfig = viewModel::isRequiredConfig,
+                toggleSplitConfig = viewModel::toggleSplitConfig,
+                modifier = Modifier.weight(1f)
+            )
+        }
+        viewModel.hasSourceInfo -> {
+            RequesterItem(
+                sourceInfo = viewModel.sourceInfo,
+                toggleAuthorized = viewModel::toggleAuthorized
+            )
+        }
     }
 
     val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
@@ -259,9 +260,7 @@ private fun AppBundlesItem(
     ) {
         if (featureConfigs.isNotEmpty()) {
             item {
-                TittleItem(
-                    text = stringResource(id = R.string.config_feature_title),
-                )
+                TittleItem(text = stringResource(id = R.string.config_feature_title))
             }
             items(
                 items = featureConfigs,
@@ -277,9 +276,7 @@ private fun AppBundlesItem(
 
         if (abiConfigs.isNotEmpty()) {
             item {
-                TittleItem(
-                    text = stringResource(id = R.string.config_abi_title),
-                )
+                TittleItem(text = stringResource(id = R.string.config_abi_title))
             }
             items(
                 items = abiConfigs,
@@ -295,9 +292,7 @@ private fun AppBundlesItem(
 
         if (densityConfigs.isNotEmpty()) {
             item {
-                TittleItem(
-                    text = stringResource(id = R.string.config_density_title),
-                )
+                TittleItem(text = stringResource(id = R.string.config_density_title))
             }
             items(
                 items = densityConfigs,
@@ -313,9 +308,7 @@ private fun AppBundlesItem(
 
         if (languageConfigs.isNotEmpty()) {
             item {
-                TittleItem(
-                    text = stringResource(id = R.string.config_language_title),
-                )
+                TittleItem(text = stringResource(id = R.string.config_language_title))
             }
             items(
                 items = languageConfigs,
@@ -331,9 +324,7 @@ private fun AppBundlesItem(
 
         if (unspecifiedConfigs.isNotEmpty()) {
             item {
-                TittleItem(
-                    text = stringResource(id = R.string.config_unspecified_title),
-                )
+                TittleItem(text = stringResource(id = R.string.config_unspecified_title))
             }
             items(
                 items = unspecifiedConfigs,
@@ -358,6 +349,9 @@ private fun SplitConfigItem(
     val disabled by remember {
         derivedStateOf { config.isDisabled() }
     }
+    val required by remember {
+        derivedStateOf { isRequiredConfig(config) }
+    }
 
     Surface(
         shape = RoundedCornerShape(15.dp),
@@ -371,35 +365,10 @@ private fun SplitConfigItem(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isRequiredConfig(config)) {
-                Icon(
-                    painter = painterResource(
-                        id = when (config) {
-                            is FeatureSplitConfig -> R.drawable.box
-                            is AbiSplitConfig -> R.drawable.cpu
-                            is DensitySplitConfig -> R.drawable.photo
-                            is LanguageSplitConfig -> R.drawable.language
-                            else -> R.drawable.code
-                        }
-                    ),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            } else {
-                Icon(
-                    painter = painterResource(
-                        id = when (config) {
-                            is FeatureSplitConfig -> R.drawable.box_off
-                            is AbiSplitConfig -> R.drawable.cpu_off
-                            is DensitySplitConfig -> R.drawable.photo_off
-                            is LanguageSplitConfig -> R.drawable.language_off
-                            else -> R.drawable.code_off
-                        }
-                    ),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            }
+            ConfigIcon(
+                config = config,
+                enable = required
+            )
 
             Column(
                 modifier = Modifier.padding(start = 10.dp)
@@ -407,12 +376,8 @@ private fun SplitConfigItem(
                 Text(
                     text = config.name,
                     style = MaterialTheme.typography.bodyMedium,
-                    textDecoration = when {
-                        disabled -> TextDecoration.LineThrough
-                        else -> TextDecoration.None
-                    },
                     color = when {
-                        disabled -> MaterialTheme.colorScheme.outline
+                        !required -> MaterialTheme.colorScheme.outline
                         else -> Color.Unspecified
                     }
                 )
@@ -420,12 +385,35 @@ private fun SplitConfigItem(
                 Text(
                     text = "${config.filename}, ${config.formattedSize()}",
                     style = MaterialTheme.typography.bodySmall,
+                    textDecoration = when {
+                        !required -> TextDecoration.LineThrough
+                        else -> TextDecoration.None
+                    },
                     color = MaterialTheme.colorScheme.outline
                 )
             }
         }
     }
 }
+
+@Composable
+private fun ConfigIcon(
+    config: SplitConfig,
+    enable: Boolean
+) = Icon(
+    painter = painterResource(
+        id = when (config) {
+            is FeatureSplitConfig -> R.drawable.box
+            is AbiSplitConfig -> R.drawable.cpu
+            is DensitySplitConfig -> R.drawable.photo
+            is LanguageSplitConfig -> R.drawable.language
+            else -> R.drawable.code
+        }
+    ),
+    contentDescription = null,
+    tint = MaterialTheme.colorScheme.onSurfaceVariant
+        .copy(alpha = if (enable) 1f else 0.3f)
+)
 
 @Composable
 private fun TittleItem(
