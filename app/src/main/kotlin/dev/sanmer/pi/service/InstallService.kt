@@ -199,10 +199,10 @@ class InstallService: LifecycleService() {
         val notification = baseNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
+            .setProgress(100, (100 * progress).toInt(), false)
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)
-            .setProgress(100, (100 * progress).toInt(), false)
             .build()
 
         notify(id, notification)
@@ -221,12 +221,12 @@ class InstallService: LifecycleService() {
         }
 
         val notification = baseNotificationBuilder()
-            .setSmallIcon(R.drawable.launcher_outline)
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
             .setContentText(getString(R.string.message_install_success))
             .setContentIntent(intent)
             .setSilent(true)
+            .setAutoCancel(true)
             .build()
 
         notify(id, notification)
