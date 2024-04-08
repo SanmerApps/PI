@@ -4,8 +4,10 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.net.Uri
+import android.text.format.Formatter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
@@ -15,6 +17,8 @@ import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
+import dev.sanmer.hidden.compat.PackageParserCompat
+import dev.sanmer.hidden.compat.content.bundle.SplitConfig
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.compat.VersionCompat
@@ -52,11 +56,21 @@ class InstallViewModel @Inject constructor(
     private val isSelf get() = sourceInfo.packageName == archiveInfo.packageName
     var isAuthorized = false
         private set
+    val hasSourceInfo get() = sourceInfo.inner.isNotEmpty
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
     private val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
     val versionDiff by lazy { VersionCompat.getVersionDiff(currentInfo, archiveInfo) }
     val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
+
+    private var apkSize = 0L
+    val formattedApkSize by lazy { Formatter.formatFileSize(context, apkSize) }
+
+    var isAppBundle = false
+        private set
+    var splitConfigs = listOf<SplitConfig>()
+        private set
+    private val requiredConfigs = mutableStateListOf<SplitConfig>()
 
     val isReady by derivedStateOf { archiveInfo.isNotEmpty && ProviderCompat.isAlive }
 
@@ -74,15 +88,44 @@ class InstallViewModel @Inject constructor(
             )
         }
 
-        archivePath = context.copyToDir(uri, tempDir)
-        val archive = getArchiveInfo(archivePath)
-        if (archive.isNotEmpty) {
-            archiveInfo = archive
-            isAuthorized = isAuthorized || (isSelf && selfUpdate)
+        val path = context.copyToDir(uri, tempDir)
+        if (PackageParserCompat.isApkFile(path)) {
+            PackageParserCompat.parsePackage(path, 0)?.let { pi ->
+                archiveInfo = pi
+                archivePath = path
+                apkSize = archivePath.length()
 
-            true
+                isAuthorized = isAuthorized || (isSelf && selfUpdate)
+                isAppBundle = false
+            }
         } else {
-            false
+            PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
+                archiveInfo = bi.baseInfo
+                archivePath = tempDir
+                apkSize = bi.baseFile.length()
+
+                isAppBundle = true
+                isAuthorized = false
+
+                splitConfigs = bi.splitConfigs
+                requiredConfigs.addAll(
+                    bi.splitConfigs.filter { it.isRequired() || it.isRecommended() }
+                )
+            }
+        }
+
+        archiveInfo.isNotEmpty
+    }
+
+    fun isRequiredConfig(config: SplitConfig): Boolean {
+        return config in requiredConfigs
+    }
+
+    fun toggleSplitConfig(config: SplitConfig) {
+        if (isRequiredConfig(config)) {
+            requiredConfigs.remove(config)
+        } else {
+            requiredConfigs.add(config)
         }
     }
 
@@ -99,10 +142,18 @@ class InstallViewModel @Inject constructor(
     }
 
     fun startInstall() {
+        val splitConfigs = requiredConfigs
+            .map { it.filename }
+            .toMutableList()
+            .apply {
+                add(0, PackageParserCompat.BASE_APK)
+            }
+
         InstallService.start(
             context = context,
             archivePath = archivePath,
-            archiveInfo = archiveInfo
+            archiveInfo = archiveInfo,
+            splitConfigs = splitConfigs
         )
     }
 
@@ -135,14 +186,5 @@ class InstallViewModel @Inject constructor(
                 packageName, 0, context.userId
             )
         }.getOrNull() ?: PackageInfo()
-    }
-
-    private fun getArchiveInfo(archiveFile: File): PackageInfo {
-        return pm.getPackageArchiveInfo(
-            archiveFile.path, 0
-        )?.also {
-            it.applicationInfo.sourceDir = archiveFile.path
-            it.applicationInfo.publicSourceDir = archiveFile.path
-        } ?: PackageInfo()
     }
 }

@@ -40,6 +40,11 @@
 
     <!-- Install -->
     <string name="package_title">Installation Package</string>
+    <string name="config_feature_title">Dynamic Feature</string>
+    <string name="config_abi_title">ABI</string>
+    <string name="config_density_title">Screen Density</string>
+    <string name="config_language_title">Language</string>
+    <string name="config_unspecified_title">Unspecified</string>
     <string name="button_install">Install</string>
     <string name="button_cancel">Cancel</string>
 
