@@ -20,7 +20,7 @@
     <string name="apps_empty">Lista vazia</string>
     <string name="settings_title">Configurações</string>
     <string name="settings_dynamic_color">Cor dinâmica</string>
-    <string name="settings_dynamic_color_desc">Use o esquema de cores do Material You</string>
+    <string name="settings_dynamic_color_desc">Use o esquema de cores do Material You (Android 12+)</string>
     <string name="package_title">Pacote de instalação</string>
     <string name="button_install">Instalar</string>
     <string name="button_cancel">Cancelar</string>
@@ -28,7 +28,18 @@
     <string name="message_install_success">Instalação bem-sucedida</string>
     <string name="message_install_fail">Falha na instalação</string>
     <string name="message_loading">Carregando…</string>
-    <string name="search_placeholder">Pesquisando…</string>
+    <string name="search_placeholder">Pesquisar…</string>
     <string name="notification_name_install">Instalar serviço</string>
     <string name="unknown_error">Erro desconhecido</string>
+    <string name="sessions_title">Sessões de instalação</string>
+    <string name="config_density_title">Densidade da tela</string>
+    <string name="config_feature_title">Recurso dinâmico</string>
+    <string name="config_abi_title">ABI</string>
+    <string name="config_language_title">Idioma</string>
+    <string name="config_unspecified_title">Não especificado</string>
+    <string name="home_menu_about">Sobre</string>
+    <string name="settings_translation">Participe da tradução</string>
+    <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
+    <string name="settings_self_update">Autoatualização</string>
+    <string name="settings_self_update_desc">Permite que o próprio app solicite atualizações automaticamente</string>
 </resources>
