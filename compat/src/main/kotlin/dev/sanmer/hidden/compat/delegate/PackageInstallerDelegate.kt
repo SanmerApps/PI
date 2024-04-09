@@ -28,8 +28,8 @@ import java.util.concurrent.TimeUnit
 class PackageInstallerDelegate(
     private val installer: IPackageInstallerCompat,
     private val userId: Int,
-    var installerPackageName: String,
-    var installerAttributionTag: String,
+    private var installerPackageName: String,
+    private var installerAttributionTag: String,
 ) {
     constructor(
         installer: IPackageInstallerCompat,
@@ -49,6 +49,11 @@ class PackageInstallerDelegate(
         installerAttributionTag = DEFAULT_INSTALLER,
         userId = UserHandleHidden.myUserId()
     )
+
+    fun setInstallerPackageName(packageName: String) {
+        installerPackageName = packageName
+        installerAttributionTag = packageName
+    }
 
     fun createSession(params: PackageInstaller.SessionParams): Int {
         return installer.createSession(
@@ -94,37 +99,6 @@ class PackageInstallerDelegate(
 
     fun unregisterCallback(callback: ISessionCallback) {
         installer.unregisterCallback(callback)
-    }
-
-    internal class LocalIntentReceiver {
-        private val mResult = LinkedBlockingQueue<Intent>()
-        private val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
-            override fun send(
-                code: Int,
-                intent: Intent,
-                resolvedType: String?,
-                whitelistToken: IBinder?,
-                finishedReceiver: IIntentReceiver?,
-                requiredPermission: String?,
-                options: Bundle?
-            ) {
-                try {
-                    mResult.offer(intent, 5, TimeUnit.SECONDS)
-                } catch (e: InterruptedException) {
-                    throw RuntimeException(e)
-                }
-            }
-        }
-
-        val intentSender: IntentSender get() =
-            Refine.unsafeCast(IntentSenderHidden(mLocalSender))
-
-        val result: Intent get() =
-            try {
-                mResult.take()
-            } catch (e: InterruptedException) {
-                throw RuntimeException(e)
-            }
     }
 
     class SessionDelegate(
@@ -188,6 +162,37 @@ class PackageInstallerDelegate(
 
         fun updateAppLabel(appLabel: String) {
             session.updateAppLabel(appLabel)
+        }
+
+        internal class LocalIntentReceiver {
+            private val mResult = LinkedBlockingQueue<Intent>()
+            private val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
+                override fun send(
+                    code: Int,
+                    intent: Intent,
+                    resolvedType: String?,
+                    whitelistToken: IBinder?,
+                    finishedReceiver: IIntentReceiver?,
+                    requiredPermission: String?,
+                    options: Bundle?
+                ) {
+                    try {
+                        mResult.offer(intent, 5, TimeUnit.SECONDS)
+                    } catch (e: InterruptedException) {
+                        throw RuntimeException(e)
+                    }
+                }
+            }
+
+            val intentSender: IntentSender get() =
+                Refine.unsafeCast(IntentSenderHidden(mLocalSender))
+
+            val result: Intent get() =
+                try {
+                    mResult.take()
+                } catch (e: InterruptedException) {
+                    throw RuntimeException(e)
+                }
         }
     }
 

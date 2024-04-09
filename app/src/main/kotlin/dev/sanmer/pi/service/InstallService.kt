@@ -112,21 +112,21 @@ class InstallService: LifecycleService() {
             val appLabel = archiveInfo.applicationInfo.loadLabel(packageManager).toString()
 
             val userPreferences = userPreferencesRepository.data.first()
-            val originating = userPreferences.requester
-            delegate.installerPackageName = userPreferences.executor
-            delegate.installerAttributionTag = userPreferences.executor
+            val originatingUid = getPackageUid(userPreferences.requester)
+            delegate.setInstallerPackageName(userPreferences.executor)
 
             Timber.i("onCreated: packageName = ${archiveInfo.packageName}")
             val params = PackageInstallerDelegate.createSessionParams()
-            val uid = getPackageUid(originating)
-            if (uid != Process.INVALID_UID) {
-                params.setOriginatingUid(uid)
+            params.setAppIcon(appIcon)
+            params.setAppLabel(appLabel)
+            params.setAppPackageName(archiveInfo.packageName)
+
+            if (originatingUid != Process.INVALID_UID) {
+                params.setOriginatingUid(originatingUid)
             }
 
             val sessionId = delegate.createSession(params)
             val session = delegate.openSession(sessionId)
-            session.updateAppIcon(appIcon)
-            session.updateAppLabel(appLabel)
 
             when {
                 archivePath.isDirectory -> {
@@ -172,6 +172,7 @@ class InstallService: LifecycleService() {
         openWrite(path.name, 0, path.length()).use { output ->
             path.inputStream().buffered().use { input ->
                 input.copyTo(output)
+                fsync(output)
             }
         }
     }
