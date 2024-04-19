@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
-import dev.sanmer.hidden.compat.delegate.SessionCallbackDelegate
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.ISessionInfo
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SessionsViewModel @Inject constructor(
     application: Application
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application), PackageInstallerDelegate.SessionCallback {
     private val context: Context by lazy { getApplication() }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val delegate by lazy {
@@ -42,31 +41,29 @@ class SessionsViewModel @Inject constructor(
     var isLoading by mutableStateOf(true)
         private set
 
-    private val mCallback = object : SessionCallbackDelegate() {
-        override fun onCreated(sessionId: Int) {
-            loadData()
-        }
-
-        override fun onFinished(sessionId: Int, success: Boolean) {
-            loadData()
-        }
-    }
-
     init {
         Timber.d("SessionsViewModel init")
+        loadData()
+    }
+
+    override fun onCreated(sessionId: Int) {
+        loadData()
+    }
+
+    override fun onFinished(sessionId: Int, success: Boolean) {
         loadData()
     }
 
     fun registerCallback() {
         if (!isProviderAlive) return
 
-        delegate.registerCallback(mCallback)
+        delegate.registerCallback(this)
     }
 
     fun unregisterCallback() {
         if (!isProviderAlive) return
 
-        delegate.unregisterCallback(mCallback)
+        delegate.unregisterCallback(this)
     }
 
     private fun loadData() {

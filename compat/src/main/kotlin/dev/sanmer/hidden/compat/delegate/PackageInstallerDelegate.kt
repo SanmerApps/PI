@@ -15,11 +15,13 @@ import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.os.UserHandleHidden
 import android.system.Os
+import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 import dev.sanmer.hidden.compat.stub.ISessionCallback
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.LinkedBlockingQueue
@@ -50,6 +52,8 @@ class PackageInstallerDelegate(
         userId = UserHandleHidden.myUserId()
     )
 
+    private val mDelegates = mutableListOf<SessionCallbackDelegate>()
+
     fun setInstallerPackageName(packageName: String) {
         installerPackageName = packageName
         installerAttributionTag = packageName
@@ -64,8 +68,8 @@ class PackageInstallerDelegate(
         )
     }
 
-    fun openSession(sessionId: Int): SessionDelegate {
-        return SessionDelegate(
+    fun openSession(sessionId: Int): Session {
+        return Session(
             session = installer.openSession(sessionId)
         )
     }
@@ -93,15 +97,78 @@ class PackageInstallerDelegate(
         }
     }
 
-    fun registerCallback(callback: ISessionCallback) {
-        installer.registerCallback(callback, userId)
+    fun registerCallback(callback: SessionCallback) {
+        val delegate = SessionCallbackDelegate(callback)
+        installer.registerCallback(delegate, userId)
+        mDelegates.add(delegate)
     }
 
-    fun unregisterCallback(callback: ISessionCallback) {
-        installer.unregisterCallback(callback)
+    fun unregisterCallback(callback: SessionCallback) {
+        val delegate = mDelegates.find { it.mCallback == callback }
+        if (delegate != null) {
+            installer.unregisterCallback(delegate)
+        }
     }
 
-    class SessionDelegate(
+    interface SessionCallback {
+        fun onCreated(sessionId: Int) {}
+
+        fun onBadgingChanged(sessionId: Int) {}
+
+        fun onActiveChanged(sessionId: Int, active: Boolean) {}
+
+        fun onProgressChanged(sessionId: Int, progress: Float) {}
+
+        fun onFinished(sessionId: Int, success: Boolean) {}
+    }
+
+    internal class SessionCallbackDelegate(
+        val mCallback: SessionCallback
+    ) : ISessionCallback.Stub() {
+        override fun onCreated(sessionId: Int) {
+            mCallback.onCreated(sessionId)
+        }
+
+        override fun onBadgingChanged(sessionId: Int) {
+            mCallback.onBadgingChanged(sessionId)
+        }
+
+        override fun onActiveChanged(sessionId: Int, active: Boolean) {
+            mCallback.onActiveChanged(sessionId, active)
+        }
+
+        override fun onProgressChanged(sessionId: Int, progress: Float) {
+            mCallback.onProgressChanged(sessionId, progress)
+        }
+
+        override fun onFinished(sessionId: Int, success: Boolean) {
+            mCallback.onFinished(sessionId, success)
+        }
+
+    }
+
+    class SessionParams(
+        private val mode: Int
+    ): PackageInstaller.SessionParams(mode) {
+        var installFlags: Int
+            get() = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this).installFlags
+            set(flags: Int) = with(Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)) {
+                installFlags = installFlags or flags
+            }
+
+        companion object {
+            val INSTALL_REPLACE_EXISTING = PackageManagerHidden.INSTALL_REPLACE_EXISTING
+
+            val INSTALL_ALLOW_TEST = PackageManagerHidden.INSTALL_ALLOW_TEST
+
+            val INSTALL_REQUEST_DOWNGRADE  = PackageManagerHidden.INSTALL_REQUEST_DOWNGRADE
+
+            @RequiresApi(34)
+            val INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK = PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
+        }
+    }
+
+    class Session(
         private val session: IPackageInstallerSessionCompat
     ) {
         fun openWrite(name: String, offsetBytes: Long, lengthBytes: Long): OutputStream {
@@ -164,6 +231,24 @@ class PackageInstallerDelegate(
             session.updateAppLabel(appLabel)
         }
 
+        fun writeApk(path: File) {
+            openWrite(path.name, 0, path.length()).use { output ->
+                path.inputStream().buffered().use { input ->
+                    input.copyTo(output)
+                    fsync(output)
+                }
+            }
+        }
+
+        fun writeApks(path: File, filenames: List<String>) {
+            filenames.forEach { name ->
+                val file = File(path, name)
+                if (file.exists() && file.length() != 0L) {
+                    writeApk(file)
+                }
+            }
+        }
+
         internal class LocalIntentReceiver {
             private val mResult = LinkedBlockingQueue<Intent>()
             private val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
@@ -198,21 +283,5 @@ class PackageInstallerDelegate(
 
     companion object {
         const val DEFAULT_INSTALLER = "com.android.shell"
-
-        fun createSessionParams(): PackageInstaller.SessionParams {
-            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-
-            var flags = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(params).installFlags
-            flags = flags or PackageManagerHidden.INSTALL_ALLOW_TEST or
-                    PackageManagerHidden.INSTALL_REPLACE_EXISTING or
-                    PackageManagerHidden.INSTALL_REQUEST_DOWNGRADE
-
-            if (BuildCompat.atLeastU) {
-                flags = flags or PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
-            }
-
-            Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(params).installFlags = flags
-            return params
-        }
     }
 }

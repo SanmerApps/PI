@@ -18,7 +18,6 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
-import dev.sanmer.hidden.compat.delegate.SessionCallbackDelegate
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.BuildCompat
@@ -37,7 +36,7 @@ import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class InstallService: LifecycleService() {
+class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallback {
     @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private val appIconLoader by lazy {
@@ -50,38 +49,36 @@ class InstallService: LifecycleService() {
         )
     }
 
-    private val mCallback = object : SessionCallbackDelegate() {
-        override fun onCreated(sessionId: Int) {
-            Timber.d("onCreated: sessionId = $sessionId")
-            val session = delegate.getSessionInfo(sessionId) ?: return
-            if (session.appLabel.isNullOrEmpty()) return
+    override fun onCreated(sessionId: Int) {
+        Timber.d("onCreated: sessionId = $sessionId")
+        val session = delegate.getSessionInfo(sessionId) ?: return
+        if (session.appLabel.isNullOrEmpty()) return
 
-            onProgressChanged(
-                id = sessionId,
-                appLabel = session.appLabel.toString(),
-                appIcon = session.appIcon,
-                progress = 0f
-            )
-        }
+        onProgressChanged(
+            id = sessionId,
+            appLabel = session.appLabel.toString(),
+            appIcon = session.appIcon,
+            progress = 0f
+        )
+    }
 
-        override fun onProgressChanged(sessionId: Int, progress: Float) {
-            Timber.d("onProgressChanged: sessionId = $sessionId, progress = $progress")
-            val session = delegate.getSessionInfo(sessionId) ?: return
+    override fun onProgressChanged(sessionId: Int, progress: Float) {
+        Timber.d("onProgressChanged: sessionId = $sessionId, progress = $progress")
+        val session = delegate.getSessionInfo(sessionId) ?: return
 
-            onProgressChanged(
-                id = sessionId,
-                appLabel = session.appLabel.toString(),
-                appIcon = session.appIcon,
-                progress = progress
-            )
-        }
+        onProgressChanged(
+            id = sessionId,
+            appLabel = session.appLabel.toString(),
+            appIcon = session.appIcon,
+            progress = progress
+        )
+    }
 
-        override fun onFinished(sessionId: Int, success: Boolean) {
-            Timber.d("onFinished: sessionId = $sessionId, success = $success")
-            val sessions = delegate.getMySessions().filter { it.isActive }
-            if (sessions.isEmpty()) {
-                stopSelf()
-            }
+    override fun onFinished(sessionId: Int, success: Boolean) {
+        Timber.d("onFinished: sessionId = $sessionId, success = $success")
+        val sessions = delegate.getMySessions().filter { it.isActive }
+        if (sessions.isEmpty()) {
+            stopSelf()
         }
     }
 
@@ -89,13 +86,13 @@ class InstallService: LifecycleService() {
         Timber.d("InstallService onCreate")
         super.onCreate()
 
-        delegate.registerCallback(mCallback)
+        delegate.registerCallback(this)
         setForeground()
     }
 
     override fun onDestroy() {
         tmpDir.deleteRecursively()
-        delegate.unregisterCallback(mCallback)
+        delegate.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
         Timber.d("InstallService onDestroy")
@@ -116,7 +113,7 @@ class InstallService: LifecycleService() {
             delegate.setInstallerPackageName(userPreferences.executor)
 
             Timber.i("onCreated: packageName = ${archiveInfo.packageName}")
-            val params = PackageInstallerDelegate.createSessionParams()
+            val params = createSessionParams()
             params.setAppIcon(appIcon)
             params.setAppLabel(appLabel)
             params.setAppPackageName(archiveInfo.packageName)
@@ -168,20 +165,23 @@ class InstallService: LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun PackageInstallerDelegate.SessionDelegate.writeApk(path: File) {
-        openWrite(path.name, 0, path.length()).use { output ->
-            path.inputStream().buffered().use { input ->
-                input.copyTo(output)
-                fsync(output)
+    private fun createSessionParams(): PackageInstaller.SessionParams {
+        val params = PackageInstallerDelegate.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+
+        params.installFlags = with(PackageInstallerDelegate.SessionParams) {
+            val flags = params.installFlags or
+                    INSTALL_ALLOW_TEST or
+                    INSTALL_REPLACE_EXISTING or
+                    INSTALL_REQUEST_DOWNGRADE
+
+            if (BuildCompat.atLeastU) {
+                flags or INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
+            } else {
+                flags
             }
         }
-    }
 
-    private fun PackageInstallerDelegate.SessionDelegate.writeApks(path: File, filenames: List<String>) {
-        filenames.forEach { name ->
-            val file = File(path, name)
-            writeApk(file)
-        }
+        return params
     }
 
     private fun getPackageUid(packageName: String): Int =
