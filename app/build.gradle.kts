@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.protobuf)
 }
 
-val baseVersionName = "0.3.7-beta01"
+val baseVersionName = "0.3.7"
 val isDevVersion get() = exec("git tag --contains HEAD").isEmpty()
 val verNameSuffix get() = if (isDevVersion) ".dev" else ""
 
