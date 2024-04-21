@@ -23,6 +23,7 @@
         android:theme="@style/AppTheme"
         android:localeConfig="@xml/locales_config"
         android:enableOnBackInvokedCallback="false"
+        android:supportsRtl="true"
         tools:targetApi="34">
 
         <activity
