@@ -2,8 +2,8 @@ package dev.sanmer.hidden.compat
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageParser
+import android.content.pm.PackageUserState
 import android.content.pm.pkg.FrameworkPackageUserState
-import android.content.pm.pkg.PackageUserState
 import android.util.Log
 import dev.sanmer.hidden.compat.content.bundle.AbiSplitConfig
 import dev.sanmer.hidden.compat.content.bundle.DensitySplitConfig
@@ -21,10 +21,6 @@ object PackageParserCompat {
     private const val TAG = "PackageParserCompat"
     const val BASE_APK = "base.apk"
     const val APK_FILE_EXTENSION = ".apk"
-
-    fun isApkFile(file: File) = isApkPath(file.name)
-
-    fun isApkPath(path: String) = path.endsWith(APK_FILE_EXTENSION)
 
     fun parseApkLite(file: File) =
         runCatching {
@@ -66,7 +62,7 @@ object PackageParserCompat {
                 firstInstallTime,
                 lastUpdateTime,
                 grantedPermissions,
-                PackageUserState.DEFAULT
+                PackageUserState()
             )
         }
     }

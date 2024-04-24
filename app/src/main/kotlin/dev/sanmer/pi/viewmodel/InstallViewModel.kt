@@ -89,15 +89,14 @@ class InstallViewModel @Inject constructor(
         }
 
         val path = context.copyToDir(uri, tempDir)
-        if (PackageParserCompat.isApkFile(path)) {
-            PackageParserCompat.parsePackage(path, 0)?.let { pi ->
-                archiveInfo = pi
-                archivePath = path
-                apkSize = archivePath.length()
+        val packageInfo = PackageParserCompat.parsePackage(path, 0)
+        if (packageInfo != null) {
+            archiveInfo = packageInfo
+            archivePath = path
+            apkSize = archivePath.length()
 
-                isAuthorized = isAuthorized || (isSelf && selfUpdate)
-                isAppBundle = false
-            }
+            isAuthorized = isAuthorized || (isSelf && selfUpdate)
+            isAppBundle = false
         } else {
             PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
                 archiveInfo = bi.baseInfo

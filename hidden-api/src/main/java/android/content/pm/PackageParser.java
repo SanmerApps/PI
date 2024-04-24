@@ -1,7 +1,6 @@
 package android.content.pm;
 
 import android.content.pm.pkg.FrameworkPackageUserState;
-import android.content.pm.pkg.PackageUserState;
 
 import androidx.annotation.RequiresApi;
 
