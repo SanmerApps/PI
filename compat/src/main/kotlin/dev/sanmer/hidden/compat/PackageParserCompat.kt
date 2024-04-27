@@ -12,6 +12,7 @@ import dev.sanmer.hidden.compat.content.bundle.LanguageSplitConfig
 import dev.sanmer.hidden.compat.content.bundle.SplitConfig
 import dev.sanmer.hidden.compat.content.bundle.UnspecifiedSplitConfig
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.util.zip.ZipEntry
@@ -23,18 +24,28 @@ object PackageParserCompat {
     const val APK_FILE_EXTENSION = ".apk"
 
     fun parseApkLite(file: File) =
-        runCatching {
+        try {
             PackageParser.parseApkLite(file, 0)
-        }.getOrNull()
+        } catch (e: PackageParser.PackageParserException) {
+            null
+        } catch (e: Throwable) {
+            Log.w(TAG, "Failed to parse ${file.path}", e)
+            null
+        }
 
     fun parsePackage(file: File, flags: Int) =
-        runCatching {
+        try {
             val pkg = PackageParser().parsePackage(file, flags, false)
             generatePackageInfo(pkg, null, flags, 0, 0, null)?.also {
                 it.applicationInfo.sourceDir = file.path
                 it.applicationInfo.publicSourceDir = file.path
             }
-        }.getOrNull()
+        } catch (e: PackageParser.PackageParserException) {
+            null
+        } catch (e: Throwable) {
+            Log.w(TAG, "Failed to parse ${file.path}", e)
+            null
+        }
 
     internal fun generatePackageInfo(
         pkg: PackageParser.Package,
@@ -67,63 +78,58 @@ object PackageParserCompat {
         }
     }
 
-    fun parseAppBundle(file: File, flags: Int, cacheDir: File): AppBundleInfo? {
-        runCatching {
-            file.unzip(cacheDir)
-        }.onFailure {
-            Log.w(TAG, "Failed to unzip ${file.path}", it)
-            return null
+    internal fun parseAppBundleInner(file: File, flags: Int, cacheDir: File): AppBundleInfo {
+        file.unzip(cacheDir)
+
+        val baseFile = File(cacheDir, BASE_APK).apply {
+            if (!exists()) throw FileNotFoundException(BASE_APK)
         }
+        val baseInfo = parsePackage(baseFile, flags)
+            ?: throw NullPointerException("Failed to parse $BASE_APK")
 
         val apkFiles = cacheDir.listFiles { _, name ->
             name.endsWith(APK_FILE_EXTENSION)
-        } ?: emptyArray()
-
-        var baseFile = file
-        var baseInfo: PackageInfo? = null
+        } ?: throw FileNotFoundException("*.apk")
         val splitFiles = mutableListOf<File>()
         val splitConfigs = mutableListOf<SplitConfig>()
+
         for (apkFile in apkFiles) {
             if (apkFile.name == BASE_APK) {
-                baseInfo = parsePackage(apkFile, flags)?.also {
-                    it.applicationInfo.sourceDir = apkFile.path
-                    it.applicationInfo.publicSourceDir = apkFile.path
-                }
-                baseFile = apkFile
                 continue
             }
 
             val apk = parseApkLite(apkFile)
             if (apk != null) {
-                val splitConfig = parseSplitConfig(apk, apkFile.name, apkFile.length())
+                val splitConfig = parseSplitConfig(apk, apkFile)
                 splitConfigs.add(splitConfig)
                 splitFiles.add(apkFile)
             }
         }
 
-        return if (baseInfo == null) {
-            Log.w(TAG, "Missing base APK in ${file.path}")
-            null
-        } else {
-            AppBundleInfo(
-                baseFile = baseFile,
-                baseInfo = baseInfo,
-                splitFiles = splitFiles.toList(),
-                splitConfigs = splitConfigs.sortedBy { it.filename }
-            )
-        }
+        return AppBundleInfo(
+            baseFile = baseFile,
+            baseInfo = baseInfo,
+            splitFiles = splitFiles.toList(),
+            splitConfigs = splitConfigs.sortedBy { it.filename }
+        )
     }
+
+    fun parseAppBundle(file: File, flags: Int, cacheDir: File): AppBundleInfo? =
+        runCatching {
+            parseAppBundleInner(file, flags, cacheDir)
+        }.onFailure {
+            Log.w(TAG, "Failed to parse ${file.path}", it)
+        }.getOrNull()
 
     private fun parseSplitConfig(
         apk: PackageParser.ApkLite,
-        filename: String,
-        size: Long
+        file: File
     ): SplitConfig {
-        return FeatureSplitConfig.build(apk, filename, size)
-            ?: AbiSplitConfig.build(apk, filename, size)
-            ?: DensitySplitConfig.build(apk, filename, size)
-            ?: LanguageSplitConfig.build(apk, filename, size)
-            ?: UnspecifiedSplitConfig(filename, size)
+        return FeatureSplitConfig.build(apk, file.name, file.length())
+            ?: AbiSplitConfig.build(apk, file.name, file.length())
+            ?: DensitySplitConfig.build(apk, file.name, file.length())
+            ?: LanguageSplitConfig.build(apk, file.name, file.length())
+            ?: UnspecifiedSplitConfig(file.name, file.length())
     }
 
     @Throws(IOException::class)
