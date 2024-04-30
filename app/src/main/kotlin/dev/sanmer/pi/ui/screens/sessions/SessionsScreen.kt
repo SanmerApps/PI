@@ -36,7 +36,7 @@ fun SessionsScreen(
     navController: NavController,
     viewModel: SessionsViewModel = hiltViewModel()
 ) {
-    DisposableEffect(viewModel) {
+    DisposableEffect(viewModel.isProviderAlive) {
         viewModel.registerCallback()
         onDispose { viewModel.unregisterCallback() }
     }
@@ -65,7 +65,7 @@ fun SessionsScreen(
 
             if (list.isEmpty() && !viewModel.isLoading) {
                 PageIndicator(
-                    icon = R.drawable.list_details,
+                    icon = R.drawable.versions,
                     text = R.string.apps_empty,
                 )
             }
@@ -95,7 +95,7 @@ private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = {
-        Text(text = stringResource(id = R.string.page_sessions))
+        Text(text = stringResource(id = R.string.app_name))
     },
     actions = {
         IconButton(onClick = onAbandonAll) {

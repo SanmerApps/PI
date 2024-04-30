@@ -1,10 +1,10 @@
 package dev.sanmer.pi.model
 
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.graphics.Bitmap
 import androidx.compose.runtime.Immutable
+import dev.sanmer.hidden.compat.delegate.ContextDelegate
 
 @Immutable
 data class ISessionInfo(
@@ -16,21 +16,25 @@ data class ISessionInfo(
     val installer: PackageInfo?,
     val appPackageName: String?,
     val app: PackageInfo?,
-    private val appLabel: String?,
-    private val appIcon: Bitmap?
+    private val appLabelInner: String?,
+    private val appIconInner: Bitmap?
 ) {
-    fun loadInstallerLabel(context: Context): String? {
-        val pm = context.packageManager
-        return installer?.applicationInfo?.loadLabel(pm)?.toString()
+    private val context by lazy {
+        ContextDelegate.getContext()
     }
 
-    fun loadAppLabel(context: Context): String? {
+    val installerLabel by lazy {
         val pm = context.packageManager
-        return appLabel ?: app?.applicationInfo?.loadLabel(pm)?.toString()
+        installer?.applicationInfo?.loadLabel(pm)?.toString()
     }
 
-    fun appIcon(): Any? {
-        return appIcon ?: app
+    val appLabel by lazy {
+        val pm = context.packageManager
+        appLabelInner ?: app?.applicationInfo?.loadLabel(pm)?.toString()
+    }
+
+    val appIcon by lazy {
+        appIconInner ?: app
     }
 
     constructor(
@@ -46,7 +50,7 @@ data class ISessionInfo(
         installer = installer,
         appPackageName = sessionInfo.appPackageName,
         app = app,
-        appLabel = sessionInfo.appLabel?.toString(),
-        appIcon = sessionInfo.appIcon
+        appLabelInner = sessionInfo.appLabel?.toString(),
+        appIconInner = sessionInfo.appIcon
     )
 }

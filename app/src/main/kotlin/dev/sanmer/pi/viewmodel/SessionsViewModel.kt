@@ -33,7 +33,7 @@ class SessionsViewModel @Inject constructor(
         )
     }
 
-    private val isProviderAlive get() = ProviderCompat.isAlive
+    val isProviderAlive get() = ProviderCompat.isAlive
 
     private val sessionsFlow = MutableStateFlow(listOf<ISessionInfo>())
     val sessions get() = sessionsFlow.asStateFlow()
@@ -43,7 +43,6 @@ class SessionsViewModel @Inject constructor(
 
     init {
         Timber.d("SessionsViewModel init")
-        loadData()
     }
 
     override fun onCreated(sessionId: Int) {
@@ -52,27 +51,6 @@ class SessionsViewModel @Inject constructor(
 
     override fun onFinished(sessionId: Int, success: Boolean) {
         loadData()
-    }
-
-    fun registerCallback() {
-        if (!isProviderAlive) return
-
-        delegate.registerCallback(this)
-    }
-
-    fun unregisterCallback() {
-        if (!isProviderAlive) return
-
-        delegate.unregisterCallback(this)
-    }
-
-    private fun loadData() {
-        if (!isProviderAlive) return
-
-        viewModelScope.launch {
-            sessionsFlow.value = getAllSessions()
-            isLoading = false
-        }
     }
 
     private suspend fun getAllSessions() = withContext(Dispatchers.IO) {
@@ -90,6 +68,28 @@ class SessionsViewModel @Inject constructor(
         runCatching {
             pmCompat.getPackageInfo(packageName, 0, context.userId)
         }.getOrNull()
+
+    private fun loadData() {
+        if (!isProviderAlive) return
+
+        viewModelScope.launch {
+            sessionsFlow.value = getAllSessions()
+            isLoading = false
+        }
+    }
+
+    fun registerCallback() {
+        if (!isProviderAlive) return
+
+        delegate.registerCallback(this)
+        loadData()
+    }
+
+    fun unregisterCallback() {
+        if (!isProviderAlive) return
+
+        delegate.unregisterCallback(this)
+    }
 
     fun abandonAll() {
         viewModelScope.launch(Dispatchers.IO) {

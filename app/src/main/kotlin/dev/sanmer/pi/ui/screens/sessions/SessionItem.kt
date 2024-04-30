@@ -12,9 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,19 +28,11 @@ internal fun SessionItem(
     session: ISessionInfo
 ) = Row(
     modifier = Modifier
-        .padding(all = 16.dp)
+        .padding(all = 12.dp)
         .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(16.dp)
+    horizontalArrangement = Arrangement.spacedBy(12.dp)
 ) {
-    val context = LocalContext.current
-    val installerLabel by remember {
-        derivedStateOf { session.loadInstallerLabel(context) }
-    }
-    val appLabel by remember {
-        derivedStateOf { session.loadAppLabel(context) }
-    }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -56,14 +45,14 @@ internal fun SessionItem(
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        AppIconItem(data = session.appIcon())
+        AppIconItem(data = session.appIcon)
     }
 
     Column(
         horizontalAlignment = Alignment.Start,
     ) {
         Text(
-            text = installerLabel.toString(),
+            text = session.installerLabel.toString(),
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
@@ -71,9 +60,9 @@ internal fun SessionItem(
             style = MaterialTheme.typography.bodySmall
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = appLabel.toString(),
+            text = session.appLabel.toString(),
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
@@ -108,9 +97,8 @@ private fun AppIconItem(
     data: Any?
 ) {
     val context = LocalContext.current
-
     AsyncImage(
-        modifier = Modifier.size(30.dp),
+        modifier = Modifier.size(35.dp),
         model = ImageRequest.Builder(context)
             .data(data)
             .fallback(android.R.drawable.sym_def_app_icon)
