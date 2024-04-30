@@ -27,7 +27,7 @@
         <item quantity="many">%d apps autorizados</item>
         <item quantity="other">%d apps autorizados</item>
     </plurals>
-    <string name="settings_title">Definições</string>
+    <string name="page_settings">Definições</string>
     <string name="message_install_success">Instalação bem-sucedida</string>
     <string name="notification_name_install">Instalar serviço</string>
     <string name="unknown_error">Erro desconhecido</string>

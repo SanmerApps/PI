@@ -18,7 +18,7 @@
     <string name="home_about_view_source">Veja o código-fonte no %s</string>
     <string name="apps_title">Gerenciamento de apps</string>
     <string name="apps_empty">Lista vazia</string>
-    <string name="settings_title">Configurações</string>
+    <string name="page_settings">Configurações</string>
     <string name="settings_dynamic_color">Cor dinâmica</string>
     <string name="settings_dynamic_color_desc">Use o esquema de cores do Material You (Android 12+)</string>
     <string name="package_title">Pacote de instalação</string>

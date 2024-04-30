@@ -1,6 +1,5 @@
 package dev.sanmer.pi.viewmodel
 
-import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
@@ -12,9 +11,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
-import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.compat.ProviderCompat
-import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,11 +29,10 @@ class AppsViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
-    private val pm by lazy { context.packageManager }
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
-    private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
-    private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
+    private val packagesFlow = MutableStateFlow(listOf<PackageInfo>())
+    private val appsFlow = MutableStateFlow(listOf<PackageInfo>())
     val apps get() = appsFlow.asStateFlow()
 
     var isLoading by mutableStateOf(true)
@@ -49,18 +45,11 @@ class AppsViewModel @Inject constructor(
 
     private fun dataObserver() {
         localRepository.getAllAsFlow()
-            .combine(packagesFlow) { authorized, source ->
+            .combine(packagesFlow) { _, source ->
                 if (source.isEmpty()) return@combine
 
                 appsFlow.value = source
-                    .map { pi ->
-                        val isAuthorized = authorized.find {
-                            it.packageName == pi.packageName
-                        }?.authorized ?: false
-
-                        pi.copy(authorized = isAuthorized)
-
-                    }.sortedByDescending { it.lastUpdateTime }
+                    .sortedByDescending { it.lastUpdateTime }
 
                 isLoading = false
 
@@ -76,22 +65,9 @@ class AppsViewModel @Inject constructor(
             Timber.e(it, "getInstalledPackages")
         }.getOrDefault(emptyList())
 
-        val isRequestedInstall: (PackageInfo) -> Boolean = {
-            it.requestedPermissions?.contains(
-                Manifest.permission.REQUEST_INSTALL_PACKAGES
-            ) == true
+        allPackages.filter {
+            it.applicationInfo.enabled
         }
-
-        allPackages
-            .filter {
-                isRequestedInstall(it) && !it.isSystemApp &&
-                        it.applicationInfo.enabled
-            }.map {
-                IPackageInfo(
-                    packageInfo = it,
-                    pm = pm
-                )
-            }
     }
 
     fun loadData() {
@@ -104,13 +80,6 @@ class AppsViewModel @Inject constructor(
             localRepository.delete(
                 authorized.filter { it.packageName !in packageNames }
             )
-        }
-    }
-
-    fun toggle(pi: IPackageInfo) {
-        viewModelScope.launch {
-            val authorized = !pi.authorized
-            localRepository.insert(pi.copy(authorized = authorized))
         }
     }
 }

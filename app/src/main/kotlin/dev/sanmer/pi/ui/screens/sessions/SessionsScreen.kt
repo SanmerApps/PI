@@ -1,6 +1,7 @@
 package dev.sanmer.pi.ui.screens.sessions
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,11 +9,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -22,12 +26,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
-import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.PageIndicator
+import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
 import dev.sanmer.pi.viewmodel.SessionsViewModel
 
 @Composable
 fun SessionsScreen(
+    @Suppress("UNUSED_PARAMETER")
     navController: NavController,
     viewModel: SessionsViewModel = hiltViewModel()
 ) {
@@ -46,10 +51,10 @@ fun SessionsScreen(
         topBar = {
             TopBar(
                 onAbandonAll = viewModel::abandonAll,
-                navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(modifier = Modifier
             .padding(innerPadding)
@@ -75,6 +80,11 @@ fun SessionsScreen(
                     SessionItem(session = it)
                 }
             }
+
+            VerticalFastScrollbar(
+                state = state,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
     }
 }
@@ -82,18 +92,18 @@ fun SessionsScreen(
 @Composable
 private fun TopBar(
     onAbandonAll: () -> Unit,
-    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
-) = NavigateUpTopBar(
-    title = stringResource(id = R.string.sessions_title),
+) = TopAppBar(
+    title = {
+        Text(text = stringResource(id = R.string.page_sessions))
+    },
     actions = {
         IconButton(onClick = onAbandonAll) {
             Icon(
-                painter = painterResource(id = R.drawable.cookie_off),
+                painter = painterResource(id = R.drawable.clear_all),
                 contentDescription = null
             )
         }
     },
-    navController = navController,
     scrollBehavior = scrollBehavior
 )

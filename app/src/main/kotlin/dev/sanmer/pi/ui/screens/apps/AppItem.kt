@@ -1,5 +1,6 @@
 package dev.sanmer.pi.ui.screens.apps
 
+import android.content.pm.PackageInfo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -17,11 +20,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.sanmer.pi.model.IPackageInfo
 
 @Composable
-fun AppItem(
-    pi: IPackageInfo,
+internal fun AppItem(
+    pi: PackageInfo,
     onClick: () -> Unit
 ) = Row(
     modifier = Modifier
@@ -35,11 +37,18 @@ fun AppItem(
     verticalAlignment = Alignment.CenterVertically
 ) {
     val context = LocalContext.current
+    val label by remember {
+        derivedStateOf {
+            pi.applicationInfo.loadLabel(
+                context.packageManager
+            )
+        }
+    }
 
     AsyncImage(
         modifier = Modifier.size(45.dp),
         model = ImageRequest.Builder(context)
-            .data(pi.inner)
+            .data(pi)
             .crossfade(true)
             .build(),
         contentDescription = null
@@ -51,8 +60,8 @@ fun AppItem(
             .weight(1f)
     ) {
         Text(
-            text = pi.label,
-            style = MaterialTheme.typography.bodyLarge
+            text = label.toString(),
+            style = MaterialTheme.typography.bodyMedium
         )
 
         Text(
@@ -61,9 +70,4 @@ fun AppItem(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
-
-    Switch(
-        checked = pi.authorized,
-        onCheckedChange = null
-    )
 }

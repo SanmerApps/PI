@@ -27,7 +27,7 @@ import dev.sanmer.pi.model.ISessionInfo
 import dev.sanmer.pi.ui.component.LabelItem
 
 @Composable
-fun SessionItem(
+internal fun SessionItem(
     session: ISessionInfo
 ) = Row(
     modifier = Modifier

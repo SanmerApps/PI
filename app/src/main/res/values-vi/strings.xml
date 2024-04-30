@@ -16,7 +16,7 @@
     <string name="apps_title">Quản lý ứng dụng</string>
     <string name="apps_empty">Danh sách trống</string>
     <string name="sessions_title">Phiên cài đặt</string>
-    <string name="settings_title">Thiết đặt</string>
+    <string name="page_settings">Thiết đặt</string>
     <string name="settings_dynamic_color">Màu sắc linh động</string>
     <string name="settings_dynamic_color_desc">Sử dụng bảng màu Material You (Android 12+)</string>
     <string name="settings_translation">Tham gia dịch thuật</string>

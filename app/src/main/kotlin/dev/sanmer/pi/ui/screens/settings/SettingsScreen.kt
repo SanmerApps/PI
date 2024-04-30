@@ -1,11 +1,14 @@
 package dev.sanmer.pi.ui.screens.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -19,7 +22,6 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.datastore.Provider
-import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.navigation.graphs.SettingsScreen
@@ -41,10 +43,10 @@ fun SettingsScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -96,10 +98,10 @@ fun SettingsScreen(
 
 @Composable
 private fun TopBar(
-    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
-) = NavigateUpTopBar(
-    title = stringResource(id = R.string.settings_title),
-    navController = navController,
+) = TopAppBar(
+    title = {
+        Text(text = stringResource(id = R.string.page_settings))
+    },
     scrollBehavior = scrollBehavior
 )

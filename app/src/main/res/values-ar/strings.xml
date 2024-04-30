@@ -13,7 +13,7 @@
     <string name="home_executor_title">مُنَفِذ التثبيت</string>
     <string name="apps_empty">قائمة فارغة</string>
     <string name="sessions_title">جلسات التثبيت</string>
-    <string name="settings_title">الإعدادات</string>
+    <string name="page_settings">الإعدادات</string>
     <string name="settings_dynamic_color">لون ديناميكي</string>
     <string name="settings_translation">المشاركة في الترجمة</string>
     <string name="settings_translation_desc">ساعدنا في ترجمة PI إلى لغتك</string>

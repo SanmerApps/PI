@@ -3,6 +3,11 @@
     <!-- Activity -->
     <string name="install_activity">安装</string>
 
+    <!-- Pages -->
+    <string name="page_apps">应用</string>
+    <string name="page_sessions">会话</string>
+    <string name="page_settings">设置</string>
+
     <!-- Setup -->
     <string name="setup_title">工作模式</string>
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
@@ -29,7 +34,6 @@
     <string name="sessions_title">安装会话</string>
 
     <!-- Settings -->
-    <string name="settings_title">设置</string>
     <string name="settings_dynamic_color">动态颜色</string>
     <string name="settings_dynamic_color_desc">使用 Material You 配色方案 (Android 12+)</string>
     <string name="settings_translation">参与翻译</string>
