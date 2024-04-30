@@ -14,9 +14,6 @@
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
 
     <!-- Home -->
-    <string name="home_service_running">Service is running</string>
-    <string name="home_service_not_running">Service is not running</string>
-    <string name="home_service_version">Version %1$d, %2$s</string>
     <plurals name="home_authorized_apps_count">
         <item quantity="one">Authorized %d application</item>
         <item quantity="other">Authorized %d applications</item>
@@ -35,12 +32,17 @@
     <string name="sessions_title">Installation Sessions</string>
 
     <!-- Settings -->
+    <string name="settings_service_running">Service is running</string>
+    <string name="settings_service_version">Version %1$d, %2$s</string>
+    <string name="settings_service_not_running">Service is not running</string>
+    <string name="settings_service_try_start">Click to try to start</string>
     <string name="settings_dynamic_color">Dynamic Color</string>
     <string name="settings_dynamic_color_desc">Use Material You color scheme (Android 12+)</string>
-    <string name="settings_translation">Participate in Translation</string>
-    <string name="settings_translation_desc">Help us translate PI into your language</string>
     <string name="settings_self_update">Self-update</string>
     <string name="settings_self_update_desc">Automatically allow update requests by the app itself</string>
+    <string name="settings_translation">Participate in Translation</string>
+    <string name="settings_translation_desc">Help us translate PI into your language</string>
+    <string name="settings_source_code">Source Code</string>
 
     <!-- Install -->
     <string name="package_title">Installation Package</string>

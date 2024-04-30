@@ -2,9 +2,9 @@
 <resources>
     <string name="install_activity">تثبيت</string>
     <string name="setup_title">وضع العمل</string>
-    <string name="home_service_running">الخدمة قيد التشغيل</string>
-    <string name="home_service_not_running">الخدمة لا تعمل</string>
-    <string name="home_service_version">الإصدار %1$d, %2$s</string>
+    <string name="settings_service_running">الخدمة قيد التشغيل</string>
+    <string name="settings_service_not_running">الخدمة لا تعمل</string>
+    <string name="settings_service_version">الإصدار %1$d, %2$s</string>
     <string name="home_view_authorized_apps">أنقر لإدارة التطبيقات المصرح بها</string>
     <string name="home_menu_about">حول</string>
     <string name="home_about_view_source">عرض كود المصدر على %s</string>

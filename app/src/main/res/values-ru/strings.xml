@@ -2,9 +2,9 @@
 <resources>
     <string name="setup_title">Режим работы</string>
     <string name="setup_root_desc">Требуются права root, предоставленные Magisk или KernelSU</string>
-    <string name="home_service_running">Служба работает</string>
-    <string name="home_service_not_running">Служба не запущена</string>
-    <string name="home_service_version">Версия %1$d, %2$s</string>
+    <string name="settings_service_running">Служба работает</string>
+    <string name="settings_service_not_running">Служба не запущена</string>
+    <string name="settings_service_version">Версия %1$d, %2$s</string>
     <string name="home_view_authorized_apps">Нажмите, чтобы управлять авторизованными приложениями</string>
     <string name="home_menu_about">О программе</string>
     <string name="install_activity">Установить</string>

@@ -55,12 +55,32 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             SettingNormalItem(
+                icon = when {
+                    viewModel.isProviderAlive -> R.drawable.mood_wink
+                    else -> R.drawable.mood_puzzled
+                },
+                title = when {
+                    viewModel.isProviderAlive -> stringResource(id = R.string.settings_service_running)
+                    else -> stringResource(id = R.string.settings_service_not_running)
+                },
+                desc = when {
+                    viewModel.isProviderAlive -> stringResource(
+                        id = R.string.settings_service_version,
+                        viewModel.providerVersion,
+                        viewModel.providerPlatform
+                    )
+                    else -> stringResource(id = R.string.settings_service_try_start)
+                },
+                onClick = viewModel::tryStartProvider
+            )
+            
+            SettingNormalItem(
                 icon = R.drawable.components,
                 title = stringResource(id = R.string.setup_title),
                 desc = stringResource(id = when (userPreferences.provider) {
                     Provider.Superuser -> R.string.setup_root_title
                     Provider.Shizuku -> R.string.setup_shizuku_title
-                    else -> throw IllegalStateException()
+                    else -> R.string.unknown_error
                 }),
                 onClick = {
                     navController.navigateSingleTopTo(SettingsScreen.WorkingMode.route)
@@ -92,6 +112,15 @@ fun SettingsScreen(
                     context.openUrl(Const.TRANSLATE_URL)
                 }
             )
+
+            SettingNormalItem(
+                icon = R.drawable.brand_github,
+                title = stringResource(id = R.string.settings_source_code),
+                desc = Const.GITHUB_URL,
+                onClick = {
+                    context.openUrl(Const.GITHUB_URL)
+                }
+            )
         }
     }
 }
@@ -101,7 +130,7 @@ private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = {
-        Text(text = stringResource(id = R.string.page_settings))
+        Text(text = stringResource(id = R.string.app_name))
     },
     scrollBehavior = scrollBehavior
 )

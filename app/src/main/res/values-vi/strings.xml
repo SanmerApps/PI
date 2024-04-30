@@ -2,9 +2,9 @@
 <resources>
     <string name="install_activity">Cài đặt</string>
     <string name="setup_shizuku_desc">Cần có sự cho phép của Sui hoặc Shizuku</string>
-    <string name="home_service_running">Dịch vụ đang chạy</string>
-    <string name="home_service_not_running">Dịch vụ không chạy</string>
-    <string name="home_service_version">Phiên bản %1$d, %2$s</string>
+    <string name="settings_service_running">Dịch vụ đang chạy</string>
+    <string name="settings_service_not_running">Dịch vụ không chạy</string>
+    <string name="settings_service_version">Phiên bản %1$d, %2$s</string>
     <plurals name="home_authorized_apps_count">
         <item quantity="other">Đã ủy quyền %d ứng dụng</item>
     </plurals>
