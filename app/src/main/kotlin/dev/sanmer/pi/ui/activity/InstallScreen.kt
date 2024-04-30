@@ -102,10 +102,9 @@ private fun InstallContent(
     onFinish: () -> Unit
 ) = Column(
     modifier = Modifier
-        .padding(top = 20.dp, bottom = 15.dp)
-        .padding(horizontal = 15.dp)
+        .padding(all = 20.dp)
         .fillMaxWidth(),
-    verticalArrangement = Arrangement.spacedBy(15.dp),
+    verticalArrangement = Arrangement.spacedBy(16.dp),
     horizontalAlignment = Alignment.CenterHorizontally
 ) {
     PackageItem(
@@ -139,7 +138,7 @@ private fun InstallContent(
             .padding(navigationBarsPadding)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(15.dp)
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
@@ -182,7 +181,7 @@ private fun PackageItem(
         ) {
             val context = LocalContext.current
             AsyncImage(
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(45.dp),
                 model = ImageRequest.Builder(context)
                     .data(archiveInfo)
                     .build(),
@@ -228,59 +227,49 @@ private fun RequesterItem(
     OutlinedCard(
         shape = RoundedCornerShape(15.dp)
     ) {
-        AppItem(
-            pi = sourceInfo,
-            onClick = toggleAuthorized
-        )
+        Row(
+            modifier = Modifier
+                .clickable(
+                    enabled = true,
+                    onClick = toggleAuthorized,
+                    role = Role.Switch
+                )
+                .padding(all = 16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val context = LocalContext.current
+            AsyncImage(
+                modifier = Modifier.size(45.dp),
+                model = ImageRequest.Builder(context)
+                    .data(sourceInfo.inner)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null
+            )
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(1f)
+            ) {
+                Text(
+                    text = sourceInfo.label,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = sourceInfo.packageName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Switch(
+                checked = sourceInfo.authorized,
+                onCheckedChange = null
+            )
+        }
     }
-}
-
-@Composable
-private fun AppItem(
-    pi: IPackageInfo,
-    onClick: () -> Unit
-) = Row(
-    modifier = Modifier
-        .clickable(
-            enabled = true,
-            onClick = onClick,
-            role = Role.Switch
-        )
-        .padding(all = 16.dp)
-        .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
-) {
-    val context = LocalContext.current
-
-    AsyncImage(
-        modifier = Modifier.size(45.dp),
-        model = ImageRequest.Builder(context)
-            .data(pi.inner)
-            .crossfade(true)
-            .build(),
-        contentDescription = null
-    )
-
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .weight(1f)
-    ) {
-        Text(
-            text = pi.label,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Text(
-            text = pi.packageName,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-
-    Switch(
-        checked = pi.authorized,
-        onCheckedChange = null
-    )
 }
 
 @Composable
@@ -308,7 +297,7 @@ private fun AppBundlesItem(
 
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (featureConfigs.isNotEmpty()) {
             item {
