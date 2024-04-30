@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.activity
 
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -66,9 +65,7 @@ private fun BottomNav(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavigationBar(
-        modifier = Modifier.imePadding()
-    ) {
+    NavigationBar {
         mainScreens.forEach { screen ->
             val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
 
