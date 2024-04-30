@@ -1,15 +1,13 @@
 package dev.sanmer.pi.viewmodel
 
-import android.app.Application
-import android.content.Context
 import android.content.pm.PackageInfo
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.ContextCompat.userId
+import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.ISessionInfo
@@ -23,9 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SessionsViewModel @Inject constructor(
-    application: Application
-) : AndroidViewModel(application), PackageInstallerDelegate.SessionCallback {
-    private val context: Context by lazy { getApplication() }
+) : ViewModel(), PackageInstallerDelegate.SessionCallback {
     private val pmCompat get() = ProviderCompat.packageManagerCompat
     private val delegate by lazy {
         PackageInstallerDelegate(
@@ -66,7 +62,9 @@ class SessionsViewModel @Inject constructor(
 
     private fun getPackageInfo(packageName: String): PackageInfo? =
         runCatching {
-            pmCompat.getPackageInfo(packageName, 0, context.userId)
+            pmCompat.getPackageInfo(
+                packageName, 0, UserHandleCompat.myUserId()
+            )
         }.getOrNull()
 
     private fun loadData() {

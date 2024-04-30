@@ -1,15 +1,13 @@
 package dev.sanmer.pi.viewmodel
 
-import android.app.Application
-import android.content.Context
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.ContextCompat.userId
+import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -26,10 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val localRepository: LocalRepository,
-    application: Application
-) : AndroidViewModel(application) {
-    private val context: Context by lazy { getApplication() }
+    private val localRepository: LocalRepository
+) : ViewModel() {
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
     val isProviderAlive get() = ProviderCompat.isAlive
@@ -56,7 +52,6 @@ class AppsViewModel @Inject constructor(
             packagesFlow,
             keyFlow
         ) { authorized, source, key ->
-            Timber.d("list: ${source.size}")
             if (source.isEmpty()) return@combine
 
             appsFlow.value = source.map { pi ->
@@ -79,7 +74,7 @@ class AppsViewModel @Inject constructor(
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
         val allPackages = runCatching {
             pmCompat.getInstalledPackages(
-                PackageManager.GET_PERMISSIONS, context.userId
+                PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
             ).list
         }.onFailure {
             Timber.e(it, "getInstalledPackages")
