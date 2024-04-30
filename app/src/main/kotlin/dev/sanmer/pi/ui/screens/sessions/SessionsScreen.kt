@@ -66,7 +66,7 @@ fun SessionsScreen(
             if (list.isEmpty() && !viewModel.isLoading) {
                 PageIndicator(
                     icon = R.drawable.versions,
-                    text = R.string.apps_empty,
+                    text = R.string.empty_list,
                 )
             }
 

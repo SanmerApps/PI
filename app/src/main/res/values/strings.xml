@@ -13,24 +13,6 @@
     <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
 
-    <!-- Home -->
-    <plurals name="home_authorized_apps_count">
-        <item quantity="one">Authorized %d application</item>
-        <item quantity="other">Authorized %d applications</item>
-    </plurals>
-    <string name="home_view_authorized_apps">Tap to manage authorized apps</string>
-    <string name="home_requester_title">Installation Requester</string>
-    <string name="home_executor_title">Installation Executor</string>
-    <string name="home_menu_about">About</string>
-    <string name="home_about_view_source">View source code at %s</string>
-
-    <!-- Apps -->
-    <string name="apps_title">Application Management</string>
-    <string name="apps_empty">Empty list</string>
-
-    <!-- Sessions -->
-    <string name="sessions_title">Installation Sessions</string>
-
     <!-- Settings -->
     <string name="settings_service_running">Service is running</string>
     <string name="settings_service_version">Version %1$d, %2$s</string>
@@ -45,23 +27,24 @@
     <string name="settings_source_code">Source Code</string>
 
     <!-- Install -->
-    <string name="package_title">Installation Package</string>
-    <string name="config_feature_title">Dynamic Feature</string>
-    <string name="config_abi_title">ABI</string>
-    <string name="config_density_title">Screen Density</string>
-    <string name="config_language_title">Language</string>
-    <string name="config_unspecified_title">Unspecified</string>
-    <string name="button_install">Install</string>
-    <string name="button_cancel">Cancel</string>
+    <string name="install_package_title">Installation Package</string>
+    <string name="install_requester_title">Installation Requester</string>
+    <string name="install_config_feature_title">Dynamic Feature</string>
+    <string name="install_config_abi_title">ABI</string>
+    <string name="install_config_density_title">Screen Density</string>
+    <string name="install_config_language_title">Language</string>
+    <string name="install_config_unspecified_title">Unspecified</string>
+    <string name="install_button_install">Install</string>
+    <string name="install_button_cancel">Cancel</string>
 
     <!-- Message -->
-    <string name="message_installing">Installing…</string>
     <string name="message_install_success">Install successful</string>
     <string name="message_install_fail">Install failed</string>
     <string name="message_loading">Loading…</string>
 
     <!-- Search -->
     <string name="search_placeholder">Search…</string>
+    <string name="empty_list">Empty list</string>
 
     <!-- Notification -->
     <string name="notification_name_install">Install Service</string>

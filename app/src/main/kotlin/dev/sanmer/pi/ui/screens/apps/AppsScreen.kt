@@ -72,7 +72,7 @@ fun AppsScreen(
             if (list.isEmpty() && !viewModel.isLoading) {
                 PageIndicator(
                     icon = R.drawable.list_details,
-                    text = R.string.apps_empty,
+                    text = R.string.empty_list,
                 )
             }
 

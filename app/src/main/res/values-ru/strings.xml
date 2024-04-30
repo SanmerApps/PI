@@ -5,14 +5,6 @@
     <string name="settings_service_running">Служба работает</string>
     <string name="settings_service_not_running">Служба не запущена</string>
     <string name="settings_service_version">Версия %1$d, %2$s</string>
-    <string name="home_view_authorized_apps">Нажмите, чтобы управлять авторизованными приложениями</string>
-    <string name="home_menu_about">О программе</string>
     <string name="install_activity">Установить</string>
     <string name="setup_shizuku_desc">Требуется разрешение Суи или Шизуку</string>
-    <plurals name="home_authorized_apps_count">
-        <item quantity="one">Авторизовано %d приложение</item>
-        <item quantity="few">Авторизовано %d приложения</item>
-        <item quantity="many">Авторизовано %d приложений</item>
-        <item quantity="other">Авторизовано %d приложений</item>
-    </plurals>
 </resources>

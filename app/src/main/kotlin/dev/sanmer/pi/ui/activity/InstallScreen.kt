@@ -145,7 +145,7 @@ private fun InstallContent(
         OutlinedButton(
             onClick = onDeny
         ) {
-            Text(text = stringResource(id = R.string.button_cancel))
+            Text(text = stringResource(id = R.string.install_button_cancel))
         }
 
         Button(
@@ -154,7 +154,7 @@ private fun InstallContent(
                 onFinish()
             }
         ) {
-            Text(text = stringResource(id = R.string.button_install))
+            Text(text = stringResource(id = R.string.install_button_install))
         }
     }
 }
@@ -167,7 +167,7 @@ private fun PackageItem(
     sdkDiff: AnnotatedString,
     apkSize: String
 ) = TittleItem(
-    text = stringResource(id = R.string.package_title)
+    text = stringResource(id = R.string.install_package_title)
 ) {
     Surface(
         shape = RoundedCornerShape(15.dp),
@@ -222,7 +222,7 @@ private fun RequesterItem(
     sourceInfo: IPackageInfo,
     toggleAuthorized: () -> Unit,
 ) = TittleItem(
-    text = stringResource(id = R.string.home_requester_title)
+    text = stringResource(id = R.string.install_requester_title)
 ) {
     OutlinedCard(
         shape = RoundedCornerShape(15.dp)
@@ -301,7 +301,7 @@ private fun AppBundlesItem(
     ) {
         if (featureConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_feature_title))
+                TittleItem(text = stringResource(id = R.string.install_config_feature_title))
             }
             items(
                 items = featureConfigs,
@@ -317,7 +317,7 @@ private fun AppBundlesItem(
 
         if (abiConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_abi_title))
+                TittleItem(text = stringResource(id = R.string.install_config_abi_title))
             }
             items(
                 items = abiConfigs,
@@ -333,7 +333,7 @@ private fun AppBundlesItem(
 
         if (densityConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_density_title))
+                TittleItem(text = stringResource(id = R.string.install_config_density_title))
             }
             items(
                 items = densityConfigs,
@@ -349,7 +349,7 @@ private fun AppBundlesItem(
 
         if (languageConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_language_title))
+                TittleItem(text = stringResource(id = R.string.install_config_language_title))
             }
             items(
                 items = languageConfigs,
@@ -365,7 +365,7 @@ private fun AppBundlesItem(
 
         if (unspecifiedConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_unspecified_title))
+                TittleItem(text = stringResource(id = R.string.install_config_unspecified_title))
             }
             items(
                 items = unspecifiedConfigs,

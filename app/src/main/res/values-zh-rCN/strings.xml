@@ -13,23 +13,6 @@
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
     <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
 
-    <!-- Home -->
-    <plurals name="home_authorized_apps_count">
-        <item quantity="other">已授权 %d 个应用</item>
-    </plurals>
-    <string name="home_view_authorized_apps">点按以管理授权的应用</string>
-    <string name="home_requester_title">安装请求方</string>
-    <string name="home_executor_title">安装执行方</string>
-    <string name="home_menu_about">关于</string>
-    <string name="home_about_view_source">在 %s 查看源码</string>
-
-    <!-- Apps -->
-    <string name="apps_title">应用管理</string>
-    <string name="apps_empty">空列表</string>
-
-    <!-- Sessions -->
-    <string name="sessions_title">安装会话</string>
-
     <!-- Settings -->
     <string name="settings_service_running">服务正在运行</string>
     <string name="settings_service_version">版本 %1$d，%2$s</string>
@@ -44,23 +27,24 @@
     <string name="settings_source_code">源码</string>
 
     <!-- Install -->
-    <string name="package_title">安装包</string>
-    <string name="config_feature_title">动态特征</string>
-    <string name="config_abi_title">ABI</string>
-    <string name="config_density_title">屏幕密度</string>
-    <string name="config_language_title">语言</string>
-    <string name="config_unspecified_title">未知</string>
-    <string name="button_install">安装</string>
-    <string name="button_cancel">取消</string>
+    <string name="install_package_title">安装包</string>
+    <string name="install_requester_title">请求方</string>
+    <string name="install_config_feature_title">动态特征</string>
+    <string name="install_config_abi_title">ABI</string>
+    <string name="install_config_density_title">屏幕密度</string>
+    <string name="install_config_language_title">语言</string>
+    <string name="install_config_unspecified_title">未知</string>
+    <string name="install_button_install">安装</string>
+    <string name="install_button_cancel">取消</string>
 
     <!-- Message -->
-    <string name="message_installing">安装中…</string>
     <string name="message_install_success">安装成功</string>
     <string name="message_install_fail">安装失败</string>
     <string name="message_loading">加载中…</string>
 
     <!-- Search -->
     <string name="search_placeholder">搜索…</string>
+    <string name="empty_list">空列表</string>
 
     <!-- Notification -->
     <string name="notification_name_install">安装服务</string>
