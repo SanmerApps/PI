@@ -13,11 +13,11 @@ import android.os.Bundle
 import android.os.FileBridge
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
-import android.os.UserHandleHidden
 import android.system.Os
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
+import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 import dev.sanmer.hidden.compat.stub.ISessionCallback
@@ -49,7 +49,7 @@ class PackageInstallerDelegate(
         installer = installer,
         installerPackageName = DEFAULT_INSTALLER,
         installerAttributionTag = DEFAULT_INSTALLER,
-        userId = UserHandleHidden.myUserId()
+        userId = UserHandleCompat.myUserId()
     )
 
     private val mDelegates = mutableListOf<SessionCallbackDelegate>()
