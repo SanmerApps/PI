@@ -56,7 +56,7 @@ class InstallViewModel @Inject constructor(
     private val isSelf get() = sourceInfo.packageName == archiveInfo.packageName
     var isAuthorized = false
         private set
-    val hasSourceInfo get() = sourceInfo.inner.isNotEmpty
+    val hasSourceInfo get() = sourceInfo.isNotEmpty
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
     private val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
@@ -83,8 +83,7 @@ class InstallViewModel @Inject constructor(
         if (!source.isSystemApp) {
             isAuthorized = localRepository.getByPackageInfo(source)
             sourceInfo = source.toIPackageInfo(
-                authorized = isAuthorized,
-                pm = pm
+                authorized = isAuthorized
             )
         }
 
@@ -129,7 +128,7 @@ class InstallViewModel @Inject constructor(
     }
 
     fun toggleAuthorized() {
-        if (sourceInfo.inner.isEmpty) return
+        if (sourceInfo.isEmpty) return
 
         viewModelScope.launch {
             sourceInfo = sourceInfo.let {

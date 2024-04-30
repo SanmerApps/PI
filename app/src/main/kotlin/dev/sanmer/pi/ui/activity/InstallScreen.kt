@@ -242,7 +242,7 @@ private fun RequesterItem(
             AsyncImage(
                 modifier = Modifier.size(45.dp),
                 model = ImageRequest.Builder(context)
-                    .data(sourceInfo.inner)
+                    .data(sourceInfo)
                     .crossfade(true)
                     .build(),
                 contentDescription = null
@@ -254,7 +254,7 @@ private fun RequesterItem(
                     .weight(1f)
             ) {
                 Text(
-                    text = sourceInfo.label,
+                    text = sourceInfo.appLabel,
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
