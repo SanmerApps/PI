@@ -20,7 +20,10 @@ fun NavController.navigatePopUpTo(
 ) = navigateSingleTopTo(
     route = route
 ) {
-    popUpTo(graph.findStartDestination().id) {
+    popUpTo(
+        id = currentDestination?.parent?.id ?: graph.findStartDestination().id
+    ) {
         saveState = true
+        inclusive = true
     }
 }
