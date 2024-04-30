@@ -25,8 +25,6 @@ public class PackageInfoHidden {
 
     public int overlayPriority;
 
-    boolean mOverlayIsStatic;
-
     public int compileSdkVersion;
 
     public String compileSdkVersionCodename;

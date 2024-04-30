@@ -57,7 +57,6 @@ abstract class PackageInfoDelegate(
         overlayTarget = original.overlayTarget
         overlayCategory = original.overlayCategory
         overlayPriority = original.overlayPriority
-        //mOverlayIsStatic = original.mOverlayIsStatic
         compileSdkVersion = original.compileSdkVersion
         compileSdkVersionCodename = original.compileSdkVersionCodename
         signingInfo = original.signingInfo
