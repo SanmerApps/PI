@@ -33,7 +33,7 @@ internal fun AppItem(
             onClick = onClick,
             role = Role.Switch
         )
-        .padding(horizontal = 12.dp, vertical = 6.dp)
+        .padding(all = 12.dp)
         .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically
 ) {

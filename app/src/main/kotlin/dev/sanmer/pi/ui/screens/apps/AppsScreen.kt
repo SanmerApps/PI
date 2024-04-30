@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.screens.apps
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -24,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -79,8 +77,7 @@ fun AppsScreen(
             }
 
             LazyColumn(
-                state = state,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                state = state
             ) {
                 items(
                     items = list,
