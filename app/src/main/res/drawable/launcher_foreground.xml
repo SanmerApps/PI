@@ -8,19 +8,19 @@
       android:translateX="6.881"
       android:translateY="6.881">
     <path
-        android:pathData="M7,20v-16"
+        android:pathData="M13.092,21.72a2.269,2.269 0,0 1,-2.184 0l-6.75,-4.27a2.225,2.225 0,0 1,-1.158 -1.948v-7.285c0,-0.809 0.443,-1.554 1.158,-1.947l6.75,-3.98a2.33,2.33 0,0 1,2.25 0l6.75,3.98h-0.033c0.7,0.398 1.13,1.143 1.125,1.948v4.282"
         android:strokeLineJoin="round"
         android:strokeWidth="2"
         android:strokeColor="#ffff"
         android:strokeLineCap="round"/>
     <path
-        android:pathData="M17,4v16"
+        android:pathData="M16,19h6"
         android:strokeLineJoin="round"
         android:strokeWidth="2"
         android:strokeColor="#ffff"
         android:strokeLineCap="round"/>
     <path
-        android:pathData="M20,4h-16"
+        android:pathData="M19,16v6"
         android:strokeLineJoin="round"
         android:strokeWidth="2"
         android:strokeColor="#ffff"
