@@ -13,6 +13,13 @@
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
     <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
 
+    <!-- Sessions -->
+    <string name="sessions_user">用户: %1$d</string>
+    <string name="sessions_id">ID: %1$d</string>
+    <string name="sessions_active">执行中</string>
+    <string name="sessions_staged">已完成</string>
+    <string name="sessions_committed">已提交</string>
+
     <!-- Settings -->
     <string name="settings_behavior">行为</string>
     <string name="settings_service_running">服务正在运行</string>

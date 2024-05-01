@@ -116,28 +116,39 @@ fun SessionsScreen(
 private fun SessionItem(
     session: ISessionInfo
 ) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     var show by remember { mutableStateOf(false) }
-    val viewPackage: (String) -> Unit = { packageName ->
-        scope.launch {
-            context.viewPackage(packageName)
-            state.hide()
-            show = false
-        }
-    }
+    if (show) ViewPackage(
+        session = session,
+        onClose = { show = false }
+    )
 
     SessionItem(
         session = session,
         onClick = { show = true }
     )
+}
 
-    if (show) ModalBottomSheet(
+@Composable
+private fun ViewPackage(
+    session: ISessionInfo,
+    onClose: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val viewPackage: (String) -> Unit = { packageName ->
+        scope.launch {
+            context.viewPackage(packageName)
+            state.hide()
+            onClose()
+        }
+    }
+
+    ModalBottomSheet(
         sheetState = state,
         shape = BottomSheetDefaults.expandedShape(20.dp),
-        onDismissRequest = { show = false },
+        onDismissRequest = onClose,
         windowInsets = WindowInsets.navigationBars,
         dragHandle = null
     ) {

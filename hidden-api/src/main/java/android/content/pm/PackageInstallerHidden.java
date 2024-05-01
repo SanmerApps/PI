@@ -11,4 +11,9 @@ public class PackageInstallerHidden {
     public static class SessionParamsHidden {
         public int installFlags;
     }
+
+    @RefineAs(PackageInstaller.SessionInfo.class)
+    public static class SessionInfoHidden {
+        public int userId;
+    }
 }

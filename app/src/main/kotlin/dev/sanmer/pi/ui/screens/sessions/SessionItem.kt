@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -84,19 +85,11 @@ internal fun SessionItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            LabelItem(text = "ID: ${session.sessionId}")
-
-            if (session.isActive) {
-                LabelItem(text = "ACTIVE")
-            }
-
-            if (session.isStaged) {
-                LabelItem(text = "STAGED")
-            }
-
-            if (session.isCommitted) {
-                LabelItem(text = "COMMITTED")
-            }
+            LabelItem(text = stringResource(id = R.string.sessions_user, session.userId))
+            LabelItem(text = stringResource(id = R.string.sessions_id, session.sessionId))
+            if (session.isActive) LabelItem(text = stringResource(id = R.string.sessions_active))
+            if (session.isStaged) LabelItem(text = stringResource(id = R.string.sessions_staged))
+            if (session.isCommitted) LabelItem(text = stringResource(id = R.string.sessions_committed))
         }
     }
 }

@@ -4,11 +4,13 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.graphics.Bitmap
 import androidx.compose.runtime.Immutable
+import dev.sanmer.hidden.compat.SessionInfoCompat.userId
 import dev.sanmer.hidden.compat.delegate.ContextDelegate
 
 @Immutable
 data class ISessionInfo(
     val sessionId: Int,
+    val userId: Int,
     val isActive: Boolean,
     val isStaged: Boolean,
     val isCommitted: Boolean,
@@ -43,6 +45,7 @@ data class ISessionInfo(
         app: PackageInfo?
     ) : this(
         sessionId = sessionInfo.sessionId,
+        userId = sessionInfo.userId,
         isActive = sessionInfo.isActive,
         isStaged = sessionInfo.isStaged,
         isCommitted = sessionInfo.isCommitted,
