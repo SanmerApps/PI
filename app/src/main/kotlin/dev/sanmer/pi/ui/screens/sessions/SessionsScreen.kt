@@ -33,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,13 +48,13 @@ import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
 import dev.sanmer.pi.ui.screens.apps.AppItem
 import dev.sanmer.pi.ui.utils.expandedShape
-import dev.sanmer.pi.utils.extensions.viewPackage
+import dev.sanmer.pi.ui.utils.navigateSingleTopTo
+import dev.sanmer.pi.viewmodel.AppViewModel
 import dev.sanmer.pi.viewmodel.SessionsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun SessionsScreen(
-    @Suppress("UNUSED_PARAMETER")
     navController: NavController,
     viewModel: SessionsViewModel = hiltViewModel()
 ) {
@@ -99,8 +98,15 @@ fun SessionsScreen(
                 items(
                     items = list,
                     key = { it.sessionId }
-                ) {
-                    SessionItem(it)
+                ) {  session ->
+                    SessionItem(
+                        session = session,
+                        viewApp = {
+                            navController.navigateSingleTopTo(
+                                AppViewModel.putPackageName(it)
+                            )
+                        }
+                    )
                 }
             }
 
@@ -114,11 +120,13 @@ fun SessionsScreen(
 
 @Composable
 private fun SessionItem(
-    session: ISessionInfo
+    session: ISessionInfo,
+    viewApp: (String) -> Unit
 ) {
     var show by remember { mutableStateOf(false) }
     if (show) ViewPackage(
         session = session,
+        viewApp = viewApp,
         onClose = { show = false }
     )
 
@@ -131,15 +139,15 @@ private fun SessionItem(
 @Composable
 private fun ViewPackage(
     session: ISessionInfo,
+    viewApp: (String) -> Unit,
     onClose: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val viewPackage: (String) -> Unit = { packageName ->
         scope.launch {
-            context.viewPackage(packageName)
+            viewApp(packageName)
             state.hide()
             onClose()
         }

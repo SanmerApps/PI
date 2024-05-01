@@ -139,9 +139,9 @@ class AppViewModel @Inject constructor(
     }
 
     companion object {
-        fun putPackageName(pi: PackageInfo) =
+        fun putPackageName(packageName: String) =
             AppsScreen.View.route.replace(
-                "{packageName}", pi.packageName
+                "{packageName}", packageName
             )
 
         fun getPackageName(savedStateHandle: SavedStateHandle): String =

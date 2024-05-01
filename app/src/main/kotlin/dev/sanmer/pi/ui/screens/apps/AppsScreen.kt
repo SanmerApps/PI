@@ -88,7 +88,7 @@ fun AppsScreen(
                         pi = pi,
                         onClick = {
                             navController.navigateSingleTopTo(
-                                AppViewModel.putPackageName(pi)
+                                AppViewModel.putPackageName(pi.packageName)
                             )
                         }
                     )
