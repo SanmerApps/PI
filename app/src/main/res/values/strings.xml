@@ -9,29 +9,33 @@
     <string name="page_settings">Settings</string>
 
     <!-- Setup -->
-    <string name="setup_title">Working Mode</string>
+    <string name="setup_title">Working mode</string>
     <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
 
     <!-- Settings -->
+    <string name="settings_behavior">Behavior</string>
     <string name="settings_service_running">Service is running</string>
     <string name="settings_service_version">Version %1$d, %2$s</string>
     <string name="settings_service_not_running">Service is not running</string>
     <string name="settings_service_try_start">Click to try to start</string>
-    <string name="settings_dynamic_color">Dynamic Color</string>
-    <string name="settings_dynamic_color_desc">Use Material You color scheme (Android 12+)</string>
     <string name="settings_self_update">Self-update</string>
     <string name="settings_self_update_desc">Automatically allow update requests by the app itself</string>
-    <string name="settings_translation">Participate in Translation</string>
+    <string name="settings_interface">Interface</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_dynamic_color">Dynamic color</string>
+    <string name="settings_dynamic_color_desc">Use system theme color (Android 12+)</string>
+    <string name="settings_translation">Participate in translation</string>
     <string name="settings_translation_desc">Help us translate PI into your language</string>
-    <string name="settings_source_code">Source Code</string>
+    <string name="settings_source_code">Source code</string>
 
     <!-- Install -->
-    <string name="install_package_title">Installation Package</string>
-    <string name="install_requester_title">Installation Requester</string>
-    <string name="install_config_feature_title">Dynamic Feature</string>
+    <string name="install_package_title">Installation package</string>
+    <string name="install_requester_title">Installation requester</string>
+    <string name="install_config_feature_title">Dynamic feature</string>
     <string name="install_config_abi_title">ABI</string>
-    <string name="install_config_density_title">Screen Density</string>
+    <string name="install_config_density_title">Screen density</string>
     <string name="install_config_language_title">Language</string>
     <string name="install_config_unspecified_title">Unspecified</string>
     <string name="install_button_install">Install</string>
@@ -47,7 +51,7 @@
     <string name="empty_list">Empty list</string>
 
     <!-- Notification -->
-    <string name="notification_name_install">Install Service</string>
+    <string name="notification_name_install">Install service</string>
 
     <!-- Other -->
     <string name="unknown_error">Unknown error</string>

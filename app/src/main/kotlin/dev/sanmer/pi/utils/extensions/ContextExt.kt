@@ -2,6 +2,7 @@ package dev.sanmer.pi.utils.extensions
 
 import android.content.Context
 import android.content.Intent
+import androidx.core.app.LocaleManagerCompat
 
 val Context.tmpDir get() = checkNotNull(externalCacheDir).resolve("tmp")
     .apply {
@@ -13,3 +14,7 @@ fun Context.openUrl(url: String) {
         startActivity(this)
     }
 }
+
+val Context.applicationLocale
+    get() = LocaleManagerCompat.getApplicationLocales(applicationContext)
+        .toList().firstOrNull()

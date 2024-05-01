@@ -14,14 +14,18 @@
     <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
 
     <!-- Settings -->
+    <string name="settings_behavior">行为</string>
     <string name="settings_service_running">服务正在运行</string>
     <string name="settings_service_version">版本 %1$d，%2$s</string>
     <string name="settings_service_not_running">服务未运行</string>
     <string name="settings_service_try_start">点击尝试启动</string>
-    <string name="settings_dynamic_color">动态颜色</string>
-    <string name="settings_dynamic_color_desc">使用 Material You 配色方案 (Android 12+)</string>
     <string name="settings_self_update">自更新</string>
     <string name="settings_self_update_desc">自动允许应用自己发出的更新请求</string>
+    <string name="settings_interface">界面</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_language_system">系统默认</string>
+    <string name="settings_dynamic_color">动态颜色</string>
+    <string name="settings_dynamic_color_desc">使用系统主题颜色 (Android 12+)</string>
     <string name="settings_translation">参与翻译</string>
     <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
     <string name="settings_source_code">源码</string>
