@@ -68,7 +68,7 @@ object PackageInfoCompat {
     val PackageInfo?.isEmpty
         get() = this?.packageName == null || applicationInfo == null
 
-    val PackageInfo.isNotEmpty
+    val PackageInfo?.isNotEmpty
         get() = !isEmpty
 
     val PackageInfo.isSystemApp: Boolean get() {

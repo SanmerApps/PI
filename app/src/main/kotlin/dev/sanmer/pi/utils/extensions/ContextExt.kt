@@ -9,12 +9,21 @@ val Context.tmpDir get() = checkNotNull(externalCacheDir).resolve("tmp")
         if (!exists()) mkdirs()
     }
 
+val Context.applicationLocale
+    get() = LocaleManagerCompat.getApplicationLocales(applicationContext)
+        .toList().firstOrNull()
+
 fun Context.openUrl(url: String) {
     Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply {
         startActivity(this)
     }
 }
 
-val Context.applicationLocale
-    get() = LocaleManagerCompat.getApplicationLocales(applicationContext)
-        .toList().firstOrNull()
+fun Context.viewPackage(packageName: String) {
+    Intent(
+        Intent.ACTION_SHOW_APP_INFO
+    ).apply {
+        putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+        startActivity(this)
+    }
+}

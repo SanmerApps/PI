@@ -33,6 +33,7 @@
     <!-- Install -->
     <string name="install_package_title">Installation package</string>
     <string name="install_requester_title">Installation requester</string>
+    <string name="install_executor_title">Installation executor</string>
     <string name="install_config_feature_title">Dynamic feature</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="install_config_density_title">Screen density</string>
