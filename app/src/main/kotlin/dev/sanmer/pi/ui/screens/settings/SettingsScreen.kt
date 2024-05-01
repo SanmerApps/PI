@@ -36,7 +36,7 @@ import dev.sanmer.pi.ui.navigation.graphs.SettingsScreen
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
 import dev.sanmer.pi.ui.utils.navigateSingleTopTo
 import dev.sanmer.pi.utils.extensions.applicationLocale
-import dev.sanmer.pi.utils.extensions.openUrl
+import dev.sanmer.pi.utils.extensions.viewUrl
 import dev.sanmer.pi.viewmodel.SettingsViewModel
 import java.util.Locale
 
@@ -120,7 +120,7 @@ fun SettingsScreen(
                 title = stringResource(id = R.string.settings_translation),
                 desc = stringResource(id = R.string.settings_translation_desc),
                 onClick = {
-                    context.openUrl(Const.TRANSLATE_URL)
+                    context.viewUrl(Const.TRANSLATE_URL)
                 }
             )
 
@@ -129,7 +129,7 @@ fun SettingsScreen(
                 title = stringResource(id = R.string.settings_source_code),
                 desc = Const.GITHUB_URL,
                 onClick = {
-                    context.openUrl(Const.GITHUB_URL)
+                    context.viewUrl(Const.GITHUB_URL)
                 }
             )
         }

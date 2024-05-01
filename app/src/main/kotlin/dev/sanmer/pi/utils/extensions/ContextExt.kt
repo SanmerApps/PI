@@ -13,7 +13,7 @@ val Context.applicationLocale
     get() = LocaleManagerCompat.getApplicationLocales(applicationContext)
         .toList().firstOrNull()
 
-fun Context.openUrl(url: String) {
+fun Context.viewUrl(url: String) {
     Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply {
         startActivity(this)
     }
