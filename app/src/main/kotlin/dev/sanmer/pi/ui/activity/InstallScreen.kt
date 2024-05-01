@@ -265,7 +265,7 @@ private fun RequesterItem(
             }
 
             Switch(
-                checked = sourceInfo.authorized,
+                checked = sourceInfo.isAuthorized,
                 onCheckedChange = null
             )
         }

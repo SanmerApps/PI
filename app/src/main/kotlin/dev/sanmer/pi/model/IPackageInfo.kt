@@ -7,19 +7,27 @@ import dev.sanmer.hidden.compat.delegate.PackageInfoDelegate
 @Immutable
 data class IPackageInfo(
     private val inner: PackageInfo,
-    val authorized: Boolean,
+    val isAuthorized: Boolean,
+    val isRequester: Boolean,
+    val isExecutor: Boolean
 ) : PackageInfoDelegate(inner) {
     companion object {
         fun PackageInfo.toIPackageInfo(
-            authorized: Boolean = false
+            isAuthorized: Boolean = false,
+            isRequester: Boolean = false,
+            isExecutor: Boolean = false
         ) = IPackageInfo(
             inner = this,
-            authorized = authorized
+            isAuthorized = isAuthorized,
+            isRequester = isRequester,
+            isExecutor = isExecutor
         )
 
         fun empty() = IPackageInfo(
             inner = PackageInfo(),
-            authorized = false
+            isAuthorized = false,
+            isRequester = false,
+            isExecutor = false
         )
     }
 }

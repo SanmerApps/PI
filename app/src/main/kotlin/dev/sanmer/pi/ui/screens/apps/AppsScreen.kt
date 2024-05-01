@@ -31,11 +31,12 @@ import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
 import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
+import dev.sanmer.pi.ui.utils.navigateSingleTopTo
+import dev.sanmer.pi.viewmodel.AppViewModel
 import dev.sanmer.pi.viewmodel.AppsViewModel
 
 @Composable
 fun AppsScreen(
-    @Suppress("UNUSED_PARAMETER")
     navController: NavController,
     viewModel: AppsViewModel = hiltViewModel()
 ) {
@@ -82,10 +83,14 @@ fun AppsScreen(
                 items(
                     items = list,
                     key = { it.packageName }
-                ) {
+                ) { pi ->
                     AppItem(
-                        pi = it,
-                        onClick = { }
+                        pi = pi,
+                        onClick = {
+                            navController.navigateSingleTopTo(
+                                AppViewModel.putPackageName(pi)
+                            )
+                        }
                     )
                 }
             }

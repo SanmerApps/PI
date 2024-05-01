@@ -11,6 +11,6 @@ data class PackageInfoEntity(
 ) {
     constructor(packageInfo: IPackageInfo) : this(
         packageName = packageInfo.packageName,
-        authorized = packageInfo.authorized
+        authorized = packageInfo.isAuthorized
     )
 }

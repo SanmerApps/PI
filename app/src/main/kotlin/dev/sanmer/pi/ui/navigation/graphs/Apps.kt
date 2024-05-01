@@ -2,15 +2,20 @@ package dev.sanmer.pi.ui.navigation.graphs
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.screens.apps.AppsScreen
+import dev.sanmer.pi.ui.screens.apps.view.ViewScreen
 
 enum class AppsScreen(val route: String) {
-    Home("Apps")
+    Home("Apps"),
+    View("view/{packageName}")
 }
 
 fun NavGraphBuilder.appsScreen(
@@ -25,6 +30,17 @@ fun NavGraphBuilder.appsScreen(
         exitTransition = { fadeOut() }
     ) {
         AppsScreen(
+            navController = navController
+        )
+    }
+
+    composable(
+        route = AppsScreen.View.route,
+        arguments = listOf(navArgument("packageName") { type = NavType.StringType }),
+        enterTransition = { scaleIn() + fadeIn() },
+        exitTransition = { fadeOut() }
+    ) {
+        ViewScreen(
             navController = navController
         )
     }

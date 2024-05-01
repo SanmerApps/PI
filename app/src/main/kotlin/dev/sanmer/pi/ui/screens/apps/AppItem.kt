@@ -1,9 +1,13 @@
 package dev.sanmer.pi.ui.screens.apps
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,32 +18,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
+import dev.sanmer.pi.ui.component.LabelItem
 
 @Composable
 internal fun AppItem(
     pi: IPackageInfo,
-    onClick: () -> Unit
+    iconSize: Dp = 45.dp,
+    iconEnd: Dp = 12.dp,
+    contentPaddingValues: PaddingValues = PaddingValues(12.dp),
+    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    onClick: () -> Unit = {},
+    enabled: Boolean = true
 ) = Row(
     modifier = Modifier
         .clip(RoundedCornerShape(15.dp))
         .clickable(
-            enabled = true,
-            onClick = onClick,
-            role = Role.Switch
+            enabled = enabled,
+            onClick = onClick
         )
-        .padding(all = 12.dp)
+        .padding(contentPaddingValues)
         .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = verticalAlignment
 ) {
     val context = LocalContext.current
     AsyncImage(
-        modifier = Modifier.size(45.dp),
+        modifier = Modifier.size(iconSize),
         model = ImageRequest.Builder(context)
             .data(pi)
             .crossfade(true)
@@ -49,7 +60,7 @@ internal fun AppItem(
 
     Column(
         modifier = Modifier
-            .padding(start = 12.dp)
+            .padding(start = iconEnd)
             .weight(1f)
     ) {
         Text(
@@ -73,5 +84,15 @@ internal fun AppItem(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline
         )
+
+        Spacer(modifier = Modifier.height(6.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (pi.isAuthorized) LabelItem(text = stringResource(id = R.string.apps_authorized))
+            if (pi.isRequester) LabelItem(text = stringResource(id = R.string.apps_requester))
+            if (pi.isExecutor) LabelItem(text = stringResource(id = R.string.apps_executor))
+        }
     }
 }

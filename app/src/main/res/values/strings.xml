@@ -13,6 +13,11 @@
     <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
 
+    <!-- Apps -->
+    <string name="apps_authorized">AUTHORIZED</string>
+    <string name="apps_requester">REQUESTER</string>
+    <string name="apps_executor">EXECUTOR</string>
+
     <!-- Sessions -->
     <string name="sessions_user">USER: %1$d</string>
     <string name="sessions_id">ID: %1$d</string>

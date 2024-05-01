@@ -1,5 +1,6 @@
 package dev.sanmer.pi.viewmodel
 
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val localRepository: LocalRepository
+    private val localRepository: LocalRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val pmCompat get() = ProviderCompat.packageManagerCompat
 
@@ -34,7 +37,8 @@ class AppsViewModel @Inject constructor(
         private set
     private val keyFlow = MutableStateFlow("")
 
-    private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
+    private val packagesFlow = MutableStateFlow(listOf<PackageInfo>())
+    private val cacheFlow = MutableStateFlow(listOf<IPackageInfo>())
     private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
     val apps get() = appsFlow.asStateFlow()
 
@@ -44,29 +48,49 @@ class AppsViewModel @Inject constructor(
     init {
         Timber.d("AppsViewModel init")
         dataObserver()
+        keyObserver()
     }
 
     private fun dataObserver() {
         combine(
             localRepository.getAllAsFlow(),
+            userPreferencesRepository.data,
             packagesFlow,
-            keyFlow
-        ) { authorized, source, key ->
+        ) { authorized, preferences, source ->
             if (source.isEmpty()) return@combine
 
-            appsFlow.value = source.map { pi ->
-                val isAuthorized = authorized.find {
-                    it.packageName == pi.packageName
-                }?.authorized ?: false
-
-                pi.copy(authorized = isAuthorized)
-            }.filter { pi ->
-                if (key.isBlank()) return@filter true
-                key.lowercase() in (pi.appLabel + pi.packageName).lowercase()
-
+            cacheFlow.value = source.map { pi ->
+                pi.toIPackageInfo(
+                    isAuthorized = authorized.find {
+                        it.packageName == pi.packageName
+                    }?.authorized ?: false,
+                    isRequester = preferences.requester == pi.packageName,
+                    isExecutor = preferences.executor == pi.packageName
+                )
             }.sortedByDescending { it.lastUpdateTime }
+                .sortedByDescending { it.isAuthorized }
+                .sortedByDescending { it.isExecutor || it.isRequester }
 
             isLoading = false
+
+        }.launchIn(viewModelScope)
+    }
+
+    private fun keyObserver() {
+        combine(
+            keyFlow,
+            cacheFlow
+        ) { key, source ->
+
+            appsFlow.value = source
+                .filter {
+                    if (key.isNotBlank()) {
+                        it.appLabel.contains(key, ignoreCase = true)
+                                || it.packageName.contains(key, ignoreCase = true)
+                    } else {
+                        true
+                    }
+                }
 
         }.launchIn(viewModelScope)
     }
@@ -80,9 +104,7 @@ class AppsViewModel @Inject constructor(
             Timber.e(it, "getInstalledPackages")
         }.getOrDefault(emptyList())
 
-        allPackages.map {
-            it.toIPackageInfo()
-        }.filter {
+        allPackages.filter {
             it.applicationInfo.enabled
         }
     }

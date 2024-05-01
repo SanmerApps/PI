@@ -83,7 +83,7 @@ class InstallViewModel @Inject constructor(
         if (!source.isSystemApp) {
             isAuthorized = localRepository.getByPackageInfo(source)
             sourceInfo = source.toIPackageInfo(
-                authorized = isAuthorized
+                isAuthorized = isAuthorized
             )
         }
 
@@ -132,7 +132,7 @@ class InstallViewModel @Inject constructor(
 
         viewModelScope.launch {
             sourceInfo = sourceInfo.let {
-                it.copy(authorized = !it.authorized)
+                it.copy(isAuthorized = !it.isAuthorized)
             }
 
             localRepository.insert(sourceInfo)
