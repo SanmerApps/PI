@@ -68,7 +68,7 @@ abstract class PackageInfoDelegate(
 
     val appLabel by lazy {
         val context = ContextDelegate.getContext()
-        applicationInfo.loadLabel(
+        applicationInfo?.loadLabel(
             context.packageManager
         ).toString()
     }
