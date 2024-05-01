@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -120,8 +121,7 @@ private fun InstallContent(
             AppBundlesItem(
                 configs = viewModel.splitConfigs,
                 isRequiredConfig = viewModel::isRequiredConfig,
-                toggleSplitConfig = viewModel::toggleSplitConfig,
-                modifier = Modifier.weight(1f)
+                toggleSplitConfig = viewModel::toggleSplitConfig
             )
         }
         viewModel.hasSourceInfo -> {
@@ -273,7 +273,7 @@ private fun RequesterItem(
 }
 
 @Composable
-private fun AppBundlesItem(
+private fun ColumnScope.AppBundlesItem(
     configs: List<SplitConfig>,
     isRequiredConfig: (SplitConfig) -> Boolean,
     toggleSplitConfig: (SplitConfig) -> Unit,
@@ -295,8 +295,17 @@ private fun AppBundlesItem(
         derivedStateOf { configs.filterIsInstance<UnspecifiedSplitConfig>() }
     }
 
+    val state = rememberLazyListState()
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier
+            .then(
+                if (state.canScrollForward || state.canScrollBackward) {
+                    Modifier.weight(1f)
+                } else {
+                    Modifier
+                }
+            ),
+        state = state,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (featureConfigs.isNotEmpty()) {
