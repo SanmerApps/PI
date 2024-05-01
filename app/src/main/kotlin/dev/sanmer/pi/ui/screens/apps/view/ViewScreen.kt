@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -29,6 +30,7 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.CollapsingTopAppBar
 import dev.sanmer.pi.ui.screens.apps.AppItem
 import dev.sanmer.pi.viewmodel.AppViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ViewScreen(
@@ -121,10 +123,14 @@ private fun TopBarContent(
         }
 
         if (appOps.isUninstallable) {
+            val scope = rememberCoroutineScope()
             FilledTonalIconButton(
                 onClick = {
-                    appOps.uninstall()
-                    onBack()
+                    scope.launch {
+                        if (appOps.uninstall()) {
+                            onBack()
+                        }
+                    }
                 }
             ) {
                 Icon(

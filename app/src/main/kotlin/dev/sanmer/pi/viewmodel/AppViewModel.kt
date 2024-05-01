@@ -3,6 +3,7 @@ package dev.sanmer.pi.viewmodel
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,15 +15,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.hidden.compat.UserHandleCompat
+import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.navigation.graphs.AppsScreen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -47,7 +51,10 @@ class AppViewModel @Inject constructor(
         private set
 
     val appOps by lazy {
-        AppOps(context = context, packageInfo = packageInfo)
+        AppOps(
+            context = context,
+            packageInfo = packageInfo
+        )
     }
 
     init {
@@ -116,6 +123,12 @@ class AppViewModel @Inject constructor(
     ) {
         private val isSelf = context.packageName == packageInfo.packageName
         private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
+        private val delegate by lazy {
+            PackageInstallerDelegate(
+                pmCompat.packageInstallerCompat
+            )
+        }
+
         private val launchIntent by lazy {
             pmCompat.getLaunchIntentForPackage(
                 packageInfo.packageName, UserHandleCompat.myUserId()
@@ -129,8 +142,27 @@ class AppViewModel @Inject constructor(
             context.startActivity(launchIntent)
         }
 
-        fun uninstall() {
+        suspend fun uninstall() = withContext(Dispatchers.IO) {
+            val result = delegate.uninstall(packageInfo.packageName)
+            val status = result.getIntExtra(
+                PackageInstaller.EXTRA_STATUS,
+                PackageInstaller.STATUS_FAILURE
+            )
 
+            when (status) {
+                PackageInstaller.STATUS_SUCCESS -> {
+                    Timber.i("Uninstall succeeded: packageName = ${packageInfo.packageName}")
+                    return@withContext true
+                }
+                else -> {
+                    val msg = result.getStringExtra(
+                        PackageInstaller.EXTRA_STATUS_MESSAGE
+                    )
+
+                    Timber.e("Uninstall failed: packageName = ${packageInfo.packageName}, msg = $msg")
+                    return@withContext false
+                }
+            }
         }
 
         fun export() {

@@ -7,7 +7,9 @@ import android.content.IntentSender
 import android.content.IntentSenderHidden
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstallerHidden
+import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
+import android.content.pm.VersionedPackage
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.FileBridge
@@ -108,6 +110,19 @@ class PackageInstallerDelegate(
         if (delegate != null) {
             installer.unregisterCallback(delegate)
         }
+    }
+
+    fun uninstall(packageName: String): Intent {
+        val receiver = LocalIntentReceiver()
+        installer.uninstall(
+            VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
+            installerPackageName,
+            0,
+            receiver.intentSender,
+            userId
+        )
+
+        return receiver.result
     }
 
     interface SessionCallback {
@@ -248,37 +263,37 @@ class PackageInstallerDelegate(
                 }
             }
         }
+    }
 
-        internal class LocalIntentReceiver {
-            private val mResult = LinkedBlockingQueue<Intent>()
-            private val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
-                override fun send(
-                    code: Int,
-                    intent: Intent,
-                    resolvedType: String?,
-                    whitelistToken: IBinder?,
-                    finishedReceiver: IIntentReceiver?,
-                    requiredPermission: String?,
-                    options: Bundle?
-                ) {
-                    try {
-                        mResult.offer(intent, 5, TimeUnit.SECONDS)
-                    } catch (e: InterruptedException) {
-                        throw RuntimeException(e)
-                    }
-                }
-            }
-
-            val intentSender: IntentSender get() =
-                Refine.unsafeCast(IntentSenderHidden(mLocalSender))
-
-            val result: Intent get() =
+    internal class LocalIntentReceiver {
+        private val mResult = LinkedBlockingQueue<Intent>()
+        private val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
+            override fun send(
+                code: Int,
+                intent: Intent,
+                resolvedType: String?,
+                whitelistToken: IBinder?,
+                finishedReceiver: IIntentReceiver?,
+                requiredPermission: String?,
+                options: Bundle?
+            ) {
                 try {
-                    mResult.take()
+                    mResult.offer(intent, 5, TimeUnit.SECONDS)
                 } catch (e: InterruptedException) {
                     throw RuntimeException(e)
                 }
+            }
         }
+
+        val intentSender: IntentSender get() =
+            Refine.unsafeCast(IntentSenderHidden(mLocalSender))
+
+        val result: Intent get() =
+            try {
+                mResult.take()
+            } catch (e: InterruptedException) {
+                throw RuntimeException(e)
+            }
     }
 
     companion object {
