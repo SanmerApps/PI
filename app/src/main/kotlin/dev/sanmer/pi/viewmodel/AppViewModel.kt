@@ -2,12 +2,13 @@ package dev.sanmer.pi.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
+import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,7 @@ import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.ProviderCompat
+import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -28,6 +30,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.File
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -119,7 +124,7 @@ class AppViewModel @Inject constructor(
 
     class AppOps(
         private val context: Context,
-        private val packageInfo: PackageInfo
+        private val packageInfo: IPackageInfo
     ) {
         private val isSelf = context.packageName == packageInfo.packageName
         private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
@@ -165,8 +170,51 @@ class AppViewModel @Inject constructor(
             }
         }
 
-        fun export() {
+        suspend fun export() = withContext(Dispatchers.IO) {
+            val cr = context.contentResolver
+            val downloadPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS
+            ).let {
+                File(it, "PI").apply { if (!exists()) mkdirs() }
+            }
 
+            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}" }
+            val sourceDir = File(packageInfo.applicationInfo.sourceDir)
+
+            val files = sourceDir.parentFile
+                ?.listFiles { _, name ->
+                    name.endsWith(".apk")
+                } ?: return@withContext false
+
+            val streams = files.map { it to it.inputStream().buffered() }
+            when {
+                streams.size == 1 -> {
+                    val apk = File(downloadPath, "${filename}.apk")
+                    cr.openOutputStream(apk.toUri())?.use { output ->
+                        streams.first().second.use { input ->
+                            input.copyTo(output)
+                        }
+                    }
+
+                    Timber.i("Export to ${apk.path}")
+                }
+                streams.size > 1 -> {
+                    val apks = File(downloadPath, "${filename}.apks")
+                    cr.openOutputStream(apks.toUri())?.let(::ZipOutputStream)?.use { output ->
+                        streams.forEach { (file, input) ->
+                            val entry = ZipEntry(file.name)
+                            output.putNextEntry(entry)
+                            input.copyTo(output)
+                            input.close()
+                            output.closeEntry()
+                        }
+                    }
+
+                    Timber.i("Export to ${apks.path}")
+                }
+            }
+
+            return@withContext true
         }
     }
 
