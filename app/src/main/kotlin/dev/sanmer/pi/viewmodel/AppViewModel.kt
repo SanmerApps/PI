@@ -17,7 +17,6 @@ import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -99,8 +98,8 @@ class AppViewModel @Inject constructor(
     fun toggleRequester() {
         when {
             packageInfo.isRequester -> {
-                if (packageName != BuildConfig.APPLICATION_ID) {
-                    userPreferencesRepository.setRequester(BuildConfig.APPLICATION_ID)
+                if (packageName != context.packageName) {
+                    userPreferencesRepository.setRequester(context.packageName)
                 }
             }
             else -> {
@@ -112,8 +111,8 @@ class AppViewModel @Inject constructor(
     fun toggleExecutor() {
         when {
             packageInfo.isExecutor -> {
-                if (packageName != BuildConfig.APPLICATION_ID) {
-                    userPreferencesRepository.setExecutor(BuildConfig.APPLICATION_ID)
+                if (packageName != context.packageName) {
+                    userPreferencesRepository.setExecutor(context.packageName)
                 }
             }
             else -> {
@@ -220,7 +219,7 @@ class AppViewModel @Inject constructor(
 
     companion object {
         fun putPackageName(packageName: String) =
-            AppsScreen.View.route.replace(
+            AppsScreen.Details.route.replace(
                 "{packageName}", packageName
             )
 

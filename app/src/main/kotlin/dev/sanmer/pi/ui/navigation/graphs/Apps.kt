@@ -11,11 +11,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.screens.apps.AppsScreen
-import dev.sanmer.pi.ui.screens.apps.view.ViewScreen
+import dev.sanmer.pi.ui.screens.apps.details.DetailsScreen
 
 enum class AppsScreen(val route: String) {
     Home("Apps"),
-    View("view/{packageName}")
+    Details("details/{packageName}")
 }
 
 fun NavGraphBuilder.appsScreen(
@@ -35,12 +35,12 @@ fun NavGraphBuilder.appsScreen(
     }
 
     composable(
-        route = AppsScreen.View.route,
+        route = AppsScreen.Details.route,
         arguments = listOf(navArgument("packageName") { type = NavType.StringType }),
         enterTransition = { scaleIn() + fadeIn() },
         exitTransition = { fadeOut() }
     ) {
-        ViewScreen(
+        DetailsScreen(
             navController = navController
         )
     }

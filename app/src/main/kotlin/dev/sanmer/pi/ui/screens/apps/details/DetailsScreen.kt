@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.apps.view
+package dev.sanmer.pi.ui.screens.apps.details
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,7 +44,7 @@ import dev.sanmer.pi.viewmodel.AppViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun ViewScreen(
+fun DetailsScreen(
     navController: NavController,
     viewModel: AppViewModel = hiltViewModel()
 ) {
