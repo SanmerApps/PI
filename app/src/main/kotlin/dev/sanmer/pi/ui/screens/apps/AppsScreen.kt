@@ -112,8 +112,11 @@ private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
     var query by remember{ mutableStateOf("") }
-    DisposableEffect(isSearch) {
-        onDispose { query = "" }
+    DisposableEffect(true) {
+        onDispose {
+            onCloseSearch()
+            query = ""
+        }
     }
 
     SearchTopBar(
