@@ -27,8 +27,8 @@ object SuProvider : IProvider, ServiceConnection {
     override val version: Int get() = mService.version
     override val seLinuxContext: String get() = mService.seLinuxContext
     override val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
-    override val packageManagerCompat: IPackageManagerCompat get() = mService.packageManager
-    override val userManagerCompat: IUserManagerCompat get() = mService.userManager
+    override val packageManager: IPackageManagerCompat get() = mService.packageManager
+    override val userManager: IUserManagerCompat get() = mService.userManager
 
     override val isAlive = MutableStateFlow(false)
 

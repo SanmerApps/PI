@@ -28,8 +28,8 @@ object ProviderCompat {
         private set
 
     val appOpsService get() = mProvider.appOpsService
-    val packageManagerCompat get() = mProvider.packageManagerCompat
-    val userManagerCompat get() = mProvider.userManagerCompat
+    val packageManager get() = mProvider.packageManager
+    val userManager get() = mProvider.userManager
 
     val version get() = mProvider.version
     val platform get() = when (mProvider.uid) {

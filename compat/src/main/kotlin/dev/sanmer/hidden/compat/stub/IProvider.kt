@@ -9,8 +9,8 @@ interface IProvider {
     val seLinuxContext: String
 
     val appOpsService: IAppOpsServiceCompat
-    val packageManagerCompat: IPackageManagerCompat
-    val userManagerCompat: IUserManagerCompat
+    val packageManager: IPackageManagerCompat
+    val userManager: IUserManagerCompat
 
     val isAlive: StateFlow<Boolean>
     fun init()

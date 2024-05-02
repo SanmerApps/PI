@@ -29,7 +29,7 @@ class AppsViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val pmCompat get() = ProviderCompat.packageManager
 
     val isProviderAlive get() = ProviderCompat.isAlive
 

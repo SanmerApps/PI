@@ -42,7 +42,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     private val appIconLoader by lazy {
         AppIconLoader(45.dp, true, this)
     }
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val pmCompat get() = ProviderCompat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
             pmCompat.packageInstallerCompat

@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SessionsViewModel @Inject constructor(
 ) : ViewModel(), PackageInstallerDelegate.SessionCallback {
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val pmCompat get() = ProviderCompat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
             pmCompat.packageInstallerCompat

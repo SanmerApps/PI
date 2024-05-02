@@ -43,7 +43,7 @@ class AppViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val pmCompat get() = ProviderCompat.packageManager
 
     private val packageName = getPackageName(savedStateHandle)
     private val packageInfoInner by lazy {
@@ -127,7 +127,7 @@ class AppViewModel @Inject constructor(
         private val packageInfo: IPackageInfo
     ) {
         private val isSelf = context.packageName == packageInfo.packageName
-        private val pmCompat by lazy { ProviderCompat.packageManagerCompat }
+        private val pmCompat get() = ProviderCompat.packageManager
         private val delegate by lazy {
             PackageInstallerDelegate(
                 pmCompat.packageInstallerCompat

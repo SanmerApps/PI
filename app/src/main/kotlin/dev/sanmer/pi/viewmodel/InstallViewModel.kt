@@ -44,7 +44,7 @@ class InstallViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val pmCompat get() = ProviderCompat.packageManager
 
     private var archivePath = File("")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
