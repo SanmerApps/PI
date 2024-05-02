@@ -16,8 +16,8 @@ class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     val isProviderAlive get() = ProviderCompat.isAlive
-    val providerVersion get() = ProviderCompat.get({ it.version }, -1)
-    val providerPlatform get() = ProviderCompat.get({ it.platform }, "")
+    val providerVersion get() = ProviderCompat.get(-1) { version }
+    val providerPlatform get() = ProviderCompat.get("") { platform }
 
     init {
         Timber.d("SettingsViewModel init")
@@ -33,8 +33,6 @@ class SettingsViewModel @Inject constructor(
         userPreferencesRepository.setSelfUpdate(value)
 
     fun tryStartProvider() {
-        if (isProviderAlive) return
-
         viewModelScope.launch {
             val userPreferences = userPreferencesRepository.data.first()
             ProviderCompat.init(userPreferences.provider)
