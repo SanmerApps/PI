@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -120,13 +121,16 @@ private fun TopBarContent(
     )
 
     Row(
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        val context = LocalContext.current
         val scope = rememberCoroutineScope()
+        var show by remember { mutableStateOf(false) }
+        if (show) ProgressIndicatorDialog()
 
         if (appOps.isOpenable) {
             FilledTonalIconButton(
-                onClick = appOps::launch
+                onClick = { appOps.launch(context) }
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.window_maximize),
@@ -152,20 +156,35 @@ private fun TopBarContent(
             }
         }
 
-        var show by remember { mutableStateOf(false) }
-        if (show) ProgressIndicatorDialog()
-
         FilledTonalIconButton(
             onClick = {
                 scope.launch {
                     show = true
-                    appOps.export()
+                    appOps.export(context)
                     show = false
                 }
             }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.package_export),
+                contentDescription = null
+            )
+        }
+
+        FilledTonalIconButton(
+            onClick = { appOps.view(context) }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.eye),
+                contentDescription = null
+            )
+        }
+
+        FilledTonalIconButton(
+            onClick = { appOps.setting(context) }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.settings),
                 contentDescription = null
             )
         }

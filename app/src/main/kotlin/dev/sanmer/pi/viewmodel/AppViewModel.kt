@@ -1,29 +1,33 @@
 package dev.sanmer.pi.viewmodel
 
-import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Environment
+import android.provider.Settings
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
+import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.navigation.graphs.AppsScreen
+import dev.sanmer.pi.utils.extensions.viewPackage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -38,26 +42,23 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
-    savedStateHandle: SavedStateHandle,
-    application: Application
-) : AndroidViewModel(application) {
-    private val context: Context by lazy { getApplication() }
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val pmCompat get() = ProviderCompat.packageManager
 
     private val packageName = getPackageName(savedStateHandle)
-    private val packageInfoInner by lazy {
-        pmCompat.getPackageInfo(
-            packageName, PackageManager.GET_PERMISSIONS, context.userId
-        ).toIPackageInfo()
-    }
+    private val packageInfoInner get() = pmCompat.getPackageInfo(
+        packageName, PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
+    ).toIPackageInfo()
 
-    var packageInfo by mutableStateOf(packageInfoInner)
+    private val packageInfoFlow = MutableStateFlow(packageInfoInner)
+    var packageInfo by mutableStateOf(packageInfoFlow.value)
         private set
 
     val appOps by lazy {
         AppOps(
-            context = context,
-            packageInfo = packageInfo
+            packageInfo = packageInfo,
+            refresh = { packageInfoFlow.value = packageInfoInner }
         )
     }
 
@@ -69,14 +70,15 @@ class AppViewModel @Inject constructor(
     private fun dataObserver() {
         combine(
             localRepository.getAllAsFlow(),
-            userPreferencesRepository.data
-        ) { authorized, preferences ->
+            userPreferencesRepository.data,
+            packageInfoFlow
+        ) { authorized, preferences, pi ->
 
             val isAuthorized = authorized.find {
                 it.packageName == packageName
             }?.authorized ?: false
 
-            packageInfo = packageInfoInner.copy(
+            packageInfo = pi.copy(
                 isAuthorized = isAuthorized,
                 isRequester = preferences.requester == packageName,
                 isExecutor = preferences.executor == packageName
@@ -98,8 +100,8 @@ class AppViewModel @Inject constructor(
     fun toggleRequester() {
         when {
             packageInfo.isRequester -> {
-                if (packageName != context.packageName) {
-                    userPreferencesRepository.setRequester(context.packageName)
+                if (!packageInfo.isSelf) {
+                    userPreferencesRepository.setRequester(BuildConfig.APPLICATION_ID)
                 }
             }
             else -> {
@@ -111,8 +113,8 @@ class AppViewModel @Inject constructor(
     fun toggleExecutor() {
         when {
             packageInfo.isExecutor -> {
-                if (packageName != context.packageName) {
-                    userPreferencesRepository.setExecutor(context.packageName)
+                if (!packageInfo.isSelf) {
+                    userPreferencesRepository.setExecutor(BuildConfig.APPLICATION_ID)
                 }
             }
             else -> {
@@ -122,10 +124,9 @@ class AppViewModel @Inject constructor(
     }
 
     class AppOps(
-        private val context: Context,
-        private val packageInfo: IPackageInfo
+        private val packageInfo: IPackageInfo,
+        private val refresh: () -> Unit
     ) {
-        private val isSelf = context.packageName == packageInfo.packageName
         private val pmCompat get() = ProviderCompat.packageManager
         private val delegate by lazy {
             PackageInstallerDelegate(
@@ -139,10 +140,10 @@ class AppViewModel @Inject constructor(
             )
         }
 
-        val isOpenable get() = !isSelf && launchIntent != null
-        val isUninstallable get() = !isSelf && !packageInfo.isSystemApp
+        val isOpenable get() = !packageInfo.isSelf && launchIntent != null
+        val isUninstallable get() = !packageInfo.isSelf
 
-        fun launch() {
+        fun launch(context: Context) {
             context.startActivity(launchIntent)
         }
 
@@ -156,7 +157,8 @@ class AppViewModel @Inject constructor(
             when (status) {
                 PackageInstaller.STATUS_SUCCESS -> {
                     Timber.i("Uninstall succeeded: packageName = ${packageInfo.packageName}")
-                    return@withContext true
+                    if (packageInfo.isSystemApp) refresh()
+                    return@withContext !packageInfo.isSystemApp
                 }
                 else -> {
                     val msg = result.getStringExtra(
@@ -169,7 +171,7 @@ class AppViewModel @Inject constructor(
             }
         }
 
-        suspend fun export() = withContext(Dispatchers.IO) {
+        suspend fun export(context: Context) = withContext(Dispatchers.IO) {
             val cr = context.contentResolver
             val downloadPath = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS
@@ -215,9 +217,24 @@ class AppViewModel @Inject constructor(
 
             return@withContext true
         }
+
+        fun view(context: Context) {
+            context.viewPackage(packageInfo.packageName)
+        }
+
+        fun setting(context: Context) {
+            val intent = Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", packageInfo.packageName, null)
+            )
+            context.startActivity(intent)
+        }
     }
 
     companion object {
+        internal val IPackageInfo.isSelf
+            get() = packageName == BuildConfig.APPLICATION_ID
+
         fun putPackageName(packageName: String) =
             AppsScreen.Details.route.replace(
                 "{packageName}", packageName
