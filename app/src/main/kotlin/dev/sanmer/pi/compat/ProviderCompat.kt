@@ -27,6 +27,7 @@ object ProviderCompat {
     var isAlive by mutableStateOf(false)
         private set
 
+    val appOpsService get() = mProvider.appOpsService
     val packageManagerCompat get() = mProvider.packageManagerCompat
     val userManagerCompat get() = mProvider.userManagerCompat
 

@@ -7,6 +7,8 @@ interface IProvider {
     val pid: Int
     val version: Int
     val seLinuxContext: String
+
+    val appOpsService: IAppOpsServiceCompat
     val packageManagerCompat: IPackageManagerCompat
     val userManagerCompat: IUserManagerCompat
 

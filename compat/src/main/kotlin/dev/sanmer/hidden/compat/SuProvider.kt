@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
+import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import dev.sanmer.hidden.compat.stub.IProvider
 import dev.sanmer.hidden.compat.stub.IServiceManager
@@ -14,7 +15,7 @@ import dev.sanmer.hidden.compat.su.SuService
 import dev.sanmer.hidden.compat.su.SuShellInitializer
 import kotlinx.coroutines.flow.MutableStateFlow
 
-object SuProvider : IProvider {
+object SuProvider : IProvider, ServiceConnection {
     private const val TAG = "SuProvider"
     private var mServiceOrNull: IServiceManager? = null
     private val mService get() = checkNotNull(mServiceOrNull) {
@@ -25,8 +26,9 @@ object SuProvider : IProvider {
     override val pid: Int get() = mService.pid
     override val version: Int get() = mService.version
     override val seLinuxContext: String get() = mService.seLinuxContext
-    override val packageManagerCompat: IPackageManagerCompat get() = mService.packageManagerCompat
-    override val userManagerCompat: IUserManagerCompat get() = mService.userManagerCompat
+    override val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
+    override val packageManagerCompat: IPackageManagerCompat get() = mService.packageManager
+    override val userManagerCompat: IUserManagerCompat get() = mService.userManager
 
     override val isAlive = MutableStateFlow(false)
 
@@ -39,24 +41,23 @@ object SuProvider : IProvider {
         )
     }
 
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            mServiceOrNull = IServiceManager.Stub.asInterface(service)
-            isAlive.value = true
-            Log.i(TAG, "IServiceManager created")
-            Log.d(TAG, "uid = $uid, pid = $pid, context = $seLinuxContext")
-        }
+    override fun onServiceConnected(name: ComponentName, service: IBinder) {
+        mServiceOrNull = IServiceManager.Stub.asInterface(service)
+        isAlive.value = true
 
-        override fun onServiceDisconnected(name: ComponentName) {
-            mServiceOrNull = null
-            isAlive.value = false
-            Log.w(TAG, "IServiceManager destroyed")
-        }
+        Log.i(TAG, "IServiceManager created")
+        Log.d(TAG, "uid = $uid, pid = $pid, context = $seLinuxContext")
+    }
 
+    override fun onServiceDisconnected(name: ComponentName) {
+        isAlive.value = false
+        mServiceOrNull = null
+
+        Log.w(TAG, "IServiceManager destroyed")
     }
 
     override fun init() {
-        RootService.bind(SuService.intent, connection)
+        RootService.bind(SuService.intent, this)
     }
 
     override fun destroy() {
