@@ -6,6 +6,7 @@ import dev.sanmer.pi.database.dao.PackageDao
 import dev.sanmer.pi.database.entity.PackageInfoEntity
 import dev.sanmer.pi.model.IPackageInfo
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,11 +15,12 @@ import javax.inject.Singleton
 class LocalRepository @Inject constructor(
     private val packageDao: PackageDao
 ) {
-    fun getAllAsFlow() = packageDao.getAllAsFlow()
+    fun getPackageAuthorizedAllAsFlow() = packageDao.getAuthorizedAllAsFlow()
+        .map { list ->
+            list.map { it.packageName }
+        }
 
-    fun getAuthorizedAllAsFlow() = packageDao.getAuthorizedAllAsFlow()
-
-    suspend fun getAll() = withContext(Dispatchers.IO) {
+    suspend fun getPackageAll() = withContext(Dispatchers.IO) {
         packageDao.getAll()
     }
 
@@ -27,16 +29,16 @@ class LocalRepository @Inject constructor(
         packageDao.getByPackageNameOrNull(value.packageName)?.authorized ?: false
     }
 
-    suspend fun insert(value: IPackageInfo) = withContext(Dispatchers.IO) {
+    suspend fun insertPackage(value: IPackageInfo) = withContext(Dispatchers.IO) {
         val pie = PackageInfoEntity(value)
         packageDao.insert(pie)
     }
 
-    suspend fun delete(values: List<PackageInfoEntity>) = withContext(Dispatchers.IO) {
+    suspend fun deletePackage(values: List<PackageInfoEntity>) = withContext(Dispatchers.IO) {
         packageDao.delete(values)
     }
 
-    suspend fun deleteAll() = withContext(Dispatchers.IO) {
+    suspend fun deletePackageAll() = withContext(Dispatchers.IO) {
         packageDao.deleteAll()
     }
 }

@@ -53,7 +53,7 @@ class AppsViewModel @Inject constructor(
 
     private fun dataObserver() {
         combine(
-            localRepository.getAllAsFlow(),
+            localRepository.getPackageAuthorizedAllAsFlow(),
             userPreferencesRepository.data,
             packagesFlow,
         ) { authorized, preferences, source ->
@@ -61,9 +61,7 @@ class AppsViewModel @Inject constructor(
 
             cacheFlow.value = source.map { pi ->
                 pi.toIPackageInfo(
-                    isAuthorized = authorized.find {
-                        it.packageName == pi.packageName
-                    }?.authorized ?: false,
+                    isAuthorized = authorized.contains(pi.packageName),
                     isRequester = preferences.requester == pi.packageName,
                     isExecutor = preferences.executor == pi.packageName
                 )
@@ -116,9 +114,9 @@ class AppsViewModel @Inject constructor(
             packagesFlow.value = getPackages()
 
             val packageNames = packagesFlow.value.map { it.packageName }
-            val authorized = localRepository.getAll()
+            val authorized = localRepository.getPackageAll()
 
-            localRepository.delete(
+            localRepository.deletePackage(
                 authorized.filter { it.packageName !in packageNames }
             )
         }

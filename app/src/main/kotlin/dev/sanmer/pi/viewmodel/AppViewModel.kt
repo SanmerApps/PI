@@ -97,17 +97,12 @@ class AppViewModel @Inject constructor(
 
     private fun dataObserver() {
         combine(
-            localRepository.getAllAsFlow(),
+            localRepository.getPackageAuthorizedAllAsFlow(),
             userPreferencesRepository.data,
             packageInfoFlow
         ) { authorized, preferences, pi ->
-
-            val isAuthorized = authorized.find {
-                it.packageName == packageName
-            }?.authorized ?: false
-
             packageInfo = pi.copy(
-                isAuthorized = isAuthorized,
+                isAuthorized = authorized.contains(packageName),
                 isRequester = preferences.requester == packageName,
                 isExecutor = preferences.executor == packageName
             )
@@ -135,7 +130,7 @@ class AppViewModel @Inject constructor(
 
     fun toggleAuthorized(value: Boolean) {
         viewModelScope.launch {
-            localRepository.insert(
+            localRepository.insertPackage(
                 value = with(packageInfo) {
                     copy(isAuthorized = value)
                 }

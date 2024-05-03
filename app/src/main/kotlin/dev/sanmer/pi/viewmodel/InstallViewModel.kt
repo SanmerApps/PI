@@ -135,7 +135,7 @@ class InstallViewModel @Inject constructor(
                 it.copy(isAuthorized = !it.isAuthorized)
             }
 
-            localRepository.insert(sourceInfo)
+            localRepository.insertPackage(sourceInfo)
         }
     }
 
