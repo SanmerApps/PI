@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -27,6 +28,9 @@ object ProviderCompat {
     var isAlive by mutableStateOf(false)
         private set
 
+    private val _isAliveFlow = MutableStateFlow(false)
+    val isAliveFlow get() = _isAliveFlow.asStateFlow()
+
     val appOpsService get() = mProvider.appOpsService
     val packageManager get() = mProvider.packageManager
     val userManager get() = mProvider.userManager
@@ -41,6 +45,7 @@ object ProviderCompat {
     private fun stateObserver(alive: MutableStateFlow<Boolean>) {
         alive.onEach {
             isAlive = it
+            _isAliveFlow.value = it
 
         }.launchIn(mScope)
     }

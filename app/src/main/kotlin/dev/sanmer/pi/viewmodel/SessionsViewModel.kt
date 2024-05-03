@@ -43,6 +43,7 @@ class SessionsViewModel @Inject constructor(
 
     init {
         Timber.d("SessionsViewModel init")
+        providerObserver()
         dbObserver()
     }
 
@@ -52,6 +53,14 @@ class SessionsViewModel @Inject constructor(
 
     override fun onFinished(sessionId: Int, success: Boolean) {
         loadData()
+    }
+
+    private fun providerObserver() {
+        ProviderCompat.isAliveFlow
+            .onEach {
+                if (it) loadData()
+
+            }.launchIn(viewModelScope)
     }
 
     private fun dbObserver() {
@@ -96,8 +105,6 @@ class SessionsViewModel @Inject constructor(
         }.getOrNull()
 
     private fun loadData() {
-        if (!isProviderAlive) return
-
         viewModelScope.launch {
             sessionsFlow.value = getAllSessions()
             isLoading = false
@@ -108,7 +115,6 @@ class SessionsViewModel @Inject constructor(
         if (!isProviderAlive) return
 
         delegate.registerCallback(this)
-        loadData()
     }
 
     fun unregisterCallback() {

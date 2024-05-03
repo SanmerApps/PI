@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -30,8 +31,6 @@ class AppsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val pmCompat get() = ProviderCompat.packageManager
-
-    val isProviderAlive get() = ProviderCompat.isAlive
 
     var isSearch by mutableStateOf(false)
         private set
@@ -47,8 +46,17 @@ class AppsViewModel @Inject constructor(
 
     init {
         Timber.d("AppsViewModel init")
+        providerObserver()
         dataObserver()
         keyObserver()
+    }
+
+    private fun providerObserver() {
+        ProviderCompat.isAliveFlow
+            .onEach {
+                if (it) loadData()
+
+            }.launchIn(viewModelScope)
     }
 
     private fun dataObserver() {
@@ -107,9 +115,7 @@ class AppsViewModel @Inject constructor(
         }
     }
 
-    fun loadData() {
-        if (!isProviderAlive) return
-
+    private fun loadData() {
         viewModelScope.launch {
             packagesFlow.value = getPackages()
 

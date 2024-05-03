@@ -41,11 +41,6 @@ fun AppsScreen(
     navController: NavController,
     viewModel: AppsViewModel = hiltViewModel()
 ) {
-    DisposableEffect(viewModel.isProviderAlive) {
-        viewModel.loadData()
-        onDispose {}
-    }
-
     val list by viewModel.apps.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
