@@ -123,8 +123,8 @@ class AppViewModel @Inject constructor(
 
     fun toggleOpInstallPackage(isAllowed: Boolean) {
         when {
-            isAllowed -> opInstallPackage.ignore()
-            else -> opInstallPackage.allow()
+            isAllowed -> opInstallPackage.allow()
+            else -> opInstallPackage.ignore()
         }
     }
 
