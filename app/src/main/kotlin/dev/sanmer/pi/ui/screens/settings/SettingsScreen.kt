@@ -162,11 +162,7 @@ private fun ServiceItem(
         else -> stringResource(id = R.string.settings_service_not_running)
     },
     desc = when {
-        isAlive -> stringResource(
-            id = R.string.settings_service_version,
-            version,
-            platform
-        )
+        isAlive -> stringResource(id = R.string.settings_service_version, version, platform)
         else -> stringResource(id = R.string.settings_service_try_start)
     },
     onClick = tryStart
@@ -181,11 +177,12 @@ private fun LanguageItem(
     title = stringResource(id = R.string.settings_language),
     desc = context.applicationLocale?.localizedDisplayName ?: stringResource(id = R.string.settings_language_system),
     onClick = {
-        val intent = Intent(
-            Settings.ACTION_APP_LOCALE_SETTINGS,
-            Uri.fromParts("package", context.packageName, null)
+        context.startActivity(
+            Intent(
+                Settings.ACTION_APP_LOCALE_SETTINGS,
+                Uri.fromParts("package", context.packageName, null)
+            )
         )
-        context.startActivity(intent)
     },
     enabled = BuildCompat.atLeastT
 )

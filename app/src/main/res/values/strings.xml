@@ -18,6 +18,19 @@
     <string name="apps_requester">REQUESTER</string>
     <string name="apps_executor">EXECUTOR</string>
 
+    <!-- Details -->
+    <string name="details_system_title">System</string>
+    <string name="details_request_install">Request install package</string>
+    <string name="details_request_install_system">Allows an application to request installing packages. Apps targeting APIs greater than 25 must hold this permission in order to use `Intent.ACTION_INSTALL_PACKAGE`.</string>
+    <string name="details_custom_title">Custom</string>
+    <string name="details_request_install_self">Allows an application to install packages by PI. Allowing this means you will not see the installation dialog (except for `App Bundle`).</string>
+    <string name="details_requester_title">Installation requester</string>
+    <string name="details_requester_desc">The application on behalf of which the initiating package requested the installation (the requester of record).</string>
+    <string name="details_executor_title">Installation executor</string>
+    <string name="details_executor_desc">The application responsible for the installation (the installer of record).</string>
+    <string name="details_ops_default">Default</string>
+    <string name="details_ops_this">This app</string>
+
     <!-- Sessions -->
     <string name="sessions_user">USER: %1$d</string>
     <string name="sessions_id">ID: %1$d</string>

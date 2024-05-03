@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
@@ -87,9 +88,11 @@ fun AppsScreen(
                     AppItem(
                         pi = pi,
                         onClick = {
-                            navController.navigateSingleTopTo(
-                                AppViewModel.putPackageName(pi.packageName)
-                            )
+                            if (pi.packageName != BuildConfig.APPLICATION_ID) {
+                                navController.navigateSingleTopTo(
+                                    AppViewModel.putPackageName(pi.packageName)
+                                )
+                            }
                         }
                     )
                 }
