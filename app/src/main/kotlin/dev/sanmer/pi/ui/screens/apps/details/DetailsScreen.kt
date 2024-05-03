@@ -120,7 +120,7 @@ fun DetailsScreen(
 
             var showExecutor by remember { mutableStateOf(false) }
             if (showExecutor) SelectableBottomSheet(
-                title = stringResource(id = R.string.details_requester_title),
+                title = stringResource(id = R.string.details_executor_title),
                 onClose = { showExecutor = false },
                 ops = viewModel.executorSelectableOps(context)
             )

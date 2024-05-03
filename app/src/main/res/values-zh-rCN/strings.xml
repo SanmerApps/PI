@@ -23,7 +23,7 @@
     <string name="details_request_install">请求安装应用</string>
     <string name="details_request_install_system">允许应用程序请求安装软件包. 目标 API 大于 25 的应用必须持有此权限才能使用 `Intent.ACTION_INSTALL_PACKAGE`.</string>
     <string name="details_custom_title">自定义</string>
-    <string name="details_request_install_self">允许应用程序通过 PI 安装软件包. 允许此操作意味着您将看不到安装对话框 (`App Bundle` 除外).</string>
+    <string name="details_request_install_self">允许应用程序通过 PI 安装软件包. 这意味着您将看不到安装对话框 (`App Bundle` 除外).</string>
     <string name="details_requester_title">安装请求方</string>
     <string name="details_requester_desc">发起安装请求的应用程序 (只是记录中的请求者).</string>
     <string name="details_executor_title">安装执行方</string>
