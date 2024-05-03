@@ -88,8 +88,8 @@ internal fun SessionItem(
             LabelItem(text = stringResource(id = R.string.sessions_user, session.userId))
             LabelItem(text = stringResource(id = R.string.sessions_id, session.sessionId))
             if (session.isActive) LabelItem(text = stringResource(id = R.string.sessions_active))
-            if (session.isStaged) LabelItem(text = stringResource(id = R.string.sessions_staged))
             if (session.isCommitted) LabelItem(text = stringResource(id = R.string.sessions_committed))
+            if (session.isStaged) LabelItem(text = stringResource(id = R.string.sessions_staged))
         }
     }
 }

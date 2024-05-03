@@ -23,6 +23,8 @@ import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.compat.ProviderCompat
+import dev.sanmer.pi.model.ISessionInfo
+import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.parcelable
@@ -38,6 +40,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallback {
     @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
+    @Inject lateinit var localRepository: LocalRepository
 
     private val appIconLoader by lazy {
         AppIconLoader(45.dp, true, this)
@@ -53,6 +56,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         Timber.d("onCreated: sessionId = $sessionId")
         val session = delegate.getSessionInfo(sessionId) ?: return
         if (session.appLabel.isNullOrEmpty()) return
+        insertSession(session)
 
         onProgressChanged(
             id = sessionId,
@@ -163,6 +167,14 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         }
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun insertSession(session: PackageInstaller.SessionInfo) {
+        lifecycleScope.launch {
+            localRepository.insertSession(
+                ISessionInfo.staged(session)
+            )
+        }
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {

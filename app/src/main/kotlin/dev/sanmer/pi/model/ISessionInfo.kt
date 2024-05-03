@@ -21,6 +21,24 @@ data class ISessionInfo(
     private val appLabelInner: String?,
     private val appIconInner: Bitmap?
 ) {
+    constructor(
+        session: PackageInstaller.SessionInfo,
+        installer: PackageInfo?,
+        app: PackageInfo?
+    ) : this(
+        sessionId = session.sessionId,
+        userId = session.userId,
+        isActive = session.isActive,
+        isStaged = session.isStaged,
+        isCommitted = session.isCommitted,
+        installerPackageName = session.installerPackageName,
+        installer = installer,
+        appPackageName = session.appPackageName,
+        app = app,
+        appLabelInner = session.appLabel?.toString(),
+        appIconInner = session.appIcon
+    )
+
     private val context by lazy {
         ContextDelegate.getContext()
     }
@@ -39,21 +57,19 @@ data class ISessionInfo(
         appIconInner ?: app
     }
 
-    constructor(
-        sessionInfo: PackageInstaller.SessionInfo,
-        installer: PackageInfo?,
-        app: PackageInfo?
-    ) : this(
-        sessionId = sessionInfo.sessionId,
-        userId = sessionInfo.userId,
-        isActive = sessionInfo.isActive,
-        isStaged = sessionInfo.isStaged,
-        isCommitted = sessionInfo.isCommitted,
-        installerPackageName = sessionInfo.installerPackageName,
-        installer = installer,
-        appPackageName = sessionInfo.appPackageName,
-        app = app,
-        appLabelInner = sessionInfo.appLabel?.toString(),
-        appIconInner = sessionInfo.appIcon
-    )
+    companion object {
+        fun staged(session: PackageInstaller.SessionInfo) = ISessionInfo(
+            sessionId = session.sessionId,
+            userId = session.userId,
+            isActive = false,
+            isStaged = true,
+            isCommitted = true,
+            installerPackageName = session.installerPackageName,
+            installer = null,
+            appPackageName = session.appPackageName,
+            app = null,
+            appLabelInner = null,
+            appIconInner = null
+        )
+    }
 }
