@@ -55,7 +55,6 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     override fun onCreated(sessionId: Int) {
         Timber.d("onCreated: sessionId = $sessionId")
         val session = delegate.getSessionInfo(sessionId) ?: return
-        if (session.appLabel.isNullOrEmpty()) return
         insertSession(session)
 
         onProgressChanged(
@@ -121,7 +120,6 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
             params.setAppIcon(appIcon)
             params.setAppLabel(appLabel)
             params.setAppPackageName(archiveInfo.packageName)
-
             if (originatingUid != Process.INVALID_UID) {
                 params.setOriginatingUid(originatingUid)
             }
@@ -293,21 +291,24 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
     companion object {
         private const val GROUP_KEY = "INSTALL_SERVICE_GROUP_KEY"
+
         private const val EXTRA_ARCHIVE_PATH = "dev.sanmer.pi.extra.ARCHIVE_PATH"
+        private val Intent.archivePathOrNull: File?
+            get() = getStringExtra(EXTRA_ARCHIVE_PATH)?.let(::File)
+
         private const val EXTRA_ARCHIVE_INFO = "dev.sanmer.pi.extra.ARCHIVE_PACKAGE_INFO"
+        private val Intent.archiveInfoOrNull: PackageInfo?
+            get() = parcelable(EXTRA_ARCHIVE_INFO)
+
         private const val EXTRA_ARCHIVE_SPLIT_CONFIGS = "dev.sanmer.pi.extra.ARCHIVE_SPLIT_CONFIGS"
-        private val Intent.archivePathOrNull: File? get() =
-            getStringExtra(EXTRA_ARCHIVE_PATH)?.let(::File)
-        private val Intent.archiveInfoOrNull: PackageInfo? get() =
-            parcelable(EXTRA_ARCHIVE_INFO)
-        private val Intent.splitConfigs: List<String> get() =
-            getStringArrayExtra(EXTRA_ARCHIVE_SPLIT_CONFIGS)?.toList() ?: emptyList()
+        private val Intent.splitConfigs: List<String>
+            get() = getStringArrayExtra(EXTRA_ARCHIVE_SPLIT_CONFIGS)?.toList() ?: emptyList()
 
         fun start(
             context: Context,
             archivePath: File,
             archiveInfo: PackageInfo,
-            splitConfigs: List<String> = emptyList()
+            splitConfigs: List<String>
         ) {
             val intent = Intent(context, InstallService::class.java)
             intent.putExtra(EXTRA_ARCHIVE_PATH, archivePath.path)
