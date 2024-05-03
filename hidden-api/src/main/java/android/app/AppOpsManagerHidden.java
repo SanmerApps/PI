@@ -13,16 +13,19 @@ import dev.rikka.tools.refine.RefineAs;
 @RefineAs(AppOpsManager.class)
 public class AppOpsManagerHidden {
 
-    public static int strOpToOp(@NonNull String op) {
+    public static int OP_NONE;
+
+    public static int OP_VIBRATE;
+
+    public static int OP_REQUEST_INSTALL_PACKAGES;
+
+    public static int OP_REQUEST_DELETE_PACKAGES;
+
+    public static String opToName(int op) {
         throw new RuntimeException("Stub!");
     }
 
     public static String opToPermission(int op) {
-        throw new RuntimeException("Stub!");
-    }
-
-    @Nullable
-    public static String opToPermission(@NonNull String op) {
         throw new RuntimeException("Stub!");
     }
 
