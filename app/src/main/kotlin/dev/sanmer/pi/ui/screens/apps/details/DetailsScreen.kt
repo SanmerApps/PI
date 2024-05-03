@@ -231,13 +231,18 @@ private fun SelectableItem(
     Text(
         text = text,
         style = MaterialTheme.typography.bodyLarge,
+        color = when {
+            selected -> MaterialTheme.colorScheme.primary
+            else -> Color.Unspecified
+        },
         modifier = Modifier.weight(1f)
     )
 
     if (selected) {
         Icon(
             painter = painterResource(id = R.drawable.circle_check),
-            contentDescription = null
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }
