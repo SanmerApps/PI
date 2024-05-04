@@ -35,7 +35,7 @@ internal class AppOpsServiceCompatImpl(
         original.setMode(code, uid, packageName, mode)
     }
 
-    override fun resetAllModes(reqUserId: Int, reqPackageName: String) {
+    override fun resetAllModes(reqUserId: Int, reqPackageName: String?) {
         original.resetAllModes(reqUserId, reqPackageName)
     }
 }

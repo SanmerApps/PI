@@ -2,7 +2,6 @@ package dev.sanmer.hidden.compat.delegate
 
 import android.app.AppOpsManager
 import android.app.AppOpsManagerHidden
-import android.os.RemoteException
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,59 +10,31 @@ class AppOpsManagerDelegate(
     private val service: IAppOpsServiceCompat
 ) {
     fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Int {
-        return try {
-            service.checkOperation(op, uid, packageName)
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        return service.checkOperation(op, uid, packageName)
     }
 
     fun getPackagesForOps(ops: IntArray?): List<PackageOps> {
-        return try {
-            service.getPackagesForOps(ops).map { PackageOps(it) }
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        return service.getPackagesForOps(ops).map { PackageOps(it) }
     }
 
     fun getOpsForPackage(uid: Int, packageName: String, ops: IntArray?): List<PackageOps> {
-        return try {
-            service.getOpsForPackage(uid, packageName, ops).map { PackageOps(it) }
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        return service.getOpsForPackage(uid, packageName, ops).map { PackageOps(it) }
     }
 
     fun getUidOps(uid: Int, ops: IntArray?): List<PackageOps> {
-        return try {
-            service.getUidOps(uid, ops).map { PackageOps(it) }
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        return service.getUidOps(uid, ops).map { PackageOps(it) }
     }
 
     fun setUidMode(op: Int, uid: Int, mode: Int) {
-        try {
-            service.setUidMode(op, uid, mode)
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        service.setUidMode(op, uid, mode)
     }
 
     fun setMode(op: Int, uid: Int, packageName: String, mode: Int) {
-        try {
-            service.setMode(op, uid, packageName, mode)
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        service.setMode(op, uid, packageName, mode)
     }
 
     fun resetAllModes() {
-        try {
-            service.resetAllModes(UserHandleCompat.myUserId(), null)
-        } catch (e: RemoteException) {
-            throw e.rethrowFromSystemServer()
-        }
+        service.resetAllModes(UserHandleCompat.myUserId(), null)
     }
 
     enum class Mode(val code: Int) {
