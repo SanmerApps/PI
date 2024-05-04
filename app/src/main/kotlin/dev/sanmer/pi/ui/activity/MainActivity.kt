@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         splashScreen.setKeepOnScreenCondition { isLoading }
+        PackageReceiver.register(this)
 
         setContent {
             val userPreferences by userPreferencesRepository.data
@@ -69,5 +71,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        PackageReceiver.unregister(this)
+        super.onDestroy()
     }
 }

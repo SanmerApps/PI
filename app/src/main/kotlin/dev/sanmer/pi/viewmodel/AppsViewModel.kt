@@ -12,6 +12,7 @@ import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
+import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -46,17 +46,19 @@ class AppsViewModel @Inject constructor(
 
     init {
         Timber.d("AppsViewModel init")
-        providerObserver()
+        packagesObserver()
         dataObserver()
         keyObserver()
     }
 
-    private fun providerObserver() {
-        ProviderCompat.isAliveFlow
-            .onEach {
-                if (it) loadData()
+    private fun packagesObserver() {
+        combine(
+            ProviderCompat.isAliveFlow,
+            PackageReceiver.eventFlow
+        ) { isAlive, _ ->
+            if (isAlive) loadData()
 
-            }.launchIn(viewModelScope)
+        }.launchIn(viewModelScope)
     }
 
     private fun dataObserver() {
