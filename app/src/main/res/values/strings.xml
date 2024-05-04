@@ -14,9 +14,9 @@
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
 
     <!-- Apps -->
-    <string name="apps_authorized">AUTHORIZED</string>
-    <string name="apps_requester">REQUESTER</string>
-    <string name="apps_executor">EXECUTOR</string>
+    <string name="apps_authorized">Authorized</string>
+    <string name="apps_requester">Requester</string>
+    <string name="apps_executor">Executor</string>
 
     <!-- Details -->
     <string name="details_system_title">System</string>
@@ -32,11 +32,11 @@
     <string name="details_ops_this">This app</string>
 
     <!-- Sessions -->
-    <string name="sessions_user">USER: %1$d</string>
+    <string name="sessions_user">User: %1$d</string>
     <string name="sessions_id">ID: %1$d</string>
-    <string name="sessions_active">ACTIVE</string>
-    <string name="sessions_staged">STAGED</string>
-    <string name="sessions_committed">COMMITTED</string>
+    <string name="sessions_active">Active</string>
+    <string name="sessions_staged">Staged</string>
+    <string name="sessions_committed">Committed</string>
 
     <!-- Settings -->
     <string name="settings_behavior">Behavior</string>
