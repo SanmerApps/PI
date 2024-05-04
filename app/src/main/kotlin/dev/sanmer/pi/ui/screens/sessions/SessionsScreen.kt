@@ -25,6 +25,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -123,6 +124,12 @@ private fun SessionItem(
     session: ISessionInfo,
     viewApp: (String) -> Unit
 ) {
+    val enable by remember {
+        derivedStateOf {
+            session.installer.isNotEmpty || session.app.isNotEmpty
+        }
+    }
+
     var show by remember { mutableStateOf(false) }
     if (show) ViewPackage(
         session = session,
@@ -132,6 +139,7 @@ private fun SessionItem(
 
     SessionItem(
         session = session,
+        enable = enable,
         onClick = { show = true }
     )
 }

@@ -30,12 +30,13 @@ import dev.sanmer.pi.ui.component.LabelItem
 @Composable
 internal fun SessionItem(
     session: ISessionInfo,
+    enable: Boolean,
     onClick: () -> Unit
 ) = Row(
     modifier = Modifier
         .clip(RoundedCornerShape(15.dp))
         .clickable(
-            enabled = true,
+            enabled = enable,
             onClick = onClick,
         )
         .padding(all = 12.dp)
