@@ -1,5 +1,6 @@
 package dev.sanmer.pi.ui.screens.apps
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -45,6 +46,11 @@ fun AppsScreen(
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val state = rememberLazyListState()
+
+    BackHandler(
+        enabled = viewModel.isSearch,
+        onBack = viewModel::closeSearch
+    )
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
