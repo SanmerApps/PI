@@ -123,7 +123,7 @@ class SessionsViewModel @Inject constructor(
         delegate.unregisterCallback(this)
     }
 
-    fun abandonAll() {
+    fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
             delegate.getMySessions().forEach {
                 val session = delegate.openSession(it.sessionId)

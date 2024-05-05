@@ -16,7 +16,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
@@ -28,6 +30,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -301,8 +304,22 @@ private fun TopBarContent(
     ) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
-        var show by remember { mutableStateOf(false) }
-        if (show) ProgressIndicatorDialog()
+
+        var progress by remember { mutableStateOf(false) }
+        if (progress) ProgressIndicatorDialog()
+
+        var uninstall by remember { mutableStateOf(false) }
+        if (uninstall) UninstallDialog(
+            appLabel = pi.appLabel,
+            onClose = { uninstall = false },
+            onDelete = {
+                scope.launch {
+                    if (appOps.uninstall()) {
+                        onBack()
+                    }
+                }
+            }
+        )
 
         if (appOps.isOpenable) {
             FilledTonalIconButton(
@@ -313,38 +330,6 @@ private fun TopBarContent(
                     contentDescription = null
                 )
             }
-        }
-
-        if (appOps.isUninstallable) {
-            FilledTonalIconButton(
-                onClick = {
-                    scope.launch {
-                        if (appOps.uninstall()) {
-                            onBack()
-                        }
-                    }
-                }
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.trash),
-                    contentDescription = null
-                )
-            }
-        }
-
-        FilledTonalIconButton(
-            onClick = {
-                scope.launch {
-                    show = true
-                    appOps.export(context)
-                    show = false
-                }
-            }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.package_export),
-                contentDescription = null
-            )
         }
 
         FilledTonalIconButton(
@@ -361,6 +346,30 @@ private fun TopBarContent(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.settings),
+                contentDescription = null
+            )
+        }
+
+        FilledTonalIconButton(
+            onClick = { uninstall = true }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.trash),
+                contentDescription = null
+            )
+        }
+
+        FilledTonalIconButton(
+            onClick = {
+                scope.launch {
+                    progress = true
+                    appOps.export(context)
+                    progress = false
+                }
+            }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.package_export),
                 contentDescription = null
             )
         }
@@ -386,3 +395,48 @@ private fun ProgressIndicatorDialog() {
         }
     }
 }
+
+@Composable
+private fun UninstallDialog(
+    appLabel: String,
+    onClose: () -> Unit,
+    onDelete: () -> Unit
+) = AlertDialog(
+    onDismissRequest = onClose,
+    shape = RoundedCornerShape(20.dp),
+    title = { Text(text = appLabel) },
+    text = {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.app_dialog_desc1),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = stringResource(id = R.string.app_dialog_desc2),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    },
+    confirmButton = {
+        TextButton(
+            onClick = {
+                onDelete()
+                onClose()
+            }
+        ) {
+            Text(text = stringResource(id = R.string.dialog_ok))
+        }
+    },
+    dismissButton = {
+        TextButton(
+            onClick = onClose
+        ) {
+            Text(text = stringResource(id = R.string.dialog_cancel))
+        }
+    },
+)

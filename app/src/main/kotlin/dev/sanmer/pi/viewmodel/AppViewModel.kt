@@ -198,10 +198,17 @@ class AppViewModel @Inject constructor(
         }
 
         val isOpenable get() = launchIntent != null
-        val isUninstallable get() = true
 
         fun launch(context: Context) {
             context.startActivity(launchIntent)
+        }
+
+        fun view(context: Context) {
+            context.viewPackage(packageInfo.packageName)
+        }
+
+        fun setting(context: Context) {
+            context.appSetting(packageInfo.packageName)
         }
 
         suspend fun uninstall() = withContext(Dispatchers.IO) {
@@ -273,14 +280,6 @@ class AppViewModel @Inject constructor(
             }
 
             return@withContext true
-        }
-
-        fun view(context: Context) {
-            context.viewPackage(packageInfo.packageName)
-        }
-
-        fun setting(context: Context) {
-            context.appSetting(packageInfo.packageName)
         }
     }
 

@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,6 +21,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -73,7 +76,7 @@ fun SessionsScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
-                onAbandonAll = viewModel::abandonAll,
+                onDeleteAll = viewModel::deleteAll,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -223,14 +226,20 @@ private fun Card(
 
 @Composable
 private fun TopBar(
-    onAbandonAll: () -> Unit,
+    onDeleteAll: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
-    title = {
-        Text(text = stringResource(id = R.string.app_name))
-    },
+    title = { Text(text = stringResource(id = R.string.app_name)) },
     actions = {
-        IconButton(onClick = onAbandonAll) {
+        var show by remember { mutableStateOf(false) }
+        if (show) DeleteDialog(
+            onClose = { show = false },
+            onDelete = onDeleteAll
+        )
+
+        IconButton(
+            onClick = { show = true }
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.clear_all),
                 contentDescription = null
@@ -238,4 +247,48 @@ private fun TopBar(
         }
     },
     scrollBehavior = scrollBehavior
+)
+
+@Composable
+private fun DeleteDialog(
+    onClose: () -> Unit,
+    onDelete: () -> Unit
+) = AlertDialog(
+    onDismissRequest = onClose,
+    shape = RoundedCornerShape(20.dp),
+    title = { Text(text = stringResource(id = R.string.sessions_dialog_title)) },
+    text = {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.sessions_dialog_desc1),
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            Text(
+                text = stringResource(id = R.string.sessions_dialog_desc2),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    },
+    confirmButton = {
+        TextButton(
+            onClick = {
+                onDelete()
+                onClose()
+            }
+        ) {
+            Text(text = stringResource(id = R.string.dialog_ok))
+        }
+    },
+    dismissButton = {
+        TextButton(
+            onClick = onClose
+        ) {
+            Text(text = stringResource(id = R.string.dialog_cancel))
+        }
+    },
 )

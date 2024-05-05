@@ -17,6 +17,8 @@
     <string name="apps_authorized">已授权</string>
     <string name="apps_requester">请求者</string>
     <string name="apps_executor">执行者</string>
+    <string name="app_dialog_desc1">您想卸载这个应用程序吗?</string>
+    <string name="app_dialog_desc2">提示: 对于系统应用, 这只会卸载更新.</string>
 
     <!-- Details -->
     <string name="details_system_title">系统</string>
@@ -37,6 +39,9 @@
     <string name="sessions_active">执行中</string>
     <string name="sessions_staged">已完成</string>
     <string name="sessions_committed">已提交</string>
+    <string name="sessions_dialog_title">删除所有会话</string>
+    <string name="sessions_dialog_desc1">您想删除所有会话吗?</string>
+    <string name="sessions_dialog_desc2">提示: 由于系统限制, 来自系统 API 的某些会话无法删除.</string>
 
     <!-- Settings -->
     <string name="settings_behavior">行为</string>
@@ -66,6 +71,10 @@
     <string name="install_config_unspecified_title">未知</string>
     <string name="install_button_install">安装</string>
     <string name="install_button_cancel">取消</string>
+
+    <!-- Dialog -->
+    <string name="dialog_ok">确定</string>
+    <string name="dialog_cancel">取消</string>
 
     <!-- Message -->
     <string name="message_install_success">安装成功</string>

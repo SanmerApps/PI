@@ -17,6 +17,8 @@
     <string name="apps_authorized">Authorized</string>
     <string name="apps_requester">Requester</string>
     <string name="apps_executor">Executor</string>
+    <string name="app_dialog_desc1">Do you want to uninstall this app?</string>
+    <string name="app_dialog_desc2">Tip: For system apps, this will only uninstall updates.</string>
 
     <!-- Details -->
     <string name="details_system_title">System</string>
@@ -37,6 +39,9 @@
     <string name="sessions_active">Active</string>
     <string name="sessions_staged">Staged</string>
     <string name="sessions_committed">Committed</string>
+    <string name="sessions_dialog_title">Delete all sessions</string>
+    <string name="sessions_dialog_desc1">Do you want to delete all sessions?</string>
+    <string name="sessions_dialog_desc2">Tip: Due to the system limitation, some sessions from system API cannot be deleted.</string>
 
     <!-- Settings -->
     <string name="settings_behavior">Behavior</string>
@@ -66,6 +71,10 @@
     <string name="install_config_unspecified_title">Unspecified</string>
     <string name="install_button_install">Install</string>
     <string name="install_button_cancel">Cancel</string>
+
+    <!-- Dialog -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
 
     <!-- Message -->
     <string name="message_install_success">Install successful</string>
