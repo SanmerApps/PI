@@ -18,18 +18,18 @@
     <string name="apps_requester">Requester</string>
     <string name="apps_executor">Executor</string>
     <string name="app_dialog_desc1">Do you want to uninstall this app?</string>
-    <string name="app_dialog_desc2">Tip: For system apps, this will only uninstall updates.</string>
+    <string name="app_dialog_desc2">Tip: This will only uninstall updates if it is a system app.</string>
 
     <!-- Details -->
     <string name="details_system_title">System</string>
     <string name="details_request_install">Request install package</string>
-    <string name="details_request_install_system">Allows this application to request installing packages. Apps targeting APIs greater than 25 must hold this permission in order to use `Intent.ACTION_INSTALL_PACKAGE`.</string>
+    <string name="details_request_install_system">Allows this app to request installing packages. Apps targeting APIs greater than 25 must hold this permission in order to use `Intent.ACTION_INSTALL_PACKAGE`.</string>
     <string name="details_custom_title">Custom</string>
-    <string name="details_request_install_self">Allows this application to install packages by PI. This means you will not see the installation dialog (except for `App Bundle`).</string>
+    <string name="details_request_install_self">Allows this app to install packages by PI. This means you will not see the installation dialog (except for `App Bundle`).</string>
     <string name="details_requester_title">Installation requester</string>
-    <string name="details_requester_desc">The application on behalf of which the initiating package requested the installation (the requester of record).</string>
+    <string name="details_requester_desc">The app on behalf of which the initiating package requested the installation (the requester of record).</string>
     <string name="details_executor_title">Installation executor</string>
-    <string name="details_executor_desc">The application responsible for the installation (the installer of record).</string>
+    <string name="details_executor_desc">The app responsible for the installation (the installer of record).</string>
     <string name="details_ops_default">Default</string>
     <string name="details_ops_this">This app</string>
 
@@ -41,7 +41,7 @@
     <string name="sessions_committed">Committed</string>
     <string name="sessions_dialog_title">Delete all sessions</string>
     <string name="sessions_dialog_desc1">Do you want to delete all sessions?</string>
-    <string name="sessions_dialog_desc2">Tip: Due to the system limitation, some sessions from system API cannot be deleted.</string>
+    <string name="sessions_dialog_desc2">Tip: Some sessions may not be deleted due to the system restriction.</string>
 
     <!-- Settings -->
     <string name="settings_behavior">Behavior</string>
