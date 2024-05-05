@@ -350,13 +350,15 @@ private fun TopBarContent(
             )
         }
 
-        FilledTonalIconButton(
-            onClick = { uninstall = true }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.trash),
-                contentDescription = null
-            )
+        if (appOps.isUninstallable) {
+            FilledTonalIconButton(
+                onClick = { uninstall = true }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.trash),
+                    contentDescription = null
+                )
+            }
         }
 
         FilledTonalIconButton(

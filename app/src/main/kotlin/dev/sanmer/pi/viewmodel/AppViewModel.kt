@@ -2,6 +2,7 @@ package dev.sanmer.pi.viewmodel
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.os.Environment
@@ -197,7 +198,17 @@ class AppViewModel @Inject constructor(
             )
         }
 
-        val isOpenable get() = launchIntent != null
+        val isOpenable by lazy { launchIntent != null }
+
+        val isUninstallable by lazy {
+            val isUpdatedSystemApp = packageInfo.applicationInfo.flags and
+                    ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+
+            when {
+                isUpdatedSystemApp -> true
+                else -> !packageInfo.isSystemApp
+            }
+        }
 
         fun launch(context: Context) {
             context.startActivity(launchIntent)
