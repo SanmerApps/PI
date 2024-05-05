@@ -73,11 +73,11 @@ internal fun SessionItem(
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = session.appLabel.toString(),
+            text = session.appLabel ?: stringResource(id = R.string.unknown),
             style = MaterialTheme.typography.bodyLarge
         )
         Text(
-            text = session.appPackageName.toString(),
+            text = session.appPackageName ?: stringResource(id = R.string.unknown),
             style = MaterialTheme.typography.bodySmall
         )
 

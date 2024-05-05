@@ -89,5 +89,6 @@
     <string name="notification_name_install">Install service</string>
 
     <!-- Other -->
+    <string name="unknown">Unknown</string>
     <string name="unknown_error">Unknown error</string>
 </resources>

@@ -89,5 +89,6 @@
     <string name="notification_name_install">安装服务</string>
 
     <!-- Other -->
+    <string name="unknown">未知</string>
     <string name="unknown_error">未知错误</string>
 </resources>
