@@ -41,7 +41,7 @@ fun SettingNormalItem(
     desc: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contentPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp,  horizontal = 25.dp),
+    contentPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp,  horizontal = 24.dp),
     itemTextStyle: SettingItemTextStyle = SettingItemDefaults.itemStyle(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     @DrawableRes icon: Int? = null,
@@ -102,7 +102,7 @@ fun SettingSwitchItem(
     checked: Boolean,
     onChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    contentPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp,  horizontal = 25.dp),
+    contentPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp,  horizontal = 24.dp),
     itemTextStyle: SettingItemTextStyle = SettingItemDefaults.itemStyle(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     @DrawableRes icon: Int? = null,
@@ -171,7 +171,6 @@ class SettingItemTextStyle internal constructor(
     val titleTextStyle: TextStyle,
     val descTextStyle: TextStyle
 ) {
-    @Suppress("RedundantIf")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is SettingItemTextStyle) return false

@@ -7,8 +7,10 @@ interface IProvider {
     val pid: Int
     val version: Int
     val seLinuxContext: String
-    val packageManagerCompat: IPackageManagerCompat
-    val userManagerCompat: IUserManagerCompat
+
+    val appOpsService: IAppOpsServiceCompat
+    val packageManager: IPackageManagerCompat
+    val userManager: IUserManagerCompat
 
     val isAlive: StateFlow<Boolean>
     fun init()

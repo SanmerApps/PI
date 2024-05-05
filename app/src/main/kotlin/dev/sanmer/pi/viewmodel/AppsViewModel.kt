@@ -1,21 +1,20 @@
 package dev.sanmer.pi.viewmodel
 
-import android.Manifest
-import android.app.Application
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.ContextCompat.userId
-import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
+import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
+import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
+import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.LocalRepository
+import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,13 +28,16 @@ import javax.inject.Inject
 @HiltViewModel
 class AppsViewModel @Inject constructor(
     private val localRepository: LocalRepository,
-    application: Application
-) : AndroidViewModel(application) {
-    private val context: Context by lazy { getApplication() }
-    private val pm by lazy { context.packageManager }
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val userPreferencesRepository: UserPreferencesRepository
+) : ViewModel() {
+    private val pmCompat get() = ProviderCompat.packageManager
 
-    private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
+    var isSearch by mutableStateOf(false)
+        private set
+    private val keyFlow = MutableStateFlow("")
+
+    private val packagesFlow = MutableStateFlow(listOf<PackageInfo>())
+    private val cacheFlow = MutableStateFlow(listOf<IPackageInfo>())
     private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
     val apps get() = appsFlow.asStateFlow()
 
@@ -44,73 +46,100 @@ class AppsViewModel @Inject constructor(
 
     init {
         Timber.d("AppsViewModel init")
+        packagesObserver()
         dataObserver()
+        keyObserver()
+    }
+
+    private fun packagesObserver() {
+        combine(
+            ProviderCompat.isAliveFlow,
+            PackageReceiver.eventFlow
+        ) { isAlive, _ ->
+            if (isAlive) loadData()
+
+        }.launchIn(viewModelScope)
     }
 
     private fun dataObserver() {
-        localRepository.getAllAsFlow()
-            .combine(packagesFlow) { authorized, source ->
-                if (source.isEmpty()) return@combine
+        combine(
+            localRepository.getPackageAuthorizedAllAsFlow(),
+            userPreferencesRepository.data,
+            packagesFlow,
+        ) { authorized, preferences, source ->
+            if (source.isEmpty()) return@combine
 
-                appsFlow.value = source
-                    .map { pi ->
-                        val isAuthorized = authorized.find {
-                            it.packageName == pi.packageName
-                        }?.authorized ?: false
+            cacheFlow.value = source.map { pi ->
+                pi.toIPackageInfo(
+                    isAuthorized = authorized.contains(pi.packageName),
+                    isRequester = preferences.requester == pi.packageName,
+                    isExecutor = preferences.executor == pi.packageName
+                )
+            }.sortedByDescending { it.lastUpdateTime }
+                .sortedByDescending { it.isAuthorized }
+                .sortedByDescending { it.isExecutor || it.isRequester }
 
-                        pi.copy(authorized = isAuthorized)
+            isLoading = false
 
-                    }.sortedByDescending { it.lastUpdateTime }
+        }.launchIn(viewModelScope)
+    }
 
-                isLoading = false
+    private fun keyObserver() {
+        combine(
+            keyFlow,
+            cacheFlow
+        ) { key, source ->
 
-            }.launchIn(viewModelScope)
+            appsFlow.value = source
+                .filter {
+                    if (key.isNotBlank()) {
+                        it.appLabel.contains(key, ignoreCase = true)
+                                || it.packageName.contains(key, ignoreCase = true)
+                    } else {
+                        true
+                    }
+                }
+
+        }.launchIn(viewModelScope)
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
         val allPackages = runCatching {
             pmCompat.getInstalledPackages(
-                PackageManager.GET_PERMISSIONS, context.userId
+                PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
             ).list
         }.onFailure {
             Timber.e(it, "getInstalledPackages")
         }.getOrDefault(emptyList())
 
-        val isRequestedInstall: (PackageInfo) -> Boolean = {
-            it.requestedPermissions?.contains(
-                Manifest.permission.REQUEST_INSTALL_PACKAGES
-            ) == true
+        allPackages.filter {
+            it.applicationInfo.enabled
         }
-
-        allPackages
-            .filter {
-                isRequestedInstall(it) && !it.isSystemApp &&
-                        it.applicationInfo.enabled
-            }.map {
-                IPackageInfo(
-                    packageInfo = it,
-                    pm = pm
-                )
-            }
     }
 
-    fun loadData() {
+    private fun loadData() {
         viewModelScope.launch {
             packagesFlow.value = getPackages()
 
             val packageNames = packagesFlow.value.map { it.packageName }
-            val authorized = localRepository.getAll()
+            val authorized = localRepository.getPackageAll()
 
-            localRepository.delete(
+            localRepository.deletePackage(
                 authorized.filter { it.packageName !in packageNames }
             )
         }
     }
 
-    fun toggle(pi: IPackageInfo) {
-        viewModelScope.launch {
-            val authorized = !pi.authorized
-            localRepository.insert(pi.copy(authorized = authorized))
-        }
+    fun search(key: String) {
+        keyFlow.value = key
+    }
+
+    fun openSearch() {
+        isSearch = true
+    }
+
+    fun closeSearch() {
+        isSearch = false
+        keyFlow.value = ""
     }
 }

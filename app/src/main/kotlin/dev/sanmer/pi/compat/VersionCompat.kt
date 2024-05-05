@@ -3,6 +3,7 @@ package dev.sanmer.pi.compat
 import android.content.pm.PackageInfo
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import dev.sanmer.hidden.compat.PackageInfoCompat.compileSdkVersion
 import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 
 object VersionCompat {
@@ -86,10 +87,10 @@ object VersionCompat {
                 append("Min: ")
                 append("${newAppInfo.minSdkVersion}")
 
-                if (BuildCompat.atLeastS && newAppInfo.compileSdkVersion != 0) {
+                if (new.compileSdkVersion != 0) {
                     append(", ")
                     append("Compile: ")
-                    append("${newAppInfo.compileSdkVersion}")
+                    append("${new.compileSdkVersion}")
                 }
             }
             else -> {
@@ -105,15 +106,25 @@ object VersionCompat {
                     v1 = newAppInfo.minSdkVersion
                 )
 
-                if (BuildCompat.atLeastS && newAppInfo.compileSdkVersion != 0) {
+                if (new.compileSdkVersion != 0) {
                     append(", ")
                     append("Compile: ")
                     comparator(
-                        v0 = oldAppInfo.compileSdkVersion,
-                        v1 = newAppInfo.compileSdkVersion
+                        v0 = old.compileSdkVersion,
+                        v1 = new.compileSdkVersion
                     )
                 }
             }
         }
     }
+
+    fun getVersion(pi: PackageInfo) = getVersionDiff(
+        old = PackageInfo(),
+        new = pi
+    )
+
+    fun getSdkVersion(pi: PackageInfo) = getSdkVersionDiff(
+        old = PackageInfo(),
+        new = pi
+    )
 }

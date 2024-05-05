@@ -11,19 +11,29 @@ import dev.sanmer.pi.datastore.Provider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 object ProviderCompat {
-    private var mMode = Provider.None
     private val mScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private lateinit var mProvider: IProvider
+    private var mProviderOrNull: IProvider? = null
+    private val mProvider get() = checkNotNull(mProviderOrNull) {
+        "IProvider haven't been received"
+    }
 
+    var current by mutableStateOf(Provider.None)
+        private set
     var isAlive by mutableStateOf(false)
         private set
 
-    val packageManagerCompat get() = mProvider.packageManagerCompat
-    val userManagerCompat get() = mProvider.userManagerCompat
+    private val _isAliveFlow = MutableStateFlow(false)
+    val isAliveFlow get() = _isAliveFlow.asStateFlow()
+
+    val appOpsService get() = mProvider.appOpsService
+    val packageManager get() = mProvider.packageManager
+    val userManager get() = mProvider.userManager
 
     val version get() = mProvider.version
     val platform get() = when (mProvider.uid) {
@@ -32,55 +42,53 @@ object ProviderCompat {
         else -> "unknown"
     }
 
-    fun <T> get(block: (ProviderCompat) -> T, default: T): T {
-        return when {
-            isAlive -> block(this)
-            else -> default
-        }
+    private fun stateObserver(alive: MutableStateFlow<Boolean>) {
+        alive.onEach {
+            isAlive = it
+            _isAliveFlow.value = it
+
+        }.launchIn(mScope)
     }
 
-    fun init(mode: Provider) {
-        if (mMode == mode) {
-            if (isAlive) return
-        } else {
-            if (isAlive) destroy()
+    private fun init() = when (current) {
+        Provider.Shizuku -> with(ShizukuProvider) {
+            mProviderOrNull = this
+            stateObserver(isAlive)
+            init()
         }
 
-        mMode = mode
-        when (mMode) {
-            Provider.Shizuku -> {
-                ShizukuProvider.apply {
-                    mProvider = this
-                    init()
-                }
-
-                ShizukuProvider.isAlive
-                    .onEach { isAlive = it }
-                    .launchIn(mScope)
-            }
-            Provider.Superuser -> {
-                SuProvider.apply {
-                    mProvider = this
-                    init()
-                }
-
-                SuProvider.isAlive
-                    .onEach { isAlive = it }
-                    .launchIn(mScope)
-            }
-            else -> {}
-        }
-    }
-
-    fun destroy() = when (mMode) {
-        Provider.Shizuku -> {
-            isAlive = false
-            ShizukuProvider.destroy()
-        }
-        Provider.Superuser -> {
-            isAlive = false
-            SuProvider.destroy()
+        Provider.Superuser -> with(SuProvider){
+            mProviderOrNull = this
+            stateObserver(isAlive)
+            init()
         }
         else -> {}
+    }
+
+    fun init(provider: Provider) {
+        when {
+            provider == current -> {
+                if (!isAlive) init()
+            }
+            else -> {
+                if (isAlive) destroy()
+
+                current = provider
+                init()
+            }
+        }
+    }
+
+    fun destroy() = when (current) {
+        Provider.Shizuku -> ShizukuProvider.destroy()
+        Provider.Superuser -> SuProvider.destroy()
+        else -> {}
+    }
+
+    fun <T> get(fallback: T, block: ProviderCompat.() -> T): T {
+        return when {
+            isAlive -> block(this)
+            else -> fallback
+        }
     }
 }

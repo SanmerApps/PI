@@ -1,9 +1,11 @@
 package dev.sanmer.hidden.compat.impl
 
+import android.content.IntentSender
 import android.content.pm.IPackageInstaller
 import android.content.pm.IPackageInstallerCallback
 import android.content.pm.PackageInstaller
 import android.content.pm.ParceledListSlice
+import android.content.pm.VersionedPackage
 import android.os.IBinder
 import android.os.IInterface
 import dev.sanmer.hidden.compat.BuildCompat
@@ -60,5 +62,15 @@ internal class PackageInstallerCompatImpl(
         if (delegate is IPackageInstallerCallback) {
             original.unregisterCallback(delegate)
         }
+    }
+
+    override fun uninstall(
+        versionedPackage: VersionedPackage,
+        callerPackageName: String,
+        flags: Int,
+        statusReceiver: IntentSender,
+        userId: Int
+    ) {
+        original.uninstall(versionedPackage, callerPackageName, flags, statusReceiver, userId)
     }
 }

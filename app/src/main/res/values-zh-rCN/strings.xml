@@ -3,62 +3,92 @@
     <!-- Activity -->
     <string name="install_activity">安装</string>
 
+    <!-- Pages -->
+    <string name="page_apps">应用</string>
+    <string name="page_sessions">会话</string>
+    <string name="page_settings">设置</string>
+
     <!-- Setup -->
     <string name="setup_title">工作模式</string>
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
     <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
 
-    <!-- Home -->
-    <string name="home_service_running">服务正在运行</string>
-    <string name="home_service_not_running">服务未运行</string>
-    <string name="home_service_version">版本 %1$d，%2$s</string>
-    <plurals name="home_authorized_apps_count">
-        <item quantity="other">已授权 %d 个应用</item>
-    </plurals>
-    <string name="home_view_authorized_apps">点按以管理授权的应用</string>
-    <string name="home_requester_title">安装请求方</string>
-    <string name="home_executor_title">安装执行方</string>
-    <string name="home_menu_about">关于</string>
-    <string name="home_about_view_source">在 %s 查看源码</string>
-
     <!-- Apps -->
-    <string name="apps_title">应用管理</string>
-    <string name="apps_empty">空列表</string>
+    <string name="apps_authorized">已授权</string>
+    <string name="apps_requester">请求者</string>
+    <string name="apps_executor">执行者</string>
+    <string name="app_dialog_desc1">您想卸载这个应用程序吗?</string>
+    <string name="app_dialog_desc2">提示: 对于系统应用, 这只会卸载更新.</string>
+
+    <!-- Details -->
+    <string name="details_system_title">系统</string>
+    <string name="details_request_install">请求安装应用</string>
+    <string name="details_request_install_system">允许应用程序请求安装软件包. 目标 API 大于 25 的应用必须持有此权限才能使用 `Intent.ACTION_INSTALL_PACKAGE`.</string>
+    <string name="details_custom_title">自定义</string>
+    <string name="details_request_install_self">允许应用程序通过 PI 安装软件包. 这意味着您将看不到安装对话框 (`App Bundle` 除外).</string>
+    <string name="details_requester_title">安装请求方</string>
+    <string name="details_requester_desc">发起安装请求的应用程序 (只是记录中的请求者).</string>
+    <string name="details_executor_title">安装执行方</string>
+    <string name="details_executor_desc">负责安装软件包的应用程序 (只是记录中的安装者).</string>
+    <string name="details_ops_default">默认</string>
+    <string name="details_ops_this">此应用</string>
 
     <!-- Sessions -->
-    <string name="sessions_title">安装会话</string>
+    <string name="sessions_user">用户: %1$d</string>
+    <string name="sessions_id">ID: %1$d</string>
+    <string name="sessions_active">执行中</string>
+    <string name="sessions_staged">已完成</string>
+    <string name="sessions_committed">已提交</string>
+    <string name="sessions_dialog_title">删除所有会话</string>
+    <string name="sessions_dialog_desc1">您想删除所有会话吗?</string>
+    <string name="sessions_dialog_desc2">提示: 由于系统限制, 来自系统 API 的某些会话无法删除.</string>
 
     <!-- Settings -->
-    <string name="settings_title">设置</string>
-    <string name="settings_dynamic_color">动态颜色</string>
-    <string name="settings_dynamic_color_desc">使用 Material You 配色方案 (Android 12+)</string>
-    <string name="settings_translation">参与翻译</string>
-    <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
+    <string name="settings_behavior">行为</string>
+    <string name="settings_service_running">服务正在运行</string>
+    <string name="settings_service_version">版本 %1$d，%2$s</string>
+    <string name="settings_service_not_running">服务未运行</string>
+    <string name="settings_service_try_start">点击尝试启动</string>
     <string name="settings_self_update">自更新</string>
     <string name="settings_self_update_desc">自动允许应用自己发出的更新请求</string>
+    <string name="settings_interface">界面</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_language_system">系统默认</string>
+    <string name="settings_dynamic_color">动态颜色</string>
+    <string name="settings_dynamic_color_desc">使用系统主题颜色 (Android 12+)</string>
+    <string name="settings_translation">参与翻译</string>
+    <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
+    <string name="settings_source_code">源码</string>
 
     <!-- Install -->
-    <string name="package_title">安装包</string>
-    <string name="config_feature_title">动态特征</string>
-    <string name="config_abi_title">ABI</string>
-    <string name="config_density_title">屏幕密度</string>
-    <string name="config_language_title">语言</string>
-    <string name="config_unspecified_title">未知</string>
-    <string name="button_install">安装</string>
-    <string name="button_cancel">取消</string>
+    <string name="install_package_title">安装包</string>
+    <string name="install_requester_title">请求方</string>
+    <string name="install_executor_title">执行方</string>
+    <string name="install_config_feature_title">动态特征</string>
+    <string name="install_config_abi_title">ABI</string>
+    <string name="install_config_density_title">屏幕密度</string>
+    <string name="install_config_language_title">语言</string>
+    <string name="install_config_unspecified_title">未知</string>
+    <string name="install_button_install">安装</string>
+    <string name="install_button_cancel">取消</string>
+
+    <!-- Dialog -->
+    <string name="dialog_ok">确定</string>
+    <string name="dialog_cancel">取消</string>
 
     <!-- Message -->
-    <string name="message_installing">安装中…</string>
     <string name="message_install_success">安装成功</string>
     <string name="message_install_fail">安装失败</string>
     <string name="message_loading">加载中…</string>
 
     <!-- Search -->
     <string name="search_placeholder">搜索…</string>
+    <string name="empty_list">空列表</string>
 
     <!-- Notification -->
     <string name="notification_name_install">安装服务</string>
 
     <!-- Other -->
+    <string name="unknown">未知</string>
     <string name="unknown_error">未知错误</string>
 </resources>

@@ -44,7 +44,7 @@ class InstallViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
-    private val pmCompat get() = ProviderCompat.packageManagerCompat
+    private val pmCompat get() = ProviderCompat.packageManager
 
     private var archivePath = File("")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
@@ -56,7 +56,7 @@ class InstallViewModel @Inject constructor(
     private val isSelf get() = sourceInfo.packageName == archiveInfo.packageName
     var isAuthorized = false
         private set
-    val hasSourceInfo get() = sourceInfo.inner.isNotEmpty
+    val hasSourceInfo get() = sourceInfo.isNotEmpty
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
     private val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
@@ -83,8 +83,7 @@ class InstallViewModel @Inject constructor(
         if (!source.isSystemApp) {
             isAuthorized = localRepository.getByPackageInfo(source)
             sourceInfo = source.toIPackageInfo(
-                authorized = isAuthorized,
-                pm = pm
+                isAuthorized = isAuthorized
             )
         }
 
@@ -129,14 +128,14 @@ class InstallViewModel @Inject constructor(
     }
 
     fun toggleAuthorized() {
-        if (sourceInfo.inner.isEmpty) return
+        if (sourceInfo.isEmpty) return
 
         viewModelScope.launch {
             sourceInfo = sourceInfo.let {
-                it.copy(authorized = !it.authorized)
+                it.copy(isAuthorized = !it.isAuthorized)
             }
 
-            localRepository.insert(sourceInfo)
+            localRepository.insertPackage(sourceInfo)
         }
     }
 

@@ -5,7 +5,4 @@
     <!-- Setup -->
     <string name="setup_shizuku_title" translatable="false">Shizuku</string>
     <string name="setup_root_title" translatable="false">Root</string>
-
-    <!-- Home -->
-    <string name="home_menu_view_sessions" translatable="false">@string/sessions_title</string>
 </resources>

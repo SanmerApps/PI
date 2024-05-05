@@ -1,9 +1,13 @@
 package dev.sanmer.pi.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.repository.UserPreferencesRepository
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -11,6 +15,10 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+    val isProviderAlive get() = ProviderCompat.isAlive
+    val providerVersion get() = ProviderCompat.get(-1) { version }
+    val providerPlatform get() = ProviderCompat.get("") { platform }
+
     init {
         Timber.d("SettingsViewModel init")
     }
@@ -23,4 +31,11 @@ class SettingsViewModel @Inject constructor(
 
     fun setSelfUpdate(value: Boolean) =
         userPreferencesRepository.setSelfUpdate(value)
+
+    fun tryStartProvider() {
+        viewModelScope.launch {
+            val userPreferences = userPreferencesRepository.data.first()
+            ProviderCompat.init(userPreferences.provider)
+        }
+    }
 }

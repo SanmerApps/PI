@@ -3,6 +3,7 @@ package dev.sanmer.pi.ui.screens.settings.workingmode
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -40,7 +41,8 @@ fun WorkingModeScreen(
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Column(
             modifier = Modifier

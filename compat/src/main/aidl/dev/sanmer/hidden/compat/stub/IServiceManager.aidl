@@ -1,5 +1,6 @@
 package dev.sanmer.hidden.compat.stub;
 
+import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat;
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat;
 import dev.sanmer.hidden.compat.stub.IUserManagerCompat;
 
@@ -8,8 +9,9 @@ interface IServiceManager {
     int getPid() = 1;
     int getVersion() = 2;
     String getSELinuxContext() = 3;
-    IPackageManagerCompat getPackageManagerCompat() = 4;
-    IUserManagerCompat getUserManagerCompat() = 5;
+    IPackageManagerCompat getPackageManager() = 4;
+    IUserManagerCompat getUserManager() = 5;
+    IAppOpsServiceCompat getAppOpsService() = 6;
 
     void destroy() = 16777114; // Only for Shizuku
 }

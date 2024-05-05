@@ -11,6 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -32,11 +35,11 @@ fun LabelItem(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = text,
-            style = MaterialTheme.typography.labelSmall
-                .copy(fontSize = 8.sp),
+            text = text.toUpperCase(Locale.current),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
             color = contentColor,
-            modifier = Modifier.padding(horizontal = 4.dp)
+            modifier = Modifier.padding(horizontal = 4.dp),
+            textAlign = TextAlign.Center
         )
     }
 }

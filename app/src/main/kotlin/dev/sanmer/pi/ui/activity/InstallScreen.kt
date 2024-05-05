@@ -3,6 +3,7 @@ package dev.sanmer.pi.ui.activity
 import android.content.pm.PackageInfo
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
@@ -27,6 +29,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -38,6 +41,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -53,9 +58,7 @@ import dev.sanmer.hidden.compat.content.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.Loading
-import dev.sanmer.pi.ui.screens.apps.AppItem
 import dev.sanmer.pi.ui.utils.expandedShape
-import dev.sanmer.pi.ui.utils.stringResource
 import dev.sanmer.pi.viewmodel.InstallViewModel
 
 @Composable
@@ -100,10 +103,9 @@ private fun InstallContent(
     onFinish: () -> Unit
 ) = Column(
     modifier = Modifier
-        .padding(top = 20.dp, bottom = 15.dp)
-        .padding(horizontal = 15.dp)
+        .padding(all = 20.dp)
         .fillMaxWidth(),
-    verticalArrangement = Arrangement.spacedBy(15.dp),
+    verticalArrangement = Arrangement.spacedBy(16.dp),
     horizontalAlignment = Alignment.CenterHorizontally
 ) {
     PackageItem(
@@ -119,8 +121,7 @@ private fun InstallContent(
             AppBundlesItem(
                 configs = viewModel.splitConfigs,
                 isRequiredConfig = viewModel::isRequiredConfig,
-                toggleSplitConfig = viewModel::toggleSplitConfig,
-                modifier = Modifier.weight(1f)
+                toggleSplitConfig = viewModel::toggleSplitConfig
             )
         }
         viewModel.hasSourceInfo -> {
@@ -137,14 +138,14 @@ private fun InstallContent(
             .padding(navigationBarsPadding)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(15.dp)
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
         OutlinedButton(
             onClick = onDeny
         ) {
-            Text(text = stringResource(id = R.string.button_cancel))
+            Text(text = stringResource(id = R.string.install_button_cancel))
         }
 
         Button(
@@ -153,7 +154,7 @@ private fun InstallContent(
                 onFinish()
             }
         ) {
-            Text(text = stringResource(id = R.string.button_install))
+            Text(text = stringResource(id = R.string.install_button_install))
         }
     }
 }
@@ -166,7 +167,7 @@ private fun PackageItem(
     sdkDiff: AnnotatedString,
     apkSize: String
 ) = TittleItem(
-    text = stringResource(id = R.string.package_title)
+    text = stringResource(id = R.string.install_package_title)
 ) {
     Surface(
         shape = RoundedCornerShape(15.dp),
@@ -180,7 +181,7 @@ private fun PackageItem(
         ) {
             val context = LocalContext.current
             AsyncImage(
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(45.dp),
                 model = ImageRequest.Builder(context)
                     .data(archiveInfo)
                     .build(),
@@ -221,20 +222,58 @@ private fun RequesterItem(
     sourceInfo: IPackageInfo,
     toggleAuthorized: () -> Unit,
 ) = TittleItem(
-    text = stringResource(id = R.string.home_requester_title)
+    text = stringResource(id = R.string.install_requester_title)
 ) {
     OutlinedCard(
         shape = RoundedCornerShape(15.dp)
     ) {
-        AppItem(
-            pi = sourceInfo,
-            onClick = toggleAuthorized
-        )
+        Row(
+            modifier = Modifier
+                .clickable(
+                    enabled = true,
+                    onClick = toggleAuthorized,
+                    role = Role.Switch
+                )
+                .padding(all = 16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val context = LocalContext.current
+            AsyncImage(
+                modifier = Modifier.size(45.dp),
+                model = ImageRequest.Builder(context)
+                    .data(sourceInfo)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null
+            )
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(1f)
+            ) {
+                Text(
+                    text = sourceInfo.appLabel,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = sourceInfo.packageName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Switch(
+                checked = sourceInfo.isAuthorized,
+                onCheckedChange = null
+            )
+        }
     }
 }
 
 @Composable
-private fun AppBundlesItem(
+private fun ColumnScope.AppBundlesItem(
     configs: List<SplitConfig>,
     isRequiredConfig: (SplitConfig) -> Boolean,
     toggleSplitConfig: (SplitConfig) -> Unit,
@@ -256,13 +295,22 @@ private fun AppBundlesItem(
         derivedStateOf { configs.filterIsInstance<UnspecifiedSplitConfig>() }
     }
 
+    val state = rememberLazyListState()
     LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        modifier = modifier
+            .then(
+                if (state.canScrollForward || state.canScrollBackward) {
+                    Modifier.weight(1f)
+                } else {
+                    Modifier
+                }
+            ),
+        state = state,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (featureConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_feature_title))
+                TittleItem(text = stringResource(id = R.string.install_config_feature_title))
             }
             items(
                 items = featureConfigs,
@@ -278,7 +326,7 @@ private fun AppBundlesItem(
 
         if (abiConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_abi_title))
+                TittleItem(text = stringResource(id = R.string.install_config_abi_title))
             }
             items(
                 items = abiConfigs,
@@ -294,7 +342,7 @@ private fun AppBundlesItem(
 
         if (densityConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_density_title))
+                TittleItem(text = stringResource(id = R.string.install_config_density_title))
             }
             items(
                 items = densityConfigs,
@@ -310,7 +358,7 @@ private fun AppBundlesItem(
 
         if (languageConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_language_title))
+                TittleItem(text = stringResource(id = R.string.install_config_language_title))
             }
             items(
                 items = languageConfigs,
@@ -326,7 +374,7 @@ private fun AppBundlesItem(
 
         if (unspecifiedConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.config_unspecified_title))
+                TittleItem(text = stringResource(id = R.string.install_config_unspecified_title))
             }
             items(
                 items = unspecifiedConfigs,
