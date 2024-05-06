@@ -8,7 +8,7 @@ import android.content.pm.ResolveInfo;
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat;
 
 interface IPackageManagerCompat {
-    IPackageInstallerCompat getPackageInstallerCompat();
+    IPackageInstallerCompat getPackageInstaller();
     ApplicationInfo getApplicationInfo(String packageName, int flags, int userId);
     PackageInfo getPackageInfo(String packageName, int flags, int userId);
     int getPackageUid(String packageName, int flags, int userId);

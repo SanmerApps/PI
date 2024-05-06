@@ -13,14 +13,14 @@ import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 internal class PackageManagerCompatImpl(
     private val original: IPackageManager
 ) : IPackageManagerCompat.Stub() {
-    private val packageInstallerCompat by lazy {
+    private val packageInstaller by lazy {
         PackageInstallerCompatImpl(
             original.packageInstaller
         )
     }
 
-    override fun getPackageInstallerCompat(): IPackageInstallerCompat {
-        return packageInstallerCompat
+    override fun getPackageInstaller(): IPackageInstallerCompat {
+        return packageInstaller
     }
 
     override fun getApplicationInfo(
