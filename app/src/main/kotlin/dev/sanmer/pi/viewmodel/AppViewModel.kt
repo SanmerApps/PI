@@ -51,7 +51,7 @@ class AppViewModel @Inject constructor(
     private val pmCompat get() = ProviderCompat.packageManager
     private val delegate by lazy {
         AppOpsManagerDelegate(
-            ProviderCompat.appOpsService
+            ProviderCompat::appOpsService
         )
     }
 
@@ -188,7 +188,7 @@ class AppViewModel @Inject constructor(
         private val pmCompat get() = ProviderCompat.packageManager
         private val delegate by lazy {
             PackageInstallerDelegate(
-                pmCompat.packageInstallerCompat
+                ProviderCompat::packageInstaller
             )
         }
 

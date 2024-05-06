@@ -104,13 +104,9 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
-        val allPackages = runCatching {
-            pmCompat.getInstalledPackages(
-                PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
-            ).list
-        }.onFailure {
-            Timber.e(it, "getInstalledPackages")
-        }.getOrDefault(emptyList())
+        val allPackages = pmCompat.getInstalledPackages(
+            PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
+        ).list
 
         allPackages.filter {
             it.applicationInfo.enabled

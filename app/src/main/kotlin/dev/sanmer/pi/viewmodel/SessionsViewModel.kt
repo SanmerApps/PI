@@ -29,7 +29,7 @@ class SessionsViewModel @Inject constructor(
     private val pmCompat get() = ProviderCompat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
-            pmCompat.packageInstallerCompat
+            ProviderCompat::packageInstaller
         )
     }
 
@@ -48,10 +48,12 @@ class SessionsViewModel @Inject constructor(
     }
 
     override fun onCreated(sessionId: Int) {
+        Timber.d("onCreated")
         loadData()
     }
 
     override fun onFinished(sessionId: Int, success: Boolean) {
+        Timber.d("onFinished")
         loadData()
     }
 
@@ -112,22 +114,22 @@ class SessionsViewModel @Inject constructor(
     }
 
     fun registerCallback() {
-        if (!isProviderAlive) return
-
-        delegate.registerCallback(this)
+        if (isProviderAlive) {
+            delegate.registerCallback(this)
+        }
     }
 
     fun unregisterCallback() {
-        if (!isProviderAlive) return
-
-        delegate.unregisterCallback(this)
+        if (isProviderAlive) {
+            delegate.unregisterCallback(this)
+        }
     }
 
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
             delegate.getMySessions().forEach {
-                val session = delegate.openSession(it.sessionId)
                 runCatching {
+                    val session = delegate.openSession(it.sessionId)
                     session.abandon()
                 }
             }

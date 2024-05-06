@@ -30,29 +30,11 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
 class PackageInstallerDelegate(
-    private val installer: IPackageInstallerCompat,
-    private val userId: Int,
-    private var installerPackageName: String,
-    private var installerAttributionTag: String,
+    private val get: () -> IPackageInstallerCompat
 ) {
-    constructor(
-        installer: IPackageInstallerCompat,
-        userId: Int
-    ) : this(
-        installer = installer,
-        installerPackageName = DEFAULT_INSTALLER,
-        installerAttributionTag = DEFAULT_INSTALLER,
-        userId = userId
-    )
-
-    constructor(
-        installer: IPackageInstallerCompat
-    ) : this(
-        installer = installer,
-        installerPackageName = DEFAULT_INSTALLER,
-        installerAttributionTag = DEFAULT_INSTALLER,
-        userId = UserHandleCompat.myUserId()
-    )
+    private val userId = UserHandleCompat.myUserId()
+    private var installerPackageName = DEFAULT_INSTALLER
+    private var installerAttributionTag = DEFAULT_INSTALLER
 
     private val mDelegates = mutableListOf<SessionCallbackDelegate>()
 
@@ -62,7 +44,7 @@ class PackageInstallerDelegate(
     }
 
     fun createSession(params: PackageInstaller.SessionParams): Int {
-        return installer.createSession(
+        return get().createSession(
             params,
             installerPackageName,
             installerAttributionTag,
@@ -72,17 +54,17 @@ class PackageInstallerDelegate(
 
     fun openSession(sessionId: Int): Session {
         return Session(
-            session = installer.openSession(sessionId)
+            session = get().openSession(sessionId)
         )
     }
 
     fun getSessionInfo(sessionId: Int): PackageInstaller.SessionInfo? {
-        return installer.getSessionInfo(sessionId)
+        return get().getSessionInfo(sessionId)
     }
 
 
     fun getAllSessions(): List<PackageInstaller.SessionInfo> {
-        return installer.getAllSessions(userId).list
+        return get().getAllSessions(userId).list
     }
 
     fun getMySessions(): List<PackageInstaller.SessionInfo> {
@@ -101,20 +83,20 @@ class PackageInstallerDelegate(
 
     fun registerCallback(callback: SessionCallback) {
         val delegate = SessionCallbackDelegate(callback)
-        installer.registerCallback(delegate, userId)
+        get().registerCallback(delegate, userId)
         mDelegates.add(delegate)
     }
 
     fun unregisterCallback(callback: SessionCallback) {
         val delegate = mDelegates.find { it.mCallback == callback }
         if (delegate != null) {
-            installer.unregisterCallback(delegate)
+            get().unregisterCallback(delegate)
         }
     }
 
     fun uninstall(packageName: String): Intent {
         val receiver = LocalIntentReceiver()
-        installer.uninstall(
+        get().uninstall(
             VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
             installerPackageName,
             0,

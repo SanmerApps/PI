@@ -7,34 +7,34 @@ import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class AppOpsManagerDelegate(
-    private val service: IAppOpsServiceCompat
+    private val get: () -> IAppOpsServiceCompat
 ) {
     fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Int {
-        return service.checkOperation(op, uid, packageName)
+        return get().checkOperation(op, uid, packageName)
     }
 
     fun getPackagesForOps(ops: IntArray?): List<PackageOps> {
-        return service.getPackagesForOps(ops).map { PackageOps(it) }
+        return get().getPackagesForOps(ops).map { PackageOps(it) }
     }
 
     fun getOpsForPackage(uid: Int, packageName: String, ops: IntArray?): List<PackageOps> {
-        return service.getOpsForPackage(uid, packageName, ops).map { PackageOps(it) }
+        return get().getOpsForPackage(uid, packageName, ops).map { PackageOps(it) }
     }
 
     fun getUidOps(uid: Int, ops: IntArray?): List<PackageOps> {
-        return service.getUidOps(uid, ops).map { PackageOps(it) }
+        return get().getUidOps(uid, ops).map { PackageOps(it) }
     }
 
     fun setUidMode(op: Int, uid: Int, mode: Int) {
-        service.setUidMode(op, uid, mode)
+        get().setUidMode(op, uid, mode)
     }
 
     fun setMode(op: Int, uid: Int, packageName: String, mode: Int) {
-        service.setMode(op, uid, packageName, mode)
+        get().setMode(op, uid, packageName, mode)
     }
 
     fun resetAllModes() {
-        service.resetAllModes(UserHandleCompat.myUserId(), null)
+        get().resetAllModes(UserHandleCompat.myUserId(), null)
     }
 
     enum class Mode(val code: Int) {
