@@ -2,24 +2,20 @@
 <resources>
     <!-- Activity -->
     <string name="install_activity">Install</string>
-
     <!-- Pages -->
     <string name="page_apps">Apps</string>
     <string name="page_sessions">Sessions</string>
     <string name="page_settings">Settings</string>
-
     <!-- Setup -->
     <string name="setup_title">Working mode</string>
     <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
-
     <!-- Apps -->
     <string name="apps_authorized">Authorized</string>
     <string name="apps_requester">Requester</string>
     <string name="apps_executor">Executor</string>
     <string name="app_dialog_desc1">Do you want to uninstall this app?</string>
     <string name="app_dialog_desc2">Tip: This will only uninstall updates if it is a system app.</string>
-
     <!-- Details -->
     <string name="details_system_title">System</string>
     <string name="details_request_install">Request install package</string>
@@ -32,7 +28,6 @@
     <string name="details_executor_desc">The app responsible for the installation (the installer of record).</string>
     <string name="details_ops_default">Default</string>
     <string name="details_ops_this">This app</string>
-
     <!-- Sessions -->
     <string name="sessions_user">User: %1$d</string>
     <string name="sessions_id">ID: %1$d</string>
@@ -42,7 +37,6 @@
     <string name="sessions_dialog_title">Delete all sessions</string>
     <string name="sessions_dialog_desc1">Do you want to delete all sessions?</string>
     <string name="sessions_dialog_desc2">Tip: Some sessions may not be deleted due to the system restriction.</string>
-
     <!-- Settings -->
     <string name="settings_behavior">Behavior</string>
     <string name="settings_service_running">Service is running</string>
@@ -59,7 +53,6 @@
     <string name="settings_translation">Participate in translation</string>
     <string name="settings_translation_desc">Help us translate PI into your language</string>
     <string name="settings_source_code">Source code</string>
-
     <!-- Install -->
     <string name="install_package_title">Installation package</string>
     <string name="install_requester_title">Installation requester</string>
@@ -71,23 +64,18 @@
     <string name="install_config_unspecified_title">Unspecified</string>
     <string name="install_button_install">Install</string>
     <string name="install_button_cancel">Cancel</string>
-
     <!-- Dialog -->
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
-
     <!-- Message -->
     <string name="message_install_success">Install successful</string>
     <string name="message_install_fail">Install failed</string>
     <string name="message_loading">Loading…</string>
-
     <!-- Search -->
     <string name="search_placeholder">Search…</string>
     <string name="empty_list">Empty list</string>
-
     <!-- Notification -->
     <string name="notification_name_install">Install service</string>
-
     <!-- Other -->
     <string name="unknown">Unknown</string>
     <string name="unknown_error">Unknown error</string>
