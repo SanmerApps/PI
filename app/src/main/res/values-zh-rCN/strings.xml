@@ -2,24 +2,20 @@
 <resources>
     <!-- Activity -->
     <string name="install_activity">安装</string>
-
     <!-- Pages -->
     <string name="page_apps">应用</string>
     <string name="page_sessions">会话</string>
     <string name="page_settings">设置</string>
-
     <!-- Setup -->
     <string name="setup_title">工作模式</string>
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
     <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
-
     <!-- Apps -->
     <string name="apps_authorized">已授权</string>
     <string name="apps_requester">请求者</string>
     <string name="apps_executor">执行者</string>
     <string name="app_dialog_desc1">你想要卸载这个应用吗?</string>
     <string name="app_dialog_desc2">提示: 对于系统应用, 这只会卸载更新.</string>
-
     <!-- Details -->
     <string name="details_system_title">系统</string>
     <string name="details_request_install">请求安装应用</string>
@@ -32,7 +28,6 @@
     <string name="details_executor_desc">负责安装软件包的应用 (只是记录中的安装者).</string>
     <string name="details_ops_default">默认</string>
     <string name="details_ops_this">此应用</string>
-
     <!-- Sessions -->
     <string name="sessions_user">用户: %1$d</string>
     <string name="sessions_id">ID: %1$d</string>
@@ -42,7 +37,6 @@
     <string name="sessions_dialog_title">删除所有会话</string>
     <string name="sessions_dialog_desc1">你想要删除所有会话吗?</string>
     <string name="sessions_dialog_desc2">提示: 由于系统限制, 部分会话可能无法删除.</string>
-
     <!-- Settings -->
     <string name="settings_behavior">行为</string>
     <string name="settings_service_running">服务正在运行</string>
@@ -59,7 +53,6 @@
     <string name="settings_translation">参与翻译</string>
     <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
     <string name="settings_source_code">源码</string>
-
     <!-- Install -->
     <string name="install_package_title">安装包</string>
     <string name="install_requester_title">请求方</string>
@@ -71,23 +64,18 @@
     <string name="install_config_unspecified_title">未知</string>
     <string name="install_button_install">安装</string>
     <string name="install_button_cancel">取消</string>
-
     <!-- Dialog -->
     <string name="dialog_ok">确定</string>
     <string name="dialog_cancel">取消</string>
-
     <!-- Message -->
     <string name="message_install_success">安装成功</string>
     <string name="message_install_fail">安装失败</string>
     <string name="message_loading">加载中…</string>
-
     <!-- Search -->
     <string name="search_placeholder">搜索…</string>
     <string name="empty_list">空列表</string>
-
     <!-- Notification -->
     <string name="notification_name_install">安装服务</string>
-
     <!-- Other -->
     <string name="unknown">未知</string>
     <string name="unknown_error">未知错误</string>
