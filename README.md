@@ -6,9 +6,5 @@ PI is short for `Package Installer`.
 ## Supported Versions
 Android 10 ~ 14
 
-## What's this?
-This app is used to install packages (and it has other features I want). For me, it is an exploratory project that helps me to learn more about [AOSP](https://cs.android.com/). Therefore, it is open-sourced under the [MIT License](LICENSE).
-> **NOTE**: This implies that this project will not focus much on user experience. Thank you for your understanding.
- 
 ## Credits
  - [tabler/tabler-icons](https://github.com/tabler/tabler-icons.git)
