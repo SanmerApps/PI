@@ -74,6 +74,8 @@ class SessionsViewModel @Inject constructor(
     }
 
     private suspend fun getAllSessions() = withContext(Dispatchers.IO) {
+        if (!isProviderAlive) return@withContext emptyList()
+
         val records = localRepository.getSessionAll().toMutableList()
         val currents = delegate.getAllSessions()
             .map {

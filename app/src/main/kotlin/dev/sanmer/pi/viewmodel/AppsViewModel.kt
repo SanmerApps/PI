@@ -32,6 +32,8 @@ class AppsViewModel @Inject constructor(
 ) : ViewModel() {
     private val pmCompat get() = ProviderCompat.packageManager
 
+    private val isProviderAlive get() = ProviderCompat.isAlive
+
     var isSearch by mutableStateOf(false)
         private set
     private val keyFlow = MutableStateFlow("")
@@ -104,6 +106,8 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
+        if (!isProviderAlive) return@withContext emptyList()
+
         val allPackages = pmCompat.getInstalledPackages(
             PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
         ).list
