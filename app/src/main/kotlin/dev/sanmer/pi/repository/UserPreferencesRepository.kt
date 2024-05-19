@@ -2,36 +2,22 @@ package dev.sanmer.pi.repository
 
 import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.datastore.UserPreferencesDataSource
-import dev.sanmer.pi.di.ApplicationScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
-    private val userPreferencesDataSource: UserPreferencesDataSource,
-    @ApplicationScope private val applicationScope: CoroutineScope
+    private val userPreferencesDataSource: UserPreferencesDataSource
 ) {
     val data get() = userPreferencesDataSource.data
 
-    fun setProvider(value: Provider) = applicationScope.launch {
-        userPreferencesDataSource.setProvider(value)
-    }
+    suspend fun setProvider(value: Provider) = userPreferencesDataSource.setProvider(value)
 
-    fun setDynamicColor(value: Boolean) = applicationScope.launch {
-        userPreferencesDataSource.setDynamicColor(value)
-    }
+    suspend fun setDynamicColor(value: Boolean) = userPreferencesDataSource.setDynamicColor(value)
 
-    fun setRequester(value: String) = applicationScope.launch {
-        userPreferencesDataSource.setRequester(value)
-    }
+    suspend fun setRequester(value: String) = userPreferencesDataSource.setRequester(value)
 
-    fun setExecutor(value: String) = applicationScope.launch {
-        userPreferencesDataSource.setExecutor(value)
-    }
+    suspend fun setExecutor(value: String) = userPreferencesDataSource.setExecutor(value)
 
-    fun setSelfUpdate(value: Boolean) = applicationScope.launch {
-        userPreferencesDataSource.setSelfUpdate(value)
-    }
+    suspend fun setSelfUpdate(value: Boolean) = userPreferencesDataSource.setSelfUpdate(value)
 }

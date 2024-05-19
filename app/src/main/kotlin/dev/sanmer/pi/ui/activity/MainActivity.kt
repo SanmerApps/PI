@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.datastore.Provider
@@ -19,6 +20,7 @@ import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -64,7 +66,7 @@ class MainActivity : ComponentActivity() {
                             MainScreen()
                         } else {
                             SetupScreen(
-                                setProvider = { userPreferencesRepository.setProvider(it) }
+                                setProvider = ::setProvider
                             )
                         }
                     }
@@ -76,5 +78,11 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         PackageReceiver.unregister(this)
         super.onDestroy()
+    }
+
+    private fun setProvider(value: Provider) {
+        lifecycleScope.launch {
+            userPreferencesRepository.setProvider(value)
+        }
     }
 }

@@ -140,9 +140,11 @@ class AppViewModel @Inject constructor(
     }
 
     private fun setRequester(default: Boolean) {
-        when {
-            default -> userPreferencesRepository.setRequester(BuildConfig.APPLICATION_ID)
-            else -> userPreferencesRepository.setRequester(packageName)
+        viewModelScope.launch {
+            when {
+                default -> userPreferencesRepository.setRequester(BuildConfig.APPLICATION_ID)
+                else -> userPreferencesRepository.setRequester(packageName)
+            }
         }
     }
 
@@ -161,9 +163,11 @@ class AppViewModel @Inject constructor(
     }
 
     fun setExecutor(default: Boolean) {
-        when {
-            default -> userPreferencesRepository.setExecutor(BuildConfig.APPLICATION_ID)
-            else -> userPreferencesRepository.setExecutor(packageName)
+        viewModelScope.launch {
+            when {
+                default -> userPreferencesRepository.setExecutor(BuildConfig.APPLICATION_ID)
+                else -> userPreferencesRepository.setExecutor(packageName)
+            }
         }
     }
 

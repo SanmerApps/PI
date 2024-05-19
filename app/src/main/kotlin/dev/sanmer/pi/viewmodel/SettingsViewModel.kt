@@ -23,14 +23,23 @@ class SettingsViewModel @Inject constructor(
         Timber.d("SettingsViewModel init")
     }
 
-    fun setDynamicColor(value: Boolean) =
-        userPreferencesRepository.setDynamicColor(value)
+    fun setDynamicColor(value: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setDynamicColor(value)
+        }
+    }
 
-    fun setProvider(value: Provider) =
-        userPreferencesRepository.setProvider(value)
+    fun setProvider(value: Provider) {
+        viewModelScope.launch {
+            userPreferencesRepository.setProvider(value)
+        }
+    }
 
-    fun setSelfUpdate(value: Boolean) =
-        userPreferencesRepository.setSelfUpdate(value)
+    fun setSelfUpdate(value: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSelfUpdate(value)
+        }
+    }
 
     fun tryStartProvider() {
         viewModelScope.launch {
