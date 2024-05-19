@@ -11,24 +11,19 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.sanmer.pi.datastore.UserPreferences
 import dev.sanmer.pi.datastore.UserPreferencesSerializer
-import dev.sanmer.pi.di.ApplicationScope
-import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DataStoreModule {
-
     @Provides
     @Singleton
     fun providesUserPreferencesDataStore(
         @ApplicationContext context: Context,
-        userPreferencesSerializer: UserPreferencesSerializer,
-        @ApplicationScope applicationScope: CoroutineScope
+        userPreferencesSerializer: UserPreferencesSerializer
     ): DataStore<UserPreferences> =
         DataStoreFactory.create(
-            serializer = userPreferencesSerializer,
-            scope = applicationScope,
+            serializer = userPreferencesSerializer
         ) {
             context.dataStoreFile("user_preferences.pb")
         }
