@@ -3,65 +3,75 @@ package dev.sanmer.hidden.compat
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.util.Log
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
-import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
-import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
-import dev.sanmer.hidden.compat.stub.IProvider
 import dev.sanmer.hidden.compat.stub.IServiceManager
-import dev.sanmer.hidden.compat.stub.IUserManagerCompat
 import dev.sanmer.hidden.compat.su.SuService
 import dev.sanmer.hidden.compat.su.SuShellInitializer
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
-object SuProvider : IProvider, ServiceConnection {
-    private const val TAG = "SuProvider"
-    private var mServiceOrNull: IServiceManager? = null
-    private val mService get() = checkNotNull(mServiceOrNull) {
-        "IServiceManager haven't been received"
-    }
-
-    override val uid: Int get() = mService.uid
-    override val pid: Int get() = mService.pid
-    override val version: Int get() = mService.version
-    override val seLinuxContext: String get() = mService.seLinuxContext
-    override val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
-    override val packageManager: IPackageManagerCompat get() = mService.packageManager
-    override val userManager: IUserManagerCompat get() = mService.userManager
-
-    override val isAlive = MutableStateFlow(false)
-
+object SuProvider {
     init {
         Shell.enableVerboseLogging = true
         Shell.setDefaultBuilder(
             Shell.Builder.create()
                 .setInitializers(SuShellInitializer::class.java)
-                .setTimeout(15)
+                .setTimeout(10)
         )
     }
 
-    override fun onServiceConnected(name: ComponentName, service: IBinder) {
-        mServiceOrNull = IServiceManager.Stub.asInterface(service)
-        isAlive.value = true
-
-        Log.i(TAG, "IServiceManager created")
-        Log.d(TAG, "uid = $uid, pid = $pid, context = $seLinuxContext")
+    private suspend fun checkPermission() = suspendCancellableCoroutine { continuation ->
+        Shell.EXECUTOR.submit {
+            runCatching {
+                Shell.getShell()
+            }.onSuccess {
+                continuation.resume(Unit)
+            }.onFailure {
+                continuation.resumeWithException(it)
+            }
+        }
     }
 
-    override fun onServiceDisconnected(name: ComponentName) {
-        isAlive.value = false
-        mServiceOrNull = null
+    private suspend fun getIServiceManager() = withTimeout(Const.TIMEOUT_MILLIS) {
+        suspendCancellableCoroutine { continuation ->
+            val connection = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                    val service = IServiceManager.Stub.asInterface(binder)
+                    continuation.resume(service)
+                }
 
-        Log.w(TAG, "IServiceManager destroyed")
+                override fun onServiceDisconnected(name: ComponentName) {
+                    continuation.resumeWithException(
+                        IllegalStateException("IServiceManager destroyed")
+                    )
+                }
+
+                override fun onBindingDied(name: ComponentName?) {
+                    continuation.resumeWithException(
+                        IllegalStateException("IServiceManager destroyed")
+                    )
+                }
+            }
+
+            RootService.bind(SuService.intent, connection)
+            continuation.invokeOnCancellation {
+                RootService.stop(SuService.intent)
+            }
+        }
     }
 
-    override fun init() {
-        RootService.bind(SuService.intent, this)
-    }
+    @Throws(IllegalStateException::class)
+    suspend fun launch(): IServiceManager {
+        checkPermission()
 
-    override fun destroy() {
-        RootService.stop(SuService.intent)
+        return try {
+            getIServiceManager()
+        } catch (e: TimeoutCancellationException) {
+            throw IllegalStateException(e)
+        }
     }
-
 }

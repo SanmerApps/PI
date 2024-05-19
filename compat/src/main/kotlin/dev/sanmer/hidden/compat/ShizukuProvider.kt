@@ -4,79 +4,83 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.IBinder
-import android.util.Log
 import dev.sanmer.hidden.compat.shizuku.ShizukuService
-import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
-import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
-import dev.sanmer.hidden.compat.stub.IProvider
 import dev.sanmer.hidden.compat.stub.IServiceManager
-import dev.sanmer.hidden.compat.stub.IUserManagerCompat
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import rikka.shizuku.Shizuku
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
-object ShizukuProvider : IProvider, ServiceConnection, Shizuku.OnRequestPermissionResultListener {
-    private const val TAG = "ShizukuProvider"
-    private var mServiceOrNull: IServiceManager? = null
-    private val mService get() = checkNotNull(mServiceOrNull) {
-        "IServiceManager haven't been received"
+object ShizukuProvider {
+    private val isGranted get() = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+
+    private suspend fun checkPermission() = suspendCancellableCoroutine { continuation ->
+        if (isGranted) {
+            continuation.resume(true)
+            return@suspendCancellableCoroutine
+        }
+
+        val listener = object : Shizuku.OnRequestPermissionResultListener {
+            override fun onRequestPermissionResult(
+                requestCode: Int,
+                grantResult: Int
+            ) {
+                Shizuku.removeRequestPermissionResultListener(this)
+                continuation.resume(isGranted)
+            }
+        }
+
+        Shizuku.addRequestPermissionResultListener(listener)
+        continuation.invokeOnCancellation {
+            Shizuku.removeRequestPermissionResultListener(listener)
+        }
+        Shizuku.requestPermission(listener.hashCode())
     }
 
-    override val uid: Int get() = mService.uid
-    override val pid: Int get() = mService.pid
-    override val version: Int get() = mService.version
-    override val seLinuxContext: String get() = mService.seLinuxContext
-    override val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
-    override val packageManager: IPackageManagerCompat get() = mService.packageManager
-    override val userManager: IUserManagerCompat get() = mService.userManager
+    private suspend fun getIServiceManager() = withTimeout(Const.TIMEOUT_MILLIS) {
+        suspendCancellableCoroutine { continuation ->
+            val connection = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+                    val service = IServiceManager.Stub.asInterface(binder)
+                    continuation.resume(service)
+                }
 
-    override val isAlive = MutableStateFlow(false)
+                override fun onServiceDisconnected(name: ComponentName) {
+                    continuation.resumeWithException(
+                        IllegalStateException("IServiceManager destroyed")
+                    )
+                }
 
-    private var isGranted = false
-    private val isBinderAlive get() = Shizuku.pingBinder()
+                override fun onBindingDied(name: ComponentName?) {
+                    continuation.resumeWithException(
+                        IllegalStateException("IServiceManager destroyed")
+                    )
+                }
+            }
 
-    init {
-        if (isBinderAlive) {
-            isGranted = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+            Shizuku.bindUserService(ShizukuService(), connection)
+            continuation.invokeOnCancellation {
+                Shizuku.unbindUserService(ShizukuService(), connection, true)
+            }
         }
     }
 
-    override fun onServiceConnected(name: ComponentName, service: IBinder) {
-        mServiceOrNull = IServiceManager.Stub.asInterface(service)
-        isAlive.value = true
-
-        Log.i(TAG, "IServiceManager created")
-        Log.d(TAG, "uid = $uid, pid = $pid, context = $seLinuxContext")
-    }
-
-    override fun onServiceDisconnected(name: ComponentName) {
-        isAlive.value = false
-        mServiceOrNull = null
-
-        Log.w(TAG, "IServiceManager destroyed")
-    }
-
-    override fun init() {
-        if (!isBinderAlive) return
-
-        if (isGranted) {
-            Shizuku.bindUserService(ShizukuService(), this)
-        } else {
-            Shizuku.addRequestPermissionResultListener(this)
-            Shizuku.requestPermission(0)
+    @Throws(IllegalStateException::class)
+    suspend fun launch(): IServiceManager {
+        if (!Shizuku.pingBinder()) {
+            throw IllegalStateException("Shizuku not running")
         }
-    }
 
-    override fun destroy() {
-        if (!isBinderAlive) return
+        if (!checkPermission()) {
+            throw IllegalStateException("Shizuku not authorized")
+        }
 
-        Shizuku.unbindUserService(ShizukuService(), this, true)
-    }
-
-    override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
-        isGranted = grantResult == PackageManager.PERMISSION_GRANTED
-        if (isGranted) {
-            Shizuku.removeRequestPermissionResultListener(this)
-            init()
+        return try {
+            getIServiceManager()
+        } catch (e: TimeoutCancellationException) {
+            throw IllegalStateException(e)
         }
     }
 }
