@@ -1,7 +1,7 @@
 package dev.sanmer.pi.datastore
 
 import androidx.datastore.core.DataStore
-import dev.sanmer.pi.datastore.UserPreferencesExt.Companion.new
+import dev.sanmer.pi.datastore.UserPreferencesCompat.Companion.new
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -10,7 +10,7 @@ import javax.inject.Inject
 class UserPreferencesDataSource @Inject constructor(
     private val userPreferences: DataStore<UserPreferences>
 ) {
-    val data get() = userPreferences.data.map { UserPreferencesExt(it) }
+    val data get() = userPreferences.data.map { UserPreferencesCompat(it) }
 
     suspend fun setProvider(value: Provider) = withContext(Dispatchers.IO) {
         userPreferences.updateData {

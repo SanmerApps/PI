@@ -5,7 +5,7 @@ import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.BuildCompat
 
 @Immutable
-data class UserPreferencesExt(
+data class UserPreferencesCompat(
     val provider: Provider,
     val dynamicColor: Boolean,
     val requester: String,
@@ -29,7 +29,7 @@ data class UserPreferencesExt(
         .build()
 
     companion object {
-        fun default() = UserPreferencesExt(
+        fun default() = UserPreferencesCompat(
             provider = Provider.None,
             dynamicColor = BuildCompat.atLeastS,
             requester = BuildConfig.APPLICATION_ID,
@@ -39,7 +39,7 @@ data class UserPreferencesExt(
 
         fun UserPreferences.new(
             block: UserPreferencesKt.Dsl.() -> Unit
-        ) = UserPreferencesExt(this)
+        ) = UserPreferencesCompat(this)
             .toProto()
             .copy(block)
     }
