@@ -6,10 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dev.sanmer.hidden.compat.ShizukuProvider
 import dev.sanmer.hidden.compat.SuProvider
+import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
+import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
+import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import dev.sanmer.hidden.compat.stub.IServiceManager
 import dev.sanmer.pi.datastore.Provider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 object ProviderCompat {
@@ -24,9 +29,9 @@ object ProviderCompat {
     private val _isAliveFlow = MutableStateFlow(false)
     val isAliveFlow get() = _isAliveFlow.asStateFlow()
 
-    val appOpsService get() = mService.appOpsService
-    val packageManager get() = mService.packageManager
-    val packageInstaller get() = packageManager.packageInstaller
+    val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
+    val packageManager: IPackageManagerCompat get() = mService.packageManager
+    val packageInstaller: IPackageInstallerCompat get() = packageManager.packageInstaller
 
     val version get() = mService.version
     val platform get() = when (mService.uid) {
@@ -35,24 +40,31 @@ object ProviderCompat {
         else -> "unknown"
     }
 
-    suspend fun init(provider: Provider) = try {
-        mServiceOrNull = when (provider) {
-            Provider.Shizuku -> ShizukuProvider.launch()
-            Provider.Superuser -> SuProvider.launch()
-            else -> null
+    private fun state(alive: Boolean): Boolean {
+        isAlive = alive
+        _isAliveFlow.value = alive
+
+        return alive
+    }
+
+    suspend fun init(provider: Provider) = withContext(Dispatchers.Main) {
+        if (isAlive) {
+            return@withContext true
         }
 
-        isAlive = true
-        _isAliveFlow.value = true
+        try {
+            mServiceOrNull = when (provider) {
+                Provider.Shizuku -> ShizukuProvider.launch()
+                Provider.Superuser -> SuProvider.launch()
+                else -> null
+            }
 
-        true
-    } catch (e: Exception) {
-        Timber.e(e)
+            state(true)
+        } catch (e: Exception) {
+            Timber.e(e)
 
-        isAlive = false
-        _isAliveFlow.value = false
-
-        false
+            state(false)
+        }
     }
 
     fun <T> get(fallback: T, block: ProviderCompat.() -> T): T {
