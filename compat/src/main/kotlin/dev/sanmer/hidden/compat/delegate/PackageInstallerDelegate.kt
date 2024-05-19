@@ -1,24 +1,18 @@
 package dev.sanmer.hidden.compat.delegate
 
-import android.content.IIntentReceiver
-import android.content.IIntentSender
-import android.content.Intent
-import android.content.IntentSender
-import android.content.IntentSenderHidden
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.VersionedPackage
 import android.graphics.Bitmap
-import android.os.Bundle
 import android.os.FileBridge
-import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.system.Os
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
+import dev.sanmer.hidden.compat.IntentReceiverCompat
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
@@ -26,8 +20,6 @@ import dev.sanmer.hidden.compat.stub.ISessionCallback
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.TimeUnit
 
 class PackageInstallerDelegate(
     private val get: () -> IPackageInstallerCompat
@@ -94,17 +86,14 @@ class PackageInstallerDelegate(
         }
     }
 
-    fun uninstall(packageName: String): Intent {
-        val receiver = LocalIntentReceiver()
+    suspend fun uninstall(packageName: String) = IntentReceiverCompat.build { sender ->
         get().uninstall(
             VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
             installerPackageName,
             0,
-            receiver.intentSender,
+            sender,
             userId
         )
-
-        return receiver.result
     }
 
     interface SessionCallback {
@@ -209,11 +198,8 @@ class PackageInstallerDelegate(
             session.close()
         }
 
-        fun commit(): Intent {
-            val receiver = LocalIntentReceiver()
-            session.commit(receiver.intentSender, false)
-
-            return receiver.result
+        suspend fun commit() = IntentReceiverCompat.build { sender ->
+            session.commit(sender, false)
         }
 
         fun abandon() {
@@ -245,37 +231,6 @@ class PackageInstallerDelegate(
                 }
             }
         }
-    }
-
-    internal class LocalIntentReceiver {
-        private val mResult = LinkedBlockingQueue<Intent>()
-        private val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
-            override fun send(
-                code: Int,
-                intent: Intent,
-                resolvedType: String?,
-                whitelistToken: IBinder?,
-                finishedReceiver: IIntentReceiver?,
-                requiredPermission: String?,
-                options: Bundle?
-            ) {
-                try {
-                    mResult.offer(intent, 5, TimeUnit.SECONDS)
-                } catch (e: InterruptedException) {
-                    throw RuntimeException(e)
-                }
-            }
-        }
-
-        val intentSender: IntentSender get() =
-            Refine.unsafeCast(IntentSenderHidden(mLocalSender))
-
-        val result: Intent get() =
-            try {
-                mResult.take()
-            } catch (e: InterruptedException) {
-                throw RuntimeException(e)
-            }
     }
 
     companion object {
