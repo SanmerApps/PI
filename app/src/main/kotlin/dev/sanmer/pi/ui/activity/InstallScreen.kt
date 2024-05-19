@@ -57,9 +57,11 @@ import dev.sanmer.hidden.compat.content.bundle.SplitConfig
 import dev.sanmer.hidden.compat.content.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
+import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.utils.expandedShape
 import dev.sanmer.pi.viewmodel.InstallViewModel
+import dev.sanmer.pi.viewmodel.InstallViewModel.State
 
 @Composable
 fun InstallScreen(
@@ -80,17 +82,24 @@ fun InstallScreen(
         dragHandle = null
     ) {
         Crossfade(
-            targetState = viewModel.isReady,
+            targetState = viewModel.state,
             label = "InstallScreen"
-        ) { isReady ->
-            if (isReady) {
-                InstallContent(
+        ) { state ->
+            when (state) {
+                State.None -> Loading(minHeight = 300.dp)
+                State.InvalidProvider -> Failed(
+                    message = stringResource(id = R.string.install_invalid_provider),
+                    minHeight = 300.dp
+                )
+                State.InvalidPackage -> Failed(
+                    message = stringResource(id = R.string.install_invalid_package),
+                    minHeight = 300.dp
+                )
+                else -> InstallContent(
                     viewModel = viewModel,
                     onDeny = onDeny,
                     onFinish = onFinish
                 )
-            } else {
-                Loading(minHeight = 200.dp)
             }
         }
     }
@@ -117,7 +126,7 @@ private fun InstallContent(
     )
 
     when {
-        viewModel.isAppBundle -> {
+        viewModel.state == State.AppBundle -> {
             AppBundlesItem(
                 configs = viewModel.splitConfigs,
                 isRequiredConfig = viewModel::isRequiredConfig,

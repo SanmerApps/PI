@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.net.Uri
 import android.text.format.Formatter
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
@@ -64,22 +64,30 @@ class InstallViewModel @Inject constructor(
     val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
 
     private var apkSize = 0L
-    val formattedApkSize by lazy { Formatter.formatFileSize(context, apkSize) }
+    val formattedApkSize: String by lazy { Formatter.formatFileSize(context, apkSize) }
 
-    var isAppBundle = false
-        private set
     var splitConfigs = listOf<SplitConfig>()
         private set
     private val requiredConfigs = mutableStateListOf<SplitConfig>()
 
-    val isReady by derivedStateOf { archiveInfo.isNotEmpty && ProviderCompat.isAlive }
+    var state by mutableStateOf(State.None)
+        private set
 
-    suspend fun loadPackage(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+    init {
+        Timber.d("InstallViewModel init")
+    }
+
+    suspend fun loadPackage(uri: Uri) = withContext(Dispatchers.IO) {
         val userPreferences = userPreferencesRepository.data.first()
         val selfUpdate = userPreferences.selfUpdate
 
-        val sourcePackage = getSourcePackageForHost(uri)
-        val source = getPackageInfo(sourcePackage)
+        if (!ProviderCompat.init(userPreferences.provider)) {
+            state = State.InvalidProvider
+            return@withContext
+        }
+
+        val packageName = getSourcePackageForHost(uri)
+        val source = getPackageInfo(packageName)
         if (!source.isSystemApp) {
             isAuthorized = localRepository.getByPackageInfo(source)
             sourceInfo = source.toIPackageInfo(
@@ -88,31 +96,32 @@ class InstallViewModel @Inject constructor(
         }
 
         val path = context.copyToDir(uri, tempDir)
-        val packageInfo = PackageParserCompat.parsePackage(path, 0)
-        if (packageInfo != null) {
-            archiveInfo = packageInfo
+        PackageParserCompat.parsePackage(path, 0)?.let { pi ->
+            archiveInfo = pi
             archivePath = path
             apkSize = archivePath.length()
 
             isAuthorized = isAuthorized || (isSelf && selfUpdate)
-            isAppBundle = false
-        } else {
-            PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
-                archiveInfo = bi.baseInfo
-                archivePath = tempDir
-                apkSize = bi.baseFile.length()
-
-                isAppBundle = true
-                isAuthorized = false
-
-                splitConfigs = bi.splitConfigs
-                requiredConfigs.addAll(
-                    bi.splitConfigs.filter { it.isRequired() || it.isRecommended() }
-                )
-            }
+            state = State.Apk
+            return@withContext
         }
 
-        archiveInfo.isNotEmpty
+        PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
+            archiveInfo = bi.baseInfo
+            archivePath = tempDir
+            apkSize = bi.baseFile.length() + bi.splitFiles.sumOf { it.length() }
+
+            splitConfigs = bi.splitConfigs
+            requiredConfigs.addAll(
+                bi.splitConfigs.filter { it.isRequired() || it.isRecommended() }
+            )
+
+            isAuthorized = false
+            state = State.AppBundle
+            return@withContext
+        }
+
+        state = State.InvalidPackage
     }
 
     fun isRequiredConfig(config: SplitConfig): Boolean {
@@ -184,5 +193,13 @@ class InstallViewModel @Inject constructor(
                 packageName, 0, context.userId
             )
         }.getOrNull() ?: PackageInfo()
+    }
+
+    enum class State {
+        None,
+        InvalidProvider,
+        InvalidPackage,
+        Apk,
+        AppBundle
     }
 }

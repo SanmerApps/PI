@@ -71,6 +71,8 @@
     <string name="install_config_unspecified_title">Unspecified</string>
     <string name="install_button_install">Install</string>
     <string name="install_button_cancel">Cancel</string>
+    <string name="install_invalid_provider">Service is not available</string>
+    <string name="install_invalid_package">Package parsing failed</string>
 
     <!-- Dialog -->
     <string name="dialog_ok">OK</string>
