@@ -24,6 +24,7 @@ android {
         resourceConfigurations += arrayOf(
             "en",
             "ar",
+            "es",
             "fr",
             "iw",
             "pt",
