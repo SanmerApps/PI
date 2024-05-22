@@ -54,7 +54,6 @@ class PackageInstallerDelegate(
         return get().getSessionInfo(sessionId)
     }
 
-
     fun getAllSessions(): List<PackageInstaller.SessionInfo> {
         return get().getAllSessions(userId).list
     }
