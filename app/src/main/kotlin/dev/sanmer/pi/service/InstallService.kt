@@ -18,11 +18,11 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
+import dev.sanmer.pi.Compat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
-import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.ISessionInfo
 import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -45,10 +45,10 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     private val appIconLoader by lazy {
         AppIconLoader(45.dp, true, this)
     }
-    private val pmCompat get() = ProviderCompat.packageManager
+    private val pmCompat get() = Compat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
-            ProviderCompat::packageInstaller
+            Compat::packageInstaller
         )
     }
 

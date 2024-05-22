@@ -1,23 +1,20 @@
-package dev.sanmer.pi.compat
+package dev.sanmer.pi
 
 import android.os.Process
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import dev.sanmer.hidden.compat.ShizukuProvider
-import dev.sanmer.hidden.compat.SuProvider
+import dev.sanmer.hidden.compat.ServiceManagerCompat
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import dev.sanmer.hidden.compat.stub.IServiceManager
 import dev.sanmer.pi.datastore.Provider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-object ProviderCompat {
+object Compat {
     private var mServiceOrNull: IServiceManager? = null
     private val mService get() = checkNotNull(mServiceOrNull) {
         "IServiceManager haven't been received"
@@ -47,15 +44,12 @@ object ProviderCompat {
         return alive
     }
 
-    suspend fun init(provider: Provider) = withContext(Dispatchers.Main) {
-        if (isAlive) {
-            return@withContext true
-        }
-
-        try {
+    suspend fun init(provider: Provider) = when {
+        isAlive -> true
+        else -> try {
             mServiceOrNull = when (provider) {
-                Provider.Shizuku -> ShizukuProvider.launch()
-                Provider.Superuser -> SuProvider.launch()
+                Provider.Shizuku -> ServiceManagerCompat.fromShizuku()
+                Provider.Superuser -> ServiceManagerCompat.fromLibSu()
                 else -> null
             }
 
@@ -67,7 +61,7 @@ object ProviderCompat {
         }
     }
 
-    fun <T> get(fallback: T, block: ProviderCompat.() -> T): T {
+    fun <T> get(fallback: T, block: Compat.() -> T): T {
         return when {
             isAlive -> block(this)
             else -> fallback

@@ -8,9 +8,7 @@ import android.os.ParcelFileDescriptor
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 
 internal class PackageInstallerSessionCompatImpl(
-    private val sessionId: Int,
-    private val original: IPackageInstallerSession,
-    private val installer: IPackageInstaller
+    private val original: IPackageInstallerSession
 ) : IPackageInstallerSessionCompat.Stub() {
     override fun openWrite(
         name: String,
@@ -43,13 +41,5 @@ internal class PackageInstallerSessionCompatImpl(
 
     override fun abandon() {
         original.abandon()
-    }
-
-    override fun updateAppIcon(appIcon: Bitmap) {
-        installer.updateSessionAppIcon(sessionId, appIcon)
-    }
-
-    override fun updateAppLabel(appLabel: String) {
-        installer.updateSessionAppLabel(sessionId, appLabel)
     }
 }

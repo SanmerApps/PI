@@ -5,7 +5,6 @@ import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.VersionedPackage
-import android.graphics.Bitmap
 import android.os.FileBridge
 import android.os.ParcelFileDescriptor
 import android.system.Os
@@ -203,14 +202,6 @@ class PackageInstallerDelegate(
 
         fun abandon() {
             session.abandon()
-        }
-
-        fun updateAppIcon(appIcon: Bitmap) {
-            session.updateAppIcon(appIcon)
-        }
-
-        fun updateAppLabel(appLabel: String) {
-            session.updateAppLabel(appLabel)
         }
 
         fun writeApk(path: File) {

@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.UserHandleCompat
-import dev.sanmer.pi.compat.ProviderCompat
+import dev.sanmer.pi.Compat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.receiver.PackageReceiver
@@ -30,9 +30,9 @@ class AppsViewModel @Inject constructor(
     private val localRepository: LocalRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
-    private val pmCompat get() = ProviderCompat.packageManager
+    private val pmCompat get() = Compat.packageManager
 
-    private val isProviderAlive get() = ProviderCompat.isAlive
+    private val isProviderAlive get() = Compat.isAlive
 
     var isSearch by mutableStateOf(false)
         private set
@@ -55,7 +55,7 @@ class AppsViewModel @Inject constructor(
 
     private fun packagesObserver() {
         combine(
-            ProviderCompat.isAliveFlow,
+            Compat.isAliveFlow,
             PackageReceiver.eventFlow
         ) { isAlive, _ ->
             if (isAlive) loadData()

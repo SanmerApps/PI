@@ -18,8 +18,8 @@ import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.hidden.compat.PackageParserCompat
 import dev.sanmer.hidden.compat.content.bundle.SplitConfig
+import dev.sanmer.pi.Compat
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
-import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -44,7 +44,7 @@ class InstallViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
-    private val pmCompat get() = ProviderCompat.packageManager
+    private val pmCompat get() = Compat.packageManager
 
     private var archivePath = File("")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
@@ -81,7 +81,7 @@ class InstallViewModel @Inject constructor(
         val userPreferences = userPreferencesRepository.data.first()
         val selfUpdate = userPreferences.selfUpdate
 
-        if (!ProviderCompat.init(userPreferences.provider)) {
+        if (!Compat.init(userPreferences.provider)) {
             state = State.InvalidProvider
             return@withContext
         }

@@ -7,7 +7,7 @@ import android.os.SELinux
 import android.os.ServiceManager
 import android.system.Os
 import com.android.internal.app.IAppOpsService
-import dev.sanmer.hidden.compat.Const
+import dev.sanmer.hidden.compat.ServiceManagerCompat
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import dev.sanmer.hidden.compat.stub.IServiceManager
@@ -48,7 +48,7 @@ internal class ServiceManagerImpl : IServiceManager.Stub() {
     }
 
     override fun getVersion(): Int {
-        return Const.VERSION_CODE
+        return ServiceManagerCompat.VERSION_CODE
     }
 
     override fun getSELinuxContext(): String {
