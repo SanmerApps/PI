@@ -19,7 +19,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "PackageInstaller"
+rootProject.name = "PI"
 include(":app")
 include(":hidden-api")
 include(":compat")
