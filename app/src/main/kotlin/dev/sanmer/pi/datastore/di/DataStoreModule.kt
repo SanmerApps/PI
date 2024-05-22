@@ -9,7 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.sanmer.pi.datastore.UserPreferences
+import dev.sanmer.pi.datastore.UserPreferencesCompat
 import dev.sanmer.pi.datastore.UserPreferencesSerializer
 import javax.inject.Singleton
 
@@ -21,7 +21,7 @@ object DataStoreModule {
     fun providesUserPreferencesDataStore(
         @ApplicationContext context: Context,
         userPreferencesSerializer: UserPreferencesSerializer
-    ): DataStore<UserPreferences> =
+    ): DataStore<UserPreferencesCompat> =
         DataStoreFactory.create(
             serializer = userPreferencesSerializer
         ) {
