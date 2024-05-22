@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import dev.sanmer.hidden.compat.ServiceManagerCompat
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
-import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
 import dev.sanmer.hidden.compat.stub.IServiceManager
 import dev.sanmer.pi.datastore.Provider
@@ -28,7 +27,6 @@ object Compat {
 
     val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
     val packageManager: IPackageManagerCompat get() = mService.packageManager
-    val packageInstaller: IPackageInstallerCompat get() = packageManager.packageInstaller
 
     val version get() = mService.version
     val platform get() = when (mService.uid) {

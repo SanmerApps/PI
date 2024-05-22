@@ -29,7 +29,7 @@ class SessionsViewModel @Inject constructor(
     private val pmCompat get() = Compat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
-            Compat::packageInstaller
+            pmCompat.packageInstaller
         )
     }
 

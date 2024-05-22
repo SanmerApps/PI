@@ -48,7 +48,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     private val pmCompat get() = Compat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
-            Compat::packageInstaller
+            pmCompat.packageInstaller
         )
     }
 

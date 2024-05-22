@@ -21,7 +21,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 class PackageInstallerDelegate(
-    private val get: () -> IPackageInstallerCompat
+    private val packageInstaller: IPackageInstallerCompat
 ) {
     private val userId = UserHandleCompat.myUserId()
     private var installerPackageName = DEFAULT_INSTALLER
@@ -35,7 +35,7 @@ class PackageInstallerDelegate(
     }
 
     fun createSession(params: PackageInstaller.SessionParams): Int {
-        return get().createSession(
+        return packageInstaller.createSession(
             params,
             installerPackageName,
             installerAttributionTag,
@@ -45,16 +45,16 @@ class PackageInstallerDelegate(
 
     fun openSession(sessionId: Int): Session {
         return Session(
-            session = get().openSession(sessionId)
+            session = packageInstaller.openSession(sessionId)
         )
     }
 
     fun getSessionInfo(sessionId: Int): PackageInstaller.SessionInfo? {
-        return get().getSessionInfo(sessionId)
+        return packageInstaller.getSessionInfo(sessionId)
     }
 
     fun getAllSessions(): List<PackageInstaller.SessionInfo> {
-        return get().getAllSessions(userId).list
+        return packageInstaller.getAllSessions(userId).list
     }
 
     fun getMySessions(): List<PackageInstaller.SessionInfo> {
@@ -73,19 +73,19 @@ class PackageInstallerDelegate(
 
     fun registerCallback(callback: SessionCallback) {
         val delegate = SessionCallbackDelegate(callback)
-        get().registerCallback(delegate, userId)
+        packageInstaller.registerCallback(delegate, userId)
         mDelegates.add(delegate)
     }
 
     fun unregisterCallback(callback: SessionCallback) {
         val delegate = mDelegates.find { it.mCallback == callback }
         if (delegate != null) {
-            get().unregisterCallback(delegate)
+            packageInstaller.unregisterCallback(delegate)
         }
     }
 
     suspend fun uninstall(packageName: String) = IntentReceiverCompat.build { sender ->
-        get().uninstall(
+        packageInstaller.uninstall(
             VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
             installerPackageName,
             0,
