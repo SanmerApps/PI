@@ -36,11 +36,5 @@ data class UserPreferencesCompat(
             executor = BuildConfig.APPLICATION_ID,
             selfUpdate = true
         )
-
-        fun UserPreferences.new(
-            block: UserPreferencesKt.Dsl.() -> Unit
-        ) = UserPreferencesCompat(this)
-            .toProto()
-            .copy(block)
     }
 }
