@@ -7,6 +7,4 @@ interface IPackageInstallerSessionCompat {
     void close();
     void commit(in IntentSender statusReceiver, boolean forTransferred);
     void abandon();
-    void updateAppIcon(in Bitmap appIcon);
-    void updateAppLabel(String appLabel);
 }

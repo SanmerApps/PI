@@ -34,9 +34,7 @@ internal class PackageInstallerCompatImpl(
 
     override fun openSession(sessionId: Int): IPackageInstallerSessionCompat {
         return PackageInstallerSessionCompatImpl(
-            sessionId = sessionId,
-            original = original.openSession(sessionId),
-            installer = original
+            original = original.openSession(sessionId)
         )
     }
 

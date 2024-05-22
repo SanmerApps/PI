@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.compat.ProviderCompat
+import dev.sanmer.pi.Compat
 import dev.sanmer.pi.model.ISessionInfo
 import dev.sanmer.pi.repository.LocalRepository
 import kotlinx.coroutines.Dispatchers
@@ -26,14 +26,14 @@ import javax.inject.Inject
 class SessionsViewModel @Inject constructor(
     private val localRepository: LocalRepository
 ) : ViewModel(), PackageInstallerDelegate.SessionCallback {
-    private val pmCompat get() = ProviderCompat.packageManager
+    private val pmCompat get() = Compat.packageManager
     private val delegate by lazy {
         PackageInstallerDelegate(
-            ProviderCompat::packageInstaller
+            Compat::packageInstaller
         )
     }
 
-    val isProviderAlive get() = ProviderCompat.isAlive
+    val isProviderAlive get() = Compat.isAlive
 
     private val sessionsFlow = MutableStateFlow(listOf<ISessionInfo>())
     val sessions get() = sessionsFlow.asStateFlow()
@@ -58,7 +58,7 @@ class SessionsViewModel @Inject constructor(
     }
 
     private fun providerObserver() {
-        ProviderCompat.isAliveFlow
+        Compat.isAliveFlow
             .onEach {
                 if (it) loadData()
 

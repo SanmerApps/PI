@@ -20,8 +20,8 @@ import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.BuildConfig
+import dev.sanmer.pi.Compat
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.ProviderCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.LocalRepository
@@ -48,10 +48,10 @@ class AppViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val pmCompat get() = ProviderCompat.packageManager
+    private val pmCompat get() = Compat.packageManager
     private val delegate by lazy {
         AppOpsManagerDelegate(
-            ProviderCompat::appOpsService
+            Compat::appOpsService
         )
     }
 
@@ -189,10 +189,10 @@ class AppViewModel @Inject constructor(
         private val packageInfo: IPackageInfo,
         private val refresh: () -> Unit
     ) {
-        private val pmCompat get() = ProviderCompat.packageManager
+        private val pmCompat get() = Compat.packageManager
         private val delegate by lazy {
             PackageInstallerDelegate(
-                ProviderCompat::packageInstaller
+                Compat::packageInstaller
             )
         }
 

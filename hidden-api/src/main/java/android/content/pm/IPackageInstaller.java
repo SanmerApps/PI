@@ -1,7 +1,6 @@
 package android.content.pm;
 
 import android.content.IntentSender;
-import android.graphics.Bitmap;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.IInterface;
@@ -15,10 +14,6 @@ public interface IPackageInstaller extends IInterface {
 
     @RequiresApi(31)
     int createSession(PackageInstaller.SessionParams params, String installerPackageName, String installerAttributionTag, int userId);
-
-    void updateSessionAppIcon(int sessionId, Bitmap appIcon);
-
-    void updateSessionAppLabel(int sessionId, String appLabel);
 
     IPackageInstallerSession openSession(int sessionId) throws RemoteException;
 

@@ -3,7 +3,6 @@ package dev.sanmer.hidden.compat.stub;
 import android.content.pm.ParceledListSlice;
 import android.content.pm.PackageInstaller;
 import android.content.pm.VersionedPackage;
-import android.os.ParcelFileDescriptor;
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat;
 import dev.sanmer.hidden.compat.stub.ISessionCallback;
 
