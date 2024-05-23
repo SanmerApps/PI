@@ -35,11 +35,11 @@ object Compat {
         else -> "unknown"
     }
 
-    private fun state(alive: Boolean): Boolean {
-        isAlive = alive
-        _isAliveFlow.value = alive
+    private fun state(): Boolean {
+        isAlive = mServiceOrNull != null
+        _isAliveFlow.value = isAlive
 
-        return alive
+        return isAlive
     }
 
     suspend fun init(provider: Provider) = when {
@@ -51,11 +51,12 @@ object Compat {
                 else -> null
             }
 
-            state(true)
+            state()
         } catch (e: Exception) {
             Timber.e(e)
 
-            state(false)
+            mServiceOrNull= null
+            state()
         }
     }
 
