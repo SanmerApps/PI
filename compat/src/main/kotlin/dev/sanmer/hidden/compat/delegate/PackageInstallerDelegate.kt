@@ -145,7 +145,7 @@ class PackageInstallerDelegate(
 
             val INSTALL_ALLOW_TEST get() = PackageManagerHidden.INSTALL_ALLOW_TEST
 
-            val INSTALL_REQUEST_DOWNGRADE  get() = PackageManagerHidden.INSTALL_REQUEST_DOWNGRADE
+            val INSTALL_REQUEST_DOWNGRADE get() = PackageManagerHidden.INSTALL_REQUEST_DOWNGRADE
 
             @get:RequiresApi(34)
             val INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK get() = PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK

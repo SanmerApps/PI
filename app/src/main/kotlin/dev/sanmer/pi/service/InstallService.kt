@@ -176,7 +176,9 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {
-        val params = PackageInstallerDelegate.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        val params = PackageInstallerDelegate.SessionParams(
+            PackageInstaller.SessionParams.MODE_FULL_INSTALL
+        )
 
         params.installFlags = with(PackageInstallerDelegate.SessionParams) {
             val flags = params.installFlags or
