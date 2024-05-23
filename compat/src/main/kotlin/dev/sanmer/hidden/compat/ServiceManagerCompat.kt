@@ -27,9 +27,8 @@ object ServiceManagerCompat {
 
     private val context by lazy { ContextDelegate.getContext() }
 
-    init {
+    fun setHiddenApiExemptions() =
         HiddenApiBypass.addHiddenApiExemptions("")
-    }
 
     interface IProvider {
         val name: String

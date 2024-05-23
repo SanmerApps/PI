@@ -4,6 +4,7 @@ import android.app.Application
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import dagger.hilt.android.HiltAndroidApp
+import dev.sanmer.hidden.compat.ServiceManagerCompat
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.timber.DebugTree
@@ -25,6 +26,7 @@ class App : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
+        ServiceManagerCompat.setHiddenApiExemptions()
         NotificationUtils.init(this)
     }
 
