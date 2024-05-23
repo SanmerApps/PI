@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import rikka.shizuku.Shizuku
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -25,6 +26,10 @@ object ServiceManagerCompat {
     private const val TIMEOUT_MILLIS = 15_000L
 
     private val context by lazy { ContextDelegate.getContext() }
+
+    init {
+        HiddenApiBypass.addHiddenApiExemptions("")
+    }
 
     interface IProvider {
         val name: String

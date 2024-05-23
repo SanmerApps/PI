@@ -124,10 +124,6 @@ dependencies {
     implementation(libs.protobuf.kotlin.lite)
     implementation(libs.timber)
 
-    implementation(libs.rikka.shizuku.api)
-    implementation(libs.rikka.shizuku.provider)
-    implementation(libs.hiddenApiBypass)
-
     implementation(libs.appiconloader)
     implementation(libs.appiconloader.coil)
     implementation(libs.coil.kt)
