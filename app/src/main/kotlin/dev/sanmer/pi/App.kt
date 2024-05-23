@@ -10,7 +10,6 @@ import dev.sanmer.pi.utils.timber.DebugTree
 import dev.sanmer.pi.utils.timber.ReleaseTree
 import me.zhanghai.android.appiconloader.coil.AppIconFetcher
 import me.zhanghai.android.appiconloader.coil.AppIconKeyer
-import org.lsposed.hiddenapibypass.HiddenApiBypass
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -26,7 +25,6 @@ class App : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
-        HiddenApiBypass.addHiddenApiExemptions("")
         NotificationUtils.init(this)
     }
 
