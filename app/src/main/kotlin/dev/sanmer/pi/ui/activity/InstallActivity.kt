@@ -1,15 +1,16 @@
 package dev.sanmer.pi.ui.activity
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
@@ -17,6 +18,7 @@ import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
 import dev.sanmer.pi.viewmodel.InstallViewModel
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -33,6 +35,8 @@ class InstallActivity : ComponentActivity() {
 
         if (intent.data == null) {
             finish()
+        } else {
+            initPackage(intent)
         }
 
         if (BuildCompat.atLeastT) {
@@ -54,12 +58,6 @@ class InstallActivity : ComponentActivity() {
                 checkNotNull(userPreferences)
             }
 
-            LaunchedEffect(true) {
-                viewModel.loadPackage(
-                    checkNotNull(intent.data)
-                )
-            }
-
             CompositionLocalProvider(
                 LocalUserPreferences provides preferences
             ) {
@@ -78,5 +76,15 @@ class InstallActivity : ComponentActivity() {
         Timber.d("InstallActivity onDestroy")
         setResult(RESULT_OK)
         super.onDestroy()
+    }
+
+    private fun initPackage(intent: Intent) = with(viewModel) {
+        lifecycleScope.launch {
+            loadPackage(checkNotNull(intent.data))
+            if (isAuthorized) {
+                startInstall()
+                finish()
+            }
+        }
     }
 }
