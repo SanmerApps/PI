@@ -11,8 +11,8 @@ import android.system.Os
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
+import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.IntentReceiverCompat
-import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 import dev.sanmer.hidden.compat.stub.ISessionCallback
@@ -23,9 +23,9 @@ import java.io.OutputStream
 class PackageInstallerDelegate(
     private val packageInstaller: IPackageInstallerCompat
 ) {
-    private val userId = UserHandleCompat.myUserId()
-    private var installerPackageName = DEFAULT_INSTALLER
-    private var installerAttributionTag = DEFAULT_INSTALLER
+    private val context = ContextDelegate.getContext()
+    private var installerPackageName = context.packageName
+    private var installerAttributionTag = context.packageName
 
     private val mDelegates = mutableListOf<SessionCallbackDelegate>()
 
@@ -39,7 +39,7 @@ class PackageInstallerDelegate(
             params,
             installerPackageName,
             installerAttributionTag,
-            userId
+            context.userId
         )
     }
 
@@ -54,7 +54,7 @@ class PackageInstallerDelegate(
     }
 
     fun getAllSessions(): List<PackageInstaller.SessionInfo> {
-        return packageInstaller.getAllSessions(userId).list
+        return packageInstaller.getAllSessions(context.userId).list
     }
 
     fun getMySessions(): List<PackageInstaller.SessionInfo> {
@@ -73,7 +73,7 @@ class PackageInstallerDelegate(
 
     fun registerCallback(callback: SessionCallback) {
         val delegate = SessionCallbackDelegate(callback)
-        packageInstaller.registerCallback(delegate, userId)
+        packageInstaller.registerCallback(delegate, context.userId)
         mDelegates.add(delegate)
     }
 
@@ -90,7 +90,7 @@ class PackageInstallerDelegate(
             installerPackageName,
             0,
             sender,
-            userId
+            context.userId
         )
     }
 
@@ -128,15 +128,14 @@ class PackageInstallerDelegate(
         override fun onFinished(sessionId: Int, success: Boolean) {
             mCallback.onFinished(sessionId, success)
         }
-
     }
 
     class SessionParams(
-        private val mode: Int
+        mode: Int
     ): PackageInstaller.SessionParams(mode) {
         var installFlags: Int
             get() = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this).installFlags
-            set(flags: Int) = with(Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)) {
+            set(flags) = with(Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)) {
                 installFlags = installFlags or flags
             }
 
@@ -216,14 +215,8 @@ class PackageInstallerDelegate(
         fun writeApks(path: File, filenames: List<String>) {
             filenames.forEach { name ->
                 val file = File(path, name)
-                if (file.exists() && file.length() != 0L) {
-                    writeApk(file)
-                }
+                if (file.exists()) writeApk(file)
             }
         }
-    }
-
-    companion object {
-        const val DEFAULT_INSTALLER = "com.android.shell"
     }
 }
