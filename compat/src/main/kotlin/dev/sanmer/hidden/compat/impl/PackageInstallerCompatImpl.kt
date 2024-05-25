@@ -9,7 +9,7 @@ import android.content.pm.VersionedPackage
 import android.os.IBinder
 import android.os.IInterface
 import dev.sanmer.hidden.compat.BuildCompat
-import dev.sanmer.hidden.compat.delegate.PackageInstallerCallbackDelegate
+import dev.sanmer.hidden.compat.proxy.PackageInstallerCallbackProxy
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 import dev.sanmer.hidden.compat.stub.ISessionCallback
@@ -17,7 +17,7 @@ import dev.sanmer.hidden.compat.stub.ISessionCallback
 internal class PackageInstallerCompatImpl(
     private val original: IPackageInstaller
 ) : IPackageInstallerCompat.Stub() {
-    private val mCallbacks = mutableMapOf<IBinder, IInterface>()
+    private val callbacks = mutableMapOf<IBinder, IInterface>()
 
     override fun createSession(
         params: PackageInstaller.SessionParams,
@@ -49,16 +49,16 @@ internal class PackageInstallerCompatImpl(
 
     override fun registerCallback(callback: ISessionCallback, userId: Int) {
         val binder = callback.asBinder()
-        val delegate = PackageInstallerCallbackDelegate(callback)
-        mCallbacks[binder] = delegate
-        original.registerCallback(delegate, userId)
+        val proxy = PackageInstallerCallbackProxy(callback)
+        callbacks[binder] = proxy
+        original.registerCallback(proxy, userId)
     }
 
     override fun unregisterCallback(callback: ISessionCallback) {
         val binder = callback.asBinder()
-        val delegate = mCallbacks.remove(binder)
-        if (delegate is IPackageInstallerCallback) {
-            original.unregisterCallback(delegate)
+        val proxy = callbacks.remove(binder)
+        if (proxy is IPackageInstallerCallback) {
+            original.unregisterCallback(proxy)
         }
     }
 

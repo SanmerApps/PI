@@ -10,12 +10,8 @@ public interface IIntentSender extends IInterface {
               IIntentReceiver finishedReceiver, String requiredPermission, Bundle options);
 
     abstract class Stub extends Binder implements IIntentSender {
-        public Stub() {
-            throw new RuntimeException("Stub!");
-        }
-
         @Override
-        public android.os.IBinder asBinder() {
+        public IBinder asBinder() {
             throw new RuntimeException("Stub!");
         }
     }
