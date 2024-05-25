@@ -5,14 +5,13 @@ import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.VersionedPackage
-import android.os.FileBridge
 import android.os.ParcelFileDescriptor
-import android.system.Os
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.hidden.compat.BuildCompat
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.IntentReceiverCompat
+import dev.sanmer.hidden.compat.proxy.PackageInstallerSessionProxy
 import dev.sanmer.hidden.compat.stub.IPackageInstallerCompat
 import dev.sanmer.hidden.compat.stub.IPackageInstallerSessionCompat
 import dev.sanmer.hidden.compat.stub.ISessionCallback
@@ -27,7 +26,7 @@ class PackageInstallerDelegate(
     private var installerPackageName = context.packageName
     private var installerAttributionTag = context.packageName
 
-    private val mDelegates = mutableListOf<SessionCallbackDelegate>()
+    private val delegates = mutableListOf<SessionCallbackDelegate>()
 
     fun setInstallerPackageName(packageName: String) {
         installerPackageName = packageName
@@ -74,11 +73,11 @@ class PackageInstallerDelegate(
     fun registerCallback(callback: SessionCallback) {
         val delegate = SessionCallbackDelegate(callback)
         packageInstaller.registerCallback(delegate, context.userId)
-        mDelegates.add(delegate)
+        delegates.add(delegate)
     }
 
     fun unregisterCallback(callback: SessionCallback) {
-        val delegate = mDelegates.find { it.mCallback == callback }
+        val delegate = delegates.find { it.callback == callback }
         if (delegate != null) {
             packageInstaller.unregisterCallback(delegate)
         }
@@ -107,36 +106,40 @@ class PackageInstallerDelegate(
     }
 
     internal class SessionCallbackDelegate(
-        val mCallback: SessionCallback
+        val callback: SessionCallback
     ) : ISessionCallback.Stub() {
         override fun onCreated(sessionId: Int) {
-            mCallback.onCreated(sessionId)
+            callback.onCreated(sessionId)
         }
 
         override fun onBadgingChanged(sessionId: Int) {
-            mCallback.onBadgingChanged(sessionId)
+            callback.onBadgingChanged(sessionId)
         }
 
         override fun onActiveChanged(sessionId: Int, active: Boolean) {
-            mCallback.onActiveChanged(sessionId, active)
+            callback.onActiveChanged(sessionId, active)
         }
 
         override fun onProgressChanged(sessionId: Int, progress: Float) {
-            mCallback.onProgressChanged(sessionId, progress)
+            callback.onProgressChanged(sessionId, progress)
         }
 
         override fun onFinished(sessionId: Int, success: Boolean) {
-            mCallback.onFinished(sessionId, success)
+            callback.onFinished(sessionId, success)
         }
     }
 
     class SessionParams(
         mode: Int
     ): PackageInstaller.SessionParams(mode) {
+        private val original by lazy {
+            Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)
+        }
+
         var installFlags: Int
-            get() = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this).installFlags
-            set(flags) = with(Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)) {
-                installFlags = installFlags or flags
+            get() = original.installFlags
+            set(flags) {
+                original.installFlags = installFlags or flags
             }
 
         companion object {
@@ -154,53 +157,42 @@ class PackageInstallerDelegate(
     class Session(
         private val session: IPackageInstallerSessionCompat
     ) {
+        private val proxy by lazy {
+            PackageInstallerSessionProxy(session)
+        }
+
+        private val original: PackageInstaller.Session by lazy {
+            Refine.unsafeCast(
+                PackageInstallerHidden.SessionHidden(proxy)
+            )
+        }
+
         fun openWrite(name: String, offsetBytes: Long, lengthBytes: Long): OutputStream {
-            return if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
-                ParcelFileDescriptor.AutoCloseOutputStream(
-                    session.openWrite(name, offsetBytes, lengthBytes)
-                )
-            } else {
-                FileBridge.FileBridgeOutputStream(
-                    session.openWrite(name, offsetBytes, lengthBytes)
-                )
-            }
+            return original.openWrite(name, offsetBytes, lengthBytes)
         }
 
         fun fsync(out: OutputStream) {
-            if (PackageInstallerHidden.ENABLE_REVOCABLE_FD) {
-                if (out is ParcelFileDescriptor.AutoCloseOutputStream) {
-                    Os.fsync(out.fd)
-                } else {
-                    throw IllegalArgumentException("Unrecognized stream")
-                }
-            } else {
-                if (out is FileBridge.FileBridgeOutputStream) {
-                    out.fsync()
-                } else {
-                    throw IllegalArgumentException("Unrecognized stream")
-                }
-            }
+            original.fsync(out)
         }
 
         fun write(name: String, offsetBytes: Long, lengthBytes: Long, fd: ParcelFileDescriptor) {
-            session.write(name, offsetBytes, lengthBytes, fd);
+            session.write(name, offsetBytes, lengthBytes, fd)
         }
 
         fun openRead(name: String): InputStream {
-            val pfd: ParcelFileDescriptor = session.openRead(name)
-            return ParcelFileDescriptor.AutoCloseInputStream(pfd)
+            return original.openRead(name)
         }
 
         fun close() {
-            session.close()
+            original.close()
         }
 
         suspend fun commit() = IntentReceiverCompat.build { sender ->
-            session.commit(sender, false)
+            original.commit(sender)
         }
 
         fun abandon() {
-            session.abandon()
+            original.abandon()
         }
 
         fun writeApk(path: File) {

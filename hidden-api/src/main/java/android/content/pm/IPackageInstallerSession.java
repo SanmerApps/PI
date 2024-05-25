@@ -22,8 +22,8 @@ public interface IPackageInstallerSession extends IInterface {
     void abandon() throws RemoteException;
 
     abstract class Stub extends Binder implements IPackageInstallerSession {
-
-        public static IPackageInstallerSession asInterface(IBinder binder) {
+        @Override
+        public IBinder asBinder() {
             throw new RuntimeException("Stub!");
         }
     }

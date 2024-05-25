@@ -1,28 +1,28 @@
-package dev.sanmer.hidden.compat.delegate
+package dev.sanmer.hidden.compat.proxy
 
 import android.content.pm.IPackageInstallerCallback
 import dev.sanmer.hidden.compat.stub.ISessionCallback
 
-internal class PackageInstallerCallbackDelegate(
-    private val mCallback: ISessionCallback
+internal class PackageInstallerCallbackProxy(
+    private val callback: ISessionCallback
 ) : IPackageInstallerCallback.Stub() {
     override fun onSessionCreated(sessionId: Int) {
-        mCallback.onCreated(sessionId)
+        callback.onCreated(sessionId)
     }
 
     override fun onSessionBadgingChanged(sessionId: Int) {
-        mCallback.onBadgingChanged(sessionId)
+        callback.onBadgingChanged(sessionId)
     }
 
     override fun onSessionActiveChanged(sessionId: Int, active: Boolean) {
-        mCallback.onActiveChanged(sessionId, active)
+        callback.onActiveChanged(sessionId, active)
     }
 
     override fun onSessionProgressChanged(sessionId: Int, progress: Float) {
-        mCallback.onProgressChanged(sessionId, progress)
+        callback.onProgressChanged(sessionId, progress)
     }
 
     override fun onSessionFinished(sessionId: Int, success: Boolean) {
-        mCallback.onFinished(sessionId, success)
+        callback.onFinished(sessionId, success)
     }
 }

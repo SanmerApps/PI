@@ -5,8 +5,6 @@ import dev.rikka.tools.refine.RefineAs;
 @RefineAs(PackageInstaller.class)
 public class PackageInstallerHidden {
 
-    public static boolean ENABLE_REVOCABLE_FD;
-
     @RefineAs(PackageInstaller.SessionParams.class)
     public static class SessionParamsHidden {
         public int installFlags;
@@ -15,5 +13,12 @@ public class PackageInstallerHidden {
     @RefineAs(PackageInstaller.SessionInfo.class)
     public static class SessionInfoHidden {
         public int userId;
+    }
+
+    @RefineAs(PackageInstaller.Session.class)
+    public static class SessionHidden {
+        public SessionHidden(IPackageInstallerSession session) {
+            throw new RuntimeException("Stub!");
+        }
     }
 }
