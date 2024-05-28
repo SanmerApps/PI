@@ -31,7 +31,7 @@
     <string name="settings_self_update">Autoatualização</string>
     <string name="settings_self_update_desc">Permite que o próprio app solicite atualizações automaticamente</string>
     <string name="details_requester_desc">O app em nome do qual o pacote inicial solicitou a instalação (o solicitante registrado).</string>
-    <string name="page_apps">Aplicativos</string>
+    <string name="page_apps">Apps</string>
     <string name="page_sessions">Sessões</string>
     <string name="apps_authorized">Autorizado</string>
     <string name="apps_requester">Solicitante</string>
@@ -66,6 +66,6 @@
     <string name="details_executor_desc">O app responsável pela instalação (o instalador registrado).</string>
     <string name="sessions_dialog_desc2">Dica: Algumas sessões podem não ser excluídas devido à restrição do sistema.</string>
     <string name="details_request_install_self">Permite que este app instale pacotes pelo PI. Isso significa que você não verá a caixa de diálogo de instalação (exceto para `App Bundle`).</string>
-    <string name="install_invalid_package">Falha na análise de pacotes</string>
+    <string name="install_invalid_package">Falha na análise do pacote</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
 </resources>
