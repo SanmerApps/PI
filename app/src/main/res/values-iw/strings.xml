@@ -66,4 +66,6 @@
     <string name="install_button_install">התקנה</string>
     <string name="install_config_unspecified_title">לא מוגדר</string>
     <string name="install_config_language_title">שפה</string>
+    <string name="install_invalid_provider">השירות אינו זמין</string>
+    <string name="install_invalid_package">ניתוח החבילה כשל</string>
 </resources>
