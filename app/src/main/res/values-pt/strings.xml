@@ -66,4 +66,6 @@
     <string name="details_requester_desc">O app em nome do qual o pacote inicial solicitou a instalação (o solicitante registrado).</string>
     <string name="details_executor_desc">O app responsável pela instalação (o instalador registrado).</string>
     <string name="sessions_dialog_desc2">Nota: Algumas sessões podem não ser excluídas devido à restrição do sistema.</string>
+    <string name="install_invalid_provider">O serviço não está disponível</string>
+    <string name="install_invalid_package">Falha na análise do pacote</string>
 </resources>
