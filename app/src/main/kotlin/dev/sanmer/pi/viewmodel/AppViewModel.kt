@@ -59,6 +59,10 @@ class AppViewModel @Inject constructor(
     private val packageInfoFlow = MutableStateFlow(packageInfoInner)
     var packageInfo by mutableStateOf(packageInfoFlow.value)
         private set
+    var isRequester by mutableStateOf(false)
+        private set
+    var isExecutor by mutableStateOf(false)
+        private set
 
     val appOps by lazy {
         AppOps(
@@ -94,10 +98,9 @@ class AppViewModel @Inject constructor(
             userPreferencesRepository.data,
             packageInfoFlow
         ) { preferences, pi ->
-            packageInfo = pi.copy(
-                isRequester = preferences.requester == packageName,
-                isExecutor = preferences.executor == packageName
-            )
+            packageInfo = pi
+            isRequester = preferences.requester == packageName
+            isExecutor = preferences.executor == packageName
 
         }.launchIn(viewModelScope)
     }
@@ -106,9 +109,6 @@ class AppViewModel @Inject constructor(
         opInstallPackage.modeFlow
             .onEach {
                 opInstallPackageAllowed = it.isAllowed()
-                packageInfo = packageInfo.copy(
-                    isAuthorized = it.isAllowed()
-                )
 
             }.launchIn(viewModelScope)
     }
@@ -120,7 +120,7 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun setRequester(current: Boolean) {
+    fun toggleRequester(current: Boolean) {
         if (!current) return
 
         viewModelScope.launch {
@@ -128,7 +128,7 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun setExecutor(current: Boolean) {
+    fun toggleExecutor(current: Boolean) {
         if (!current) return
 
         viewModelScope.launch {

@@ -91,16 +91,16 @@ fun DetailsScreen(
                 icon = R.drawable.file_unknown,
                 title = stringResource(id = R.string.details_requester_title),
                 desc = stringResource(id = R.string.details_requester_desc),
-                checked = viewModel.packageInfo.isRequester,
-                onChange = viewModel::setRequester
+                checked = viewModel.isRequester,
+                onChange = viewModel::toggleRequester
             )
 
             SettingSwitchItem(
                 icon = R.drawable.code,
                 title = stringResource(id = R.string.details_executor_title),
                 desc = stringResource(id = R.string.details_executor_desc),
-                checked = viewModel.packageInfo.isExecutor,
-                onChange = viewModel::setExecutor
+                checked = viewModel.isExecutor,
+                onChange = viewModel::toggleExecutor
             )
         }
     }
