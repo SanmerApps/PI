@@ -12,9 +12,6 @@
     <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
 
     <!-- Apps -->
-    <string name="apps_authorized">Authorized</string>
-    <string name="apps_requester">Requester</string>
-    <string name="apps_executor">Executor</string>
     <string name="app_dialog_desc1">Do you want to uninstall this app?</string>
     <string name="app_dialog_desc2">Tip: This will only uninstall updates if it is a system app.</string>
 

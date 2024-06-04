@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="apps_authorized">Autorizado</string>
-    <string name="apps_requester">Solicitante</string>
-    <string name="apps_executor">Ejecutor</string>
     <string name="app_dialog_desc1">¿Quieres desinstalar esta aplicación?</string>
     <string name="details_system_title">Sistema</string>
     <string name="details_request_install">Solicitar paquete de instalación</string>

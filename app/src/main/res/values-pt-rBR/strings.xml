@@ -29,9 +29,6 @@
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
     <string name="details_requester_desc">O app em nome do qual o pacote inicial solicitou a instalação (o solicitante registrado).</string>
-    <string name="apps_authorized">Autorizado</string>
-    <string name="apps_requester">Solicitante</string>
-    <string name="apps_executor">Executor</string>
     <string name="app_dialog_desc1">Deseja desinstalar este app?</string>
     <string name="app_dialog_desc2">Dica: Isso só desinstalará as atualizações se for um app do sistema.</string>
     <string name="details_system_title">Sistema</string>

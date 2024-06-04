@@ -3,13 +3,10 @@
     <string name="details_request_install_system">אפשר לאפליקציה זו לבקש להתקין חבילות. אפליקציות המשתמשות ב-APIs מעל גרסה 25 חייבות בהרשאה זו כדי להשתמש ב- `Intent.ACTION_INSTALL_PACKAGE`.</string>
     <string name="details_requester_desc">האפליקציה שדרשה התקנה של אפליקציה אחרת (מבקשת ההתקנה הרשומה).</string>
     <string name="setup_title">שיטת פעולה</string>
-    <string name="apps_requester">מבקש</string>
-    <string name="apps_executor">מבצע</string>
     <string name="details_request_install">בקש חבילת התקנה</string>
     <string name="details_executor_title">מבצעת ההתקנה</string>
     <string name="details_requester_title">מבקשת ההתקנה</string>
     <string name="details_executor_desc">האפליקציה שבפועל ביצעה את ההתקנה (מבצעת ההתקנה הרשומה).</string>
-    <string name="apps_authorized">מאושר</string>
     <string name="install_activity">התקנה</string>
     <string name="page_settings">הגדרות</string>
     <string name="setup_shizuku_desc">דורש הרשאות המסופקות על ידי Sui או Shizuku</string>

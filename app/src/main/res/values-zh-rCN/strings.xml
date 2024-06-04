@@ -12,9 +12,6 @@
     <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
 
     <!-- Apps -->
-    <string name="apps_authorized">已授权</string>
-    <string name="apps_requester">请求者</string>
-    <string name="apps_executor">执行者</string>
     <string name="app_dialog_desc1">你想要卸载这个应用吗?</string>
     <string name="app_dialog_desc2">提示: 对于系统应用, 这只会卸载更新.</string>
 

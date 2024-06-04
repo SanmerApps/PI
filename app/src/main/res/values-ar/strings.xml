@@ -28,9 +28,6 @@
     <string name="install_config_abi_title">ABI</string>
     <string name="settings_dynamic_color_desc">إستخدام لون مظهر النظام (Android 12+)</string>
     <string name="setup_root_desc">يتطلب أذونات الجذر التي يوفرها Magisk أو KernelSU</string>
-    <string name="apps_authorized">مصرح به</string>
-    <string name="apps_requester">طالب</string>
-    <string name="apps_executor">منفذ</string>
     <string name="app_dialog_desc1">هل تريد إلغاء تثبيت هذا التطبيق؟</string>
     <string name="app_dialog_desc2">معلومة: سيؤدي هذا إلى إلغاء تثبيت التحديثات فقط إذا كان تطبيق نظام.</string>
     <string name="details_system_title">النظام</string>
