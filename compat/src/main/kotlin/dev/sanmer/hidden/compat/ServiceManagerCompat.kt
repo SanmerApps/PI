@@ -21,7 +21,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 object ServiceManagerCompat {
-    internal const val VERSION_CODE = 50
+    internal const val VERSION_CODE = 62
 
     private const val TIMEOUT_MILLIS = 15_000L
 
