@@ -10,14 +10,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
-import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
 import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.hidden.compat.PackageParserCompat
 import dev.sanmer.hidden.compat.content.bundle.SplitConfig
+import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
+import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.VersionCompat
@@ -28,7 +28,6 @@ import dev.sanmer.pi.service.InstallService
 import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
@@ -43,6 +42,11 @@ class InstallViewModel @Inject constructor(
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
     private val pmCompat get() = Compat.packageManager
+    private val aom by lazy {
+        AppOpsManagerDelegate(
+            Compat.appOpsService
+        )
+    }
 
     private var archivePath = File("")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
@@ -71,6 +75,14 @@ class InstallViewModel @Inject constructor(
     var state by mutableStateOf(State.None)
         private set
 
+    private val opInstallPackage by lazy {
+        aom.opPermission(
+            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+            uid = sourceInfo.applicationInfo.uid,
+            packageName = sourceInfo.packageName
+        )
+    }
+
     init {
         Timber.d("InstallViewModel init")
     }
@@ -87,9 +99,8 @@ class InstallViewModel @Inject constructor(
         val packageName = getSourcePackageForHost(uri)
         val source = getPackageInfo(packageName)
         if (!source.isSystemApp) {
-            isAuthorized = false
             sourceInfo = source.toIPackageInfo(
-                isAuthorized = isAuthorized
+                isAuthorized = source.isAuthorized()
             )
         }
 
@@ -134,15 +145,16 @@ class InstallViewModel @Inject constructor(
         }
     }
 
-    fun toggleAuthorized() {
-        if (sourceInfo.isEmpty) return
-
-        viewModelScope.launch {
-            sourceInfo = sourceInfo.let {
-                it.copy(isAuthorized = !it.isAuthorized)
+    fun toggleAuthorized() = with(opInstallPackage) {
+        when {
+            mode.isAllowed() -> {
+                ignore()
+                sourceInfo = sourceInfo.copy(isAuthorized = false)
             }
-
-            // TODO: Impl by AppOps
+            else -> {
+                allow()
+                sourceInfo = sourceInfo.copy(isAuthorized = true)
+            }
         }
     }
 
@@ -192,6 +204,12 @@ class InstallViewModel @Inject constructor(
             )
         }.getOrNull() ?: PackageInfo()
     }
+
+    private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
+        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+        uid = applicationInfo.uid,
+        packageName = packageName
+    ) == AppOpsManagerDelegate.MODE_ALLOWED
 
     enum class State {
         None,

@@ -45,7 +45,7 @@ class AppViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val pmCompat get() = Compat.packageManager
-    private val delegate by lazy {
+    private val aom by lazy {
         AppOpsManagerDelegate(
             Compat.appOpsService
         )
@@ -68,7 +68,7 @@ class AppViewModel @Inject constructor(
     }
 
     private val opInstallPackage by lazy {
-        delegate.opPermission(
+        aom.opPermission(
             op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
             uid = packageInfo.applicationInfo.uid,
             packageName = packageName
@@ -95,7 +95,6 @@ class AppViewModel @Inject constructor(
             packageInfoFlow
         ) { preferences, pi ->
             packageInfo = pi.copy(
-                isAuthorized = false, // TODO: Impl by AppOps
                 isRequester = preferences.requester == packageName,
                 isExecutor = preferences.executor == packageName
             )
@@ -107,6 +106,9 @@ class AppViewModel @Inject constructor(
         opInstallPackage.modeFlow
             .onEach {
                 opInstallPackageAllowed = it.isAllowed()
+                packageInfo = packageInfo.copy(
+                    isAuthorized = it.isAllowed()
+                )
 
             }.launchIn(viewModelScope)
     }
@@ -118,16 +120,16 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun setRequester(default: Boolean) {
-        if (default) return
+    fun setRequester(current: Boolean) {
+        if (!current) return
 
         viewModelScope.launch {
             userPreferencesRepository.setRequester(packageName)
         }
     }
 
-    fun setExecutor(default: Boolean) {
-        if (default) return
+    fun setExecutor(current: Boolean) {
+        if (!current) return
 
         viewModelScope.launch {
             userPreferencesRepository.setExecutor(packageName)

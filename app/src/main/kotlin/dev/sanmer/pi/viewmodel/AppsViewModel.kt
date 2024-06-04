@@ -8,7 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.hidden.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.hidden.compat.UserHandleCompat
+import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -27,22 +29,34 @@ import javax.inject.Inject
 @HiltViewModel
 class AppsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
-) : ViewModel() {
-    private val pmCompat get() = Compat.packageManager
-
+) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
     private val isProviderAlive get() = Compat.isAlive
+    private val pmCompat get() = Compat.packageManager
+    private val aom by lazy {
+        AppOpsManagerDelegate(
+            Compat.appOpsService
+        )
+    }
 
     var isSearch by mutableStateOf(false)
         private set
     private val keyFlow = MutableStateFlow("")
 
-    private val packagesFlow = MutableStateFlow(listOf<PackageInfo>())
+    private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
     private val cacheFlow = MutableStateFlow(listOf<IPackageInfo>())
     private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
     val apps get() = appsFlow.asStateFlow()
 
     var isLoading by mutableStateOf(true)
         private set
+
+    override fun opChanged(op: Int, uid: Int, packageName: String) {
+        Timber.d("opChanged: $packageName")
+
+        viewModelScope.launch {
+            packagesFlow.value = getPackages()
+        }
+    }
 
     init {
         Timber.d("AppsViewModel init")
@@ -56,9 +70,25 @@ class AppsViewModel @Inject constructor(
             Compat.isAliveFlow,
             PackageReceiver.eventFlow
         ) { isAlive, _ ->
-            if (isAlive) loadData()
+            if (!isAlive) return@combine
+
+            if (isLoading) {
+                aom.startWatchingMode(
+                    AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                    null,
+                    this
+                )
+            }
+
+            packagesFlow.value = getPackages()
 
         }.launchIn(viewModelScope)
+
+        addCloseable {
+            if (isProviderAlive) {
+                aom.stopWatchingMode(this)
+            }
+        }
     }
 
     private fun dataObserver() {
@@ -69,8 +99,7 @@ class AppsViewModel @Inject constructor(
             if (source.isEmpty()) return@combine
 
             cacheFlow.value = source.map { pi ->
-                pi.toIPackageInfo(
-                    isAuthorized = false, // TODO: Impl by AppOps
+                pi.copy(
                     isRequester = preferences.requester == pi.packageName,
                     isExecutor = preferences.executor == pi.packageName
                 )
@@ -110,13 +139,11 @@ class AppsViewModel @Inject constructor(
         ).list
 
         allPackages.filter {
-            it.applicationInfo.enabled
-        }
-    }
-
-    private fun loadData() {
-        viewModelScope.launch {
-            packagesFlow.value = getPackages()
+            !it.isOverlayPackage
+        }.map {
+            it.toIPackageInfo(
+                isAuthorized = it.isAuthorized()
+            )
         }
     }
 
@@ -132,4 +159,10 @@ class AppsViewModel @Inject constructor(
         isSearch = false
         keyFlow.value = ""
     }
+
+    private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
+        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+        uid = applicationInfo.uid,
+        packageName = packageName
+    ) == AppOpsManagerDelegate.MODE_ALLOWED
 }
