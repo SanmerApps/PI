@@ -15,7 +15,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -30,6 +29,7 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.navigation.graphs.SettingsScreen
@@ -53,6 +53,7 @@ fun SettingsScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
+                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -189,11 +190,11 @@ private fun LanguageItem(
 
 @Composable
 private fun TopBar(
+    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
-) = TopAppBar(
-    title = {
-        Text(text = stringResource(id = R.string.app_name))
-    },
+) = NavigateUpTopBar(
+    title = stringResource(id = R.string.page_settings),
+    navController = navController,
     scrollBehavior = scrollBehavior
 )
 

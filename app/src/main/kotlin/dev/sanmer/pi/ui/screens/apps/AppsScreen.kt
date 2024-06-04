@@ -27,12 +27,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
 import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
+import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.utils.navigateSingleTopTo
 import dev.sanmer.pi.viewmodel.AppViewModel
 import dev.sanmer.pi.viewmodel.AppsViewModel
@@ -60,6 +60,7 @@ fun AppsScreen(
                 onQueryChange = viewModel::search,
                 onOpenSearch = viewModel::openSearch,
                 onCloseSearch = viewModel::closeSearch,
+                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -89,11 +90,9 @@ fun AppsScreen(
                     AppItem(
                         pi = pi,
                         onClick = {
-                            if (pi.packageName != BuildConfig.APPLICATION_ID) {
-                                navController.navigateSingleTopTo(
-                                    AppViewModel.putPackageName(pi.packageName)
-                                )
-                            }
+                            navController.navigateSingleTopTo(
+                                AppViewModel.putPackageName(pi.packageName)
+                            )
                         }
                     )
                 }
@@ -113,6 +112,7 @@ private fun TopBar(
     onQueryChange: (String) -> Unit,
     onOpenSearch: () -> Unit,
     onCloseSearch: () -> Unit,
+    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
     var query by remember{ mutableStateOf("") }
@@ -146,6 +146,15 @@ private fun TopBar(
                         contentDescription = null
                     )
                 }
+            }
+
+            IconButton(
+                onClick = { navController.navigateSingleTopTo(MainScreen.Settings.route) }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.settings),
+                    contentDescription = null
+                )
             }
         }
     )
