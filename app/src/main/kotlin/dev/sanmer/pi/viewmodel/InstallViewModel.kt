@@ -55,8 +55,6 @@ class InstallViewModel @Inject constructor(
         private set
     var archiveInfo by mutableStateOf(PackageInfo())
         private set
-    var isAuthorized = false
-        private set
     val hasSourceInfo get() = sourceInfo.isNotEmpty
 
     val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
@@ -122,7 +120,6 @@ class InstallViewModel @Inject constructor(
                 bi.splitConfigs.filter { it.isRequired() || it.isRecommended() }
             )
 
-            isAuthorized = false
             state = State.AppBundle
             return@withContext
         }
