@@ -7,5 +7,4 @@
     <string name="settings_service_version">Версия %1$d, %2$s</string>
     <string name="install_activity">Установить</string>
     <string name="setup_shizuku_desc">Требуется разрешение Суи или Шизуку</string>
-    <string name="page_apps">Приложения</string>
 </resources>

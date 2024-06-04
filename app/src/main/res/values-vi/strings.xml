@@ -12,8 +12,6 @@
     <string name="settings_dynamic_color_desc">Sử dụng bảng màu Material You (Android 12+)</string>
     <string name="settings_translation">Tham gia dịch thuật</string>
     <string name="settings_translation_desc">Hãy giúp chúng tôi dịch PI sang ngôn ngữ của bạn</string>
-    <string name="settings_self_update">Tự cập nhật</string>
-    <string name="settings_self_update_desc">Tự động cho phép yêu cầu cập nhật của chính ứng dụng</string>
     <string name="install_package_title">Gói cài đặt</string>
     <string name="install_config_feature_title">Tính năng linh động</string>
     <string name="install_config_density_title">Mật độ màn hình</string>

@@ -4,8 +4,6 @@
     <string name="install_activity">Install</string>
 
     <!-- Pages -->
-    <string name="page_apps">Apps</string>
-    <string name="page_sessions">Sessions</string>
     <string name="page_settings">Settings</string>
 
     <!-- Setup -->
@@ -25,23 +23,10 @@
     <string name="details_request_install">Request install package</string>
     <string name="details_request_install_system">Allows this app to request installing packages. Apps targeting APIs greater than 25 must hold this permission in order to use `Intent.ACTION_INSTALL_PACKAGE`.</string>
     <string name="details_custom_title">Custom</string>
-    <string name="details_request_install_self">Allows this app to install packages by PI. This means you will not see the installation dialog (except for `App Bundle`).</string>
     <string name="details_requester_title">Installation requester</string>
     <string name="details_requester_desc">The app on behalf of which the initiating package requested the installation (the requester of record).</string>
     <string name="details_executor_title">Installation executor</string>
     <string name="details_executor_desc">The app responsible for the installation (the installer of record).</string>
-    <string name="details_ops_default">Default</string>
-    <string name="details_ops_this">This app</string>
-
-    <!-- Sessions -->
-    <string name="sessions_user">User: %1$d</string>
-    <string name="sessions_id">ID: %1$d</string>
-    <string name="sessions_active">Active</string>
-    <string name="sessions_staged">Staged</string>
-    <string name="sessions_committed">Committed</string>
-    <string name="sessions_dialog_title">Delete all sessions</string>
-    <string name="sessions_dialog_desc1">Do you want to delete all sessions?</string>
-    <string name="sessions_dialog_desc2">Tip: Some sessions may not be deleted due to the system restriction.</string>
 
     <!-- Settings -->
     <string name="settings_behavior">Behavior</string>
@@ -49,8 +34,6 @@
     <string name="settings_service_version">Version %1$d, %2$s</string>
     <string name="settings_service_not_running">Service is not running</string>
     <string name="settings_service_try_start">Click to try to start</string>
-    <string name="settings_self_update">Self-update</string>
-    <string name="settings_self_update_desc">Automatically allow update requests by the app itself</string>
     <string name="settings_interface">Interface</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">System default</string>
@@ -63,7 +46,6 @@
     <!-- Install -->
     <string name="install_package_title">Installation package</string>
     <string name="install_requester_title">Installation requester</string>
-    <string name="install_executor_title">Installation executor</string>
     <string name="install_config_feature_title">Dynamic feature</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="install_config_density_title">Screen density</string>
@@ -91,6 +73,5 @@
     <string name="notification_name_install">Install service</string>
 
     <!-- Other -->
-    <string name="unknown">Unknown</string>
     <string name="unknown_error">Unknown error</string>
 </resources>
