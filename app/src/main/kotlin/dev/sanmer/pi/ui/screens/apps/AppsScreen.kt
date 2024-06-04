@@ -52,6 +52,10 @@ fun AppsScreen(
         onBack = viewModel::closeSearch
     )
 
+    DisposableEffect(true) {
+        onDispose(viewModel::closeSearch)
+    }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -115,12 +119,9 @@ private fun TopBar(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
-    var query by remember{ mutableStateOf("") }
-    DisposableEffect(true) {
-        onDispose {
-            onCloseSearch()
-            query = ""
-        }
+    var query by remember { mutableStateOf("") }
+    DisposableEffect(isSearch) {
+        onDispose { query = "" }
     }
 
     SearchTopBar(
@@ -130,10 +131,7 @@ private fun TopBar(
             onQueryChange(it)
             query = it
         },
-        onClose = {
-            onCloseSearch()
-            query = ""
-        },
+        onClose = onCloseSearch,
         title = { Text(text = stringResource(id = R.string.app_name)) },
         scrollBehavior = scrollBehavior,
         actions = {
