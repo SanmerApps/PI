@@ -41,12 +41,4 @@ class UserPreferencesDataSource @Inject constructor(
             )
         }
     }
-
-    suspend fun setSelfUpdate(value: Boolean) = withContext(Dispatchers.IO) {
-        userPreferences.updateData {
-            it.copy(
-                selfUpdate = value
-            )
-        }
-    }
 }

@@ -11,15 +11,13 @@ data class UserPreferencesCompat(
     val provider: Provider,
     val dynamicColor: Boolean,
     val requester: String,
-    val executor: String,
-    val selfUpdate: Boolean
+    val executor: String
 ) {
     constructor(original: UserPreferences) : this(
         provider = original.provider,
         dynamicColor = original.dynamicColor,
         requester = original.requester,
-        executor = original.executor,
-        selfUpdate = original.selfUpdate
+        executor = original.executor
     )
 
     fun writeTo(out: OutputStream) = UserPreferences.newBuilder()
@@ -27,7 +25,6 @@ data class UserPreferencesCompat(
         .setDynamicColor(dynamicColor)
         .setRequester(requester)
         .setExecutor(executor)
-        .setSelfUpdate(selfUpdate)
         .build()
         .writeTo(out)
 
@@ -40,8 +37,7 @@ data class UserPreferencesCompat(
             provider = Provider.None,
             dynamicColor = BuildCompat.atLeastS,
             requester = BuildConfig.APPLICATION_ID,
-            executor = BuildConfig.APPLICATION_ID,
-            selfUpdate = true
+            executor = BuildConfig.APPLICATION_ID
         )
     }
 }

@@ -35,12 +35,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setSelfUpdate(value: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setSelfUpdate(value)
-        }
-    }
-
     fun tryStartProvider() {
         viewModelScope.launch {
             val userPreferences = userPreferencesRepository.data.first()

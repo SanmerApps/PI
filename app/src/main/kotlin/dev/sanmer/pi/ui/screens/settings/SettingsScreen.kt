@@ -89,14 +89,6 @@ fun SettingsScreen(
                 }
             )
 
-            SettingSwitchItem(
-                icon = R.drawable.device_mobile_up,
-                title = stringResource(id = R.string.settings_self_update),
-                desc = stringResource(id = R.string.settings_self_update_desc),
-                checked = userPreferences.selfUpdate,
-                onChange = viewModel::setSelfUpdate,
-            )
-
             HorizontalDivider()
 
             TittleItem(

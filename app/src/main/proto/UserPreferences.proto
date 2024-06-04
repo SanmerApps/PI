@@ -10,5 +10,4 @@ message UserPreferences {
   bool dynamicColor = 2;
   string requester = 3;
   string executor = 4;
-  bool selfUpdate = 5;
 }

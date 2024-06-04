@@ -55,7 +55,6 @@ class InstallViewModel @Inject constructor(
         private set
     var archiveInfo by mutableStateOf(PackageInfo())
         private set
-    private val isSelf get() = sourceInfo.packageName == archiveInfo.packageName
     var isAuthorized = false
         private set
     val hasSourceInfo get() = sourceInfo.isNotEmpty
@@ -89,7 +88,6 @@ class InstallViewModel @Inject constructor(
 
     suspend fun loadPackage(uri: Uri) = withContext(Dispatchers.IO) {
         val userPreferences = userPreferencesRepository.data.first()
-        val selfUpdate = userPreferences.selfUpdate
 
         if (!Compat.init(userPreferences.provider)) {
             state = State.InvalidProvider
@@ -110,7 +108,6 @@ class InstallViewModel @Inject constructor(
             archivePath = path
             apkSize = archivePath.length()
 
-            isAuthorized = isAuthorized || (isSelf && selfUpdate)
             state = State.Apk
             return@withContext
         }
