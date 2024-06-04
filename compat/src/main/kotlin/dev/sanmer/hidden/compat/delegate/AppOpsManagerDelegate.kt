@@ -3,17 +3,20 @@ package dev.sanmer.hidden.compat.delegate
 import android.app.AppOpsManager
 import android.app.AppOpsManagerHidden
 import dev.sanmer.hidden.compat.UserHandleCompat
+import dev.sanmer.hidden.compat.stub.IAppOpsCallback
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class AppOpsManagerDelegate(
     private val appOpsService: IAppOpsServiceCompat
 ) {
+    private val delegates = mutableListOf<AppOpsActiveCallbackDelegate>()
+
     fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Int {
         return appOpsService.checkOperation(op, uid, packageName)
     }
 
-    fun getPackagesForOps(ops: IntArray?): List<PackageOps> {
+    fun getPackagesForOps(ops: IntArray): List<PackageOps> {
         return appOpsService.getPackagesForOps(ops).map { PackageOps(it) }
     }
 
@@ -36,6 +39,32 @@ class AppOpsManagerDelegate(
     fun resetAllModes() {
         val userId = UserHandleCompat.myUserId()
         appOpsService.resetAllModes(userId, null)
+    }
+
+    fun startWatchingMode(op: Int, packageName: String?, callback: AppOpsCallback) {
+        val delegate = AppOpsActiveCallbackDelegate(callback)
+        appOpsService.startWatchingMode(op, packageName, delegate)
+        delegates.add(delegate)
+    }
+
+    fun stopWatchingMode(callback: AppOpsCallback) {
+        val delegate = delegates.find { it.callback == callback }
+        if (delegate != null) {
+            appOpsService.stopWatchingMode(delegate)
+        }
+    }
+
+    interface AppOpsCallback {
+        fun opChanged(op: Int, uid: Int, packageName: String) {}
+    }
+
+    internal class AppOpsActiveCallbackDelegate(
+        val callback: AppOpsCallback
+    ) : IAppOpsCallback.Stub() {
+        override fun opChanged(op: Int, uid: Int, packageName: String) {
+            callback.opChanged(op, uid, packageName)
+        }
+
     }
 
     enum class Mode(val code: Int) {

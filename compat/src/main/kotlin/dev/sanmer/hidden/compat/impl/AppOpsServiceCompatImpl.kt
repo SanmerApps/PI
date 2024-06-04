@@ -1,17 +1,23 @@
 package dev.sanmer.hidden.compat.impl
 
 import android.app.AppOpsManagerHidden
+import android.os.IBinder
+import android.os.IInterface
 import com.android.internal.app.IAppOpsService
+import dev.sanmer.hidden.compat.proxy.AppOpsCallbackProxy
+import dev.sanmer.hidden.compat.stub.IAppOpsCallback
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
 
 internal class AppOpsServiceCompatImpl(
     private val original: IAppOpsService
 ) : IAppOpsServiceCompat.Stub() {
+    private val callbacks = mutableMapOf<IBinder, IInterface>()
+
     override fun checkOperation(code: Int, uid: Int, packageName: String): Int {
         return original.checkOperation(code, uid, packageName)
     }
 
-    override fun getPackagesForOps(ops: IntArray?): List<AppOpsManagerHidden.PackageOps> {
+    override fun getPackagesForOps(ops: IntArray): List<AppOpsManagerHidden.PackageOps> {
         return original.getPackagesForOps(ops)
     }
 
@@ -37,5 +43,20 @@ internal class AppOpsServiceCompatImpl(
 
     override fun resetAllModes(reqUserId: Int, reqPackageName: String?) {
         original.resetAllModes(reqUserId, reqPackageName)
+    }
+
+    override fun startWatchingMode(op: Int, packageName: String?, callback: IAppOpsCallback) {
+        val binder = callback.asBinder()
+        val proxy = AppOpsCallbackProxy(callback)
+        callbacks[binder] = proxy
+        original.startWatchingMode(op, packageName, proxy)
+    }
+
+    override fun stopWatchingMode(callback: IAppOpsCallback) {
+        val binder = callback.asBinder()
+        val proxy = callbacks.remove(binder)
+        if (proxy is com.android.internal.app.IAppOpsCallback) {
+            original.stopWatchingMode(proxy)
+        }
     }
 }

@@ -12,6 +12,10 @@ public interface IAppOpsService extends IInterface {
 
     int checkOperation(int code, int uid, String packageName) throws RemoteException;
 
+    void startWatchingMode(int op, String packageName, IAppOpsCallback callback) throws RemoteException;
+
+    void stopWatchingMode(IAppOpsCallback callback) throws RemoteException;
+
     List<AppOpsManagerHidden.PackageOps> getPackagesForOps(int[] ops) throws RemoteException;
 
     List<AppOpsManagerHidden.PackageOps> getOpsForPackage(int uid, String packageName, int[] ops)  throws RemoteException;
