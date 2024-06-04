@@ -3,6 +3,8 @@ package dev.sanmer.pi.datastore
 import androidx.compose.runtime.Immutable
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.compat.BuildCompat
+import java.io.InputStream
+import java.io.OutputStream
 
 @Immutable
 data class UserPreferencesCompat(
@@ -20,15 +22,20 @@ data class UserPreferencesCompat(
         selfUpdate = original.selfUpdate
     )
 
-    fun toProto(): UserPreferences = UserPreferences.newBuilder()
+    fun writeTo(out: OutputStream) = UserPreferences.newBuilder()
         .setProvider(provider)
         .setDynamicColor(dynamicColor)
         .setRequester(requester)
         .setExecutor(executor)
         .setSelfUpdate(selfUpdate)
         .build()
+        .writeTo(out)
 
     companion object {
+        fun from(input: InputStream) = UserPreferencesCompat(
+            UserPreferences.parseFrom(input)
+        )
+
         fun default() = UserPreferencesCompat(
             provider = Provider.None,
             dynamicColor = BuildCompat.atLeastS,
