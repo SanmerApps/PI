@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.self.application)
     alias(libs.plugins.self.compose)
     alias(libs.plugins.self.hilt)
-    alias(libs.plugins.self.room)
     alias(libs.plugins.protobuf)
 }
 

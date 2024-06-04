@@ -19,12 +19,9 @@ import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.Compat
-import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
-import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.navigation.graphs.AppsScreen
 import dev.sanmer.pi.utils.extensions.appSetting
@@ -44,7 +41,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val localRepository: LocalRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -87,9 +83,6 @@ class AppViewModel @Inject constructor(
         ) ?: false
     }
 
-    private var isDefaultRequester by mutableStateOf(false)
-    private var isDefaultExecutor by mutableStateOf(false)
-
     init {
         Timber.d("AppViewModel init")
         dataObserver()
@@ -98,18 +91,14 @@ class AppViewModel @Inject constructor(
 
     private fun dataObserver() {
         combine(
-            localRepository.getPackageAuthorizedAllAsFlow(),
             userPreferencesRepository.data,
             packageInfoFlow
-        ) { authorized, preferences, pi ->
+        ) { preferences, pi ->
             packageInfo = pi.copy(
-                isAuthorized = authorized.contains(packageName),
+                isAuthorized = false, // TODO: Impl by AppOps
                 isRequester = preferences.requester == packageName,
                 isExecutor = preferences.executor == packageName
             )
-
-            isDefaultRequester = preferences.requester == BuildConfig.APPLICATION_ID
-            isDefaultExecutor = preferences.executor == BuildConfig.APPLICATION_ID
 
         }.launchIn(viewModelScope)
     }
@@ -129,60 +118,20 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun toggleAuthorized(value: Boolean) {
+    fun setRequester(default: Boolean) {
+        if (default) return
+
         viewModelScope.launch {
-            localRepository.insertPackage(
-                value = with(packageInfo) {
-                    copy(isAuthorized = value)
-                }
-            )
+            userPreferencesRepository.setRequester(packageName)
         }
-    }
-
-    private fun setRequester(default: Boolean) {
-        viewModelScope.launch {
-            when {
-                default -> userPreferencesRepository.setRequester(BuildConfig.APPLICATION_ID)
-                else -> userPreferencesRepository.setRequester(packageName)
-            }
-        }
-    }
-
-    fun requesterSelectableOps(context: Context) = buildList {
-        add(object : SelectableOp {
-            override val text: String = context.getString(R.string.details_ops_default)
-            override val selected: Boolean = isDefaultRequester
-            override fun onClick() = setRequester(true)
-        })
-
-        add(object : SelectableOp {
-            override val text: String = context.getString(R.string.details_ops_this)
-            override val selected: Boolean = packageInfo.isRequester
-            override fun onClick() = setRequester(false)
-        })
     }
 
     fun setExecutor(default: Boolean) {
+        if (default) return
+
         viewModelScope.launch {
-            when {
-                default -> userPreferencesRepository.setExecutor(BuildConfig.APPLICATION_ID)
-                else -> userPreferencesRepository.setExecutor(packageName)
-            }
+            userPreferencesRepository.setExecutor(packageName)
         }
-    }
-
-    fun executorSelectableOps(context: Context) = buildList {
-        add(object : SelectableOp {
-            override val text: String = context.getString(R.string.details_ops_default)
-            override val selected: Boolean = isDefaultExecutor
-            override fun onClick() = setExecutor(true)
-        })
-
-        add(object : SelectableOp {
-            override val text: String = context.getString(R.string.details_ops_this)
-            override val selected: Boolean = packageInfo.isExecutor
-            override fun onClick() = setExecutor(false)
-        })
     }
 
     class AppOps(
@@ -296,12 +245,6 @@ class AppViewModel @Inject constructor(
 
             return@withContext true
         }
-    }
-
-    interface SelectableOp {
-        val text: String
-        val selected: Boolean
-        fun onClick()
     }
 
     companion object {

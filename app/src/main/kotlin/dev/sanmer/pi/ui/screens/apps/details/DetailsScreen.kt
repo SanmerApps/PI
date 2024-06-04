@@ -1,7 +1,5 @@
 package dev.sanmer.pi.ui.screens.apps.details
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,29 +8,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -55,10 +46,8 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.CollapsingTopAppBar
 import dev.sanmer.pi.ui.component.CollapsingTopAppBarDefaults
-import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.screens.apps.AppItem
-import dev.sanmer.pi.ui.utils.expandedShape
 import dev.sanmer.pi.viewmodel.AppViewModel
 import kotlinx.coroutines.launch
 
@@ -67,7 +56,6 @@ fun DetailsScreen(
     navController: NavController,
     viewModel: AppViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val scrollBehavior = CollapsingTopAppBarDefaults.scrollBehavior()
 
     Scaffold(
@@ -100,39 +88,19 @@ fun DetailsScreen(
             )
 
             SettingSwitchItem(
-                icon = R.drawable.package_import,
-                title = stringResource(id = R.string.details_request_install),
-                desc = stringResource(id = R.string.details_request_install_self),
-                checked = viewModel.packageInfo.isAuthorized,
-                onChange = viewModel::toggleAuthorized
-            )
-
-            var showRequester by remember { mutableStateOf(false) }
-            if (showRequester) SelectableBottomSheet(
-                title = stringResource(id = R.string.details_requester_title),
-                onClose = { showRequester = false },
-                ops = viewModel.requesterSelectableOps(context)
-            )
-
-            SettingNormalItem(
                 icon = R.drawable.file_unknown,
                 title = stringResource(id = R.string.details_requester_title),
                 desc = stringResource(id = R.string.details_requester_desc),
-                onClick = { showRequester = true }
+                checked = viewModel.packageInfo.isRequester,
+                onChange = viewModel::setRequester
             )
 
-            var showExecutor by remember { mutableStateOf(false) }
-            if (showExecutor) SelectableBottomSheet(
-                title = stringResource(id = R.string.details_executor_title),
-                onClose = { showExecutor = false },
-                ops = viewModel.executorSelectableOps(context)
-            )
-
-            SettingNormalItem(
+            SettingSwitchItem(
                 icon = R.drawable.code,
                 title = stringResource(id = R.string.details_executor_title),
                 desc = stringResource(id = R.string.details_executor_desc),
-                onClick = { showExecutor = true }
+                checked = viewModel.packageInfo.isExecutor,
+                onChange = viewModel::setExecutor
             )
         }
     }
@@ -166,88 +134,6 @@ private fun SystemItems(
     )
 
     HorizontalDivider()
-}
-
-@Composable
-private fun SelectableBottomSheet(
-    title: String,
-    onClose: () -> Unit,
-    ops: List<AppViewModel.SelectableOp>
-) {
-    val scope = rememberCoroutineScope()
-    val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val onClick: (AppViewModel.SelectableOp) -> Unit = {
-        scope.launch {
-            it.onClick()
-            state.hide()
-            onClose()
-        }
-    }
-
-    ModalBottomSheet(
-        sheetState = state,
-        shape = BottomSheetDefaults.expandedShape(20.dp),
-        onDismissRequest = onClose,
-        windowInsets = WindowInsets.navigationBars,
-        dragHandle = null
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(all = 20.dp)
-        )
-
-        LazyColumn(
-            modifier = Modifier.padding(bottom = 20.dp)
-        ) {
-            items(ops) {
-                SelectableItem(
-                    text = it.text,
-                    selected = it.selected,
-                    onClick = { onClick(it) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SelectableItem(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) = Row(
-    modifier = Modifier
-        .background(
-            color = when {
-                selected -> MaterialTheme.colorScheme.secondaryContainer
-                else -> Color.Unspecified
-            }
-        )
-        .clickable(
-            enabled = !selected,
-            onClick = onClick
-        )
-        .padding(horizontal = 20.dp, vertical = 16.dp),
-    verticalAlignment = Alignment.CenterVertically
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        color = when {
-            selected -> MaterialTheme.colorScheme.primary
-            else -> Color.Unspecified
-        },
-        modifier = Modifier.weight(1f)
-    )
-
-    if (selected) {
-        Icon(
-            painter = painterResource(id = R.drawable.circle_check),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
 }
 
 @Composable

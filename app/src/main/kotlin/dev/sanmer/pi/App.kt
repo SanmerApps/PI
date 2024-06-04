@@ -28,6 +28,7 @@ class App : Application(), ImageLoaderFactory {
 
         ServiceManagerCompat.setHiddenApiExemptions()
         NotificationUtils.init(this)
+        deleteDatabase()
     }
 
     override fun newImageLoader() =
@@ -37,4 +38,11 @@ class App : Application(), ImageLoaderFactory {
                 add(AppIconFetcher.Factory(40.dp, true, this@App))
             }
             .build()
+
+    // TODO: Remove from v1.0.3
+    private fun deleteDatabase() {
+        getDatabasePath("pi").apply {
+            if (exists()) deleteDatabase("pi")
+        }
+    }
 }

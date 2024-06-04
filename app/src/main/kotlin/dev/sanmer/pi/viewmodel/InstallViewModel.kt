@@ -23,7 +23,6 @@ import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
-import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.service.InstallService
 import dev.sanmer.pi.utils.extensions.tmpDir
@@ -38,7 +37,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstallViewModel @Inject constructor(
-    private val localRepository: LocalRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     application: Application
 ) : AndroidViewModel(application) {
@@ -89,7 +87,7 @@ class InstallViewModel @Inject constructor(
         val packageName = getSourcePackageForHost(uri)
         val source = getPackageInfo(packageName)
         if (!source.isSystemApp) {
-            isAuthorized = localRepository.getByPackageInfo(source)
+            isAuthorized = false
             sourceInfo = source.toIPackageInfo(
                 isAuthorized = isAuthorized
             )
@@ -144,7 +142,7 @@ class InstallViewModel @Inject constructor(
                 it.copy(isAuthorized = !it.isAuthorized)
             }
 
-            localRepository.insertPackage(sourceInfo)
+            // TODO: Impl by AppOps
         }
     }
 

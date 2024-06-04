@@ -13,7 +13,6 @@ import dev.sanmer.pi.Compat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.receiver.PackageReceiver
-import dev.sanmer.pi.repository.LocalRepository
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +26,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val localRepository: LocalRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     private val pmCompat get() = Compat.packageManager
@@ -65,15 +63,14 @@ class AppsViewModel @Inject constructor(
 
     private fun dataObserver() {
         combine(
-            localRepository.getPackageAuthorizedAllAsFlow(),
             userPreferencesRepository.data,
             packagesFlow,
-        ) { authorized, preferences, source ->
+        ) { preferences, source ->
             if (source.isEmpty()) return@combine
 
             cacheFlow.value = source.map { pi ->
                 pi.toIPackageInfo(
-                    isAuthorized = authorized.contains(pi.packageName),
+                    isAuthorized = false, // TODO: Impl by AppOps
                     isRequester = preferences.requester == pi.packageName,
                     isExecutor = preferences.executor == pi.packageName
                 )
@@ -120,13 +117,6 @@ class AppsViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             packagesFlow.value = getPackages()
-
-            val packageNames = packagesFlow.value.map { it.packageName }
-            val authorized = localRepository.getPackageAll()
-
-            localRepository.deletePackage(
-                authorized.filter { it.packageName !in packageNames }
-            )
         }
     }
 
