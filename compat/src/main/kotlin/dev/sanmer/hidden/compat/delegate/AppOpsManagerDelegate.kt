@@ -2,18 +2,28 @@ package dev.sanmer.hidden.compat.delegate
 
 import android.app.AppOpsManager
 import android.app.AppOpsManagerHidden
+import android.content.pm.PackageInfo
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.stub.IAppOpsCallback
 import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class AppOpsManagerDelegate(
     private val appOpsService: IAppOpsServiceCompat
 ) {
     private val delegates = mutableListOf<AppOpsActiveCallbackDelegate>()
 
-    fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Int {
-        return appOpsService.checkOperation(op, uid, packageName)
+    fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Mode {
+        return Mode.from(
+            appOpsService.checkOperation(op, uid, packageName)
+        )
+    }
+
+    fun checkOpNoThrow(op: Int, packageInfo: PackageInfo): Mode {
+        return checkOpNoThrow(
+            op = op,
+            uid = packageInfo.applicationInfo.uid,
+            packageName = packageInfo.packageName
+        )
     }
 
     fun getPackagesForOps(ops: IntArray): List<PackageOps> {
@@ -29,16 +39,32 @@ class AppOpsManagerDelegate(
             .firstOrNull()?.ops?.map(::OpEntry) ?: emptyList()
     }
 
+    fun getOpsForPackage(packageInfo: PackageInfo): List<OpEntry> {
+        return getOpsForPackage(
+            uid = packageInfo.applicationInfo.uid,
+            packageName = packageInfo.packageName
+        )
+    }
+
     fun getUidOps(uid: Int): List<PackageOps> {
         return appOpsService.getUidOps(uid, null).map(::PackageOps)
     }
 
-    fun setUidMode(op: Int, uid: Int, mode: Int) {
-        appOpsService.setUidMode(op, uid, mode)
+    fun setUidMode(op: Int, uid: Int, mode: Mode) {
+        appOpsService.setUidMode(op, uid, mode.code)
     }
 
-    fun setMode(op: Int, uid: Int, packageName: String, mode: Int) {
-        appOpsService.setMode(op, uid, packageName, mode)
+    fun setMode(op: Int, uid: Int, packageName: String, mode: Mode) {
+        appOpsService.setMode(op, uid, packageName, mode.code)
+    }
+
+    fun setMode(op: Int, packageInfo: PackageInfo, mode: Mode) {
+        setMode(
+            op = op,
+            uid = packageInfo.applicationInfo.uid,
+            packageName = packageInfo.packageName,
+            mode = mode
+        )
     }
 
     fun resetAllModes() {
@@ -80,55 +106,14 @@ class AppOpsManagerDelegate(
         Foreground(MODE_FOREGROUND);
 
         companion object {
+            fun from(code: Int) = entries.first { it.code == code }
+            fun fromOrNull(code: Int) = entries.firstOrNull { it.code == code }
+
             fun Mode.isAllowed() = this == Allow
             fun Mode.isDenied() = this == Deny
             fun Mode.isIgnored() = this == Ignore
             fun Mode.isDefaulted() = this == Default
             fun Mode.isForegrounded() = this == Foreground
-        }
-    }
-
-    interface Ops {
-        val op: Int
-        val name: String
-        val mode: Mode
-        val modeFlow: MutableStateFlow<Mode>
-
-        fun allow()
-        fun deny()
-        fun ignore()
-        fun default()
-        fun foreground()
-    }
-
-    fun opPermission(
-        op: Int,
-        uid: Int,
-        packageName: String,
-    ) = object : Ops {
-        override val op = op
-        override val name = opToName(op)
-
-        override val mode: Mode get() {
-            val code = checkOpNoThrow(op, uid, packageName)
-            return Mode.entries.find { it.code == code } ?: Mode.Default
-        }
-
-        override val modeFlow = MutableStateFlow(mode)
-
-        override fun allow() = setMode(Mode.Allow.code)
-
-        override fun deny() = setMode(Mode.Deny.code)
-
-        override fun ignore() = setMode(Mode.Ignore.code)
-
-        override fun default() = setMode(Mode.Default.code)
-
-        override fun foreground() = setMode(Mode.Foreground.code)
-
-        private fun setMode(mode: Int) {
-            setMode(op, uid, packageName, mode)
-            modeFlow.value = this.mode
         }
     }
 
