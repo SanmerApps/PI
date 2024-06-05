@@ -18,7 +18,7 @@ internal class AppOpsServiceCompatImpl(
     }
 
     override fun getPackagesForOps(ops: IntArray): List<AppOpsManagerHidden.PackageOps> {
-        return original.getPackagesForOps(ops)
+        return original.getPackagesForOps(ops) ?: emptyList()
     }
 
     override fun getOpsForPackage(
@@ -26,11 +26,11 @@ internal class AppOpsServiceCompatImpl(
         packageName: String,
         ops: IntArray?
     ): List<AppOpsManagerHidden.PackageOps> {
-        return original.getOpsForPackage(uid, packageName, ops)
+        return original.getOpsForPackage(uid, packageName, ops) ?: emptyList()
     }
 
     override fun getUidOps(uid: Int, ops: IntArray?): List<AppOpsManagerHidden.PackageOps> {
-        return original.getUidOps(uid, ops)
+        return original.getUidOps(uid, ops) ?: emptyList()
     }
 
     override fun setUidMode(code: Int, uid: Int, mode: Int) {
