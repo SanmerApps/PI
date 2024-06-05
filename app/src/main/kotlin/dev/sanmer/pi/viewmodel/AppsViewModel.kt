@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.hidden.compat.UserHandleCompat
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
+import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -74,9 +75,9 @@ class AppsViewModel @Inject constructor(
 
             if (isLoading) {
                 aom.startWatchingMode(
-                    AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-                    null,
-                    this
+                    op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                    packageName = null,
+                    callback = this
                 )
             }
 
@@ -86,7 +87,7 @@ class AppsViewModel @Inject constructor(
 
         addCloseable {
             if (isProviderAlive) {
-                aom.stopWatchingMode(this)
+                aom.stopWatchingMode(callback = this)
             }
         }
     }
@@ -162,7 +163,6 @@ class AppsViewModel @Inject constructor(
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-        uid = applicationInfo.uid,
-        packageName = packageName
-    ) == AppOpsManagerDelegate.MODE_ALLOWED
+        packageInfo = this
+    ).isAllowed()
 }

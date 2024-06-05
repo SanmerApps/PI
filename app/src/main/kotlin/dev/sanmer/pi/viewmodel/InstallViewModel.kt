@@ -38,7 +38,7 @@ import javax.inject.Inject
 class InstallViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     application: Application
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application), AppOpsManagerDelegate.AppOpsCallback {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { context.packageManager }
     private val pmCompat get() = Compat.packageManager
@@ -72,12 +72,9 @@ class InstallViewModel @Inject constructor(
     var state by mutableStateOf(State.None)
         private set
 
-    private val opInstallPackage by lazy {
-        aom.opPermission(
-            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-            uid = sourceInfo.applicationInfo.uid,
-            packageName = sourceInfo.packageName
-        )
+    override fun opChanged(op: Int, uid: Int, packageName: String) {
+        val isAuthorized = aom.checkOpNoThrow(op, uid, packageName).isAllowed()
+        sourceInfo = sourceInfo.copy(isAuthorized = isAuthorized)
     }
 
     init {
@@ -139,14 +136,22 @@ class InstallViewModel @Inject constructor(
         }
     }
 
-    fun toggleAuthorized() = with(opInstallPackage) {
+    fun toggleAuthorized() {
+        val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
+            aom.setMode(
+                op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                packageInfo = sourceInfo,
+                mode = it
+            )
+        }
+
         when {
-            mode.isAllowed() -> {
-                ignore()
+            sourceInfo.isAuthorized -> {
+                setMode(AppOpsManagerDelegate.Mode.Ignore)
                 sourceInfo = sourceInfo.copy(isAuthorized = false)
             }
             else -> {
-                allow()
+                setMode(AppOpsManagerDelegate.Mode.Allow)
                 sourceInfo = sourceInfo.copy(isAuthorized = true)
             }
         }
@@ -201,9 +206,8 @@ class InstallViewModel @Inject constructor(
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-        uid = applicationInfo.uid,
-        packageName = packageName
-    ) == AppOpsManagerDelegate.MODE_ALLOWED
+        packageInfo = this
+    ).isAllowed()
 
     enum class State {
         None,

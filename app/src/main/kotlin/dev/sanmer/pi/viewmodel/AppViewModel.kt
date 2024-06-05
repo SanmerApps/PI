@@ -2,6 +2,7 @@ package dev.sanmer.pi.viewmodel
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.os.Environment
@@ -29,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -42,7 +42,7 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
     private val pmCompat get() = Compat.packageManager
     private val aom by lazy {
         AppOpsManagerDelegate(
@@ -70,22 +70,16 @@ class AppViewModel @Inject constructor(
         )
     }
 
-    private val opInstallPackage by lazy {
-        aom.opPermission(
-            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-            uid = packageInfo.applicationInfo.uid,
-            packageName = packageName
-        )
-    }
-    var opInstallPackageAllowed by mutableStateOf(false)
+    var opInstallPackageAllowed by mutableStateOf(packageInfo.isAuthorized())
         private set
 
     val hasOpInstallPackage by lazy {
-        aom.getOpsForPackage(
-            uid = packageInfo.applicationInfo.uid,
-            packageName = packageInfo.packageName
-        ).map { it.op }
+        aom.getOpsForPackage(packageInfo).map { it.op }
             .contains(AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES)
+    }
+
+    override fun opChanged(op: Int, uid: Int, packageName: String) {
+        opInstallPackageAllowed = aom.checkOpNoThrow(op, uid, packageName).isAllowed()
     }
 
     init {
@@ -107,17 +101,29 @@ class AppViewModel @Inject constructor(
     }
 
     private fun opInstallPackageObserver() {
-        opInstallPackage.modeFlow
-            .onEach {
-                opInstallPackageAllowed = it.isAllowed()
+        aom.startWatchingMode(
+            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+            packageName = packageInfo.packageName,
+            callback = this
+        )
 
-            }.launchIn(viewModelScope)
+        addCloseable {
+            aom.stopWatchingMode(callback = this)
+        }
     }
 
     fun toggleOpInstallPackage(isAllowed: Boolean) {
+        val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
+            aom.setMode(
+                op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                packageInfo = packageInfo,
+                mode = it
+            )
+        }
+
         when {
-            isAllowed -> opInstallPackage.allow()
-            else -> opInstallPackage.ignore()
+            isAllowed -> setMode(AppOpsManagerDelegate.Mode.Allow)
+            else -> setMode(AppOpsManagerDelegate.Mode.Ignore)
         }
     }
 
@@ -136,6 +142,11 @@ class AppViewModel @Inject constructor(
             userPreferencesRepository.setExecutor(packageName)
         }
     }
+
+    private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
+        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+        packageInfo = this
+    ).isAllowed()
 
     class AppOps(
         private val packageInfo: IPackageInfo,
