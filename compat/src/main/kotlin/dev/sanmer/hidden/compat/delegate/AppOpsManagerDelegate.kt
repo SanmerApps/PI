@@ -17,15 +17,20 @@ class AppOpsManagerDelegate(
     }
 
     fun getPackagesForOps(ops: IntArray): List<PackageOps> {
-        return appOpsService.getPackagesForOps(ops).map { PackageOps(it) }
+        return appOpsService.getPackagesForOps(ops).map(::PackageOps)
     }
 
-    fun getOpsForPackage(uid: Int, packageName: String, ops: IntArray?): List<PackageOps> {
-        return appOpsService.getOpsForPackage(uid, packageName, ops).map { PackageOps(it) }
+    fun getPackagesForOp(op: Int): List<PackageOps> {
+        return getPackagesForOps(intArrayOf(op))
     }
 
-    fun getUidOps(uid: Int, ops: IntArray?): List<PackageOps> {
-        return appOpsService.getUidOps(uid, ops).map { PackageOps(it) }
+    fun getOpsForPackage(uid: Int, packageName: String): List<OpEntry> {
+        return appOpsService.getOpsForPackage(uid, packageName, null)
+            .firstOrNull()?.ops?.map(::OpEntry) ?: emptyList()
+    }
+
+    fun getUidOps(uid: Int): List<PackageOps> {
+        return appOpsService.getUidOps(uid, null).map(::PackageOps)
     }
 
     fun setUidMode(op: Int, uid: Int, mode: Int) {
