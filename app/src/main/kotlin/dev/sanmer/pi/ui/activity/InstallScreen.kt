@@ -57,6 +57,7 @@ import dev.sanmer.hidden.compat.content.bundle.SplitConfig
 import dev.sanmer.hidden.compat.content.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
+import dev.sanmer.pi.ui.component.BottomBarLayout
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.utils.expandedShape
@@ -96,7 +97,6 @@ fun InstallScreen(
                     minHeight = 300.dp
                 )
                 else -> InstallContent(
-                    viewModel = viewModel,
                     onDeny = onDeny,
                     onFinish = onFinish
                 )
@@ -107,63 +107,69 @@ fun InstallScreen(
 
 @Composable
 private fun InstallContent(
-    viewModel: InstallViewModel,
+    viewModel: InstallViewModel = hiltViewModel(),
     onDeny: () -> Unit,
     onFinish: () -> Unit
-) = Column(
-    modifier = Modifier
-        .padding(all = 20.dp)
-        .fillMaxWidth(),
-    verticalArrangement = Arrangement.spacedBy(16.dp),
-    horizontalAlignment = Alignment.CenterHorizontally
-) {
-    PackageItem(
-        archiveInfo = viewModel.archiveInfo,
-        archiveLabel = viewModel.archiveLabel,
-        versionDiff = viewModel.versionDiff,
-        sdkDiff = viewModel.sdkDiff,
-        apkSize = viewModel.formattedApkSize
-    )
+) = BottomBarLayout(
+    modifier = Modifier.padding(all = 20.dp),
+    bottomBar = {
+        val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
+        Row(
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .padding(navigationBarsPadding)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
 
-    when {
-        viewModel.state == State.AppBundle -> {
-            AppBundlesItem(
-                configs = viewModel.splitConfigs,
-                isRequiredConfig = viewModel::isRequiredConfig,
-                toggleSplitConfig = viewModel::toggleSplitConfig
-            )
-        }
-        viewModel.hasSourceInfo -> {
-            RequesterItem(
-                sourceInfo = viewModel.sourceInfo,
-                toggleAuthorized = viewModel::toggleAuthorized
-            )
+            OutlinedButton(
+                onClick = onDeny
+            ) {
+                Text(text = stringResource(id = R.string.install_button_cancel))
+            }
+
+            Button(
+                onClick = {
+                    viewModel.startInstall()
+                    onFinish()
+                }
+            ) {
+                Text(text = stringResource(id = R.string.install_button_install))
+            }
         }
     }
-
-    val navigationBarsPadding = WindowInsets.navigationBars.asPaddingValues()
-    Row(
+) { innerPadding ->
+    Column(
         modifier = Modifier
-            .padding(navigationBarsPadding)
+            .padding(innerPadding)
             .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.weight(1f))
+        PackageItem(
+            archiveInfo = viewModel.archiveInfo,
+            archiveLabel = viewModel.archiveLabel,
+            versionDiff = viewModel.versionDiff,
+            sdkDiff = viewModel.sdkDiff,
+            apkSize = viewModel.formattedApkSize
+        )
 
-        OutlinedButton(
-            onClick = onDeny
-        ) {
-            Text(text = stringResource(id = R.string.install_button_cancel))
-        }
-
-        Button(
-            onClick = {
-                viewModel.startInstall()
-                onFinish()
+        when {
+            viewModel.state == State.AppBundle -> {
+                AppBundlesItem(
+                    configs = viewModel.splitConfigs,
+                    isRequiredConfig = viewModel::isRequiredConfig,
+                    toggleSplitConfig = viewModel::toggleSplitConfig
+                )
             }
-        ) {
-            Text(text = stringResource(id = R.string.install_button_install))
+            viewModel.hasSourceInfo -> {
+                RequesterItem(
+                    sourceInfo = viewModel.sourceInfo,
+                    toggleAuthorized = viewModel::toggleAuthorized
+                )
+            }
         }
     }
 }
@@ -282,11 +288,10 @@ private fun RequesterItem(
 }
 
 @Composable
-private fun ColumnScope.AppBundlesItem(
+private fun AppBundlesItem(
     configs: List<SplitConfig>,
     isRequiredConfig: (SplitConfig) -> Boolean,
-    toggleSplitConfig: (SplitConfig) -> Unit,
-    modifier: Modifier = Modifier
+    toggleSplitConfig: (SplitConfig) -> Unit
 ) {
     val featureConfigs by remember {
         derivedStateOf { configs.filterIsInstance<FeatureSplitConfig>() }
@@ -306,14 +311,6 @@ private fun ColumnScope.AppBundlesItem(
 
     val state = rememberLazyListState()
     LazyColumn(
-        modifier = modifier
-            .then(
-                if (state.canScrollForward || state.canScrollBackward) {
-                    Modifier.weight(1f)
-                } else {
-                    Modifier
-                }
-            ),
         state = state,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
