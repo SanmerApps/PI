@@ -13,7 +13,7 @@ import java.io.File
 object MediaStoreCompat {
     fun Context.createMediaStoreUri(
         file: File,
-        collection: Uri =MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+        collection: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI,
         mimeType: String
     ): Uri? {
         val entry = ContentValues().apply {
