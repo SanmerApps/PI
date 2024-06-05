@@ -45,8 +45,7 @@
             android:label="@string/install_activity"
             android:exported="true"
             android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="${applicationId}.INSTALL">
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
