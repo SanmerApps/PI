@@ -3,19 +3,25 @@ package dev.sanmer.pi.compat
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.system.Os
+import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import java.io.File
+import java.io.IOException
 
 object MediaStoreCompat {
+    @RequiresApi(Build.VERSION_CODES.R)
     fun Context.createMediaStoreUri(
         file: File,
         collection: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI,
         mimeType: String
-    ): Uri? {
+    ): Uri {
         val entry = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
             put(MediaStore.MediaColumns.RELATIVE_PATH, file.parent)
@@ -23,7 +29,25 @@ object MediaStoreCompat {
             put(MediaStore.MediaColumns.IS_PENDING, 0)
         }
 
-        return contentResolver.insert(collection, entry)
+        return contentResolver.insert(collection, entry) ?: throw IOException("Can't insert $file")
+    }
+
+    fun Context.createUriForDownload(
+        path: String,
+        mimeType: String
+    ) = when {
+        BuildCompat.atLeastR -> createMediaStoreUri(
+            file = File(Environment.DIRECTORY_DOWNLOADS, path),
+            mimeType = mimeType
+        )
+        else -> {
+            val downloadsPath = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS
+            )
+            val file = File(downloadsPath, path)
+            file.parentFile?.apply { if (!exists()) mkdirs() }
+            file.toUri()
+        }
     }
 
     fun Context.getDisplayNameForUri(uri: Uri): String {

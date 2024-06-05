@@ -6,7 +6,6 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
-import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,7 +19,7 @@ import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.Compat
-import dev.sanmer.pi.compat.MediaStoreCompat.createMediaStoreUri
+import dev.sanmer.pi.compat.MediaStoreCompat.createUriForDownload
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -213,9 +212,9 @@ class AppViewModel @Inject constructor(
         }
 
         suspend fun export(context: Context): Boolean {
-            val path = Environment.DIRECTORY_DOWNLOADS + File.separator + "PI"
             val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
             val sourceDir = File(packageInfo.applicationInfo.sourceDir)
+            val path = "PI" + File.separator + filename
 
             val files = sourceDir.parentFile?.listFiles { file ->
                 file.name.endsWith(".apk")
@@ -226,14 +225,14 @@ class AppViewModel @Inject constructor(
                 streams.size == 1 -> {
                     context.exportApk(
                         input = streams.first().second,
-                        file = File(path, filename)
+                        path = path
                     )
                 }
 
                 streams.size > 1 -> {
                     context.exportApks(
                         inputs = streams,
-                        file = File(path, "${filename}s")
+                        path = path + 's'
                     )
                 }
             }
@@ -244,16 +243,15 @@ class AppViewModel @Inject constructor(
 
         private suspend fun Context.exportApk(
             input: InputStream,
-            file: File
+            path: String,
         ) = withContext(Dispatchers.IO) {
-            createMediaStoreUri(
-                file = file,
+            val uri = createUriForDownload(
+                path = path,
                 mimeType = "android/vnd.android.package-archive"
-            )?.let {
-                contentResolver.openOutputStream(it)?.use { output ->
-                    input.copyTo(output)
-                }
+            )
 
+            contentResolver.openOutputStream(uri)?.use { output ->
+                input.copyTo(output)
                 return@withContext true
             }
 
@@ -262,21 +260,21 @@ class AppViewModel @Inject constructor(
 
         private suspend fun Context.exportApks(
             inputs: List<Pair<File, InputStream>>,
-            file: File
-        )  = withContext(Dispatchers.IO) {
-            createMediaStoreUri(
-                file = file,
+            path: String,
+        ) = withContext(Dispatchers.IO) {
+            val uri = createUriForDownload(
+                path = path,
                 mimeType = "android/zip"
-            )?.let {
-                contentResolver.openOutputStream(it)?.let(::ZipOutputStream)?.use { output ->
-                    inputs.forEach { (file, input) ->
-                        output.putNextEntry(ZipEntry(file.name))
-                        input.copyTo(output)
-                        output.closeEntry()
-                    }
+            )
 
-                    return@withContext true
+            contentResolver.openOutputStream(uri)?.let(::ZipOutputStream)?.use { output ->
+                inputs.forEach { (file, input) ->
+                    output.putNextEntry(ZipEntry(file.name))
+                    input.copyTo(output)
+                    output.closeEntry()
                 }
+
+                return@withContext true
             }
 
             false
