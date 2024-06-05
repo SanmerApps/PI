@@ -32,12 +32,13 @@ class DensitySplitConfig(
     }
 
     enum class Dpi {
-        LDPI,
-        MDPI,
-        HDPI,
-        XHDPI,
-        XXHDPI,
-        XXXHDPI
+        LDPI, // 120
+        MDPI, // 160
+        TVDPI, // 213
+        HDPI, // 240
+        XHDPI, // 320
+        XXHDPI, // 480
+        XXXHDPI, // 640
     }
 
     companion object {
@@ -45,6 +46,7 @@ class DensitySplitConfig(
             return when (dpi) {
                 Dpi.LDPI -> DisplayMetrics.DENSITY_LOW
                 Dpi.MDPI -> DisplayMetrics.DENSITY_MEDIUM
+                Dpi.TVDPI -> DisplayMetrics.DENSITY_TV
                 Dpi.HDPI -> DisplayMetrics.DENSITY_HIGH
                 Dpi.XHDPI -> DisplayMetrics.DENSITY_XHIGH
                 Dpi.XXHDPI -> DisplayMetrics.DENSITY_XXHIGH
@@ -56,6 +58,7 @@ class DensitySplitConfig(
             return when {
                 dpi <= DisplayMetrics.DENSITY_LOW -> Dpi.LDPI
                 dpi <= DisplayMetrics.DENSITY_MEDIUM -> Dpi.MDPI
+                dpi <= DisplayMetrics.DENSITY_TV -> Dpi.TVDPI
                 dpi <= DisplayMetrics.DENSITY_HIGH -> Dpi.HDPI
                 dpi <= DisplayMetrics.DENSITY_XHIGH -> Dpi.XHDPI
                 dpi <= DisplayMetrics.DENSITY_XXHIGH -> Dpi.XXHDPI
