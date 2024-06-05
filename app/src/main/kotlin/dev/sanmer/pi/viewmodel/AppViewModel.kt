@@ -10,7 +10,6 @@ import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,6 +20,7 @@ import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.Compat
+import dev.sanmer.pi.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
+import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
@@ -202,66 +203,83 @@ class AppViewModel @Inject constructor(
 
             when (status) {
                 PackageInstaller.STATUS_SUCCESS -> {
-                    Timber.i("Uninstall succeeded: packageName = ${packageInfo.packageName}")
                     if (packageInfo.isSystemApp) refresh()
-                    return@withContext !packageInfo.isSystemApp
+                    !packageInfo.isSystemApp
                 }
                 else -> {
-                    val msg = result.getStringExtra(
-                        PackageInstaller.EXTRA_STATUS_MESSAGE
-                    )
-
-                    Timber.e("Uninstall failed: packageName = ${packageInfo.packageName}, msg = $msg")
-                    return@withContext false
+                    false
                 }
             }
         }
 
-        suspend fun export(context: Context) = withContext(Dispatchers.IO) {
-            val cr = context.contentResolver
-            val downloadPath = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS
-            ).let {
-                File(it, "PI").apply { if (!exists()) mkdirs() }
-            }
-
-            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}" }
+        suspend fun export(context: Context): Boolean {
+            val path = Environment.DIRECTORY_DOWNLOADS + File.separator + "PI"
+            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
             val sourceDir = File(packageInfo.applicationInfo.sourceDir)
 
-            val files = sourceDir.parentFile
-                ?.listFiles { _, name ->
-                    name.endsWith(".apk")
-                } ?: return@withContext false
+            val files = sourceDir.parentFile?.listFiles { file ->
+                file.name.endsWith(".apk")
+            } ?: return false
 
             val streams = files.map { it to it.inputStream().buffered() }
             when {
                 streams.size == 1 -> {
-                    val apk = File(downloadPath, "${filename}.apk")
-                    cr.openOutputStream(apk.toUri())?.use { output ->
-                        streams.first().second.use { input ->
-                            input.copyTo(output)
-                        }
-                    }
-
-                    Timber.i("Export to ${apk.path}")
+                    context.exportApk(
+                        input = streams.first().second,
+                        file = File(path, filename)
+                    )
                 }
-                streams.size > 1 -> {
-                    val apks = File(downloadPath, "${filename}.apks")
-                    cr.openOutputStream(apks.toUri())?.let(::ZipOutputStream)?.use { output ->
-                        streams.forEach { (file, input) ->
-                            val entry = ZipEntry(file.name)
-                            output.putNextEntry(entry)
-                            input.copyTo(output)
-                            input.close()
-                            output.closeEntry()
-                        }
-                    }
 
-                    Timber.i("Export to ${apks.path}")
+                streams.size > 1 -> {
+                    context.exportApks(
+                        inputs = streams,
+                        file = File(path, "${filename}s")
+                    )
                 }
             }
 
-            return@withContext true
+            streams.forEach { it.second.close() }
+            return true
+        }
+
+        private suspend fun Context.exportApk(
+            input: InputStream,
+            file: File
+        ) = withContext(Dispatchers.IO) {
+            createMediaStoreUri(
+                file = file,
+                mimeType = "android/vnd.android.package-archive"
+            )?.let {
+                contentResolver.openOutputStream(it)?.use { output ->
+                    input.copyTo(output)
+                }
+
+                return@withContext true
+            }
+
+            false
+        }
+
+        private suspend fun Context.exportApks(
+            inputs: List<Pair<File, InputStream>>,
+            file: File
+        )  = withContext(Dispatchers.IO) {
+            createMediaStoreUri(
+                file = file,
+                mimeType = "android/zip"
+            )?.let {
+                contentResolver.openOutputStream(it)?.let(::ZipOutputStream)?.use { output ->
+                    inputs.forEach { (file, input) ->
+                        output.putNextEntry(ZipEntry(file.name))
+                        input.copyTo(output)
+                        output.closeEntry()
+                    }
+
+                    return@withContext true
+                }
+            }
+
+            false
         }
     }
 
