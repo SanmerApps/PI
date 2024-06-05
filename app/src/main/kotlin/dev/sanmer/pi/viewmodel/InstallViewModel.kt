@@ -1,5 +1,6 @@
 package dev.sanmer.pi.viewmodel
 
+import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
@@ -13,7 +14,6 @@ import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.hidden.compat.ContextCompat.userId
 import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
-import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
 import dev.sanmer.hidden.compat.PackageParserCompat
 import dev.sanmer.hidden.compat.content.bundle.SplitConfig
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
@@ -91,7 +91,7 @@ class InstallViewModel @Inject constructor(
 
         val packageName = getSourcePackageForHost(uri)
         val source = getPackageInfo(packageName)
-        if (!source.isSystemApp) {
+        if (source.hasOpInstallPackage()) {
             sourceInfo = source.toIPackageInfo(
                 isAuthorized = source.isAuthorized()
             )
@@ -147,7 +147,7 @@ class InstallViewModel @Inject constructor(
 
         when {
             sourceInfo.isAuthorized -> {
-                setMode(AppOpsManagerDelegate.Mode.Ignore)
+                setMode(AppOpsManagerDelegate.Mode.Default)
                 sourceInfo = sourceInfo.copy(isAuthorized = false)
             }
             else -> {
@@ -208,6 +208,13 @@ class InstallViewModel @Inject constructor(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
     ).isAllowed()
+
+    private fun PackageInfo.hasOpInstallPackage() =
+        requestedPermissions?.contains(
+            Manifest.permission.REQUEST_INSTALL_PACKAGES
+        ) == true ||
+                aom.getOpsForPackage(this).map { it.op }
+                    .contains(AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES)
 
     enum class State {
         None,

@@ -1,5 +1,6 @@
 package dev.sanmer.pi.viewmodel
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
@@ -74,7 +75,10 @@ class AppViewModel @Inject constructor(
         private set
 
     val hasOpInstallPackage by lazy {
-        aom.getOpsForPackage(packageInfo).map { it.op }
+        packageInfo.requestedPermissions?.contains(
+            Manifest.permission.REQUEST_INSTALL_PACKAGES
+        ) == true ||
+                aom.getOpsForPackage(packageInfo).map { it.op }
             .contains(AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES)
     }
 
@@ -123,7 +127,7 @@ class AppViewModel @Inject constructor(
 
         when {
             isAllowed -> setMode(AppOpsManagerDelegate.Mode.Allow)
-            else -> setMode(AppOpsManagerDelegate.Mode.Ignore)
+            else -> setMode(AppOpsManagerDelegate.Mode.Default)
         }
     }
 
