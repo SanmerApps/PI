@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -52,7 +53,7 @@ class AppsViewModel @Inject constructor(
         private set
 
     override fun opChanged(op: Int, uid: Int, packageName: String) {
-        Timber.d("opChanged: $packageName")
+        Timber.d("opChanged<${AppOpsManagerDelegate.opToName(op)}>: $packageName")
 
         viewModelScope.launch {
             packagesFlow.value = getPackages()
@@ -67,23 +68,27 @@ class AppsViewModel @Inject constructor(
     }
 
     private fun packagesObserver() {
-        combine(
-            Compat.isAliveFlow,
-            PackageReceiver.eventFlow
-        ) { isAlive, _ ->
-            if (!isAlive) return@combine
+        Compat.isAliveFlow
+            .onEach { isAlive ->
+                if (!isAlive) return@onEach
 
-            if (isLoading) {
+                packagesFlow.value = getPackages()
+
                 aom.startWatchingMode(
                     op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
                     packageName = null,
                     callback = this
                 )
-            }
 
-            packagesFlow.value = getPackages()
+            }.launchIn(viewModelScope)
 
-        }.launchIn(viewModelScope)
+        PackageReceiver.eventFlow
+            .onEach {
+                if (!isProviderAlive) return@onEach
+
+                packagesFlow.value = getPackages()
+
+            }.launchIn(viewModelScope)
 
         addCloseable {
             if (isProviderAlive) {

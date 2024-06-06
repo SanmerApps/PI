@@ -10,12 +10,30 @@ import timber.log.Timber
 
 class PackageReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
+        val actionStr = intent?.action.orEmpty()
         val packageName = intent?.data?.encodedSchemeSpecificPart.orEmpty()
-        val action = intent?.action.orEmpty()
 
-        if (filter.hasAction(action)) {
-            Timber.d("onReceive: action = ${action}, packageName = $packageName")
-            _eventFlow.value = action to packageName
+        if (filter.hasAction(actionStr)) {
+            val action = Action.from(actionStr)
+            _eventFlow.value = Event(action, packageName)
+
+            Timber.d("packageChanged<$action>: $packageName")
+        }
+    }
+
+    data class Event(
+        val action: Action = Action.None,
+        val packageName: String = ""
+    )
+
+    enum class Action(val str: String) {
+        None("None"),
+        Added(Intent.ACTION_PACKAGE_ADDED),
+        Replaced(Intent.ACTION_PACKAGE_REPLACED),
+        Removed(Intent.ACTION_PACKAGE_REMOVED);
+
+        companion object {
+            fun from(str: String) = entries.first { it.str == str }
         }
     }
 
@@ -30,7 +48,7 @@ class PackageReceiver : BroadcastReceiver() {
             }
         }
 
-        private val _eventFlow = MutableStateFlow("" to "")
+        private val _eventFlow = MutableStateFlow(Event())
         val eventFlow get() = _eventFlow.asStateFlow()
 
         fun register(context: Context) {
