@@ -87,7 +87,7 @@ class AppViewModel @Inject constructor(
     }
 
     init {
-        Timber.d("AppViewModel init")
+        Timber.d("AppViewModel init: $packageName")
         dataObserver()
         opInstallPackageObserver()
     }

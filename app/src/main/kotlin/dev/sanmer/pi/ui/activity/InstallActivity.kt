@@ -29,7 +29,7 @@ class InstallActivity : ComponentActivity() {
     private val viewModel: InstallViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.d("InstallActivity onCreate")
+        Timber.d("onCreate")
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -43,7 +43,7 @@ class InstallActivity : ComponentActivity() {
             val permission = listOf(Manifest.permission.POST_NOTIFICATIONS)
             PermissionCompat.requestPermissions(this, permission) { state ->
                 if (!state.allGranted) {
-                    Timber.w("permission: $state")
+                    Timber.w("notGranted: $state")
                 }
             }
         }
@@ -73,7 +73,7 @@ class InstallActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        Timber.d("InstallActivity onDestroy")
+        Timber.d("onDestroy")
         setResult(RESULT_OK)
         super.onDestroy()
     }

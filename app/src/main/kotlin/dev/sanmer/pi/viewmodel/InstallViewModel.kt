@@ -21,6 +21,7 @@ import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.is
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
+import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -91,6 +92,7 @@ class InstallViewModel @Inject constructor(
         }
 
         val packageName = context.getOwnerPackageNameForUri(uri)
+        Timber.d("loadPackage<sourceInfo>: $packageName")
         val source = getPackageInfo(packageName)
         if (source.hasOpInstallPackage()) {
             sourceInfo = source.toIPackageInfo(
@@ -98,12 +100,14 @@ class InstallViewModel @Inject constructor(
             )
         }
 
+        Timber.d("loadPackage<path>: ${context.getPathForUri(uri)}")
         val path = context.copyToDir(uri, tempDir)
         PackageParserCompat.parsePackage(path, 0)?.let { pi ->
             archiveInfo = pi
             archivePath = path
             apkSize = archivePath.length()
 
+            Timber.i("loadPackage<Apk>: ${pi.packageName}")
             state = State.Apk
             return@withContext
         }
@@ -118,6 +122,8 @@ class InstallViewModel @Inject constructor(
                 bi.splitConfigs.filter { it.isRequired() || it.isRecommended() }
             )
 
+            Timber.i("loadPackage<AppBundle>: ${bi.baseInfo.packageName}")
+            Timber.i("loadPackage<AppBundle>: allSplits = ${splitConfigs.size}")
             state = State.AppBundle
             return@withContext
         }
@@ -159,18 +165,22 @@ class InstallViewModel @Inject constructor(
     }
 
     fun startInstall() {
-        val splitConfigs = requiredConfigs
+        val filenames = requiredConfigs
             .map { it.filename }
             .toMutableList()
             .apply {
                 add(0, PackageParserCompat.BASE_APK)
             }
 
+        if (state == State.AppBundle) {
+            Timber.d("startInstall<AppBundle>: files = ${splitConfigs.size}")
+        }
+
         InstallService.start(
             context = context,
             archivePath = archivePath,
             archiveInfo = archiveInfo,
-            splitConfigs = splitConfigs
+            filenames = filenames
         )
     }
 

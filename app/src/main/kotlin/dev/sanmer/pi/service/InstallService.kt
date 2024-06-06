@@ -50,8 +50,8 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     }
 
     override fun onCreated(sessionId: Int) {
-        Timber.d("onCreated: sessionId = $sessionId")
         val session = delegate.getSessionInfo(sessionId) ?: return
+        Timber.i("onCreated<$sessionId>: ${session.appPackageName}")
 
         onProgressChanged(
             id = sessionId,
@@ -62,7 +62,6 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     }
 
     override fun onProgressChanged(sessionId: Int, progress: Float) {
-        Timber.d("onProgressChanged: sessionId = $sessionId, progress = $progress")
         val session = delegate.getSessionInfo(sessionId) ?: return
 
         onProgressChanged(
@@ -74,7 +73,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     }
 
     override fun onFinished(sessionId: Int, success: Boolean) {
-        Timber.d("onFinished: sessionId = $sessionId, success = $success")
+        Timber.i("onFinished<$sessionId>: success = $success")
         val sessions = delegate.getMySessions().filter { it.isActive }
         if (sessions.isEmpty()) {
             stopSelf()
@@ -82,7 +81,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     }
 
     override fun onCreate() {
-        Timber.d("InstallService onCreate")
+        Timber.d("onCreate")
         super.onCreate()
 
         delegate.registerCallback(this)
@@ -94,7 +93,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         delegate.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
-        Timber.d("InstallService onDestroy")
+        Timber.d("onDestroy")
         super.onDestroy()
     }
 
@@ -102,7 +101,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         lifecycleScope.launch(Dispatchers.IO) {
             val archivePath = intent?.archivePathOrNull ?: return@launch
             val archiveInfo = intent.archiveInfoOrNull ?: return@launch
-            val splitConfigs = intent.splitConfigs
+            val filenames = intent.filenames
 
             val appIcon = appIconLoader.loadIcon(archiveInfo.applicationInfo)
             val appLabel = archiveInfo.applicationInfo.loadLabel(packageManager).toString()
@@ -111,7 +110,6 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
             val originatingUid = getPackageUid(userPreferences.requester)
             delegate.setInstallerPackageName(userPreferences.executor)
 
-            Timber.i("onCreated: packageName = ${archiveInfo.packageName}")
             val params = createSessionParams()
             params.setAppIcon(appIcon)
             params.setAppLabel(appLabel)
@@ -125,7 +123,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
             when {
                 archivePath.isDirectory -> {
-                    session.writeApks(archivePath, splitConfigs)
+                    session.writeApks(archivePath, filenames)
                 }
                 archivePath.isFile -> {
                     session.writeApk(archivePath)
@@ -140,7 +138,6 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
             when (status) {
                 PackageInstaller.STATUS_SUCCESS -> {
-                    Timber.i("onSucceeded: packageName = ${archiveInfo.packageName}")
                     onInstallSucceeded(
                         id = sessionId,
                         appLabel = appLabel,
@@ -150,7 +147,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
                 }
                 else -> {
                     val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                    Timber.e("onFailed: packageName = ${archiveInfo.packageName}, msg = $msg")
+                    Timber.e("onFailed<${archiveInfo.packageName}>: $msg")
                     onInstallFailed(
                         id = sessionId,
                         appLabel = appLabel,
@@ -290,20 +287,20 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         private val Intent.archiveInfoOrNull: PackageInfo?
             get() = parcelable(EXTRA_ARCHIVE_INFO)
 
-        private const val EXTRA_ARCHIVE_SPLIT_CONFIGS = "dev.sanmer.pi.extra.ARCHIVE_SPLIT_CONFIGS"
-        private val Intent.splitConfigs: List<String>
-            get() = getStringArrayExtra(EXTRA_ARCHIVE_SPLIT_CONFIGS)?.toList() ?: emptyList()
+        private const val EXTRA_ARCHIVE_FILENAMES = "dev.sanmer.pi.extra.ARCHIVE_FILENAMES"
+        private val Intent.filenames: List<String>
+            get() = getStringArrayExtra(EXTRA_ARCHIVE_FILENAMES)?.toList() ?: emptyList()
 
         fun start(
             context: Context,
             archivePath: File,
             archiveInfo: PackageInfo,
-            splitConfigs: List<String>
+            filenames: List<String>
         ) {
             val intent = Intent(context, InstallService::class.java)
             intent.putExtra(EXTRA_ARCHIVE_PATH, archivePath.path)
             intent.putExtra(EXTRA_ARCHIVE_INFO, archiveInfo)
-            intent.putExtra(EXTRA_ARCHIVE_SPLIT_CONFIGS, splitConfigs.toTypedArray())
+            intent.putExtra(EXTRA_ARCHIVE_FILENAMES, filenames.toTypedArray())
 
             context.startService(intent)
         }
