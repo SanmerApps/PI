@@ -33,13 +33,17 @@ object PackageParserCompat {
             null
         }
 
+    private fun parsePackageInner(file: File, flags: Int): PackageInfo? {
+        val pkg = PackageParser().parsePackage(file, flags, false)
+        return generatePackageInfo(pkg, null, flags, 0, 0, null)?.also {
+            it.applicationInfo.sourceDir = file.path
+            it.applicationInfo.publicSourceDir = file.path
+        }
+    }
+
     fun parsePackage(file: File, flags: Int) =
         try {
-            val pkg = PackageParser().parsePackage(file, flags, false)
-            generatePackageInfo(pkg, null, flags, 0, 0, null)?.also {
-                it.applicationInfo.sourceDir = file.path
-                it.applicationInfo.publicSourceDir = file.path
-            }
+            parsePackageInner(file, flags)
         } catch (e: PackageParser.PackageParserException) {
             null
         } catch (e: Throwable) {
@@ -47,7 +51,7 @@ object PackageParserCompat {
             null
         }
 
-    internal fun generatePackageInfo(
+    fun generatePackageInfo(
         pkg: PackageParser.Package,
         gid: IntArray?,
         flags: Int,
@@ -78,17 +82,17 @@ object PackageParserCompat {
         }
     }
 
-    internal fun parseAppBundleInner(file: File, flags: Int, cacheDir: File): AppBundleInfo {
+    private fun parseAppBundleInner(file: File, flags: Int, cacheDir: File): AppBundleInfo {
         file.unzip(cacheDir)
 
         val baseFile = File(cacheDir, BASE_APK).apply {
             if (!exists()) throw FileNotFoundException(BASE_APK)
         }
-        val baseInfo = parsePackage(baseFile, flags)
+        val baseInfo = parsePackageInner(baseFile, flags)
             ?: throw NullPointerException("Failed to parse $BASE_APK")
 
-        val apkFiles = cacheDir.listFiles { _, name ->
-            name.endsWith(APK_FILE_EXTENSION)
+        val apkFiles = cacheDir.listFiles { f ->
+            f.name.endsWith(APK_FILE_EXTENSION)
         } ?: throw FileNotFoundException("*.apk")
         val splitFiles = mutableListOf<File>()
         val splitConfigs = mutableListOf<SplitConfig>()
@@ -115,11 +119,14 @@ object PackageParserCompat {
     }
 
     fun parseAppBundle(file: File, flags: Int, cacheDir: File): AppBundleInfo? =
-        runCatching {
+        try {
             parseAppBundleInner(file, flags, cacheDir)
-        }.onFailure {
-            Log.w(TAG, "Failed to parse ${file.path}", it)
-        }.getOrNull()
+        } catch (e: PackageParser.PackageParserException) {
+            null
+        } catch (e: Throwable) {
+            Log.w(TAG, "Failed to parse ${file.path}", e)
+            null
+        }
 
     private fun parseSplitConfig(
         apk: PackageParser.ApkLite,
@@ -151,9 +158,7 @@ object PackageParserCompat {
                 }
 
                 val dest = File(folder, entry.name)
-                dest.parentFile!!.let {
-                    if (!it.exists()) it.mkdirs()
-                }
+                dest.parentFile?.apply { if (!exists()) mkdirs() }
                 dest.outputStream().use { out -> zin.copyTo(out) }
             }
         } catch (e: IllegalArgumentException) {
