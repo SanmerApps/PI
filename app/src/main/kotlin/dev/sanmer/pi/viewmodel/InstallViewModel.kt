@@ -20,6 +20,7 @@ import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
+import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -89,7 +90,7 @@ class InstallViewModel @Inject constructor(
             return@withContext
         }
 
-        val packageName = getSourcePackageForHost(uri)
+        val packageName = context.getOwnerPackageNameForUri(uri)
         val source = getPackageInfo(packageName)
         if (source.hasOpInstallPackage()) {
             sourceInfo = source.toIPackageInfo(
@@ -175,15 +176,6 @@ class InstallViewModel @Inject constructor(
 
     fun deleteTempDir() {
         tempDir.deleteRecursively()
-    }
-
-    private fun getSourcePackageForHost(uri: Uri): String? {
-        val host = uri.host ?: return null
-        return runCatching {
-            pm.resolveContentProvider(
-                host, 0
-            )?.packageName
-        }.getOrNull()
     }
 
     private fun getPackageInfo(packageName: String?): PackageInfo {

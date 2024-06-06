@@ -19,7 +19,7 @@ import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
 import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.Compat
-import dev.sanmer.pi.compat.MediaStoreCompat.createUriForDownload
+import dev.sanmer.pi.compat.MediaStoreCompat.createDownloadUri
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -245,7 +245,7 @@ class AppViewModel @Inject constructor(
             input: InputStream,
             path: String,
         ) = withContext(Dispatchers.IO) {
-            val uri = createUriForDownload(
+            val uri = createDownloadUri(
                 path = path,
                 mimeType = "android/vnd.android.package-archive"
             )
@@ -262,7 +262,7 @@ class AppViewModel @Inject constructor(
             inputs: List<Pair<File, InputStream>>,
             path: String,
         ) = withContext(Dispatchers.IO) {
-            val uri = createUriForDownload(
+            val uri = createDownloadUri(
                 path = path,
                 mimeType = "android/zip"
             )
