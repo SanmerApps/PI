@@ -1,5 +1,6 @@
 package dev.sanmer.pi.utils.extensions
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -37,4 +38,8 @@ fun Context.appSetting(packageName: String) {
             Uri.fromParts("package", packageName, null)
         )
     )
+}
+
+fun Context.finishActivity() {
+    if (this is Activity) finish()
 }

@@ -224,6 +224,12 @@ class InstallViewModel @Inject constructor(
         InvalidProvider,
         InvalidPackage,
         Apk,
-        AppBundle
+        AppBundle;
+
+        companion object {
+            fun State.isLoading() = this == None
+            fun State.isFailed() = this == InvalidProvider || this == InvalidPackage
+            fun State.isReady() = this == Apk || this == AppBundle
+        }
     }
 }

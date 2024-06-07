@@ -4,15 +4,14 @@ import android.content.pm.PackageInfo
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,21 +19,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -45,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,137 +52,133 @@ import dev.sanmer.hidden.compat.content.bundle.SplitConfig
 import dev.sanmer.hidden.compat.content.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.ui.component.BottomBarLayout
+import dev.sanmer.pi.ui.component.BottomSheetLayout
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.utils.expandedShape
+import dev.sanmer.pi.utils.extensions.finishActivity
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import dev.sanmer.pi.viewmodel.InstallViewModel.State
+import dev.sanmer.pi.viewmodel.InstallViewModel.State.Companion.isReady
 
 @Composable
 fun InstallScreen(
-    viewModel: InstallViewModel = hiltViewModel(),
-    onFinish: () -> Unit
+    viewModel: InstallViewModel = hiltViewModel()
 ) {
-    val bottomSheetState = rememberStandardBottomSheetState(
-        initialValue = SheetValue.Expanded
-    )
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = bottomSheetState
-    )
+    val context = LocalContext.current
 
     BackHandler {
         viewModel.deleteTempDir()
-        onFinish()
+        context.finishActivity()
     }
 
-    LaunchedEffect(viewModel.state) {
-        if (viewModel.state != State.None) {
-            bottomSheetState.expand()
-        }
-    }
+    BottomSheetLayout(
+        bottomBar = {
+            if (viewModel.state.isReady()) {
+                BottomBar(
+                    modifier = Modifier
+                        .padding(it)
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 20.dp),
+                    onDeny = viewModel::deleteTempDir,
+                    onStart = viewModel::startInstall
+                )
+            }
+        },
+        shape = BottomSheetDefaults.expandedShape(20.dp)
+    ) {
+        Crossfade(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(it)
+                .padding(all = 20.dp),
+            targetState = viewModel.state,
+            label = "InstallScreen"
+        ) { state ->
+            when (state) {
+                State.None -> Loading(
+                    minHeight = 240.dp
+                )
 
-    BottomSheetScaffold(
-        content = {},
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = 300.dp,
-        sheetDragHandle = null,
-        sheetShape = BottomSheetDefaults.expandedShape(20.dp),
-        sheetContent = {
-            Crossfade(
-                targetState = viewModel.state,
-                label = "InstallScreen"
-            ) { state ->
-                when (state) {
-                    State.None -> Loading(minHeight = 300.dp)
-                    State.InvalidProvider -> Failed(
-                        message = stringResource(id = R.string.install_invalid_provider),
-                        minHeight = 300.dp
-                    )
-                    State.InvalidPackage -> Failed(
-                        message = stringResource(id = R.string.install_invalid_package),
-                        minHeight = 300.dp
-                    )
-                    else -> InstallContent(
-                        onDeny = {
-                            viewModel.deleteTempDir()
-                            onFinish()
-                        },
-                        onFinish = onFinish
-                    )
-                }
+                State.InvalidProvider -> Failed(
+                    message = stringResource(id = R.string.install_invalid_provider),
+                    minHeight = 240.dp
+                )
+
+                State.InvalidPackage -> Failed(
+                    message = stringResource(id = R.string.install_invalid_package),
+                    minHeight = 240.dp
+                )
+
+                else -> InstallContent()
             }
         }
-    )
+    }
 }
 
 @Composable
 private fun InstallContent(
-    viewModel: InstallViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+    viewModel: InstallViewModel = hiltViewModel()
+) = Column(
+    modifier = modifier.fillMaxWidth(),
+    verticalArrangement = Arrangement.spacedBy(16.dp),
+    horizontalAlignment = Alignment.CenterHorizontally
+) {
+    PackageItem(
+        archiveInfo = viewModel.archiveInfo,
+        archiveLabel = viewModel.archiveLabel,
+        versionDiff = viewModel.versionDiff,
+        sdkDiff = viewModel.sdkDiff,
+        apkSize = viewModel.formattedApkSize
+    )
+
+    when {
+        viewModel.state == State.AppBundle -> {
+            AppBundlesItem(
+                configs = viewModel.splitConfigs,
+                isRequiredConfig = viewModel::isRequiredConfig,
+                toggleSplitConfig = viewModel::toggleSplitConfig
+            )
+        }
+        viewModel.hasSourceInfo -> {
+            RequesterItem(
+                sourceInfo = viewModel.sourceInfo,
+                toggleAuthorized = viewModel::toggleAuthorized
+            )
+        }
+    }
+}
+
+@Composable
+private fun BottomBar(
+    modifier: Modifier = Modifier,
     onDeny: () -> Unit,
-    onFinish: () -> Unit
-) = BottomBarLayout(
-    bottomBar = { innerPadding ->
-        Row(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(bottom = 20.dp)
-                .padding(horizontal = 20.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
+    onStart: () -> Unit
+) = Row(
+    modifier = modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(20.dp)
+) {
+    Spacer(modifier = Modifier.weight(1f))
 
-            OutlinedButton(
-                onClick = onDeny
-            ) {
-                Text(text = stringResource(id = R.string.install_button_cancel))
-            }
-
-            Button(
-                onClick = {
-                    viewModel.startInstall()
-                    onFinish()
-                }
-            ) {
-                Text(text = stringResource(id = R.string.install_button_install))
-            }
+    val context = LocalContext.current
+    OutlinedButton(
+        onClick = {
+            onDeny()
+            context.finishActivity()
         }
-    },
-    contentWindowInsets = WindowInsets.navigationBars
-) { innerPadding ->
-    Column(
-        modifier = Modifier
-            .padding(innerPadding)
-            .padding(all = 20.dp)
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PackageItem(
-            archiveInfo = viewModel.archiveInfo,
-            archiveLabel = viewModel.archiveLabel,
-            versionDiff = viewModel.versionDiff,
-            sdkDiff = viewModel.sdkDiff,
-            apkSize = viewModel.formattedApkSize
-        )
+        Text(text = stringResource(id = R.string.install_button_cancel))
+    }
 
-        when {
-            viewModel.state == State.AppBundle -> {
-                AppBundlesItem(
-                    configs = viewModel.splitConfigs,
-                    isRequiredConfig = viewModel::isRequiredConfig,
-                    toggleSplitConfig = viewModel::toggleSplitConfig
-                )
-            }
-            viewModel.hasSourceInfo -> {
-                RequesterItem(
-                    sourceInfo = viewModel.sourceInfo,
-                    toggleAuthorized = viewModel::toggleAuthorized
-                )
-            }
+    Button(
+        onClick = {
+            onStart()
+            context.finishActivity()
         }
+    ) {
+        Text(text = stringResource(id = R.string.install_button_install))
     }
 }
 
@@ -197,8 +186,8 @@ private fun InstallContent(
 private fun PackageItem(
     archiveInfo: PackageInfo,
     archiveLabel: String,
-    versionDiff: AnnotatedString,
-    sdkDiff: AnnotatedString,
+    versionDiff: String,
+    sdkDiff: String,
     apkSize: String
 ) = TittleItem(
     text = stringResource(id = R.string.install_package_title)

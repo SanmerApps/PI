@@ -1,8 +1,6 @@
 package dev.sanmer.pi.compat
 
 import android.content.pm.PackageInfo
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
 import dev.sanmer.hidden.compat.PackageInfoCompat.compileSdkVersion
 import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
 
@@ -10,7 +8,7 @@ object VersionCompat {
     private const val ARROW = "→"
     private const val ARROW_REVERT = "←"
 
-    private fun <T: Comparable<T>> AnnotatedString.Builder.comparator(
+    private fun <T: Comparable<T>> StringBuilder.comparator(
         v0: Pair<T, String>,
         v1: Pair<T, String>
     ) {
@@ -42,7 +40,7 @@ object VersionCompat {
         }
     }
 
-    private fun <T: Comparable<T>> AnnotatedString.Builder.comparator(
+    private fun <T: Comparable<T>> StringBuilder.comparator(
         v0: T,
         v1: T
     ) = comparator(
@@ -56,7 +54,7 @@ object VersionCompat {
     fun getVersionDiff(
         old: PackageInfo,
         new: PackageInfo
-    ) = buildAnnotatedString {
+    ) = buildString {
         when {
             new.isEmpty -> {}
             old.isEmpty -> {
@@ -74,7 +72,7 @@ object VersionCompat {
     fun getSdkVersionDiff(
         old: PackageInfo,
         new: PackageInfo
-    ) = buildAnnotatedString {
+    ) = buildString {
         val oldAppInfo = old.applicationInfo
         val newAppInfo = new.applicationInfo
 

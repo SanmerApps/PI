@@ -64,9 +64,7 @@ class InstallActivity : ComponentActivity() {
                 AppTheme(
                     dynamicColor = preferences.dynamicColor
                 ) {
-                    InstallScreen(
-                        onFinish = this::finish
-                    )
+                    InstallScreen()
                 }
             }
         }
