@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
+import android.content.pm.PackageInstaller.SessionInfo
 import android.graphics.Bitmap
 import android.os.Process
 import androidx.core.app.NotificationCompat
@@ -49,36 +50,43 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         )
     }
 
+    private val tasks = mutableListOf<Int>()
+
     override fun onCreated(sessionId: Int) {
-        val session = delegate.getSessionInfo(sessionId) ?: return
-        Timber.i("onCreated<$sessionId>: ${session.appPackageName}")
+        val session = delegate.getSessionInfo(sessionId)
+        Timber.i("onCreated<$sessionId>: ${session?.appPackageName}")
+        tasks.add(sessionId)
 
         onProgressChanged(
             id = sessionId,
-            appLabel = session.appLabel.toString(),
-            appIcon = session.appIcon,
+            appLabel = session?.label ?: sessionId.toString(),
+            appIcon = session?.appIcon,
             progress = 0f
         )
     }
 
     override fun onProgressChanged(sessionId: Int, progress: Float) {
-        val session = delegate.getSessionInfo(sessionId) ?: return
+        val session = delegate.getSessionInfo(sessionId)
 
         onProgressChanged(
             id = sessionId,
-            appLabel = session.appLabel.toString(),
-            appIcon = session.appIcon,
+            appLabel = session?.label ?: sessionId.toString(),
+            appIcon = session?.appIcon,
             progress = progress
         )
     }
 
     override fun onFinished(sessionId: Int, success: Boolean) {
         Timber.i("onFinished<$sessionId>: success = $success")
-        val sessions = delegate.getMySessions().filter { it.isActive }
-        if (sessions.isEmpty()) {
+        tasks.remove(sessionId)
+
+        if (tasks.isEmpty()) {
             stopSelf()
         }
     }
+
+    private val SessionInfo.label get() =
+        appLabel ?: appPackageName ?: sessionId.toString()
 
     override fun onCreate() {
         Timber.d("onCreate")
@@ -190,7 +198,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
     private fun onProgressChanged(
         id: Int,
-        appLabel: String,
+        appLabel: CharSequence,
         appIcon: Bitmap?,
         progress: Float
     ) {
@@ -208,7 +216,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
     private fun onInstallSucceeded(
         id: Int,
-        appLabel: String,
+        appLabel: CharSequence,
         appIcon: Bitmap,
         packageName: String
     ) {
@@ -232,7 +240,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
     private fun onInstallFailed(
         id: Int,
-        appLabel: String,
+        appLabel: CharSequence,
         appIcon: Bitmap
     ) {
         val notification = baseNotificationBuilder()
