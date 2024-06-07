@@ -119,7 +119,7 @@ class InstallViewModel @Inject constructor(
 
             splitConfigs = bi.splitConfigs
             requiredConfigs.addAll(
-                bi.splitConfigs.filter { it.isRequired() || it.isRecommended() }
+                bi.splitConfigs.filter { it.isRequired || it.isRecommended }
             )
 
             Timber.i("loadPackage<AppBundle>: ${bi.baseInfo.packageName}")
@@ -185,6 +185,7 @@ class InstallViewModel @Inject constructor(
     }
 
     fun deleteTempDir() {
+        Timber.d("deleteTempDir")
         tempDir.deleteRecursively()
     }
 
