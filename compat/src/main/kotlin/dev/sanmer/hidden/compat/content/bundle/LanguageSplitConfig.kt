@@ -5,34 +5,41 @@ import java.util.Locale
 
 class LanguageSplitConfig(
     val locale: Locale,
+    configForSplit: String?,
     filename: String,
     size: Long,
 ) : SplitConfig(
+    configForSplit,
     filename,
     size
 ) {
-    override val name = locale.displayLanguage
+    override val name: String by lazy {
+        locale.displayLanguage
+    }
 
-    override fun isRequired(): Boolean {
+    override val isRequired by lazy {
         val default = Locale.getDefault()
-        return locale.language == default.language
+        locale.language == default.language
     }
 
-    override fun isDisabled(): Boolean {
-        return locale !in Locale.getAvailableLocales()
+    override val isDisabled by lazy {
+        locale !in Locale.getAvailableLocales()
     }
 
-    override fun isRecommended(): Boolean {
-        return false
-    }
+    override val isRecommended = false
 
     companion object {
         fun build(apk: PackageParser.ApkLite, filename: String, size: Long): LanguageSplitConfig? {
-            val value = parseSplit(apk.splitName)?.uppercase() ?: return null
+            val value = parseSplit(apk)?.uppercase() ?: return null
             val locale = Locale.forLanguageTag(value)
             if (locale.language.isEmpty()) return null
 
-            return LanguageSplitConfig(locale, filename, size)
+            return LanguageSplitConfig(
+                locale = locale,
+                configForSplit = apk.configForSplit,
+                filename = filename,
+                size = size
+            )
         }
     }
 }

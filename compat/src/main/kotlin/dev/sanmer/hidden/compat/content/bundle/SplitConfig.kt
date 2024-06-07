@@ -1,35 +1,46 @@
 package dev.sanmer.hidden.compat.content.bundle
 
+import android.content.pm.PackageParser.ApkLite
 import android.text.format.Formatter
 import dev.sanmer.hidden.compat.delegate.ContextDelegate
 
 abstract class SplitConfig(
+    val configForSplit: String?,
     val filename: String,
     val size: Long
 ) {
-    abstract val name: String
-
-    fun formattedSize(): String {
-        val context = ContextDelegate.getContext()
-        return Formatter.formatFileSize(context, size)
+    val isConfigForSplit by lazy {
+        !configForSplit.isNullOrEmpty()
     }
 
-    abstract fun isRequired(): Boolean
-    abstract fun isDisabled(): Boolean
-    abstract fun isRecommended(): Boolean
+    val formattedSize: String by lazy {
+        val context = ContextDelegate.getContext()
+        Formatter.formatFileSize(context, size)
+    }
+
+    abstract val name: String
+    abstract val isRequired: Boolean
+    abstract val isDisabled: Boolean
+    abstract val isRecommended: Boolean
 
     override fun toString(): String {
         return "name = ${name}, " +
-                "required = ${isRequired()}, " +
-                "disabled = ${isDisabled()}, " +
-                "recommended = ${isRecommended()}"
+                "required = ${isRequired}, " +
+                "disabled = ${isDisabled}, " +
+                "recommended = $isRecommended"
     }
 
     internal companion object {
-        fun parseSplit(splitName: String) : String? {
-            val split = splitName.removeSurrounding("config.", "")
-            return if (split != splitName) {
-                split
+        fun parseSplit(apk: ApkLite) : String? {
+            val splitName = if (apk.splitName.isNullOrEmpty()) {
+                apk.splitName
+            } else {
+                apk.splitName.removeSurrounding("${apk.configForSplit}.","")
+            }
+
+            val name = splitName.removeSurrounding("config.", "")
+            return if (name != splitName) {
+                name
             } else {
                 null
             }

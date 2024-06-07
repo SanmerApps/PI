@@ -5,26 +5,28 @@ import android.os.Build
 
 class AbiSplitConfig(
     val abi: Abi,
+    configForSplit: String?,
     filename: String,
     size: Long,
 ) : SplitConfig(
+    configForSplit,
     filename,
     size
 ) {
-    override val name = abi.name
-        .lowercase()
-        .replace("_", "-")
-
-    override fun isRequired(): Boolean {
-        return name == Build.SUPPORTED_ABIS[0]
+    override val name by lazy {
+        abi.name.lowercase().replace("_", "-")
     }
 
-    override fun isDisabled(): Boolean {
-        return name !in Build.SUPPORTED_ABIS
+    override val isRequired by lazy {
+        name == Build.SUPPORTED_ABIS[0]
     }
 
-    override fun isRecommended(): Boolean {
-        return isRequired()
+    override val isDisabled by lazy {
+        name !in Build.SUPPORTED_ABIS
+    }
+
+    override val isRecommended by lazy {
+        isRequired
     }
 
     enum class Abi {
@@ -41,9 +43,14 @@ class AbiSplitConfig(
             filename: String,
             size: Long
         ): AbiSplitConfig? {
-            val value = parseSplit(apk.splitName)?.uppercase() ?: return null
+            val value = parseSplit(apk)?.uppercase() ?: return null
             val abi = runCatching { Abi.valueOf(value) }.getOrNull() ?: return null
-            return AbiSplitConfig(abi, filename, size)
+            return AbiSplitConfig(
+                abi = abi,
+                configForSplit = apk.configForSplit,
+                filename = filename,
+                size = size
+            )
         }
     }
 }

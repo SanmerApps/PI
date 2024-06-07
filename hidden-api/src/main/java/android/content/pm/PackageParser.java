@@ -43,6 +43,7 @@ public class PackageParser {
         public String packageName;
         public String splitName;
         public boolean isFeatureSplit;
-        public boolean isSplitRequired;
+        public String configForSplit;
+        public String usesSplitName;
     }
 }

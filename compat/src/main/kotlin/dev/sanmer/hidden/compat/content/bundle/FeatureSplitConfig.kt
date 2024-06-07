@@ -7,20 +7,15 @@ class FeatureSplitConfig(
     filename: String,
     size: Long
 ) : SplitConfig(
+    null,
     filename,
     size
 ) {
-    override fun isRequired(): Boolean {
-        return false
-    }
+    override val isRequired = false
 
-    override fun isDisabled(): Boolean {
-        return false
-    }
+    override val isDisabled = false
 
-    override fun isRecommended(): Boolean {
-        return true
-    }
+    override val isRecommended = true
 
     companion object {
         fun build(
@@ -29,7 +24,11 @@ class FeatureSplitConfig(
             size: Long
         ): FeatureSplitConfig? {
             if (!apk.isFeatureSplit) return null
-            return FeatureSplitConfig(apk.splitName, filename, size)
+            return FeatureSplitConfig(
+                name = apk.splitName,
+                filename = filename,
+                size = size
+            )
         }
     }
 }

@@ -6,29 +6,28 @@ import dev.sanmer.hidden.compat.delegate.ContextDelegate
 
 class DensitySplitConfig(
     val dpi: Dpi,
+    configForSplit: String?,
     filename: String,
     size: Long,
 ) : SplitConfig(
+    configForSplit,
     filename,
     size
 ) {
-    override val name = with(dpi) {
-        val value = parseDpiEnum(this)
-        "$value (DPI)"
+    override val name by lazy {
+        "${parseDpiEnum(dpi)}.dpi"
     }
 
-    override fun isRequired(): Boolean {
+    override val isRequired by lazy {
         val context = ContextDelegate.getContext()
         val densityDpi = context.resources.displayMetrics.densityDpi
-        return dpi == parseDpiValue(densityDpi)
+        dpi == parseDpiValue(densityDpi)
     }
 
-    override fun isDisabled(): Boolean {
-        return false
-    }
+    override val isDisabled = false
 
-    override fun isRecommended(): Boolean {
-        return isRequired()
+    override val isRecommended by lazy {
+        isRequired || isConfigForSplit
     }
 
     enum class Dpi {
@@ -71,9 +70,14 @@ class DensitySplitConfig(
             filename: String,
             size: Long
         ): DensitySplitConfig? {
-            val value = parseSplit(apk.splitName)?.uppercase() ?: return null
+            val value = parseSplit(apk)?.uppercase() ?: return null
             val dpi = runCatching { Dpi.valueOf(value) }.getOrNull() ?: return null
-            return DensitySplitConfig(dpi, filename, size)
+            return DensitySplitConfig(
+                dpi = dpi,
+                configForSplit = apk.configForSplit,
+                filename = filename,
+                size = size
+            )
         }
     }
 }
