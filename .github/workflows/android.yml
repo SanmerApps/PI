@@ -41,7 +41,7 @@ jobs:
           gradle-home-cache-cleanup: true
 
       - name: Build dependencies
-        working-directory: service
+        working-directory: compat
         run: ./gradlew publishToMavenLocal
 
       - name: Build with Gradle
