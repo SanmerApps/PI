@@ -17,13 +17,16 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import dev.sanmer.hidden.compat.ContextCompat.userId
-import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.Compat
+import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
+import dev.sanmer.pi.delegate.PackageInstallerDelegate
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.commit
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.writeApk
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.writeApks
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.utils.extensions.dp
 import dev.sanmer.pi.utils.extensions.parcelable
@@ -43,17 +46,14 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     private val appIconLoader by lazy {
         AppIconLoader(45.dp, true, this)
     }
-    private val pmCompat get() = Compat.packageManager
-    private val delegate by lazy {
-        PackageInstallerDelegate(
-            pmCompat.packageInstaller
-        )
-    }
+
+    private val pm by lazy { Compat.getPackageManager() }
+    private val pi by lazy { Compat.getPackageInstaller() }
 
     private val tasks = mutableListOf<Int>()
 
     override fun onCreated(sessionId: Int) {
-        val session = delegate.getSessionInfo(sessionId)
+        val session = pi.getSessionInfo(sessionId)
         Timber.i("onCreated<$sessionId>: ${session?.appPackageName}")
         tasks.add(sessionId)
 
@@ -66,7 +66,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     }
 
     override fun onProgressChanged(sessionId: Int, progress: Float) {
-        val session = delegate.getSessionInfo(sessionId)
+        val session = pi.getSessionInfo(sessionId)
 
         onProgressChanged(
             id = sessionId,
@@ -92,13 +92,13 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         Timber.d("onCreate")
         super.onCreate()
 
-        delegate.registerCallback(this)
+        pi.registerCallback(this)
         setForeground()
     }
 
     override fun onDestroy() {
         tmpDir.deleteRecursively()
-        delegate.unregisterCallback(this)
+        pi.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
         Timber.d("onDestroy")
@@ -116,7 +116,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
             val userPreferences = userPreferencesRepository.data.first()
             val originatingUid = getPackageUid(userPreferences.requester)
-            delegate.setInstallerPackageName(userPreferences.executor)
+            pi.setInstallerPackageName(userPreferences.executor)
 
             val params = createSessionParams()
             params.setAppIcon(appIcon)
@@ -126,8 +126,8 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
                 params.setOriginatingUid(originatingUid)
             }
 
-            val sessionId = delegate.createSession(params)
-            val session = delegate.openSession(sessionId)
+            val sessionId = pi.createSession(params)
+            val session = pi.openSession(sessionId)
 
             when {
                 archivePath.isDirectory -> {
@@ -191,7 +191,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
 
     private fun getPackageUid(packageName: String): Int =
         runCatching {
-            pmCompat.getPackageUid(packageName, 0, userId)
+            pm.getPackageUid(packageName, 0, userId)
         }.getOrDefault(
             Process.INVALID_UID
         )
@@ -220,7 +220,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
         appIcon: Bitmap,
         packageName: String
     ) {
-        val intent = pmCompat.getLaunchIntentForPackage(packageName, userId)?.let {
+        val intent = pm.getLaunchIntentForPackage(packageName, userId)?.let {
             PendingIntent.getActivity(
                 this, 0, it, PendingIntent.FLAG_IMMUTABLE
             )

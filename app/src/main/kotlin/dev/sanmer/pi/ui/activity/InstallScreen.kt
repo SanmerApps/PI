@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.activity
 
-import android.content.pm.PackageInfo
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
@@ -44,13 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.sanmer.hidden.compat.content.bundle.AbiSplitConfig
-import dev.sanmer.hidden.compat.content.bundle.DensitySplitConfig
-import dev.sanmer.hidden.compat.content.bundle.FeatureSplitConfig
-import dev.sanmer.hidden.compat.content.bundle.LanguageSplitConfig
-import dev.sanmer.hidden.compat.content.bundle.SplitConfig
-import dev.sanmer.hidden.compat.content.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.R
+import dev.sanmer.pi.bundle.AbiSplitConfig
+import dev.sanmer.pi.bundle.DensitySplitConfig
+import dev.sanmer.pi.bundle.FeatureSplitConfig
+import dev.sanmer.pi.bundle.LanguageSplitConfig
+import dev.sanmer.pi.bundle.SplitConfig
+import dev.sanmer.pi.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.BottomSheetLayout
 import dev.sanmer.pi.ui.component.Failed
@@ -127,7 +126,6 @@ private fun InstallContent(
 ) {
     PackageItem(
         archiveInfo = viewModel.archiveInfo,
-        archiveLabel = viewModel.archiveLabel,
         versionDiff = viewModel.versionDiff,
         sdkDiff = viewModel.sdkDiff,
         apkSize = viewModel.formattedApkSize
@@ -184,8 +182,7 @@ private fun BottomBar(
 
 @Composable
 private fun PackageItem(
-    archiveInfo: PackageInfo,
-    archiveLabel: String,
+    archiveInfo: IPackageInfo,
     versionDiff: String,
     sdkDiff: String,
     apkSize: String
@@ -215,7 +212,7 @@ private fun PackageItem(
                 modifier = Modifier.padding(start = 15.dp)
             ) {
                 Text(
-                    text = archiveLabel,
+                    text = archiveInfo.appLabel,
                     style = MaterialTheme.typography.bodyLarge
                 )
 

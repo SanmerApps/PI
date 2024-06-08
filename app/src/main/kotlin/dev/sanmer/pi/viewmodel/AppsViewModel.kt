@@ -8,11 +8,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.PackageInfoCompat.isOverlayPackage
-import dev.sanmer.hidden.compat.UserHandleCompat
-import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
-import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.Compat
+import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
+import dev.sanmer.pi.UserHandleCompat
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.receiver.PackageReceiver
@@ -33,12 +33,8 @@ class AppsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
     private val isProviderAlive get() = Compat.isAlive
-    private val pmCompat get() = Compat.packageManager
-    private val aom by lazy {
-        AppOpsManagerDelegate(
-            Compat.appOpsService
-        )
-    }
+    private val pm by lazy { Compat.getPackageManager() }
+    private val aom by lazy { Compat.getAppOpsService() }
 
     var isSearch by mutableStateOf(false)
         private set
@@ -140,9 +136,9 @@ class AppsViewModel @Inject constructor(
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
         if (!isProviderAlive) return@withContext emptyList()
 
-        val allPackages = pmCompat.getInstalledPackages(
+        val allPackages = pm.getInstalledPackages(
             PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
-        ).list
+        )
 
         allPackages.filter {
             !it.isOverlayPackage

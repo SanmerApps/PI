@@ -12,17 +12,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.ContextCompat.userId
-import dev.sanmer.hidden.compat.PackageInfoCompat.isNotEmpty
-import dev.sanmer.hidden.compat.PackageParserCompat
-import dev.sanmer.hidden.compat.content.bundle.SplitConfig
-import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
-import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.Compat
+import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
+import dev.sanmer.pi.PackageParserCompat
+import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
 import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.VersionCompat
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -42,25 +42,19 @@ class InstallViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application), AppOpsManagerDelegate.AppOpsCallback {
     private val context: Context by lazy { getApplication() }
-    private val pm by lazy { context.packageManager }
-    private val pmCompat get() = Compat.packageManager
-    private val aom by lazy {
-        AppOpsManagerDelegate(
-            Compat.appOpsService
-        )
-    }
+    private val pm by lazy { Compat.getPackageManager() }
+    private val aom by lazy { Compat.getAppOpsService() }
 
     private var archivePath = File("")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
 
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
         private set
-    var archiveInfo by mutableStateOf(PackageInfo())
+    var archiveInfo by mutableStateOf(IPackageInfo.empty())
         private set
     val hasSourceInfo get() = sourceInfo.isNotEmpty
 
-    val archiveLabel by lazy { archiveInfo.applicationInfo.loadLabel(pm).toString() }
-    private val currentInfo by lazy { getPackageInfoCompat(archiveInfo.packageName) }
+    private val currentInfo by lazy { getPackageInfo(archiveInfo.packageName) }
     val versionDiff by lazy { VersionCompat.getVersionDiff(currentInfo, archiveInfo) }
     val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
 
@@ -103,7 +97,7 @@ class InstallViewModel @Inject constructor(
         Timber.d("loadPackage<path>: ${context.getPathForUri(uri)}")
         val path = context.copyToDir(uri, tempDir)
         PackageParserCompat.parsePackage(path, 0)?.let { pi ->
-            archiveInfo = pi
+            archiveInfo = pi.toIPackageInfo()
             archivePath = path
             apkSize = archivePath.length()
 
@@ -113,7 +107,7 @@ class InstallViewModel @Inject constructor(
         }
 
         PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
-            archiveInfo = bi.baseInfo
+            archiveInfo = bi.baseInfo.toIPackageInfo()
             archivePath = tempDir
             apkSize = bi.baseFile.length() + bi.splitFiles.sumOf { it.length() }
 
@@ -193,15 +187,6 @@ class InstallViewModel @Inject constructor(
         if (packageName == null) return PackageInfo()
         return runCatching {
             pm.getPackageInfo(
-                packageName, 0
-            )
-        }.getOrNull() ?: PackageInfo()
-    }
-
-    private fun getPackageInfoCompat(packageName: String?): PackageInfo {
-        if (packageName == null) return PackageInfo()
-        return runCatching {
-            pmCompat.getPackageInfo(
                 packageName, 0, context.userId
             )
         }.getOrNull() ?: PackageInfo()

@@ -2,11 +2,17 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         google()
         mavenCentral()
         maven("https://jitpack.io")
+
+        mavenLocal {
+            content {
+                includeGroup("dev.sanmer.su")
+            }
+        }
     }
 }
 
@@ -20,7 +26,4 @@ pluginManagement {
 }
 
 rootProject.name = "PI"
-include(":app")
-include(":hidden-api")
-include(":compat")
-
+include(":stub", ":core", ":app")

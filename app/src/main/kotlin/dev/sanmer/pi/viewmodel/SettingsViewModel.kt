@@ -16,7 +16,6 @@ class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     val isProviderAlive get() = Compat.isAlive
-    val providerVersion get() = Compat.get(-1) { version }
     val providerPlatform get() = Compat.get("") { platform }
 
     init {

@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.BuildCompat
@@ -71,7 +72,6 @@ fun SettingsScreen(
 
             ServiceItem(
                 isAlive = viewModel.isProviderAlive,
-                version = viewModel.providerVersion,
                 platform = viewModel.providerPlatform,
                 tryStart = viewModel::tryStartProvider
             )
@@ -142,7 +142,6 @@ private fun TittleItem(
 @Composable
 private fun ServiceItem(
     isAlive: Boolean,
-    version: Int,
     platform: String,
     tryStart: () -> Unit
 ) = SettingNormalItem(
@@ -155,7 +154,7 @@ private fun ServiceItem(
         else -> stringResource(id = R.string.settings_service_not_running)
     },
     desc = when {
-        isAlive -> stringResource(id = R.string.settings_service_version, version, platform)
+        isAlive -> stringResource(id = R.string.settings_service_version, BuildConfig.VERSION_CODE, platform)
         else -> stringResource(id = R.string.settings_service_try_start)
     },
     onClick = tryStart

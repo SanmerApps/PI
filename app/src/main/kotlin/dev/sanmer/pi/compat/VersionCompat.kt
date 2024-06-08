@@ -1,8 +1,8 @@
 package dev.sanmer.pi.compat
 
 import android.content.pm.PackageInfo
-import dev.sanmer.hidden.compat.PackageInfoCompat.compileSdkVersion
-import dev.sanmer.hidden.compat.PackageInfoCompat.isEmpty
+import dev.sanmer.pi.PackageInfoCompat.compileSdkVersion
+import dev.sanmer.pi.PackageInfoCompat.isEmpty
 
 object VersionCompat {
     private const val ARROW = "→"

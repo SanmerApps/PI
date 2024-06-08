@@ -4,11 +4,12 @@ import android.os.Process
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import dev.sanmer.hidden.compat.ServiceManagerCompat
-import dev.sanmer.hidden.compat.stub.IAppOpsServiceCompat
-import dev.sanmer.hidden.compat.stub.IPackageManagerCompat
-import dev.sanmer.hidden.compat.stub.IServiceManager
 import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate
+import dev.sanmer.pi.delegate.PackageInstallerDelegate
+import dev.sanmer.pi.delegate.PackageManagerDelegate
+import dev.sanmer.su.IServiceManager
+import dev.sanmer.su.ServiceManagerCompat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
@@ -25,10 +26,6 @@ object Compat {
     private val _isAliveFlow = MutableStateFlow(false)
     val isAliveFlow get() = _isAliveFlow.asStateFlow()
 
-    val appOpsService: IAppOpsServiceCompat get() = mService.appOpsService
-    val packageManager: IPackageManagerCompat get() = mService.packageManager
-
-    val version get() = mService.version
     val platform get() = when (mService.uid) {
         Process.ROOT_UID -> "root"
         Process.SHELL_UID -> "adb"
@@ -66,4 +63,8 @@ object Compat {
             else -> fallback
         }
     }
+
+    fun getAppOpsService() = AppOpsManagerDelegate(mService)
+    fun getPackageManager() = PackageManagerDelegate(mService)
+    fun getPackageInstaller() = PackageInstallerDelegate(mService)
 }

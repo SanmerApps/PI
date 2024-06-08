@@ -1,0 +1,3 @@
+[submodule "service"]
+	path = service
+	url = git@github.com:SanmerApps/ServiceManagerCompat.git

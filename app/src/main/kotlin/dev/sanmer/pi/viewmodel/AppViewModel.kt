@@ -13,14 +13,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.hidden.compat.PackageInfoCompat.isSystemApp
-import dev.sanmer.hidden.compat.UserHandleCompat
-import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate
-import dev.sanmer.hidden.compat.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
-import dev.sanmer.hidden.compat.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.Compat
+import dev.sanmer.pi.PackageInfoCompat.isSystemApp
+import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.compat.MediaStoreCompat.createDownloadUri
-import dev.sanmer.pi.model.IPackageInfo
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate
+import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.navigation.graphs.AppsScreen
@@ -44,15 +42,12 @@ class AppViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
-    private val pmCompat get() = Compat.packageManager
-    private val aom by lazy {
-        AppOpsManagerDelegate(
-            Compat.appOpsService
-        )
-    }
+    private val pm by lazy { Compat.getPackageManager() }
+    private val pi by lazy { Compat.getPackageInstaller() }
+    private val aom by lazy { Compat.getAppOpsService() }
 
     private val packageName = getPackageName(savedStateHandle)
-    private val packageInfoInner get() = pmCompat.getPackageInfo(
+    private val packageInfoInner get() = pm.getPackageInfo(
         packageName, PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
     ).toIPackageInfo()
 
@@ -64,12 +59,7 @@ class AppViewModel @Inject constructor(
     var isExecutor by mutableStateOf(false)
         private set
 
-    val appOps by lazy {
-        AppOps(
-            packageInfo = packageInfo,
-            refresh = { packageInfoFlow.value = packageInfoInner }
-        )
-    }
+    val settings by lazy { buildSettings() }
 
     var opInstallPackageAllowed by mutableStateOf(packageInfo.isAuthorized())
         private set
@@ -147,31 +137,16 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
-        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-        packageInfo = this
-    ).isAllowed()
-
-    class AppOps(
-        private val packageInfo: IPackageInfo,
-        private val refresh: () -> Unit
-    ) {
-        private val pmCompat get() = Compat.packageManager
-        private val delegate by lazy {
-            PackageInstallerDelegate(
-                pmCompat.packageInstaller
-            )
-        }
-
+    private fun buildSettings() = object : Settings {
         private val launchIntent by lazy {
-            pmCompat.getLaunchIntentForPackage(
+            pm.getLaunchIntentForPackage(
                 packageInfo.packageName, UserHandleCompat.myUserId()
             )
         }
 
-        val isOpenable by lazy { launchIntent != null }
+        override val isOpenable by lazy { launchIntent != null }
 
-        val isUninstallable by lazy {
+        override val isUninstallable by lazy {
             val isUpdatedSystemApp = packageInfo.applicationInfo.flags and
                     ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
 
@@ -181,20 +156,20 @@ class AppViewModel @Inject constructor(
             }
         }
 
-        fun launch(context: Context) {
+        override fun launch(context: Context) {
             context.startActivity(launchIntent)
         }
 
-        fun view(context: Context) {
+        override fun view(context: Context) {
             context.viewPackage(packageInfo.packageName)
         }
 
-        fun setting(context: Context) {
+        override fun setting(context: Context) {
             context.appSetting(packageInfo.packageName)
         }
 
-        suspend fun uninstall() = withContext(Dispatchers.IO) {
-            val result = delegate.uninstall(packageInfo.packageName)
+        override suspend fun uninstall() = withContext(Dispatchers.IO) {
+            val result = pi.uninstall(packageInfo.packageName)
             val status = result.getIntExtra(
                 PackageInstaller.EXTRA_STATUS,
                 PackageInstaller.STATUS_FAILURE
@@ -202,16 +177,17 @@ class AppViewModel @Inject constructor(
 
             when (status) {
                 PackageInstaller.STATUS_SUCCESS -> {
-                    if (packageInfo.isSystemApp) refresh()
+                    if (packageInfo.isSystemApp) {
+
+                    }
+
                     !packageInfo.isSystemApp
                 }
-                else -> {
-                    false
-                }
+                else -> false
             }
         }
 
-        suspend fun export(context: Context): Boolean {
+        override suspend fun export(context: Context): Boolean {
             val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
             val sourceDir = File(packageInfo.applicationInfo.sourceDir)
             val path = "PI" + File.separator + filename
@@ -240,45 +216,60 @@ class AppViewModel @Inject constructor(
             streams.forEach { it.second.close() }
             return true
         }
+    }
 
-        private suspend fun Context.exportApk(
-            input: InputStream,
-            path: String,
-        ) = withContext(Dispatchers.IO) {
-            val uri = createDownloadUri(
-                path = path,
-                mimeType = "android/vnd.android.package-archive"
-            )
+    private suspend fun Context.exportApk(
+        input: InputStream,
+        path: String,
+    ) = withContext(Dispatchers.IO) {
+        val uri = createDownloadUri(
+            path = path,
+            mimeType = "android/vnd.android.package-archive"
+        )
 
-            contentResolver.openOutputStream(uri)?.use { output ->
+        contentResolver.openOutputStream(uri)?.use { output ->
+            input.copyTo(output)
+            return@withContext true
+        }
+
+        false
+    }
+
+    private suspend fun Context.exportApks(
+        inputs: List<Pair<File, InputStream>>,
+        path: String,
+    ) = withContext(Dispatchers.IO) {
+        val uri = createDownloadUri(
+            path = path,
+            mimeType = "android/zip"
+        )
+
+        contentResolver.openOutputStream(uri)?.let(::ZipOutputStream)?.use { output ->
+            inputs.forEach { (file, input) ->
+                output.putNextEntry(ZipEntry(file.name))
                 input.copyTo(output)
-                return@withContext true
+                output.closeEntry()
             }
 
-            false
+            return@withContext true
         }
 
-        private suspend fun Context.exportApks(
-            inputs: List<Pair<File, InputStream>>,
-            path: String,
-        ) = withContext(Dispatchers.IO) {
-            val uri = createDownloadUri(
-                path = path,
-                mimeType = "android/zip"
-            )
+        false
+    }
 
-            contentResolver.openOutputStream(uri)?.let(::ZipOutputStream)?.use { output ->
-                inputs.forEach { (file, input) ->
-                    output.putNextEntry(ZipEntry(file.name))
-                    input.copyTo(output)
-                    output.closeEntry()
-                }
+    private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
+        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+        packageInfo = this
+    ).isAllowed()
 
-                return@withContext true
-            }
-
-            false
-        }
+    interface Settings {
+        val isOpenable: Boolean
+        val isUninstallable: Boolean
+        fun launch(context: Context)
+        fun view(context: Context)
+        fun setting(context: Context)
+        suspend fun uninstall(): Boolean
+        suspend fun export(context: Context): Boolean
     }
 
     companion object {
