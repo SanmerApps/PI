@@ -107,7 +107,7 @@ class PackageInstallerDelegate(
         }
     }
 
-    suspend fun uninstall(packageName: String) = IntentReceiverCompat.build { sender ->
+    suspend fun uninstall(packageName: String) = IntentReceiverCompat.onDelegate { sender ->
         packageInstaller.uninstall(
             VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
             installerPackageName,
@@ -179,7 +179,7 @@ class PackageInstallerDelegate(
     }
 
     companion object {
-        suspend fun PackageInstaller.Session.commit() = IntentReceiverCompat.build { sender ->
+        suspend fun PackageInstaller.Session.commit() = IntentReceiverCompat.onDelegate { sender ->
             commit(sender)
         }
 

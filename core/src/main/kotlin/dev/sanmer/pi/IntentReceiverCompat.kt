@@ -12,24 +12,32 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 object IntentReceiverCompat {
-    suspend fun build(
+    class IIntentSenderDelegate(
+        private val onSend: (Intent) -> Unit
+    ) : IIntentSender.Stub() {
+        override fun send(
+            code: Int,
+            intent: Intent,
+            resolvedType: String?,
+            whitelistToken: IBinder?,
+            finishedReceiver: IIntentReceiver?,
+            requiredPermission: String?,
+            options: Bundle?
+        ) {
+            onSend(intent)
+        }
+    }
+
+    fun delegate(onSend: (Intent) -> Unit): IntentSender {
+        val original = IIntentSenderDelegate(onSend)
+        return Refine.unsafeCast(IntentSenderHidden(original))
+    }
+
+    suspend fun onDelegate(
         register: (IntentSender) -> Unit
     ) = suspendCancellableCoroutine { continuation ->
-        val mLocalSender: IIntentSender.Stub = object : IIntentSender.Stub() {
-            override fun send(
-                code: Int,
-                intent: Intent,
-                resolvedType: String?,
-                whitelistToken: IBinder?,
-                finishedReceiver: IIntentReceiver?,
-                requiredPermission: String?,
-                options: Bundle?
-            ) {
-                continuation.resume(intent)
-            }
-        }
-
-        val intentSender: IntentSender = Refine.unsafeCast(IntentSenderHidden(mLocalSender))
-        register(intentSender)
+        register(
+            delegate { continuation.resume(it) }
+        )
     }
 }
