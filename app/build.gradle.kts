@@ -103,6 +103,7 @@ protobuf {
 }
 
 dependencies {
+    compileOnly(projects.stub)
     implementation(projects.core)
 
     implementation(libs.androidx.activity.compose)
