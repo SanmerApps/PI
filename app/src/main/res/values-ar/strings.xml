@@ -32,7 +32,7 @@
     <string name="app_dialog_desc2">معلومة: سيؤدي هذا إلى إلغاء تثبيت التحديثات فقط إذا كان تطبيق نظام.</string>
     <string name="details_system_title">النظام</string>
     <string name="details_request_install">طلب تثبيت الحزمة</string>
-    <string name="details_request_install_system">"للسماح لهذا التطبيق بطلب تثبيت الحزم.  يجب أن تحصل التطبيقات التي تستهدف API التي يزيد عددها عن 25 على هذا الإذن حتى تتمكن من استخدام `Intent.ACTION_INSTALL_PACKAGE`."</string>
+    <string name="details_request_install_system">للسماح لهذا التطبيق بطلب تثبيت الحزم. يجب أن تحصل التطبيقات التي تستهدف API التي يزيد عددها عن 25 على هذا الإذن حتى تتمكن من استخدام `Intent.ACTION_INSTALL_PACKAGE`.</string>
     <string name="details_custom_title">مخصص</string>
     <string name="details_requester_title">طالب التثبيت</string>
     <string name="details_requester_desc">التطبيق الذي طلبت الحزمة البادئة التثبيت نيابةً عنه (طالب السجل).</string>
@@ -46,4 +46,6 @@
     <string name="settings_source_code">رمز المصدر</string>
     <string name="dialog_ok">‍ حسناً</string>
     <string name="dialog_cancel">إلغاء</string>
+    <string name="install_invalid_package">فشل تحليل الحزمة</string>
+    <string name="install_invalid_provider">الحزمة غير متاحة</string>
 </resources>

@@ -47,4 +47,5 @@
     <string name="details_executor_desc">O app responsável pela instalação (o instalador registrado).</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
+    <string name="details_request_install_system">Permite que este app solicite a instalação de pacotes. Os apps direcionados a APIs maiores que 25 devem ter esta permissão para utilizar `Intent.ACTION_INSTALL_PACKAGE`.</string>
 </resources>
