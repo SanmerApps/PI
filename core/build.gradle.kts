@@ -15,7 +15,6 @@ dependencies {
     api(libs.sanmer.su)
 
     compileOnly(projects.stub)
-    implementation(libs.hiddenApiBypass)
     implementation(libs.rikka.refine.runtime)
 
     implementation(libs.androidx.annotation)
