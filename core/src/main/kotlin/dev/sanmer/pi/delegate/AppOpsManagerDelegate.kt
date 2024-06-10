@@ -8,7 +8,7 @@ import com.android.internal.app.IAppOpsCallback
 import com.android.internal.app.IAppOpsService
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.proxy
+import dev.sanmer.su.ServiceManagerCompat.getSystemService
 
 class AppOpsManagerDelegate(
     private val service: IServiceManager
@@ -17,7 +17,7 @@ class AppOpsManagerDelegate(
 
     private val appOpsService by lazy {
         IAppOpsService.Stub.asInterface(
-            service.proxy(Context.APP_OPS_SERVICE)
+            service.getSystemService(Context.APP_OPS_SERVICE)
         )
     }
 

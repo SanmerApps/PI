@@ -7,14 +7,14 @@ import android.content.pm.PackageInfo
 import android.content.pm.ResolveInfo
 import dev.sanmer.pi.BuildCompat
 import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.proxy
+import dev.sanmer.su.ServiceManagerCompat.getSystemService
 
 class PackageManagerDelegate(
     private val service: IServiceManager
 ) {
     private val packageManager by lazy {
         IPackageManager.Stub.asInterface(
-            service.proxy("package")
+            service.getSystemService("package")
         )
     }
 

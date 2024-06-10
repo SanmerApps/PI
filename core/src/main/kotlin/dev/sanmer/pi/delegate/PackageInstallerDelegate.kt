@@ -16,7 +16,7 @@ import dev.sanmer.pi.ContextCompat
 import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.IntentReceiverCompat
 import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.proxy
+import dev.sanmer.su.ServiceManagerCompat.getSystemService
 import dev.sanmer.su.ServiceManagerCompat.proxyBy
 import java.io.File
 
@@ -30,13 +30,13 @@ class PackageInstallerDelegate(
 
     private val packageManager by lazy {
         IPackageManager.Stub.asInterface(
-            service.proxy("package")
+            service.getSystemService("package")
         )
     }
 
     private val packageInstaller by lazy {
         IPackageInstaller.Stub.asInterface(
-            service.proxy(packageManager.packageInstaller)
+            packageManager.packageInstaller.proxyBy(service)
         )
     }
 
