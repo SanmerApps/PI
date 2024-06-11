@@ -64,7 +64,7 @@ fun DetailsScreen(
         topBar = {
             TopBar(
                 pi = viewModel.packageInfo,
-                appOps = viewModel.appOps,
+                settings = viewModel.settings,
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
@@ -140,7 +140,7 @@ private fun SystemItems(
 @Composable
 private fun TopBar(
     pi: IPackageInfo,
-    appOps: AppViewModel.AppOps,
+    settings: AppViewModel.Settings,
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior,
 ) = CollapsingTopAppBar(
@@ -148,7 +148,7 @@ private fun TopBar(
     content = {
         TopBarContent(
             pi = pi,
-            appOps = appOps,
+            settings = settings,
             onBack = { navController.popBackStack() }
         )
     },
@@ -171,7 +171,7 @@ private fun TopBar(
 @Composable
 private fun TopBarContent(
     pi: IPackageInfo,
-    appOps: AppViewModel.AppOps,
+    settings: AppViewModel.Settings,
     onBack: () -> Unit
 ) = Column(
     modifier = Modifier.padding(horizontal = 20.dp),
@@ -201,16 +201,16 @@ private fun TopBarContent(
             onClose = { uninstall = false },
             onDelete = {
                 scope.launch {
-                    if (appOps.uninstall()) {
+                    if (settings.uninstall()) {
                         onBack()
                     }
                 }
             }
         )
 
-        if (appOps.isOpenable) {
+        if (settings.isOpenable) {
             FilledTonalIconButton(
-                onClick = { appOps.launch(context) }
+                onClick = { settings.launch(context) }
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.window_maximize),
@@ -220,7 +220,7 @@ private fun TopBarContent(
         }
 
         FilledTonalIconButton(
-            onClick = { appOps.view(context) }
+            onClick = { settings.view(context) }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.eye),
@@ -229,7 +229,7 @@ private fun TopBarContent(
         }
 
         FilledTonalIconButton(
-            onClick = { appOps.setting(context) }
+            onClick = { settings.setting(context) }
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.settings),
@@ -237,7 +237,7 @@ private fun TopBarContent(
             )
         }
 
-        if (appOps.isUninstallable) {
+        if (settings.isUninstallable) {
             FilledTonalIconButton(
                 onClick = { uninstall = true }
             ) {
@@ -252,7 +252,7 @@ private fun TopBarContent(
             onClick = {
                 scope.launch {
                     progress = true
-                    appOps.export(context)
+                    settings.export(context)
                     progress = false
                 }
             }

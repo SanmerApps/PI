@@ -2,7 +2,7 @@ package dev.sanmer.pi.model
 
 import android.content.pm.PackageInfo
 import androidx.compose.runtime.Immutable
-import dev.sanmer.hidden.compat.delegate.PackageInfoDelegate
+import dev.sanmer.pi.delegate.PackageInfoDelegate
 
 @Immutable
 data class IPackageInfo(

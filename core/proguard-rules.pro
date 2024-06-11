@@ -1,0 +1,3 @@
+-keepclassmembers class dev.sanmer.pi.delegate.AppOpsManagerDelegate$AppOpsActiveCallbackDelegate { public <methods>; }
+-keepclassmembers class dev.sanmer.pi.delegate.PackageInstallerDelegate$SessionCallbackDelegate { public <methods>; }
+-keepclassmembers class dev.sanmer.pi.IntentReceiverCompat$IIntentSenderDelegate { public <methods>; }
