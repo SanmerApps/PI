@@ -90,7 +90,7 @@ fun CollapsingTopAppBar(
         actions = actions,
         colors = colors,
         windowInsets = windowInsets,
-        pinnedHeight =  64.0.dp,
+        pinnedHeight = 64.0.dp,
         scrollBehavior = scrollBehavior
     )
 }
