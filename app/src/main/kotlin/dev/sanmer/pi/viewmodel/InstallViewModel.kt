@@ -1,6 +1,5 @@
 package dev.sanmer.pi.viewmodel
 
-import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
@@ -88,7 +87,7 @@ class InstallViewModel @Inject constructor(
         val packageName = context.getOwnerPackageNameForUri(uri)
         Timber.d("loadPackage<sourceInfo>: $packageName")
         val source = getPackageInfo(packageName)
-        if (source.hasOpInstallPackage()) {
+        if (source.isNotEmpty) {
             sourceInfo = source.toIPackageInfo(
                 isAuthorized = source.isAuthorized()
             )
@@ -196,13 +195,6 @@ class InstallViewModel @Inject constructor(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
     ).isAllowed()
-
-    private fun PackageInfo.hasOpInstallPackage() =
-        requestedPermissions?.contains(
-            Manifest.permission.REQUEST_INSTALL_PACKAGES
-        ) == true ||
-                aom.getOpsForPackage(this).map { it.op }
-                    .contains(AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES)
 
     enum class State {
         None,
