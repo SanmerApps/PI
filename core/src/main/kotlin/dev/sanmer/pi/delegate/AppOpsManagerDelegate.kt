@@ -45,7 +45,7 @@ class AppOpsManagerDelegate(
 
     fun getOpsForPackage(uid: Int, packageName: String): List<OpEntry> {
         return appOpsService.getOpsForPackage(uid, packageName, null)
-            .firstOrNull()?.ops?.map(AppOpsManagerDelegate::OpEntry) ?: emptyList()
+            ?.firstOrNull()?.ops?.map(AppOpsManagerDelegate::OpEntry) ?: emptyList()
     }
 
     fun getOpsForPackage(packageInfo: PackageInfo): List<OpEntry> {
