@@ -80,7 +80,7 @@ object VersionCompat {
             new.isEmpty -> {}
             old.isEmpty -> {
                 append("Target: ")
-                append("${newAppInfo.targetSdkVersion}")
+                append("${newAppInfo!!.targetSdkVersion}")
                 append(", ")
                 append("Min: ")
                 append("${newAppInfo.minSdkVersion}")
@@ -94,8 +94,8 @@ object VersionCompat {
             else -> {
                 append("Target: ")
                 comparator(
-                    v0 = oldAppInfo.targetSdkVersion,
-                    v1 = newAppInfo.targetSdkVersion
+                    v0 = oldAppInfo!!.targetSdkVersion,
+                    v1 = newAppInfo!!.targetSdkVersion
                 )
                 append(", ")
                 append("Min: ")

@@ -36,8 +36,8 @@ object PackageParserCompat {
     private fun parsePackageInner(file: File, flags: Int): PackageInfo? {
         val pkg = PackageParser().parsePackage(file, flags, false)
         return generatePackageInfo(pkg, null, flags, 0, 0, null)?.also {
-            it.applicationInfo.sourceDir = file.path
-            it.applicationInfo.publicSourceDir = file.path
+            it.applicationInfo?.sourceDir = file.path
+            it.applicationInfo?.publicSourceDir = file.path
         }
     }
 

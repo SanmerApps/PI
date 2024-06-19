@@ -111,8 +111,9 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
             val archiveInfo = intent.archiveInfoOrNull ?: return@launch
             val filenames = intent.filenames
 
-            val appIcon = appIconLoader.loadIcon(archiveInfo.applicationInfo)
-            val appLabel = archiveInfo.applicationInfo.loadLabel(packageManager).toString()
+            val appIcon = archiveInfo.applicationInfo?.let(appIconLoader::loadIcon)
+            val appLabel = archiveInfo.applicationInfo?.loadLabel(packageManager)
+                ?: archiveInfo.packageName
 
             val userPreferences = userPreferencesRepository.data.first()
             val originatingUid = getPackageUid(userPreferences.requester)
@@ -217,7 +218,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     private fun onInstallSucceeded(
         id: Int,
         appLabel: CharSequence,
-        appIcon: Bitmap,
+        appIcon: Bitmap?,
         packageName: String
     ) {
         val intent = pm.getLaunchIntentForPackage(packageName, userId)?.let {
@@ -241,7 +242,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
     private fun onInstallFailed(
         id: Int,
         appLabel: CharSequence,
-        appIcon: Bitmap
+        appIcon: Bitmap?
     ) {
         val notification = baseNotificationBuilder()
             .setLargeIcon(appIcon)

@@ -147,8 +147,9 @@ class AppViewModel @Inject constructor(
         override val isOpenable by lazy { launchIntent != null }
 
         override val isUninstallable by lazy {
-            val isUpdatedSystemApp = packageInfo.applicationInfo.flags and
-                    ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+            val isUpdatedSystemApp = packageInfo.applicationInfo?.let {
+                it.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
+            } ?: false
 
             when {
                 isUpdatedSystemApp -> true
@@ -188,8 +189,10 @@ class AppViewModel @Inject constructor(
         }
 
         override suspend fun export(context: Context): Boolean {
+            val sourceDir = packageInfo.applicationInfo?.let { File(it.sourceDir) }
+            if (sourceDir == null) return false
+
             val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
-            val sourceDir = File(packageInfo.applicationInfo.sourceDir)
             val path = "PI" + File.separator + filename
 
             val files = sourceDir.parentFile?.listFiles { file ->

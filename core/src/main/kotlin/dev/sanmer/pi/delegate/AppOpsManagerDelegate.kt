@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import com.android.internal.app.IAppOpsCallback
 import com.android.internal.app.IAppOpsService
+import dev.sanmer.pi.PackageInfoCompat.isEmpty
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat.getSystemService
@@ -28,9 +29,11 @@ class AppOpsManagerDelegate(
     }
 
     fun checkOpNoThrow(op: Int, packageInfo: PackageInfo): Mode {
+        if (packageInfo.isEmpty) return Mode.Default
+
         return checkOpNoThrow(
             op = op,
-            uid = packageInfo.applicationInfo.uid,
+            uid = packageInfo.applicationInfo!!.uid,
             packageName = packageInfo.packageName
         )
     }
@@ -49,8 +52,10 @@ class AppOpsManagerDelegate(
     }
 
     fun getOpsForPackage(packageInfo: PackageInfo): List<OpEntry> {
+        if (packageInfo.isEmpty) return emptyList()
+
         return getOpsForPackage(
-            uid = packageInfo.applicationInfo.uid,
+            uid = packageInfo.applicationInfo!!.uid,
             packageName = packageInfo.packageName
         )
     }
@@ -68,9 +73,11 @@ class AppOpsManagerDelegate(
     }
 
     fun setMode(op: Int, packageInfo: PackageInfo, mode: Mode) {
+        if (packageInfo.isEmpty) return
+
         setMode(
             op = op,
-            uid = packageInfo.applicationInfo.uid,
+            uid = packageInfo.applicationInfo!!.uid,
             packageName = packageInfo.packageName,
             mode = mode
         )

@@ -70,12 +70,9 @@ object PackageInfoCompat {
     val PackageInfo?.isNotEmpty
         get() = !isEmpty
 
-    val PackageInfo.isSystemApp: Boolean get() {
-        if (isEmpty) return false
-
-        return applicationInfo.flags and (
-                ApplicationInfo.FLAG_SYSTEM or
-                        ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
-                ) != 0
-    }
+    val PackageInfo.isSystemApp: Boolean
+        get() = applicationInfo?.let {
+            it.flags and (ApplicationInfo.FLAG_SYSTEM or
+                    ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+        } ?: false
 }
