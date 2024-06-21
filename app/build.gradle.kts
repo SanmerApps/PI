@@ -80,8 +80,9 @@ android {
 
     applicationVariants.configureEach {
         outputs.configureEach {
-            (this as? ApkVariantOutputImpl)?.outputFileName =
-                "PI-${versionName}-${versionCode}-${name}.apk"
+            if (this is ApkVariantOutputImpl) {
+                outputFileName = "PI-${versionName}-${versionCode}-${name}.apk"
+            }
         }
     }
 }
