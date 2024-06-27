@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UserPreferencesDataSource @Inject constructor(
-    private val userPreferences: DataStore<UserPreferencesCompat>
+    private val userPreferences: DataStore<UserPreferences>
 ) {
     val data get() = userPreferences.data
 

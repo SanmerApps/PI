@@ -36,6 +36,12 @@ class ApplicationConventionPlugin : Plugin<Project> {
 
         extensions.configure<KotlinAndroidProjectExtension> {
             jvmToolchain(21)
+
+            sourceSets.all {
+                languageSettings {
+                    optIn("kotlinx.serialization.ExperimentalSerializationApi")
+                }
+            }
         }
     }
 }

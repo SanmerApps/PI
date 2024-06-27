@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.self.application)
     alias(libs.plugins.self.compose)
     alias(libs.plugins.self.hilt)
-    alias(libs.plugins.protobuf)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val baseVersionName = "1.1.0"
@@ -87,22 +87,6 @@ android {
     }
 }
 
-protobuf {
-    protoc {
-        artifact = libs.protobuf.protoc.get().toString()
-    }
-
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins {
-                register("java") {
-                    option("lite")
-                }
-            }
-        }
-    }
-}
-
 dependencies {
     compileOnly(projects.stub)
     implementation(projects.core)
@@ -119,14 +103,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.lifecycle.viewModel.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.protobuf.kotlin.lite)
-    implementation(libs.timber)
-
     implementation(libs.appiconloader)
     implementation(libs.appiconloader.coil)
     implementation(libs.coil.kt)
     implementation(libs.coil.kt.compose)
-
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.serialization.protobuf)
+    implementation(libs.timber)
 }
