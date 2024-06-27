@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.Compat
-import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

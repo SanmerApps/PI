@@ -9,8 +9,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.sanmer.pi.datastore.UserPreferences
 import dev.sanmer.pi.datastore.UserPreferencesSerializer
+import dev.sanmer.pi.datastore.model.UserPreferences
 import javax.inject.Singleton
 
 @Module

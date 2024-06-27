@@ -1,6 +1,6 @@
 package dev.sanmer.pi.ui.providable
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import dev.sanmer.pi.datastore.UserPreferences
+import dev.sanmer.pi.datastore.model.UserPreferences
 
-val LocalUserPreferences = staticCompositionLocalOf { UserPreferences.default() }
+val LocalUserPreferences = staticCompositionLocalOf { UserPreferences() }

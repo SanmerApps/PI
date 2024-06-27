@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.Compat
-import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.providable.LocalUserPreferences

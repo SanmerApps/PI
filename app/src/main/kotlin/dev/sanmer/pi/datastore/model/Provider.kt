@@ -1,4 +1,4 @@
-package dev.sanmer.pi.datastore
+package dev.sanmer.pi.datastore.model
 
 enum class Provider {
     None,

@@ -4,7 +4,7 @@ import android.os.Process
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.delegate.PackageManagerDelegate

@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
-import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ui.screens.settings.workingmode.WorkingModeItem
 
 @Composable

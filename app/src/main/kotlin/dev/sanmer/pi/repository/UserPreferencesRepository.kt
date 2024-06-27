@@ -1,7 +1,7 @@
 package dev.sanmer.pi.repository
 
-import dev.sanmer.pi.datastore.Provider
 import dev.sanmer.pi.datastore.UserPreferencesDataSource
+import dev.sanmer.pi.datastore.model.Provider
 import javax.inject.Inject
 import javax.inject.Singleton
 

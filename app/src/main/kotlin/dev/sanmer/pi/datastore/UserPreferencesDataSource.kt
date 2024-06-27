@@ -1,6 +1,8 @@
 package dev.sanmer.pi.datastore
 
 import androidx.datastore.core.DataStore
+import dev.sanmer.pi.datastore.model.Provider
+import dev.sanmer.pi.datastore.model.UserPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

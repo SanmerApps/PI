@@ -29,7 +29,7 @@ import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.BuildCompat
-import dev.sanmer.pi.datastore.Provider
+import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
