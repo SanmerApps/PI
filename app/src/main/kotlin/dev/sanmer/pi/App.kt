@@ -26,7 +26,7 @@ class App : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
-        ServiceManagerCompat.setHiddenApiExemptions()
+        ServiceManagerCompat.setHiddenApiExemptions("")
         NotificationUtils.init(this)
     }
 
