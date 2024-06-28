@@ -30,14 +30,6 @@
     <string name="setup_root_desc">يتطلب أذونات الجذر التي يوفرها Magisk أو KernelSU</string>
     <string name="app_dialog_desc1">هل تريد إلغاء تثبيت هذا التطبيق؟</string>
     <string name="app_dialog_desc2">معلومة: سيؤدي هذا إلى إلغاء تثبيت التحديثات فقط إذا كان تطبيق نظام.</string>
-    <string name="details_system_title">النظام</string>
-    <string name="details_request_install">طلب تثبيت الحزمة</string>
-    <string name="details_request_install_system">للسماح لهذا التطبيق بطلب تثبيت الحزم. يجب أن تحصل التطبيقات التي تستهدف API التي يزيد عددها عن 25 على هذا الإذن حتى تتمكن من استخدام `Intent.ACTION_INSTALL_PACKAGE`.</string>
-    <string name="details_custom_title">مخصص</string>
-    <string name="details_requester_title">طالب التثبيت</string>
-    <string name="details_requester_desc">التطبيق الذي طلبت الحزمة البادئة التثبيت نيابةً عنه (طالب السجل).</string>
-    <string name="details_executor_title">منفذ التثبيت</string>
-    <string name="details_executor_desc">التطبيق المسؤول عن التثبيت (مثبت السجل).</string>
     <string name="settings_behavior">السلوك</string>
     <string name="settings_service_try_start">إضغط لمحاولة البدء</string>
     <string name="settings_interface">الواجهة</string>

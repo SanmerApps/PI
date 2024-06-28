@@ -4,8 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
@@ -31,10 +28,8 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
-import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
 import dev.sanmer.pi.ui.navigation.MainScreen
 import dev.sanmer.pi.ui.utils.navigateSingleTopTo
-import dev.sanmer.pi.viewmodel.AppViewModel
 import dev.sanmer.pi.viewmodel.AppsViewModel
 
 @Composable
@@ -84,27 +79,10 @@ fun AppsScreen(
                 )
             }
 
-            LazyColumn(
-                state = state
-            ) {
-                items(
-                    items = list,
-                    key = { it.packageName }
-                ) { pi ->
-                    AppItem(
-                        pi = pi,
-                        onClick = {
-                            navController.navigateSingleTopTo(
-                                AppViewModel.putPackageName(pi.packageName)
-                            )
-                        }
-                    )
-                }
-            }
-
-            VerticalFastScrollbar(
+            AppList(
+                list = list,
                 state = state,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                buildSettings = viewModel::buildSettings
             )
         }
     }

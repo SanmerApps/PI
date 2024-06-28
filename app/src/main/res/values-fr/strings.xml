@@ -9,8 +9,6 @@
     <string name="settings_service_version">Version %1$d, %2$s</string>
     <string name="notification_name_install">Service d\'installation</string>
     <string name="unknown_error">Erreur inconnue</string>
-    <string name="details_executor_title">Installateur</string>
-    <string name="details_executor_desc">L\'application responsable de l\'installation (l\'installateur officiel).</string>
     <string name="settings_behavior">Comportement</string>
     <string name="settings_service_try_start">Cliquer pour essayer de démarrer</string>
     <string name="settings_interface">Interface</string>
@@ -18,9 +16,6 @@
     <string name="settings_language_system">Système par défaut</string>
     <string name="settings_source_code">Code source</string>
     <string name="install_invalid_package">Échec de l\'analyse du paquet</string>
-    <string name="details_request_install_system">Autoriser cette application a demander des paquets d\'installation. Les applications ciblant des API supérieures à 25 doivent détenir cette permission afin d\'utiliser `Intent.ACTION_INSTALL_PACKAGE`.</string>
-    <string name="details_requester_title">Demandeur d\'installation</string>
-    <string name="details_requester_desc">L\'application au nom de laquelle le paquet initiateur a demandé l\'installation (le demandeur d\'enregistrement).</string>
     <string name="install_package_title">Paquet d\'installation</string>
     <string name="install_invalid_provider">Le service n\'est pas disponible</string>
     <string name="install_button_cancel">Annuler</string>
@@ -45,7 +40,4 @@
     <string name="page_settings">Paramètres</string>
     <string name="app_dialog_desc1">Voulez vous désinstaller l\'application ?</string>
     <string name="app_dialog_desc2">Astuce: Cela va uniquement désinstaller les mises à jours si c\'est une application système.</string>
-    <string name="details_system_title">Système</string>
-    <string name="details_request_install">Demande d\'installation du paquet</string>
-    <string name="details_custom_title">Sur mesure</string>
 </resources>

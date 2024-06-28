@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="details_request_install_system">אפשר לאפליקציה זו לבקש להתקין חבילות. אפליקציות המשתמשות ב-APIs מעל גרסה 25 חייבות בהרשאה זו כדי להשתמש ב- `Intent.ACTION_INSTALL_PACKAGE`.</string>
-    <string name="details_requester_desc">האפליקציה שדרשה התקנה של אפליקציה אחרת (מבקשת ההתקנה הרשומה).</string>
     <string name="setup_title">שיטת פעולה</string>
-    <string name="details_request_install">בקש חבילת התקנה</string>
-    <string name="details_executor_title">מבצעת ההתקנה</string>
-    <string name="details_requester_title">מבקשת ההתקנה</string>
-    <string name="details_executor_desc">האפליקציה שבפועל ביצעה את ההתקנה (מבצעת ההתקנה הרשומה).</string>
     <string name="install_activity">התקנה</string>
     <string name="page_settings">הגדרות</string>
     <string name="setup_shizuku_desc">דורש הרשאות המסופקות על ידי Sui או Shizuku</string>
     <string name="app_dialog_desc1">רוצה להסיר את התקנת האפליקציה?</string>
     <string name="app_dialog_desc2">טיפ: פעולה זו תסיר את התקנת העדכונים רק אם מדובר באפליקציית מערכת.</string>
-    <string name="details_system_title">מערכת</string>
-    <string name="details_custom_title">מותאם אישית</string>
     <string name="install_config_abi_title">ארכיטקטורה</string>
     <string name="install_config_feature_title">פיצ\'ר דינמי</string>
     <string name="settings_behavior">תפעול</string>

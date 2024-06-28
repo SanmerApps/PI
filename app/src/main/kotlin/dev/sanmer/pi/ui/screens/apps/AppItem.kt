@@ -90,9 +90,9 @@ internal fun AppItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            if (pi.isAuthorized) Icon(R.drawable.package_import)
-            if (pi.isRequester) Icon(R.drawable.file_unknown)
+            if (pi.isRequester) Icon(R.drawable.cube_plus)
             if (pi.isExecutor) Icon(R.drawable.code)
+            if (pi.isAuthorized) Icon(R.drawable.package_import)
         }
     }
 }
@@ -102,7 +102,7 @@ private fun Icon(
     @DrawableRes icon: Int
 ) = Logo(
     icon = icon,
-    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    containerColor = MaterialTheme.colorScheme.surfaceVariant,
     modifier = Modifier.size(30.dp)
 )

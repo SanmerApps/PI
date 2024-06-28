@@ -29,11 +29,6 @@
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
     <string name="app_dialog_desc1">Deseja desinstalar este app?</string>
-    <string name="details_system_title">Sistema</string>
-    <string name="details_request_install">Solicitar o pacote de instalação</string>
-    <string name="details_custom_title">Personalizado</string>
-    <string name="details_requester_title">Solicitante de instalação</string>
-    <string name="details_executor_title">Executor de instalação</string>
     <string name="settings_behavior">Comportamento</string>
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_interface">Interface</string>
@@ -43,9 +38,6 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancelar</string>
     <string name="app_dialog_desc2">Nota: Apenas serão desinstaladas as atualizações caso se trate de um app do sistema.</string>
-    <string name="details_requester_desc">O app em nome do qual o pacote inicial solicitou a instalação (o solicitante registrado).</string>
-    <string name="details_executor_desc">O app responsável pela instalação (o instalador registrado).</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
-    <string name="details_request_install_system">Permite que este app solicite a instalação de pacotes. Os apps direcionados a APIs maiores que 25 devem ter esta permissão para utilizar `Intent.ACTION_INSTALL_PACKAGE`.</string>
 </resources>

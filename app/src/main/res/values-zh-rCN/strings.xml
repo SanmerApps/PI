@@ -9,21 +9,14 @@
     <!-- Setup -->
     <string name="setup_title">工作模式</string>
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
-    <string name="setup_root_desc">需要由 Magisk 或 KernelSU 提供 Root 权限</string>
+    <string name="setup_root_desc">需要由 Magisk, KernelSU 或 APatch 提供 Root 权限</string>
 
     <!-- Apps -->
     <string name="app_dialog_desc1">你想要卸载这个应用吗?</string>
     <string name="app_dialog_desc2">提示: 对于系统应用, 这只会卸载更新.</string>
-
-    <!-- Details -->
-    <string name="details_system_title">系统</string>
-    <string name="details_request_install">请求安装应用</string>
-    <string name="details_request_install_system">允许应用请求安装软件包. 目标 API 大于 25 的应用必须持有此权限才能使用 `Intent.ACTION_INSTALL_PACKAGE`.</string>
-    <string name="details_custom_title">自定义</string>
-    <string name="details_requester_title">安装请求方</string>
-    <string name="details_requester_desc">发起安装请求的应用 (只是记录中的请求者).</string>
-    <string name="details_executor_title">安装执行方</string>
-    <string name="details_executor_desc">负责安装软件包的应用 (只是记录中的安装者).</string>
+    <string name="app_authorized">已授权</string>
+    <string name="app_requester">请求者</string>
+    <string name="app_executor">执行者</string>
 
     <!-- Settings -->
     <string name="settings_behavior">行为</string>
@@ -42,7 +35,7 @@
 
     <!-- Install -->
     <string name="install_package_title">安装包</string>
-    <string name="install_requester_title">请求方</string>
+    <string name="install_requester_title">请求者</string>
     <string name="install_config_feature_title">动态特征</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="install_config_density_title">屏幕密度</string>

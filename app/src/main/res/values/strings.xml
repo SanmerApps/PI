@@ -9,21 +9,14 @@
     <!-- Setup -->
     <string name="setup_title">Working mode</string>
     <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
-    <string name="setup_root_desc">Requires Root permissions provided by Magisk or KernelSU</string>
+    <string name="setup_root_desc">Requires Root permissions provided by Magisk, KernelSU or APatch</string>
 
     <!-- Apps -->
     <string name="app_dialog_desc1">Do you want to uninstall this app?</string>
     <string name="app_dialog_desc2">Tip: This will only uninstall updates if it is a system app.</string>
-
-    <!-- Details -->
-    <string name="details_system_title">System</string>
-    <string name="details_request_install">Request install package</string>
-    <string name="details_request_install_system">Allows this app to request installing packages. Apps targeting APIs greater than 25 must hold this permission in order to use `Intent.ACTION_INSTALL_PACKAGE`.</string>
-    <string name="details_custom_title">Custom</string>
-    <string name="details_requester_title">Installation requester</string>
-    <string name="details_requester_desc">The app on behalf of which the initiating package requested the installation (the requester of record).</string>
-    <string name="details_executor_title">Installation executor</string>
-    <string name="details_executor_desc">The app responsible for the installation (the installer of record).</string>
+    <string name="app_authorized">Authorized</string>
+    <string name="app_requester">Requester</string>
+    <string name="app_executor">Executor</string>
 
     <!-- Settings -->
     <string name="settings_behavior">Behavior</string>
