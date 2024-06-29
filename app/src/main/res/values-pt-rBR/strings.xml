@@ -3,7 +3,7 @@
     <string name="install_activity">Instalar</string>
     <string name="setup_title">Modo de trabalho</string>
     <string name="setup_shizuku_desc">Requer permissão fornecida por Sui ou Shizuku</string>
-    <string name="setup_root_desc">Requer permissões root fornecidas por Magisk ou KernelSU</string>
+    <string name="setup_root_desc">Requer permissões root fornecidas por Magisk, KernelSU ou APatch</string>
     <string name="settings_service_running">O serviço está em execução</string>
     <string name="settings_service_not_running">O serviço não está em execução</string>
     <string name="settings_service_version">Versão %1$d, %2$s</string>
@@ -40,4 +40,7 @@
     <string name="settings_language_system">Padrão do sistema</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
+    <string name="app_authorized">Autorizado</string>
+    <string name="app_requester">Solicitante</string>
+    <string name="app_executor">Executor</string>
 </resources>
