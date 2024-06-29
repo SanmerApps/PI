@@ -139,14 +139,12 @@ object PackageParserCompat {
             ?: UnspecifiedSplitConfig(file.name, file.length())
     }
 
-    @Throws(IOException::class)
     private fun File.unzip(folder: File) {
         inputStream().buffered().use {
             it.unzip(folder)
         }
     }
 
-    @Throws(IOException::class)
     private fun InputStream.unzip(folder: File) {
         try {
             val zin = ZipInputStream(this)
@@ -159,7 +157,7 @@ object PackageParserCompat {
 
                 val dest = File(folder, entry.name)
                 dest.parentFile?.apply { if (!exists()) mkdirs() }
-                dest.outputStream().use { out -> zin.copyTo(out) }
+                dest.outputStream().use(zin::copyTo)
             }
         } catch (e: IllegalArgumentException) {
             throw IOException(e)
