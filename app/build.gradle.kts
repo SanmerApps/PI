@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import java.time.Instant
 
 plugins {
     alias(libs.plugins.self.application)
@@ -7,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-val baseVersionName = "1.1.0"
+val baseVersionName: String by extra
 val isDevVersion get() = exec("git tag --contains HEAD").isEmpty()
 val verNameSuffix get() = if (isDevVersion) ".dev" else ""
 
@@ -58,7 +59,8 @@ android {
 
         all {
             signingConfig = releaseSigning
-            buildConfigField("Boolean", "IS_DEV_VERSION", isDevVersion.toString())
+            buildConfigField("boolean", "IS_DEV_VERSION", isDevVersion.toString())
+            buildConfigField("long", "BUILD_TIME", Instant.now().toEpochMilli().toString())
         }
     }
 

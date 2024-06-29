@@ -13,12 +13,15 @@ task<Delete>("clean") {
 }
 
 subprojects {
+    extra["baseVersionName"] = "1.1.1"
+
     apply(plugin = "maven-publish")
     configure<PublishingExtension> {
         publications {
+            val baseVersionName: String by extra
             all {
                 group = "dev.sanmer.pi"
-                version = "0.1.1"
+                version = baseVersionName
             }
         }
 
