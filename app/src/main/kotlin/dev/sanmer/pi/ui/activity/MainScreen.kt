@@ -1,5 +1,7 @@
 package dev.sanmer.pi.ui.activity
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,9 +16,11 @@ import dev.sanmer.pi.ui.navigation.graphs.settingsScreen
 fun MainScreen() {
     val navController = rememberNavController()
 
-    Scaffold {
+    Scaffold(
+        contentWindowInsets = WindowInsets.navigationBars
+    ) {
         NavHost(
-            modifier = Modifier.padding(bottom = it.calculateBottomPadding()),
+            modifier = Modifier.padding(it),
             navController = navController,
             startDestination = MainScreen.Apps.route
         ) {
