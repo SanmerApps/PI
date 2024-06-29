@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.net.Uri
 import android.text.format.Formatter
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,14 +52,17 @@ class InstallViewModel @Inject constructor(
         private set
     var archiveInfo by mutableStateOf(IPackageInfo.empty())
         private set
-    val hasSourceInfo get() = sourceInfo.isNotEmpty
+    val hasSourceInfo by lazy { sourceInfo.isNotEmpty }
 
     private val currentInfo by lazy { getPackageInfo(archiveInfo.packageName) }
     val versionDiff by lazy { VersionCompat.getVersionDiff(currentInfo, archiveInfo) }
     val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
 
-    private var apkSize = 0L
-    val formattedApkSize: String by lazy { Formatter.formatFileSize(context, apkSize) }
+    private var baseSize = 0L
+    private val totalSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.size } }
+    val totalSizeStr: String by derivedStateOf {
+        Formatter.formatFileSize(context, totalSize)
+    }
 
     var splitConfigs = listOf<SplitConfig>()
         private set
@@ -98,7 +102,7 @@ class InstallViewModel @Inject constructor(
         PackageParserCompat.parsePackage(path, 0)?.let { pi ->
             archiveInfo = pi.toIPackageInfo()
             archivePath = path
-            apkSize = archivePath.length()
+            baseSize = archivePath.length()
 
             Timber.i("loadPackage<Apk>: ${pi.packageName}")
             state = State.Apk
@@ -108,7 +112,7 @@ class InstallViewModel @Inject constructor(
         PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
             archiveInfo = bi.baseInfo.toIPackageInfo()
             archivePath = tempDir
-            apkSize = bi.baseFile.length() + bi.splitFiles.sumOf { it.length() }
+            baseSize = bi.baseFile.length()
 
             splitConfigs = bi.splitConfigs
             requiredConfigs.addAll(

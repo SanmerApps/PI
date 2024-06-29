@@ -128,7 +128,7 @@ private fun InstallContent(
         archiveInfo = viewModel.archiveInfo,
         versionDiff = viewModel.versionDiff,
         sdkDiff = viewModel.sdkDiff,
-        apkSize = viewModel.formattedApkSize
+        totalSize = viewModel.totalSizeStr
     )
 
     when {
@@ -185,7 +185,7 @@ private fun PackageItem(
     archiveInfo: IPackageInfo,
     versionDiff: String,
     sdkDiff: String,
-    apkSize: String
+    totalSize: String
 ) = TittleItem(
     text = stringResource(id = R.string.install_package_title)
 ) {
@@ -228,7 +228,7 @@ private fun PackageItem(
                 )
 
                 Text(
-                    text = "${sdkDiff}, Size: $apkSize",
+                    text = "${sdkDiff}, Size: $totalSize",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline
                 )
