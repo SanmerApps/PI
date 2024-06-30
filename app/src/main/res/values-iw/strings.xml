@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="setup_title">שיטת פעולה</string>
+    <string name="setup_title">שיטת העבודה</string>
     <string name="install_activity">התקנה</string>
     <string name="page_settings">הגדרות</string>
     <string name="setup_shizuku_desc">דורש הרשאות המסופקות על ידי Sui או Shizuku</string>
@@ -10,11 +10,11 @@
     <string name="install_config_feature_title">פיצ\'ר דינמי</string>
     <string name="settings_behavior">תפעול</string>
     <string name="install_package_title">חבילת התקנה</string>
-    <string name="install_requester_title">מבקשת ההתקנה</string>
+    <string name="install_requester_title">מבקש ההתקנה</string>
     <string name="install_config_density_title">צפיפות תצוגה</string>
-    <string name="settings_service_try_start">לחץ כדי לנסות להפעיל</string>
+    <string name="settings_service_try_start">יש ללחוץ על מנת לנסות להפעיל</string>
     <string name="settings_translation">השתתפות בתרגום</string>
-    <string name="setup_root_desc">דורשת הרשאת Root שמסופקת על ידי Magisk או KernelSU</string>
+    <string name="setup_root_desc">דורשת הרשאת Root שמסופקת על ידי Magisk, KernelSU או APatch</string>
     <string name="settings_service_running">השירות פועל</string>
     <string name="settings_service_version">גרסה %1$d, %2$s</string>
     <string name="settings_service_not_running">השירות לא פועל</string>
@@ -40,4 +40,7 @@
     <string name="install_config_language_title">שפה</string>
     <string name="install_invalid_provider">השירות אינו זמין</string>
     <string name="install_invalid_package">ניתוח החבילה כשל</string>
+    <string name="app_authorized">מורשה</string>
+    <string name="app_executor">מבצע</string>
+    <string name="app_requester">מבקש</string>
 </resources>

@@ -27,7 +27,7 @@
     <string name="unknown_error">خطأ غير معروف</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="settings_dynamic_color_desc">إستخدام لون مظهر النظام (Android 12+)</string>
-    <string name="setup_root_desc">يتطلب أذونات الجذر التي يوفرها Magisk أو KernelSU</string>
+    <string name="setup_root_desc">يتطلب صلاحيات الروت التي يوفرها Magisk أو KernelSU أو APatch</string>
     <string name="app_dialog_desc1">هل تريد إلغاء تثبيت هذا التطبيق؟</string>
     <string name="app_dialog_desc2">معلومة: سيؤدي هذا إلى إلغاء تثبيت التحديثات فقط إذا كان تطبيق نظام.</string>
     <string name="settings_behavior">السلوك</string>
@@ -40,4 +40,7 @@
     <string name="dialog_cancel">إلغاء</string>
     <string name="install_invalid_package">فشل تحليل الحزمة</string>
     <string name="install_invalid_provider">الحزمة غير متاحة</string>
+    <string name="app_authorized">مخول</string>
+    <string name="app_requester">الطالب</string>
+    <string name="app_executor">المنفذ</string>
 </resources>

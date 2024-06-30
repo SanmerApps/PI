@@ -6,7 +6,7 @@
     <string name="page_settings">Configuración</string>
     <string name="setup_title">Modo de trabajo</string>
     <string name="setup_shizuku_desc">Requiere permiso de Sui o Shizuku</string>
-    <string name="setup_root_desc">Requiere permisos Root proporcionados por Magisk, Apatch o KernelSU</string>
+    <string name="setup_root_desc">Requiere permisos Root proporcionados por APatch, KernelSU o Magisk</string>
     <string name="app_dialog_desc2">Consejo: Esto sólo desinstalará las actualizaciones si se trata de una aplicación del sistema.</string>
     <string name="settings_service_running">El servicio está en ejecución</string>
     <string name="settings_service_version">Versión %1$d, %2$s</string>
@@ -40,4 +40,7 @@
     <string name="message_install_fail">Instalación fallida</string>
     <string name="message_loading">Cargando…</string>
     <string name="search_placeholder">Buscar…</string>
+    <string name="app_authorized">Autorizado</string>
+    <string name="app_requester">Solicitante</string>
+    <string name="app_executor">Ejecutor</string>
 </resources>
