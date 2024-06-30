@@ -49,10 +49,10 @@ object Compat {
             }
 
             state()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Timber.e(e)
 
-            mServiceOrNull= null
+            mServiceOrNull = null
             state()
         }
     }
