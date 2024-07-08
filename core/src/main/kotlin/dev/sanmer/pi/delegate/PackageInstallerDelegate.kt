@@ -155,7 +155,7 @@ class PackageInstallerDelegate(
 
     class SessionParams(
         mode: Int
-    ): PackageInstaller.SessionParams(mode) {
+    ) : PackageInstaller.SessionParams(mode) {
         private val original by lazy {
             Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)
         }

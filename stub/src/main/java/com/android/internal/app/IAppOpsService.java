@@ -18,7 +18,7 @@ public interface IAppOpsService extends IInterface {
 
     List<AppOpsManagerHidden.PackageOps> getPackagesForOps(int[] ops) throws RemoteException;
 
-    List<AppOpsManagerHidden.PackageOps> getOpsForPackage(int uid, String packageName, int[] ops)  throws RemoteException;
+    List<AppOpsManagerHidden.PackageOps> getOpsForPackage(int uid, String packageName, int[] ops) throws RemoteException;
 
     List<AppOpsManagerHidden.PackageOps> getUidOps(int uid, int[] ops) throws RemoteException;
 

@@ -58,7 +58,12 @@ class PackageManagerDelegate(
         }.list
     }
 
-    fun queryIntentActivities(intent: Intent, resolvedType: String?, flags: Int, userId: Int): List<ResolveInfo> {
+    fun queryIntentActivities(
+        intent: Intent,
+        resolvedType: String?,
+        flags: Int,
+        userId: Int
+    ): List<ResolveInfo> {
         return if (BuildCompat.atLeastT) {
             packageManager.queryIntentActivities(intent, resolvedType, flags.toLong(), userId)
         } else {

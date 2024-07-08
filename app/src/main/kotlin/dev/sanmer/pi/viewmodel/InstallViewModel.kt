@@ -154,6 +154,7 @@ class InstallViewModel @Inject constructor(
                 setMode(AppOpsManagerDelegate.Mode.Default)
                 sourceInfo = sourceInfo.copy(isAuthorized = false)
             }
+
             else -> {
                 setMode(AppOpsManagerDelegate.Mode.Allow)
                 sourceInfo = sourceInfo.copy(isAuthorized = true)

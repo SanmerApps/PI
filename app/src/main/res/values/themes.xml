@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.App" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.Splash.Light" parent="Theme.SplashScreen">
@@ -12,7 +13,7 @@
         <item name="android:windowLightNavigationBar">false</item>
     </style>
 
-    <style name="Theme.Splash" parent="Theme.Splash.Light"/>
+    <style name="Theme.Splash" parent="Theme.Splash.Light" />
 
     <style name="AppTheme" parent="Theme.Splash">
         <item name="windowSplashScreenAnimatedIcon">@drawable/launcher_splash</item>

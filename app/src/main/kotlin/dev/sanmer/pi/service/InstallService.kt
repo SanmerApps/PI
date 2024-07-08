@@ -40,8 +40,9 @@ import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallback {
-    @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
+class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallback {
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private val appIconLoader by lazy {
         AppIconLoader(45.dp, true, this)
@@ -134,6 +135,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
                 archivePath.isDirectory -> {
                     session.writeApks(archivePath, filenames)
                 }
+
                 archivePath.isFile -> {
                     session.writeApk(archivePath)
                 }
@@ -154,6 +156,7 @@ class InstallService: LifecycleService(), PackageInstallerDelegate.SessionCallba
                         packageName = archiveInfo.packageName
                     )
                 }
+
                 else -> {
                     val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
                     Timber.e("onFailed<${archiveInfo.packageName}>: $msg")

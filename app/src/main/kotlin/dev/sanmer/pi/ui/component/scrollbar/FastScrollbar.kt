@@ -211,6 +211,7 @@ class ScrollbarColors internal constructor(
 
     companion object {
         private const val SCROLLBAR_INACTIVE_TO_DORMANT_TIME_IN_MS = 2_000L
+
         private enum class ThumbState {
             Active, Inactive, Dormant
         }

@@ -31,8 +31,8 @@ abstract class SplitConfig(
     }
 
     internal companion object {
-        fun parseSplit(apk: ApkLite) : String? {
-            val splitName = apk.splitName.removeSurrounding("${apk.configForSplit}.","")
+        fun parseSplit(apk: ApkLite): String? {
+            val splitName = apk.splitName.removeSurrounding("${apk.configForSplit}.", "")
             val name = splitName.removeSurrounding("config.", "")
             return if (name != splitName) {
                 name

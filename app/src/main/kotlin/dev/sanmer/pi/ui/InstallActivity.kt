@@ -25,7 +25,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class InstallActivity : ComponentActivity() {
-    @Inject lateinit var userPreferencesRepository: UserPreferencesRepository
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private val viewModel: InstallViewModel by viewModels()
 

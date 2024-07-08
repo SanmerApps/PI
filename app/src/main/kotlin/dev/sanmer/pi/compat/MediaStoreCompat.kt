@@ -54,6 +54,7 @@ object MediaStoreCompat {
         }.getOrElse {
             createDownloadUri(path)
         }
+
         else -> createDownloadUri(path)
     }
 
@@ -85,6 +86,7 @@ object MediaStoreCompat {
                     columnName = MediaStore.MediaColumns.OWNER_PACKAGE_NAME
                 )
             }
+
             else -> {
                 uri.authority?.let {
                     packageManager.resolveContentProvider(
@@ -127,12 +129,8 @@ object MediaStoreCompat {
 
     fun getDocumentUri(context: Context, uri: Uri): Uri {
         return when {
-            DocumentsContract.isTreeUri(uri) -> {
-                DocumentFile.fromTreeUri(context, uri)?.uri ?: uri
-            }
-            else -> {
-                uri
-            }
+            DocumentsContract.isTreeUri(uri) -> DocumentFile.fromTreeUri(context, uri)?.uri ?: uri
+            else -> uri
         }
     }
 
@@ -141,9 +139,7 @@ object MediaStoreCompat {
         val tmp = dir.resolve(getDisplayNameForUri(uri))
 
         contentResolver.openInputStream(uri)?.buffered()?.use { input ->
-            tmp.outputStream().use { output ->
-                input.copyTo(output)
-            }
+            tmp.outputStream().use(input::copyTo)
         }
 
         return tmp

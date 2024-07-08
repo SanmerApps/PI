@@ -8,7 +8,7 @@ object VersionCompat {
     private const val ARROW = "→"
     private const val ARROW_REVERT = "←"
 
-    private fun <T: Comparable<T>> StringBuilder.comparator(
+    private fun <T : Comparable<T>> StringBuilder.comparator(
         v0: Pair<T, String>,
         v1: Pair<T, String>
     ) {
@@ -25,9 +25,11 @@ object VersionCompat {
             k0 == k1 -> {
                 return
             }
+
             k0 < k1 -> {
                 append(" $ARROW ")
             }
+
             k0 > k1 -> {
                 append(" $ARROW_REVERT ")
             }
@@ -40,7 +42,7 @@ object VersionCompat {
         }
     }
 
-    private fun <T: Comparable<T>> StringBuilder.comparator(
+    private fun <T : Comparable<T>> StringBuilder.comparator(
         v0: T,
         v1: T
     ) = comparator(
@@ -48,8 +50,9 @@ object VersionCompat {
         v1 = v1 to ""
     )
 
-    private val PackageInfo.versionStr get() =
-        "$versionName (${longVersionCode})"
+    private val PackageInfo.versionStr
+        get() =
+            "$versionName (${longVersionCode})"
 
     fun getVersionDiff(
         old: PackageInfo,
@@ -60,6 +63,7 @@ object VersionCompat {
             old.isEmpty -> {
                 append(new.versionStr)
             }
+
             else -> {
                 comparator(
                     v0 = with(old) { longVersionCode to versionStr },
@@ -91,6 +95,7 @@ object VersionCompat {
                     append("${new.compileSdkVersion}")
                 }
             }
+
             else -> {
                 append("Target: ")
                 comparator(

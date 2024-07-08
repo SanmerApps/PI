@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.screens.settings
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -75,15 +74,17 @@ fun SettingsScreen(
                 platform = viewModel.providerPlatform,
                 tryStart = viewModel::tryStartProvider
             )
-            
+
             SettingNormalItem(
                 icon = R.drawable.command,
                 title = stringResource(id = R.string.setup_title),
-                desc = stringResource(id = when (userPreferences.provider) {
-                    Provider.Superuser -> R.string.setup_root_title
-                    Provider.Shizuku -> R.string.setup_shizuku_title
-                    else -> R.string.unknown_error
-                }),
+                desc = stringResource(
+                    id = when (userPreferences.provider) {
+                        Provider.Superuser -> R.string.setup_root_title
+                        Provider.Shizuku -> R.string.setup_shizuku_title
+                        else -> R.string.unknown_error
+                    }
+                ),
                 onClick = {
                     navController.navigateSingleTopTo(SettingsScreen.WorkingMode.route)
                 }
@@ -154,13 +155,17 @@ private fun ServiceItem(
         else -> stringResource(id = R.string.settings_service_not_running)
     },
     desc = when {
-        isAlive -> stringResource(id = R.string.settings_service_version, BuildConfig.VERSION_CODE, platform)
+        isAlive -> stringResource(
+            id = R.string.settings_service_version,
+            BuildConfig.VERSION_CODE,
+            platform
+        )
+
         else -> stringResource(id = R.string.settings_service_try_start)
     },
     onClick = tryStart
 )
 
-@SuppressLint("InlinedApi")
 @Composable
 private fun LanguageItem(
     context: Context
@@ -169,6 +174,7 @@ private fun LanguageItem(
     title = stringResource(id = R.string.settings_language),
     desc = context.applicationLocale?.localizedDisplayName ?: stringResource(id = R.string.settings_language_system),
     onClick = {
+        // noinspection InlinedApi
         context.startActivity(
             Intent(
                 Settings.ACTION_APP_LOCALE_SETTINGS,

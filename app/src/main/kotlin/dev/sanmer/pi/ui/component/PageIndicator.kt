@@ -40,8 +40,7 @@ fun PageIndicator(
     modifier: Modifier = Modifier,
     minHeight: Dp? = null
 ) = Column(
-    modifier = modifier
-            then(if (minHeight != null) {
+    modifier = modifier then (if (minHeight != null) {
         Modifier
             .defaultMinSize(minHeight = minHeight)
             .fillMaxWidth()
@@ -133,11 +132,12 @@ object PageIndicatorDefaults {
     val iconSize = 80.dp
     val iconColor @Composable get() = MaterialTheme.colorScheme.outline.copy(0.5f)
 
-    val textStyle @Composable get() = TextStyle(
-        color = MaterialTheme.colorScheme.outline.copy(0.5f),
-        fontSize = 20.sp,
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.SemiBold,
-        textAlign = TextAlign.Center
-    )
+    val textStyle
+        @Composable get() = TextStyle(
+            color = MaterialTheme.colorScheme.outline.copy(0.5f),
+            fontSize = 20.sp,
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
 }

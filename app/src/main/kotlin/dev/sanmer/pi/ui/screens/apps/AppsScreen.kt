@@ -65,8 +65,8 @@ fun AppsScreen(
         },
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .padding(innerPadding)
+        Box(
+            modifier = Modifier.padding(innerPadding)
         ) {
             if (viewModel.isLoading) {
                 Loading()

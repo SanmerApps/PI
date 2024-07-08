@@ -239,6 +239,7 @@ fun Scrollbar(
                 else -> thumbMovedPercent
             }
         }
+
         else -> interactionThumbTravelPercent
     }
 

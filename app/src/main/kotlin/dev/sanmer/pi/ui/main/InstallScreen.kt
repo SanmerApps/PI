@@ -139,6 +139,7 @@ private fun InstallContent(
                 toggleSplitConfig = viewModel::toggleSplitConfig
             )
         }
+
         viewModel.hasSourceInfo -> {
             RequesterItem(
                 sourceInfo = viewModel.sourceInfo,
@@ -442,10 +443,10 @@ private fun SplitConfigItem(
 
                 Text(
                     text = buildString {
-                         if (config.isConfigForSplit) {
-                             append(config.configForSplit)
-                             append(", ")
-                         }
+                        if (config.isConfigForSplit) {
+                            append(config.configForSplit)
+                            append(", ")
+                        }
 
                         append(config.formattedSize)
                     },

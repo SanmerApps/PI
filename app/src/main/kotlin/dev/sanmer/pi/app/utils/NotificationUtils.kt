@@ -12,7 +12,8 @@ object NotificationUtils {
 
     fun init(context: Context) {
         val channels = listOf(
-            NotificationChannel(CHANNEL_ID_INSTALL,
+            NotificationChannel(
+                CHANNEL_ID_INSTALL,
                 context.getString(R.string.notification_name_install),
                 NotificationManager.IMPORTANCE_HIGH
             )
