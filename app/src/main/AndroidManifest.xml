@@ -29,7 +29,7 @@
         tools:targetApi="34">
 
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name=".ui.MainActivity"
             android:launchMode="singleTask"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
@@ -40,7 +40,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.InstallActivity"
+            android:name=".ui.InstallActivity"
             android:theme="@style/DialogTheme"
             android:label="@string/install_activity"
             android:exported="true"

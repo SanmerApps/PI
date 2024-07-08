@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.activity
+package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade

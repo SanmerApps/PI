@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.activity
+package dev.sanmer.pi.ui.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
