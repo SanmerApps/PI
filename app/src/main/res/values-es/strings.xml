@@ -16,7 +16,7 @@
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Sistema por defecto</string>
     <string name="settings_dynamic_color">Color dinámico</string>
-    <string name="settings_dynamic_color_desc">Utilizar el color del tema del sistema (Android 12+)</string>
+    <string name="settings_dynamic_color_desc">Utilizar el color del tema del sistema</string>
     <string name="settings_translation">Participar en la traducción</string>
     <string name="settings_translation_desc">Ayúdenos a traducir PI a su idioma</string>
     <string name="settings_source_code">Código fuente</string>

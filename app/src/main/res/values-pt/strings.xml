@@ -9,7 +9,7 @@
     <string name="install_requester_title">Solicitante de instalação</string>
     <string name="empty_list">Lista vazia</string>
     <string name="settings_dynamic_color">Cor dinâmica</string>
-    <string name="settings_dynamic_color_desc">Use a cor do tema do sistema (Android 12+)</string>
+    <string name="settings_dynamic_color_desc">Use a cor do tema do sistema</string>
     <string name="install_package_title">Pacote de instalação</string>
     <string name="install_button_install">Instalar</string>
     <string name="install_button_cancel">Cancelar</string>

@@ -20,7 +20,7 @@
     <string name="install_invalid_provider">Le service n\'est pas disponible</string>
     <string name="install_button_cancel">Annuler</string>
     <string name="settings_dynamic_color">Couleur dynamique</string>
-    <string name="settings_dynamic_color_desc">Utiliser la couleur du thème système (Android 12+)</string>
+    <string name="settings_dynamic_color_desc">Utiliser la couleur du thème système</string>
     <string name="settings_translation">Participer à la traduction</string>
     <string name="settings_translation_desc">Aidez nous a traduire PI dans vôtre langue</string>
     <string name="dialog_ok">OK</string>

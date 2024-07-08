@@ -9,7 +9,7 @@
     <string name="empty_list">Danh sách trống</string>
     <string name="page_settings">Thiết đặt</string>
     <string name="settings_dynamic_color">Màu sắc linh động</string>
-    <string name="settings_dynamic_color_desc">Sử dụng bảng màu Material You (Android 12+)</string>
+    <string name="settings_dynamic_color_desc">Sử dụng bảng màu Material You</string>
     <string name="settings_translation">Tham gia dịch thuật</string>
     <string name="settings_translation_desc">Hãy giúp chúng tôi dịch PI sang ngôn ngữ của bạn</string>
     <string name="install_package_title">Gói cài đặt</string>

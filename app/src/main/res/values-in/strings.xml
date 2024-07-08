@@ -14,7 +14,7 @@
     <string name="settings_language">Bahasa</string>
     <string name="settings_language_system">Bawaan sistem</string>
     <string name="settings_dynamic_color">Warna dinamis</string>
-    <string name="settings_dynamic_color_desc">Menggunakan warna tema sistem (Android 12+)</string>
+    <string name="settings_dynamic_color_desc">Menggunakan warna tema sistem</string>
     <string name="settings_translation">Berpartisipasi dalam penerjemahan</string>
     <string name="settings_source_code">Kode sumber</string>
     <string name="install_package_title">Paket instalasi</string>

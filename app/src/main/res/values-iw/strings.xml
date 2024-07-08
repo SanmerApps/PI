@@ -22,7 +22,7 @@
     <string name="settings_language">שפה</string>
     <string name="settings_language_system">ברירת מחדל של המערכת</string>
     <string name="settings_dynamic_color">צבע דינמי</string>
-    <string name="settings_dynamic_color_desc">שימוש בצבע ערכת הנושא של המערכת (Android 12+)</string>
+    <string name="settings_dynamic_color_desc">שימוש בצבע ערכת הנושא של המערכת</string>
     <string name="settings_translation_desc">עזור לנו לתרגם את PI לשפה שלך</string>
     <string name="settings_source_code">קוד מקור</string>
     <string name="unknown_error">שגיאה לא ידועה</string>
