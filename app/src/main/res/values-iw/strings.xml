@@ -34,7 +34,6 @@
     <string name="message_install_success">ההתקנה בוצעה בהצלחה</string>
     <string name="dialog_cancel">ביטול</string>
     <string name="dialog_ok">אישור</string>
-    <string name="install_button_cancel">ביטול</string>
     <string name="install_button_install">התקנה</string>
     <string name="install_config_unspecified_title">לא מוגדר</string>
     <string name="install_config_language_title">שפה</string>

@@ -42,7 +42,6 @@
     <string name="install_config_language_title">语言</string>
     <string name="install_config_unspecified_title">未知</string>
     <string name="install_button_install">安装</string>
-    <string name="install_button_cancel">取消</string>
     <string name="install_invalid_provider">服务不可用</string>
     <string name="install_invalid_package">安装包解析失败</string>
 

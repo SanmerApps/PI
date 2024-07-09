@@ -14,7 +14,6 @@
     <string name="settings_dynamic_color_desc">Use a cor do tema do sistema</string>
     <string name="install_package_title">Pacote de instalação</string>
     <string name="install_button_install">Instalar</string>
-    <string name="install_button_cancel">Cancelar</string>
     <string name="message_install_success">Instalação bem-sucedida</string>
     <string name="message_install_fail">Falha na instalação</string>
     <string name="message_loading">Carregando…</string>

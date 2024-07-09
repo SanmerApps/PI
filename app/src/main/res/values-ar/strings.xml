@@ -18,7 +18,6 @@
     <string name="install_config_language_title">اللغة</string>
     <string name="install_config_unspecified_title">غير محدد</string>
     <string name="install_button_install">تثبيت</string>
-    <string name="install_button_cancel">إلغاء</string>
     <string name="message_install_success">تم التثبيت بنجاح</string>
     <string name="message_install_fail">فشل التثبيت</string>
     <string name="message_loading">جاري التحميل…</string>

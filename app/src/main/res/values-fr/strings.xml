@@ -18,7 +18,6 @@
     <string name="install_invalid_package">Échec de l\'analyse du paquet</string>
     <string name="install_package_title">Paquet d\'installation</string>
     <string name="install_invalid_provider">Le service n\'est pas disponible</string>
-    <string name="install_button_cancel">Annuler</string>
     <string name="settings_dynamic_color">Couleur dynamique</string>
     <string name="settings_dynamic_color_desc">Utiliser la couleur du thème système</string>
     <string name="settings_translation">Participer à la traduction</string>

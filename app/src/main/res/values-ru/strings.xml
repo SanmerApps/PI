@@ -9,7 +9,6 @@
     <string name="setup_shizuku_desc">Требуется разрешение Sui или Shizuku</string>
     <string name="install_config_density_title">Плотность экрана</string>
     <string name="install_config_language_title">Язык</string>
-    <string name="install_button_cancel">Отмена</string>
     <string name="dialog_ok">ОК</string>
     <string name="message_install_fail">Установка прервана</string>
     <string name="empty_list">Пустой список</string>

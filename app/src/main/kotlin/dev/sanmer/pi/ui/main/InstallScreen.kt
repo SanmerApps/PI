@@ -2,7 +2,6 @@ package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -116,6 +115,38 @@ fun InstallScreen(
 }
 
 @Composable
+private fun BottomBar(
+    modifier: Modifier = Modifier,
+    onDeny: () -> Unit,
+    onStart: () -> Unit
+) = Row(
+    modifier = modifier.fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(20.dp)
+) {
+    Spacer(modifier = Modifier.weight(1f))
+
+    val context = LocalContext.current
+    OutlinedButton(
+        onClick = {
+            onDeny()
+            context.finishActivity()
+        }
+    ) {
+        Text(text = stringResource(id = R.string.install_button_cancel))
+    }
+
+    Button(
+        onClick = {
+            onStart()
+            context.finishActivity()
+        }
+    ) {
+        Text(text = stringResource(id = R.string.install_button_install))
+    }
+}
+
+@Composable
 private fun InstallContent(
     modifier: Modifier = Modifier,
     viewModel: InstallViewModel = hiltViewModel()
@@ -150,38 +181,6 @@ private fun InstallContent(
 }
 
 @Composable
-private fun BottomBar(
-    modifier: Modifier = Modifier,
-    onDeny: () -> Unit,
-    onStart: () -> Unit
-) = Row(
-    modifier = modifier.fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(20.dp)
-) {
-    Spacer(modifier = Modifier.weight(1f))
-
-    val context = LocalContext.current
-    OutlinedButton(
-        onClick = {
-            onDeny()
-            context.finishActivity()
-        }
-    ) {
-        Text(text = stringResource(id = R.string.install_button_cancel))
-    }
-
-    Button(
-        onClick = {
-            onStart()
-            context.finishActivity()
-        }
-    ) {
-        Text(text = stringResource(id = R.string.install_button_install))
-    }
-}
-
-@Composable
 private fun PackageItem(
     archiveInfo: IPackageInfo,
     versionDiff: String,
@@ -193,7 +192,7 @@ private fun PackageItem(
     Surface(
         shape = RoundedCornerShape(15.dp),
         tonalElevation = 6.dp,
-        border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        border = CardDefaults.outlinedCardBorder()
     ) {
         Row(
             modifier = Modifier
@@ -412,11 +411,10 @@ private fun SplitConfigItem(
         derivedStateOf { isRequiredConfig(config) }
     }
 
-    Surface(
+    OutlinedCard(
         shape = RoundedCornerShape(15.dp),
         onClick = { toggleSplitConfig(config) },
-        enabled = !config.isDisabled,
-        border = CardDefaults.outlinedCardBorder()
+        enabled = !config.isDisabled
     ) {
         Row(
             modifier = Modifier
@@ -482,7 +480,7 @@ private fun ConfigIcon(
 )
 
 @Composable
-private fun TittleItem(
+internal fun TittleItem(
     text: String,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit = {}

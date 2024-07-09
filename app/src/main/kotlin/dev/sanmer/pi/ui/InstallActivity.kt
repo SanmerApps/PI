@@ -72,9 +72,13 @@ class InstallActivity : ComponentActivity() {
         }
     }
 
+    override fun finish() {
+        setResult(RESULT_OK)
+        super.finish()
+    }
+
     override fun onDestroy() {
         Timber.d("onDestroy")
-        setResult(RESULT_OK)
         super.onDestroy()
     }
 
