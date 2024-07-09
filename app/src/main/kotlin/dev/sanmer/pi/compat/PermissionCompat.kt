@@ -10,14 +10,11 @@ import androidx.core.content.ContextCompat
 import java.util.UUID
 
 object PermissionCompat {
-    data class PermissionState(
-        private val results: Map<String, Boolean>
+    @JvmInline
+    value class PermissionState(
+        private val state: Map<String, Boolean>
     ) {
-        val allGranted = results.all { it.value }
-
-        override fun toString(): String {
-            return results.toString()
-        }
+        val allGranted get() = state.all { it.value }
     }
 
     private fun Context.findActivity(): Activity? {
@@ -33,39 +30,47 @@ object PermissionCompat {
     fun checkPermissions(
         context: Context,
         permissions: List<String>
-    ): PermissionState {
-        val results = permissions.associateWith {
+    ) = PermissionState(
+        permissions.associateWith {
             ContextCompat.checkSelfPermission(
                 context, it
             ) == PackageManager.PERMISSION_GRANTED
         }
+    )
 
-        return PermissionState(results)
-    }
+    fun checkPermission(
+        context: Context,
+        permission: String
+    ) = checkPermissions(
+        context = context,
+        permissions = listOf(permission)
+    ).allGranted
 
     fun requestPermissions(
         context: Context,
         permissions: List<String>,
-        callback: (PermissionState) -> Unit
+        callback: (PermissionState) -> Unit = {}
     ) {
-        val state = checkPermissions(context, permissions)
-        if (state.allGranted) {
-            callback(state)
-            return
-        }
-
         val activity = context.findActivity()
         if (activity !is ActivityResultRegistryOwner) return
 
         val activityResultRegistry = activity.activityResultRegistry
-        val key = UUID.randomUUID().toString()
         val launcher = activityResultRegistry.register(
-            key,
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { results ->
-            callback(PermissionState(results))
-        }
+            key = UUID.randomUUID().toString(),
+            contract = ActivityResultContracts.RequestMultiplePermissions(),
+            callback = { callback(PermissionState(it)) }
+        )
 
         launcher.launch(permissions.toTypedArray())
     }
+
+    fun requestPermission(
+        context: Context,
+        permission: String,
+        callback: (Boolean) -> Unit = {}
+    ) = requestPermissions(
+        context = context,
+        permissions = listOf(permission),
+        callback = { callback(it.allGranted) }
+    )
 }

@@ -42,12 +42,10 @@ class InstallActivity : ComponentActivity() {
         }
 
         if (BuildCompat.atLeastT) {
-            val permission = listOf(Manifest.permission.POST_NOTIFICATIONS)
-            PermissionCompat.requestPermissions(this, permission) { state ->
-                if (!state.allGranted) {
-                    Timber.w("notGranted: $state")
-                }
-            }
+            PermissionCompat.requestPermission(
+                context = this,
+                permission = Manifest.permission.POST_NOTIFICATIONS
+            )
         }
 
         setContent {

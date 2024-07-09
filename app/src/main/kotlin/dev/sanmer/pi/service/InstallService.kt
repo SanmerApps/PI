@@ -275,10 +275,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     @SuppressLint("MissingPermission")
     private fun notify(id: Int, notification: Notification) {
         val granted = if (BuildCompat.atLeastT) {
-            PermissionCompat.checkPermissions(
-                this,
-                listOf(Manifest.permission.POST_NOTIFICATIONS)
-            ).allGranted
+            PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
         } else {
             true
         }
