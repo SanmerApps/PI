@@ -22,6 +22,7 @@ kotlinxCoroutines = "1.8.1"
 kotlinxDatetime = "0.6.0"
 kotlinxSerialization = "1.7.1"
 ksp = "2.0.0-1.0.22"
+timber = "5.0.1"
 
 [libraries]
 android-gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -61,8 +62,8 @@ kotlinx-serialization-protobuf = { group = "org.jetbrains.kotlinx", name = "kotl
 rikka-refine-annotation = { group = "dev.rikka.tools.refine", name = "annotation", version.ref = "hiddenApiRefine" }
 rikka-refine-compiler = { group = "dev.rikka.tools.refine", name = "annotation-processor", version.ref = "hiddenApiRefine" }
 rikka-refine-runtime = { group = "dev.rikka.tools.refine", name = "runtime", version.ref = "hiddenApiRefine" }
-timber = "com.jakewharton.timber:timber:5.0.1"
-sanmer-su = "dev.sanmer.su:core:+"
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+sanmer-su = { module = "dev.sanmer.su:core", version = "+" }
 
 [plugins]
 self-application = { id = "self.application", version = "unspecified" }
