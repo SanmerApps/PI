@@ -8,6 +8,7 @@ import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.delegate.PackageManagerDelegate
+import dev.sanmer.pi.delegate.PermissionManagerDelegate
 import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,9 +17,10 @@ import timber.log.Timber
 
 object Compat {
     private var mServiceOrNull: IServiceManager? = null
-    private val mService get() = checkNotNull(mServiceOrNull) {
-        "IServiceManager haven't been received"
-    }
+    private val mService
+        get() = checkNotNull(mServiceOrNull) {
+            "IServiceManager haven't been received"
+        }
 
     var isAlive by mutableStateOf(false)
         private set
@@ -26,11 +28,12 @@ object Compat {
     private val _isAliveFlow = MutableStateFlow(false)
     val isAliveFlow get() = _isAliveFlow.asStateFlow()
 
-    val platform get() = when (mService.uid) {
-        Process.ROOT_UID -> "root"
-        Process.SHELL_UID -> "adb"
-        else -> "unknown"
-    }
+    val platform
+        get() = when (mService.uid) {
+            Process.ROOT_UID -> "root"
+            Process.SHELL_UID -> "adb"
+            else -> "unknown"
+        }
 
     private fun state(): Boolean {
         isAlive = mServiceOrNull != null
@@ -67,4 +70,5 @@ object Compat {
     fun getAppOpsService() = AppOpsManagerDelegate(mService)
     fun getPackageManager() = PackageManagerDelegate(mService)
     fun getPackageInstaller() = PackageInstallerDelegate(mService)
+    fun getPermissionManager() = PermissionManagerDelegate(mService)
 }
