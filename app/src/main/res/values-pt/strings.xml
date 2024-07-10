@@ -27,7 +27,7 @@
     <string name="install_config_unspecified_title">Não especificado</string>
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
-    <string name="app_dialog_desc1">Deseja desinstalar este app?</string>
+    <string name="app_dialog_desc1">Deseja desinstalar esta aplicação?</string>
     <string name="settings_behavior">Comportamento</string>
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_interface">Interface</string>
@@ -36,10 +36,14 @@
     <string name="settings_source_code">Código fonte</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancelar</string>
-    <string name="app_dialog_desc2">Nota: Apenas serão desinstaladas as atualizações caso se trate de um app do sistema.</string>
+    <string name="app_dialog_desc2">Nota: Isto apenas desinstalará atualizações se for uma aplicação do sistema.</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
     <string name="app_authorized">Autorizado</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Executor</string>
+    <string name="permission_permissions_title">Permissões</string>
+    <string name="permission_button_deny">Negar</string>
+    <string name="permission_button_grant">Conceder</string>
+    <string name="permission_app_title">Aplicação</string>
 </resources>
