@@ -42,4 +42,5 @@
     <string name="app_authorized">مخول</string>
     <string name="app_requester">الطالب</string>
     <string name="app_executor">المنفذ</string>
+    <string name="permission_app_title">Application</string>
 </resources>
