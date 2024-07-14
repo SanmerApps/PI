@@ -28,8 +28,8 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
+import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
 import dev.sanmer.pi.ui.navigation.MainScreen
-import dev.sanmer.pi.ui.utils.navigateSingleTopTo
 import dev.sanmer.pi.viewmodel.AppsViewModel
 
 @Composable

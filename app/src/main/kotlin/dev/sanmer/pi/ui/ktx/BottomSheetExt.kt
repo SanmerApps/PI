@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.utils
+package dev.sanmer.pi.ui.ktx
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults

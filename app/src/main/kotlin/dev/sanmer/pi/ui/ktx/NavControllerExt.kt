@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.utils
+package dev.sanmer.pi.ui.ktx
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination

@@ -18,12 +18,12 @@ import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.compat.MediaStoreCompat.createDownloadUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
+import dev.sanmer.pi.ktx.appSetting
+import dev.sanmer.pi.ktx.viewPackage
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.UserPreferencesRepository
-import dev.sanmer.pi.utils.extensions.appSetting
-import dev.sanmer.pi.utils.extensions.viewPackage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

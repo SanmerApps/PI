@@ -23,11 +23,11 @@ import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.VersionCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
+import dev.sanmer.pi.ktx.tmpDir
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.service.InstallService
-import dev.sanmer.pi.utils.extensions.tmpDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext

@@ -1,4 +1,4 @@
-package dev.sanmer.pi.utils.extensions
+package dev.sanmer.pi.ktx
 
 import android.content.res.Resources
 

@@ -49,7 +49,7 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
 import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
-import dev.sanmer.pi.ui.utils.expandedShape
+import dev.sanmer.pi.ui.ktx.expandedShape
 import dev.sanmer.pi.viewmodel.AppsViewModel
 import kotlinx.coroutines.launch
 

@@ -36,12 +36,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.sanmer.pi.R
+import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.BottomSheetLayout
 import dev.sanmer.pi.ui.component.Loading
+import dev.sanmer.pi.ui.ktx.expandedShape
 import dev.sanmer.pi.ui.screens.apps.AppItem
-import dev.sanmer.pi.ui.utils.expandedShape
-import dev.sanmer.pi.utils.extensions.finishActivity
 import dev.sanmer.pi.viewmodel.PermissionViewModel
 
 @Composable

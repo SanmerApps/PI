@@ -17,7 +17,7 @@ import timber.log.Timber
 
 object Compat {
     private var mServiceOrNull: IServiceManager? = null
-    private val mService
+    private val mService: IServiceManager
         get() = checkNotNull(mServiceOrNull) {
             "IServiceManager haven't been received"
         }
@@ -28,7 +28,7 @@ object Compat {
     private val _isAliveFlow = MutableStateFlow(false)
     val isAliveFlow get() = _isAliveFlow.asStateFlow()
 
-    val platform
+    val platform: String
         get() = when (mService.uid) {
             Process.ROOT_UID -> "root"
             Process.SHELL_UID -> "adb"

@@ -5,9 +5,7 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import dagger.hilt.android.HiltAndroidApp
 import dev.sanmer.pi.app.utils.NotificationUtils
-import dev.sanmer.pi.utils.extensions.dp
-import dev.sanmer.pi.utils.timber.DebugTree
-import dev.sanmer.pi.utils.timber.ReleaseTree
+import dev.sanmer.pi.ktx.dp
 import dev.sanmer.su.ServiceManagerCompat
 import me.zhanghai.android.appiconloader.coil.AppIconFetcher
 import me.zhanghai.android.appiconloader.coil.AppIconKeyer
@@ -37,4 +35,20 @@ class App : Application(), ImageLoaderFactory {
                 add(AppIconFetcher.Factory(40.dp, true, this@App))
             }
             .build()
+
+    class DebugTree : Timber.DebugTree() {
+        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+            super.log(priority, "<PI_DEBUG>$tag", message, t)
+        }
+
+        override fun createStackElementTag(element: StackTraceElement): String {
+            return super.createStackElementTag(element) + "(L${element.lineNumber})"
+        }
+    }
+
+    class ReleaseTree : Timber.DebugTree() {
+        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+            super.log(priority, "<PI_REL>$tag", message, t)
+        }
+    }
 }

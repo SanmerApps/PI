@@ -1,4 +1,4 @@
-package dev.sanmer.pi.utils.extensions
+package dev.sanmer.pi.ktx
 
 import android.app.Activity
 import android.content.Context
@@ -6,13 +6,14 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.core.app.LocaleManagerCompat
+import java.util.Locale
 
 val Context.tmpDir get() = checkNotNull(externalCacheDir).resolve("tmp")
     .apply {
         if (!exists()) mkdirs()
     }
 
-val Context.applicationLocale
+val Context.applicationLocale: Locale?
     get() = LocaleManagerCompat.getApplicationLocales(applicationContext)
         .toList().firstOrNull()
 

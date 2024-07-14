@@ -51,8 +51,7 @@ object VersionCompat {
     )
 
     private val PackageInfo.versionStr
-        get() =
-            "$versionName (${longVersionCode})"
+        get() = "$versionName (${longVersionCode})"
 
     fun getVersionDiff(
         old: PackageInfo,

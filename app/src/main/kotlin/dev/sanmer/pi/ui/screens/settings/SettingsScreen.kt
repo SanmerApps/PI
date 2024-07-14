@@ -29,14 +29,14 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.datastore.model.Provider
+import dev.sanmer.pi.ktx.applicationLocale
+import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
+import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
 import dev.sanmer.pi.ui.navigation.graphs.SettingsScreen
 import dev.sanmer.pi.ui.providable.LocalUserPreferences
-import dev.sanmer.pi.ui.utils.navigateSingleTopTo
-import dev.sanmer.pi.utils.extensions.applicationLocale
-import dev.sanmer.pi.utils.extensions.viewUrl
 import dev.sanmer.pi.viewmodel.SettingsViewModel
 import java.util.Locale
 

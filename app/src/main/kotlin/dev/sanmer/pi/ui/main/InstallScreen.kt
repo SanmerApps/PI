@@ -49,12 +49,12 @@ import dev.sanmer.pi.bundle.FeatureSplitConfig
 import dev.sanmer.pi.bundle.LanguageSplitConfig
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.bundle.UnspecifiedSplitConfig
+import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.BottomSheetLayout
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
-import dev.sanmer.pi.ui.utils.expandedShape
-import dev.sanmer.pi.utils.extensions.finishActivity
+import dev.sanmer.pi.ui.ktx.expandedShape
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import dev.sanmer.pi.viewmodel.InstallViewModel.State
 import dev.sanmer.pi.viewmodel.InstallViewModel.State.Companion.isReady
