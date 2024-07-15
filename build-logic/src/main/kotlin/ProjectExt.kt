@@ -3,10 +3,11 @@ import org.gradle.kotlin.dsl.extra
 import java.io.File
 import java.util.Properties
 
-val Project.commitId: String get() = exec("git rev-parse --short HEAD")
+val Project.commitSha: String get() = exec("git rev-parse HEAD")
 val Project.commitCount: Int get() = exec("git rev-list --count HEAD").toInt()
 
-fun Project.exec(command: String): String = providers.exec {
+@Suppress("UnstableApiUsage")
+fun Project.exec(command: String) = providers.exec {
     commandLine(command.split(" "))
 }.standardOutput.asText.get().trim()
 

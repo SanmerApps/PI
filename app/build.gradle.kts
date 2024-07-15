@@ -9,15 +9,16 @@ plugins {
 }
 
 val baseVersionName: String by extra
-val isDevVersion get() = exec("git tag --contains HEAD").isEmpty()
-val verNameSuffix get() = if (isDevVersion) ".dev" else ""
+val devVersion = exec("git tag --contains HEAD").isEmpty()
+val commitShaSuffix = commitSha.let { ".${it.substring(0, 7)}" }
+val devSuffix = if (devVersion) ".dev" else ""
 
 android {
     namespace = "dev.sanmer.pi"
 
     defaultConfig {
         applicationId = namespace
-        versionName = "${baseVersionName}${verNameSuffix}.${commitId}"
+        versionName = "${baseVersionName}${commitShaSuffix}${devSuffix}"
         versionCode = commitCount
 
         resourceConfigurations += arrayOf(
@@ -59,7 +60,7 @@ android {
 
         all {
             signingConfig = releaseSigning
-            buildConfigField("boolean", "IS_DEV_VERSION", isDevVersion.toString())
+            buildConfigField("boolean", "DEV_VERSION", devVersion.toString())
             buildConfigField("long", "BUILD_TIME", Instant.now().toEpochMilli().toString())
         }
     }
