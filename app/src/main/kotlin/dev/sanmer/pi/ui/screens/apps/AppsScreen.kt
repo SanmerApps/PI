@@ -3,6 +3,7 @@ package dev.sanmer.pi.ui.screens.apps
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
@@ -66,7 +67,9 @@ fun AppsScreen(
         contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .imePadding()
         ) {
             if (viewModel.isLoading) {
                 Loading()
@@ -74,7 +77,7 @@ fun AppsScreen(
 
             if (list.isEmpty() && !viewModel.isLoading) {
                 PageIndicator(
-                    icon = R.drawable.list_details,
+                    icon = R.drawable.list_search,
                     text = R.string.empty_list,
                 )
             }
