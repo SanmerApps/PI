@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="page_settings">Setelan</string>
+    <string name="settings_title">Setelan</string>
     <string name="setup_title">Mode kerja</string>
-    <string name="app_dialog_desc1">Apakah Anda ingin meng-uninstall aplikasi ini?</string>
-    <string name="app_dialog_desc2">Tips: Ini hanya akan uninstall pembaruan jika itu aplikasi sistem.</string>
     <string name="app_authorized">Diotorisasi</string>
     <string name="app_executor">Eksekutor</string>
     <string name="settings_behavior">Tindakan</string>

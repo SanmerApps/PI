@@ -7,7 +7,7 @@
     <string name="settings_service_version">Phiên bản %1$d, %2$s</string>
     <string name="install_requester_title">Trình yêu cầu cài đặt</string>
     <string name="empty_list">Danh sách trống</string>
-    <string name="page_settings">Thiết đặt</string>
+    <string name="settings_title">Thiết đặt</string>
     <string name="settings_dynamic_color">Màu sắc linh động</string>
     <string name="settings_dynamic_color_desc">Sử dụng bảng màu Material You</string>
     <string name="settings_translation">Tham gia dịch thuật</string>

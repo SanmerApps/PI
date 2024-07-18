@@ -16,7 +16,7 @@
     <string name="message_loading">Carregando…</string>
     <string name="search_placeholder">Pesquisar…</string>
     <string name="setup_shizuku_desc">Necessita de permissão concedida por Sui ou Shizuku</string>
-    <string name="page_settings">Definições</string>
+    <string name="settings_title">Definições</string>
     <string name="message_install_success">Instalação bem-sucedida</string>
     <string name="notification_name_install">Instalar serviço</string>
     <string name="unknown_error">Erro desconhecido</string>
@@ -27,7 +27,6 @@
     <string name="install_config_unspecified_title">Não especificado</string>
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
-    <string name="app_dialog_desc1">Deseja desinstalar esta aplicação?</string>
     <string name="settings_behavior">Comportamento</string>
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_interface">Interface</string>
@@ -36,7 +35,6 @@
     <string name="settings_source_code">Código fonte</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancelar</string>
-    <string name="app_dialog_desc2">Nota: Isto apenas desinstalará atualizações se for uma aplicação do sistema.</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
     <string name="app_authorized">Autorizado</string>

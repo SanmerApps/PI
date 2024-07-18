@@ -9,7 +9,7 @@
     <string name="settings_service_version">Versão %1$d, %2$s</string>
     <string name="install_requester_title">Solicitante de instalação</string>
     <string name="empty_list">Lista vazia</string>
-    <string name="page_settings">Configurações</string>
+    <string name="settings_title">Configurações</string>
     <string name="settings_dynamic_color">Cor dinâmica</string>
     <string name="settings_dynamic_color_desc">Use a cor do tema do sistema</string>
     <string name="install_package_title">Pacote de instalação</string>
@@ -27,8 +27,6 @@
     <string name="install_config_unspecified_title">Não especificado</string>
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
-    <string name="app_dialog_desc1">Deseja desinstalar este app?</string>
-    <string name="app_dialog_desc2">Dica: Isso só desinstalará as atualizações se for um app do sistema.</string>
     <string name="settings_behavior">Comportamento</string>
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_interface">Interface</string>

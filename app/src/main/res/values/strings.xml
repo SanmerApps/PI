@@ -3,22 +3,18 @@
     <!-- Activity -->
     <string name="install_activity">Install</string>
 
-    <!-- Pages -->
-    <string name="page_settings">Settings</string>
-
     <!-- Setup -->
     <string name="setup_title">Working mode</string>
     <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
     <string name="setup_root_desc">Requires Root permissions provided by Magisk, KernelSU or APatch</string>
 
     <!-- Apps -->
-    <string name="app_dialog_desc1">Do you want to uninstall this app?</string>
-    <string name="app_dialog_desc2">Tip: This will only uninstall updates if it is a system app.</string>
     <string name="app_authorized">Authorized</string>
     <string name="app_requester">Requester</string>
     <string name="app_executor">Executor</string>
 
     <!-- Settings -->
+    <string name="settings_title">Settings</string>
     <string name="settings_behavior">Behavior</string>
     <string name="settings_service_running">Service is running</string>
     <string name="settings_service_version">Version %1$d, %2$s</string>

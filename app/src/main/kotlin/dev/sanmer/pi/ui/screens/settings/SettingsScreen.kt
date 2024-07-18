@@ -30,6 +30,7 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.applicationLocale
+import dev.sanmer.pi.ktx.localizedDisplayName
 import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
@@ -38,7 +39,6 @@ import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
 import dev.sanmer.pi.ui.main.Screen
 import dev.sanmer.pi.ui.provider.LocalUserPreferences
 import dev.sanmer.pi.viewmodel.SettingsViewModel
-import java.util.Locale
 
 @Composable
 fun SettingsScreen(
@@ -172,7 +172,8 @@ private fun LanguageItem(
 ) = SettingNormalItem(
     icon = R.drawable.world,
     title = stringResource(id = R.string.settings_language),
-    desc = context.applicationLocale?.localizedDisplayName ?: stringResource(id = R.string.settings_language_system),
+    desc = context.applicationLocale?.localizedDisplayName
+        ?: stringResource(id = R.string.settings_language_system),
     onClick = {
         // noinspection InlinedApi
         context.startActivity(
@@ -190,17 +191,7 @@ private fun TopBar(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) = NavigateUpTopBar(
-    title = stringResource(id = R.string.page_settings),
+    title = stringResource(id = R.string.settings_title),
     navController = navController,
     scrollBehavior = scrollBehavior
 )
-
-private val Locale.localizedDisplayName: String
-    get() = getDisplayName(this)
-        .replaceFirstChar {
-            if (it.isLowerCase()) {
-                it.titlecase(this)
-            } else {
-                it.toString()
-            }
-        }

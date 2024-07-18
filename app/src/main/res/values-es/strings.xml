@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_dialog_desc1">¿Quieres desinstalar esta aplicación?</string>
     <string name="settings_behavior">Comportamiento</string>
     <string name="install_activity">Instalar</string>
-    <string name="page_settings">Configuración</string>
+    <string name="settings_title">Configuración</string>
     <string name="setup_title">Modo de trabajo</string>
     <string name="setup_shizuku_desc">Requiere permiso de Sui o Shizuku</string>
     <string name="setup_root_desc">Requiere permisos Root proporcionados por APatch, KernelSU o Magisk</string>
-    <string name="app_dialog_desc2">Consejo: Esto sólo desinstalará las actualizaciones si se trata de una aplicación del sistema.</string>
     <string name="settings_service_running">El servicio está en ejecución</string>
     <string name="settings_service_version">Versión %1$d, %2$s</string>
     <string name="settings_service_not_running">El servicio no está en ejecución</string>

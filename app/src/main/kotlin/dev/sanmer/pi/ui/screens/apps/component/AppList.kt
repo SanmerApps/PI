@@ -8,20 +8,17 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -214,49 +211,4 @@ private fun ButtonItem(
         containerColor = MaterialTheme.colorScheme.surfaceVariant
     ),
     content = content
-)
-
-@Composable
-private fun UninstallDialog(
-    appLabel: String,
-    onClose: () -> Unit,
-    onDelete: () -> Unit
-) = AlertDialog(
-    onDismissRequest = onClose,
-    shape = MaterialTheme.shapes.large,
-    title = { Text(text = appLabel) },
-    text = {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.app_dialog_desc1),
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text = stringResource(id = R.string.app_dialog_desc2),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
-    },
-    confirmButton = {
-        TextButton(
-            onClick = {
-                onDelete()
-                onClose()
-            }
-        ) {
-            Text(text = stringResource(id = R.string.dialog_ok))
-        }
-    },
-    dismissButton = {
-        TextButton(
-            onClick = onClose
-        ) {
-            Text(text = stringResource(id = R.string.dialog_cancel))
-        }
-    },
 )
