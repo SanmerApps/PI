@@ -9,6 +9,9 @@ public interface IAppOpsCallback extends IInterface {
 
     void opChanged(int op, int uid, String packageName) throws RemoteException;
 
+    // Android 14 QPR3
+    void opChanged(int op, int uid, String packageName, String persistentDeviceId) throws RemoteException;
+
     abstract class Stub extends Binder implements IAppOpsCallback {
 
         public static IAppOpsCallback asInterface(IBinder binder) {

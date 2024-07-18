@@ -112,6 +112,10 @@ class AppOpsManagerDelegate(
             callback.opChanged(op, uid, packageName)
         }
 
+        override fun opChanged(op: Int, uid: Int, packageName: String, persistentDeviceId: String?) {
+            callback.opChanged(op, uid, packageName)
+        }
+
     }
 
     enum class Mode(val code: Int) {
