@@ -34,7 +34,6 @@ fun WorkingModeScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
                 navController = navController,
@@ -47,6 +46,7 @@ fun WorkingModeScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),

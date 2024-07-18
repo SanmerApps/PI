@@ -54,7 +54,6 @@ fun AppsScreen(
     }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopBar(
                 isSearch = viewModel.isSearch,
@@ -71,6 +70,7 @@ fun AppsScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .imePadding()
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
             if (viewModel.isLoading) {
                 Loading()
