@@ -1,9 +1,7 @@
 package dev.sanmer.pi.viewmodel
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
-import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,12 +11,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
-import dev.sanmer.pi.PackageInfoCompat.isSystemApp
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.compat.MediaStoreCompat.createDownloadUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
-import dev.sanmer.pi.ktx.appSetting
 import dev.sanmer.pi.ktx.viewPackage
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -30,6 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -45,7 +42,6 @@ class AppsViewModel @Inject constructor(
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
     private val isProviderAlive get() = Compat.isAlive
     private val pm by lazy { Compat.getPackageManager() }
-    private val pi by lazy { Compat.getPackageInstaller() }
     private val aom by lazy { Compat.getAppOpsService() }
 
     var isSearch by mutableStateOf(false)
@@ -112,14 +108,16 @@ class AppsViewModel @Inject constructor(
         ) { preferences, source ->
             if (source.isEmpty()) return@combine
 
-            cacheFlow.value = source.map { pi ->
-                pi.copy(
-                    isRequester = preferences.requester == pi.packageName,
-                    isExecutor = preferences.executor == pi.packageName
-                )
-            }.sortedByDescending { it.lastUpdateTime }
-                .sortedByDescending { it.isAuthorized }
-                .sortedByDescending { it.isExecutor || it.isRequester }
+            cacheFlow.update {
+                source.map { pi ->
+                    pi.copy(
+                        isRequester = preferences.requester == pi.packageName,
+                        isExecutor = preferences.executor == pi.packageName
+                    )
+                }.sortedByDescending { it.lastUpdateTime }
+                    .sortedByDescending { it.isAuthorized }
+                    .sortedByDescending { it.isExecutor || it.isRequester }
+            }
 
             isLoading = false
 
@@ -132,8 +130,8 @@ class AppsViewModel @Inject constructor(
             cacheFlow
         ) { key, source ->
 
-            appsFlow.value = source
-                .filter {
+            appsFlow.update {
+                source.filter {
                     if (key.isNotBlank()) {
                         it.appLabel.contains(key, ignoreCase = true)
                                 || it.packageName.contains(key, ignoreCase = true)
@@ -141,6 +139,7 @@ class AppsViewModel @Inject constructor(
                         true
                     }
                 }
+            }
 
         }.launchIn(viewModelScope)
     }
@@ -183,40 +182,12 @@ class AppsViewModel @Inject constructor(
 
         override val isOpenable by lazy { launchIntent != null }
 
-        override val isUninstallable by lazy {
-            val isUpdatedSystemApp = packageInfo.applicationInfo?.let {
-                it.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
-            } ?: false
-
-            when {
-                isUpdatedSystemApp -> true
-                else -> !packageInfo.isSystemApp
-            }
-        }
-
         override fun launch(context: Context) {
             context.startActivity(launchIntent)
         }
 
         override fun view(context: Context) {
             context.viewPackage(packageInfo.packageName)
-        }
-
-        override fun setting(context: Context) {
-            context.appSetting(packageInfo.packageName)
-        }
-
-        override suspend fun uninstall() = withContext(Dispatchers.IO) {
-            val result = pi.uninstall(packageInfo.packageName)
-            val status = result.getIntExtra(
-                PackageInstaller.EXTRA_STATUS,
-                PackageInstaller.STATUS_FAILURE
-            )
-
-            when (status) {
-                PackageInstaller.STATUS_SUCCESS -> !packageInfo.isSystemApp
-                else -> false
-            }
         }
 
         override suspend fun export(context: Context): Boolean {
@@ -327,11 +298,8 @@ class AppsViewModel @Inject constructor(
 
     interface Settings {
         val isOpenable: Boolean
-        val isUninstallable: Boolean
         fun launch(context: Context)
         fun view(context: Context)
-        fun setting(context: Context)
-        suspend fun uninstall(): Boolean
         suspend fun export(context: Context): Boolean
         suspend fun setAuthorized()
         suspend fun setRequester()

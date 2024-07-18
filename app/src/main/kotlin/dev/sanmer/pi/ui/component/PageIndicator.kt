@@ -52,7 +52,7 @@ fun PageIndicator(
 ) {
     icon()
     Spacer(modifier = Modifier.height(20.dp))
-    ProvideTextStyle(value = PageIndicatorDefaults.textStyle) {
+    ProvideTextStyle(value = PageIndicatorDefaults.TextStyle) {
         text()
     }
 }
@@ -69,8 +69,8 @@ fun PageIndicator(
         Icon(
             painter = painterResource(id = icon),
             contentDescription = null,
-            tint = PageIndicatorDefaults.iconColor,
-            modifier = Modifier.size(PageIndicatorDefaults.iconSize)
+            tint = PageIndicatorDefaults.IconColor,
+            modifier = Modifier.size(PageIndicatorDefaults.IconSize)
         )
     },
     text = {
@@ -129,10 +129,10 @@ fun Failed(
 )
 
 object PageIndicatorDefaults {
-    val iconSize = 80.dp
-    val iconColor @Composable get() = MaterialTheme.colorScheme.outline.copy(0.5f)
+    val IconSize = 80.dp
+    val IconColor @Composable get() = MaterialTheme.colorScheme.outline.copy(0.5f)
 
-    val textStyle @Composable get() = TextStyle(
+    val TextStyle @Composable get() = TextStyle(
         color = MaterialTheme.colorScheme.outline.copy(0.5f),
         fontSize = 20.sp,
         fontFamily = FontFamily.SansSerif,

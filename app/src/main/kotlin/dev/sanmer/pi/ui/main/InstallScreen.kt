@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -54,7 +52,7 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.BottomSheetLayout
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
-import dev.sanmer.pi.ui.ktx.expandedShape
+import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import dev.sanmer.pi.viewmodel.InstallViewModel.State
 import dev.sanmer.pi.viewmodel.InstallViewModel.State.Companion.isReady
@@ -83,7 +81,7 @@ fun InstallScreen(
                 )
             }
         },
-        shape = BottomSheetDefaults.expandedShape(20.dp)
+        shape = MaterialTheme.shapes.large.bottom(0.dp)
     ) {
         Crossfade(
             modifier = Modifier
@@ -190,7 +188,7 @@ private fun PackageItem(
     text = stringResource(id = R.string.install_package_title)
 ) {
     Surface(
-        shape = RoundedCornerShape(15.dp),
+        shape = MaterialTheme.shapes.large,
         tonalElevation = 6.dp,
         border = CardDefaults.outlinedCardBorder()
     ) {
@@ -245,7 +243,7 @@ private fun RequesterItem(
     text = stringResource(id = R.string.install_requester_title)
 ) {
     OutlinedCard(
-        shape = RoundedCornerShape(15.dp)
+        shape = MaterialTheme.shapes.large
     ) {
         Row(
             modifier = Modifier
@@ -412,7 +410,7 @@ private fun SplitConfigItem(
     }
 
     OutlinedCard(
-        shape = RoundedCornerShape(15.dp),
+        shape = MaterialTheme.shapes.medium,
         onClick = { toggleSplitConfig(config) },
         enabled = !config.isDisabled
     ) {

@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.settings.workingmode
+package dev.sanmer.pi.ui.screens.workingmode
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +21,8 @@ import androidx.navigation.NavController
 import dev.sanmer.pi.R
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
-import dev.sanmer.pi.ui.providable.LocalUserPreferences
+import dev.sanmer.pi.ui.provider.LocalUserPreferences
+import dev.sanmer.pi.ui.screens.workingmode.component.WorkingModeItem
 import dev.sanmer.pi.viewmodel.SettingsViewModel
 
 @Composable

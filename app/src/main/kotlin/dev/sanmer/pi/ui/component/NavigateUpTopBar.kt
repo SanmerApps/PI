@@ -37,7 +37,7 @@ fun NavigateUpTopBar(
     modifier = modifier,
     title = title,
     subtitle = subtitle,
-    onBack = { navController.popBackStack() },
+    onBack = { navController.navigateUp() },
     actions = actions,
     windowInsets = windowInsets,
     colors = colors,

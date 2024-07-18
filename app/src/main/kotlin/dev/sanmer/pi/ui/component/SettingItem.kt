@@ -42,13 +42,13 @@ fun SettingNormalItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 24.dp),
-    itemTextStyle: SettingItemTextStyle = SettingItemDefaults.itemStyle(),
+    textStyle: SettingTextStyle = SettingItemDefaults.textStyle(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     @DrawableRes icon: Int? = null,
     enabled: Boolean = true,
 ) {
     val layoutDirection = LocalLayoutDirection.current
-    val start by remember {
+    val startPadding by remember {
         derivedStateOf { contentPaddingValues.calculateStartPadding(layoutDirection) }
     }
 
@@ -73,7 +73,7 @@ fun SettingNormalItem(
                 tint = LocalContentColor.current
             )
 
-            Spacer(modifier = Modifier.width(start))
+            Spacer(modifier = Modifier.width(startPadding))
         }
 
         Column(
@@ -82,14 +82,14 @@ fun SettingNormalItem(
         ) {
             Text(
                 text = title,
-                style = itemTextStyle.titleTextStyle,
-                color = itemTextStyle.titleTextColor
+                style = textStyle.titleTextStyle,
+                color = textStyle.titleTextColor
             )
 
             Text(
                 text = desc,
-                style = itemTextStyle.descTextStyle,
-                color = itemTextStyle.descTextColor
+                style = textStyle.descTextStyle,
+                color = textStyle.descTextColor
             )
         }
     }
@@ -103,13 +103,13 @@ fun SettingSwitchItem(
     onChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     contentPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 24.dp),
-    itemTextStyle: SettingItemTextStyle = SettingItemDefaults.itemStyle(),
+    textStyle: SettingTextStyle = SettingItemDefaults.textStyle(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     @DrawableRes icon: Int? = null,
     enabled: Boolean = true
 ) {
     val layoutDirection = LocalLayoutDirection.current
-    val start by remember {
+    val startPadding by remember {
         derivedStateOf { contentPaddingValues.calculateStartPadding(layoutDirection) }
     }
 
@@ -135,7 +135,7 @@ fun SettingSwitchItem(
                 contentDescription = null
             )
 
-            Spacer(modifier = Modifier.width(start))
+            Spacer(modifier = Modifier.width(startPadding))
         }
 
         Column(
@@ -146,14 +146,14 @@ fun SettingSwitchItem(
         ) {
             Text(
                 text = title,
-                style = itemTextStyle.titleTextStyle,
-                color = itemTextStyle.titleTextColor
+                style = textStyle.titleTextStyle,
+                color = textStyle.titleTextColor
             )
 
             Text(
                 text = desc,
-                style = itemTextStyle.descTextStyle,
-                color = itemTextStyle.descTextColor
+                style = textStyle.descTextStyle,
+                color = textStyle.descTextColor
             )
         }
 
@@ -165,7 +165,7 @@ fun SettingSwitchItem(
 }
 
 @Immutable
-class SettingItemTextStyle internal constructor(
+class SettingTextStyle internal constructor(
     val titleTextColor: Color,
     val descTextColor: Color,
     val titleTextStyle: TextStyle,
@@ -173,7 +173,7 @@ class SettingItemTextStyle internal constructor(
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || other !is SettingItemTextStyle) return false
+        if (other == null || other !is SettingTextStyle) return false
 
         if (titleTextColor != other.titleTextColor) return false
         if (descTextColor != other.descTextColor) return false
@@ -197,12 +197,12 @@ object SettingItemDefaults {
     val TextSwitchPadding = 16.dp
 
     @Composable
-    fun itemStyle(
+    fun textStyle(
         titleTextColor: Color = LocalContentColor.current,
         descTextColor: Color = MaterialTheme.colorScheme.outline,
-        titleTextStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+        titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
         descTextStyle: TextStyle = MaterialTheme.typography.bodyMedium
-    ) = SettingItemTextStyle(
+    ) = SettingTextStyle(
         titleTextColor = titleTextColor,
         descTextColor = descTextColor,
         titleTextStyle = titleTextStyle,

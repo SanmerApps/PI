@@ -20,7 +20,7 @@ import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.main.MainScreen
 import dev.sanmer.pi.ui.main.SetupScreen
-import dev.sanmer.pi.ui.providable.LocalUserPreferences
+import dev.sanmer.pi.ui.provider.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 import javax.inject.Inject

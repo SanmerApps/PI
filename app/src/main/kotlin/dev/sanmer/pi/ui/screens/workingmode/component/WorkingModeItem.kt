@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.settings.workingmode
+package dev.sanmer.pi.ui.screens.workingmode.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,7 +37,7 @@ internal fun WorkingModeItem(
         onClick = onClick,
         tonalElevation = if (selected) 4.dp else 0.dp,
         border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.outline),
-        shape = RoundedCornerShape(15.dp)
+        shape = MaterialTheme.shapes.large
     ) {
         Column(
             modifier = Modifier

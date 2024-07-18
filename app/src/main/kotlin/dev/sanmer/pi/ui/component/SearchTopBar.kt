@@ -2,7 +2,6 @@ package dev.sanmer.pi.ui.component
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -27,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
 
 @Composable
@@ -80,9 +78,10 @@ fun SearchTopBar(
                     imeAction = ImeAction.Search
                 ),
                 keyboardActions = KeyboardActions {
-                    defaultKeyboardAction(ImeAction.Search)
+                    if (query.isNotBlank()) {
+                        defaultKeyboardAction(ImeAction.Done)
+                    }
                 },
-                shape = RoundedCornerShape(15.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent

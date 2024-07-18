@@ -16,7 +16,7 @@ import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.main.InstallScreen
-import dev.sanmer.pi.ui.providable.LocalUserPreferences
+import dev.sanmer.pi.ui.provider.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import kotlinx.coroutines.launch

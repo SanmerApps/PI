@@ -30,7 +30,8 @@ import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
 import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
-import dev.sanmer.pi.ui.navigation.MainScreen
+import dev.sanmer.pi.ui.main.Screen
+import dev.sanmer.pi.ui.screens.apps.component.AppList
 import dev.sanmer.pi.viewmodel.AppsViewModel
 
 @Composable
@@ -128,7 +129,7 @@ private fun TopBar(
             }
 
             IconButton(
-                onClick = { navController.navigateSingleTopTo(MainScreen.Settings.route) }
+                onClick = { navController.navigateSingleTopTo(Screen.Settings.route) }
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.settings),

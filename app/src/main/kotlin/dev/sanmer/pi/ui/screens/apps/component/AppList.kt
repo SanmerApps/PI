@@ -1,28 +1,20 @@
-package dev.sanmer.pi.ui.screens.apps
+package dev.sanmer.pi.ui.screens.apps.component
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -39,7 +31,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,8 +39,7 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
-import dev.sanmer.pi.ui.component.scrollbar.VerticalFastScrollbar
-import dev.sanmer.pi.ui.ktx.expandedShape
+import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.viewmodel.AppsViewModel
 import kotlinx.coroutines.launch
 
@@ -58,8 +48,6 @@ internal fun AppList(
     list: List<IPackageInfo>,
     state: LazyListState,
     buildSettings: (IPackageInfo) -> AppsViewModel.Settings
-) = Box(
-    modifier = Modifier.fillMaxSize()
 ) {
     var packageName by remember { mutableStateOf("") }
     val packageInfo by remember(list, packageName) {
@@ -77,6 +65,7 @@ internal fun AppList(
     }
 
     LazyColumn(
+        modifier = Modifier.animateContentSize(),
         state = state
     ) {
         items(
@@ -89,11 +78,6 @@ internal fun AppList(
             )
         }
     }
-
-    VerticalFastScrollbar(
-        state = state,
-        modifier = Modifier.align(Alignment.CenterEnd)
-    )
 }
 
 @Composable
@@ -105,7 +89,7 @@ private fun BottomSheet(
     onDismissRequest = onClose,
     dragHandle = null,
     windowInsets = WindowInsets.navigationBars,
-    shape = BottomSheetDefaults.expandedShape(20.dp),
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
     containerColor = MaterialTheme.colorScheme.surface,
     tonalElevation = 0.dp
 ) {
@@ -127,8 +111,6 @@ private fun BottomSheet(
         )
 
         SettingButtons(
-            pi = pi,
-            onClose = onClose,
             settings = settings
         )
 
@@ -141,25 +123,12 @@ private fun BottomSheet(
 
 @Composable
 private fun SettingButtons(
-    pi: IPackageInfo,
-    onClose: () -> Unit,
     settings: AppsViewModel.Settings
 ) = Row(
     verticalAlignment = Alignment.CenterVertically
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    val infiniteTransition = rememberInfiniteTransition(label = "BottomSheet")
-    val animateZ by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "animateZ"
-    )
 
     if (settings.isOpenable) {
         ButtonItem(
@@ -182,61 +151,13 @@ private fun SettingButtons(
     }
 
     ButtonItem(
-        onClick = { settings.setting(context) }
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.settings),
-            contentDescription = null
-        )
-    }
-
-    if (settings.isUninstallable) {
-        var animateUninstall by remember { mutableStateOf(false) }
-
-        var uninstall by remember { mutableStateOf(false) }
-        if (uninstall) UninstallDialog(
-            appLabel = pi.appLabel,
-            onClose = { uninstall = false },
-            onDelete = {
-                scope.launch {
-                    animateUninstall = true
-                    if (settings.uninstall()) onClose()
-                    animateUninstall = false
-                }
-            }
-        )
-
-        ButtonItem(
-            onClick = { uninstall = true }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.trash),
-                contentDescription = null,
-                modifier = Modifier
-                    .graphicsLayer {
-                        rotationZ = if (animateUninstall) animateZ else 0f
-                    }
-            )
-        }
-    }
-
-    var animateExport by remember { mutableStateOf(false) }
-    ButtonItem(
         onClick = {
-            scope.launch {
-                animateExport = true
-                settings.export(context)
-                animateExport = false
-            }
+            scope.launch { settings.export(context) }
         }
     ) {
         Icon(
             painter = painterResource(id = R.drawable.package_export),
-            contentDescription = null,
-            modifier = Modifier
-                .graphicsLayer {
-                    rotationZ = if (animateExport) animateZ else 0f
-                }
+            contentDescription = null
         )
     }
 }
@@ -302,7 +223,7 @@ private fun UninstallDialog(
     onDelete: () -> Unit
 ) = AlertDialog(
     onDismissRequest = onClose,
-    shape = RoundedCornerShape(20.dp),
+    shape = MaterialTheme.shapes.large,
     title = { Text(text = appLabel) },
     text = {
         Column(

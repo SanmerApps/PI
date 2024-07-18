@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.apps
+package dev.sanmer.pi.ui.screens.apps.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,7 +38,7 @@ internal fun AppItem(
     enabled: Boolean = true
 ) = Row(
     modifier = Modifier
-        .clip(RoundedCornerShape(15.dp))
+        .clip(shape = MaterialTheme.shapes.medium)
         .clickable(
             enabled = enabled,
             onClick = onClick

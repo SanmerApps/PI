@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.ui.main.PermissionScreen
-import dev.sanmer.pi.ui.providable.LocalUserPreferences
+import dev.sanmer.pi.ui.provider.LocalUserPreferences
 import dev.sanmer.pi.ui.theme.AppTheme
 import dev.sanmer.pi.viewmodel.PermissionViewModel
 import kotlinx.coroutines.launch

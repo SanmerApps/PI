@@ -35,8 +35,8 @@ import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
-import dev.sanmer.pi.ui.navigation.graphs.SettingsScreen
-import dev.sanmer.pi.ui.providable.LocalUserPreferences
+import dev.sanmer.pi.ui.main.Screen
+import dev.sanmer.pi.ui.provider.LocalUserPreferences
 import dev.sanmer.pi.viewmodel.SettingsViewModel
 import java.util.Locale
 
@@ -86,7 +86,7 @@ fun SettingsScreen(
                     }
                 ),
                 onClick = {
-                    navController.navigateSingleTopTo(SettingsScreen.WorkingMode.route)
+                    navController.navigateSingleTopTo(Screen.WorkingMode.route)
                 }
             )
 
