@@ -26,6 +26,7 @@ android {
             "ar",
             "es",
             "fr",
+            "in",
             "iw",
             "pt",
             "pt-rBR",
