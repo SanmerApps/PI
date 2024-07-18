@@ -18,7 +18,6 @@ import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.ktx.viewPackage
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
-import dev.sanmer.pi.receiver.PackageReceiver
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,12 +65,12 @@ class AppsViewModel @Inject constructor(
 
     init {
         Timber.d("AppsViewModel init")
-        packagesObserver()
+        providerObserver()
         dataObserver()
         keyObserver()
     }
 
-    private fun packagesObserver() {
+    private fun providerObserver() {
         Compat.isAliveFlow
             .onEach { isAlive ->
                 if (!isAlive) return@onEach
@@ -83,14 +82,6 @@ class AppsViewModel @Inject constructor(
                     packageName = null,
                     callback = this
                 )
-
-            }.launchIn(viewModelScope)
-
-        PackageReceiver.eventFlow
-            .onEach {
-                if (!isProviderAlive) return@onEach
-
-                packagesFlow.value = getPackages()
 
             }.launchIn(viewModelScope)
 
