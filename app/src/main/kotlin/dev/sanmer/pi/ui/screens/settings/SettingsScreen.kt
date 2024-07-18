@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.pi.BuildConfig
+import dev.sanmer.pi.Const
 import dev.sanmer.pi.R
-import dev.sanmer.pi.app.Const
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.applicationLocale

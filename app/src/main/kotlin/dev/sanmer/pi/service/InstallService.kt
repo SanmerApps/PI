@@ -18,9 +18,9 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.Compat
+import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.R
-import dev.sanmer.pi.app.utils.NotificationUtils
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
@@ -265,11 +265,11 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             .setGroupSummary(true)
             .build()
 
-        startForeground(NotificationUtils.NOTIFICATION_ID_INSTALL, notification)
+        startForeground(Const.NOTIFICATION_ID_INSTALL, notification)
     }
 
     private fun baseNotificationBuilder() =
-        NotificationCompat.Builder(this, NotificationUtils.CHANNEL_ID_INSTALL)
+        NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
 
     @SuppressLint("MissingPermission")
