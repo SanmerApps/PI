@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -87,17 +87,19 @@ private fun BottomSheet(
 ) = ModalBottomSheet(
     onDismissRequest = onClose,
     dragHandle = null,
-    windowInsets = WindowInsets.navigationBars,
-    shape = MaterialTheme.shapes.large.bottom(0.dp),
-    containerColor = MaterialTheme.colorScheme.surface,
-    tonalElevation = 0.dp
+    windowInsets = WindowInsets(0.dp),
+    shape = MaterialTheme.shapes.large.bottom(0.dp)
 ) {
+    val contentPadding = WindowInsets.navigationBars.asPaddingValues()
+
     val settings by remember(pi) {
         derivedStateOf { buildSettings(pi) }
     }
 
     Column(
-        modifier = Modifier.padding(all = 20.dp),
+        modifier = Modifier
+            .padding(contentPadding)
+            .padding(all = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         AppItem(
@@ -130,7 +132,7 @@ private fun SettingButtons(
     val scope = rememberCoroutineScope()
 
     if (settings.isOpenable) {
-        ButtonItem(
+        FilledTonalIconButton(
             onClick = { settings.launch(context) }
         ) {
             Icon(
@@ -140,7 +142,7 @@ private fun SettingButtons(
         }
     }
 
-    ButtonItem(
+    FilledTonalIconButton(
         onClick = { settings.view(context) }
     ) {
         Icon(
@@ -149,7 +151,7 @@ private fun SettingButtons(
         )
     }
 
-    ButtonItem(
+    FilledTonalIconButton(
         onClick = {
             scope.launch { settings.export(context) }
         }
@@ -202,15 +204,3 @@ private fun SettingItem(
         label = { Text(text = stringResource(id = R.string.app_executor)) },
     )
 }
-
-@Composable
-private fun ButtonItem(
-    onClick: () -> Unit,
-    content: @Composable () -> Unit
-) = FilledTonalIconButton(
-    onClick = onClick,
-    colors = IconButtonDefaults.filledTonalIconButtonColors(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant
-    ),
-    content = content
-)

@@ -101,7 +101,7 @@ private fun Icon(
     @DrawableRes icon: Int
 ) = Logo(
     icon = icon,
-    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    containerColor = MaterialTheme.colorScheme.secondaryContainer,
     modifier = Modifier.size(30.dp)
 )
