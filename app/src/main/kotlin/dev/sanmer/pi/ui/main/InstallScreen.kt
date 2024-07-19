@@ -2,7 +2,6 @@ package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -69,11 +68,11 @@ fun InstallScreen(
     }
 
     BottomSheetLayout(
-        bottomBar = {
+        bottomBar = { bottomPadding ->
             if (viewModel.state.isReady()) {
                 BottomBar(
                     modifier = Modifier
-                        .padding(it)
+                        .padding(bottomPadding)
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 20.dp),
                     onDeny = viewModel::deleteTempDir,
@@ -82,11 +81,10 @@ fun InstallScreen(
             }
         },
         shape = MaterialTheme.shapes.large.bottom(0.dp)
-    ) {
+    ) { contentPadding ->
         Crossfade(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(it)
+                .padding(contentPadding)
                 .padding(all = 20.dp),
             targetState = viewModel.state,
             label = "InstallScreen"

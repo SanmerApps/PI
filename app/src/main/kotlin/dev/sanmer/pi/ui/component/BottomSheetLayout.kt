@@ -51,7 +51,7 @@ fun BottomSheetLayout(
                 color = containerColor,
                 shape = shape
             )
-            .clip(shape)
+            .clip(shape = shape)
     ) { constraints ->
         val maxWidth = constraints.maxWidth
         val maxHeight = constraints.maxHeight
@@ -65,7 +65,7 @@ fun BottomSheetLayout(
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
         val bottomBarPlaceable = subcompose("BottomBar") {
-            val innerPadding = PaddingValues(
+            val bottomBarPadding = PaddingValues(
                 bottom = insetsBottom,
                 start = insetsStart,
                 end = insetsEnd
@@ -74,16 +74,15 @@ fun BottomSheetLayout(
             CompositionLocalProvider(
                 LocalContentColor provides contentColor
             ) {
-                bottomBar(innerPadding)
+                bottomBar(bottomBarPadding)
             }
         }.fastMap { it.measure(looseConstraints) }
 
         val bottomBarHeight = bottomBarPlaceable.fastMaxBy { it.height }?.height ?: 0
-        val bottomHeight = bottomBarHeight + insetsBottom.roundToPx()
 
         val bodyContentPlaceable = subcompose("MainContent") {
-            val innerPadding = PaddingValues(
-                bottom = insetsTop + bottomHeight.toDp(),
+            val contentPadding = PaddingValues(
+                bottom = insetsTop + bottomBarHeight.toDp(),
                 start = insetsStart,
                 end = insetsEnd
             )
@@ -91,7 +90,7 @@ fun BottomSheetLayout(
             CompositionLocalProvider(
                 LocalContentColor provides contentColor
             ) {
-                content(innerPadding)
+                content(contentPadding)
             }
         }.fastMap { it.measure(looseConstraints) }
 
@@ -109,7 +108,7 @@ fun BottomSheetLayout(
             bottomBarPlaceable.fastForEach {
                 it.place(
                     x = 0,
-                    y = bodyContentHeight - bottomHeight
+                    y = bodyContentHeight - bottomBarHeight
                 )
             }
         }

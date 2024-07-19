@@ -2,7 +2,6 @@ package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -53,11 +52,11 @@ fun PermissionScreen(
     }
 
     BottomSheetLayout(
-        bottomBar = {
+        bottomBar = { bottomPadding ->
             if (!viewModel.isLoading) {
                 BottomBar(
                     modifier = Modifier
-                        .padding(it)
+                        .padding(bottomPadding)
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 20.dp),
                     onGrant = viewModel::grantPermissions
@@ -65,11 +64,10 @@ fun PermissionScreen(
             }
         },
         shape = MaterialTheme.shapes.large.bottom(0.dp)
-    ) {
+    ) { contentPadding ->
         Crossfade(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(it)
+                .padding(contentPadding)
                 .padding(all = 20.dp),
             targetState = viewModel.isLoading,
             label = "InstallScreen"
