@@ -2,12 +2,9 @@ package dev.sanmer.pi.ui.main
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -24,11 +21,10 @@ import dev.sanmer.pi.ui.screens.workingmode.WorkingModeScreen
 fun MainScreen() {
     val navController = rememberNavController()
 
-    Scaffold(
-        contentWindowInsets = WindowInsets.navigationBars
+    Surface(
+        color = MaterialTheme.colorScheme.background
     ) {
         NavHost(
-            modifier = Modifier.padding(it),
             navController = navController,
             startDestination = Screen.Apps.route
         ) {

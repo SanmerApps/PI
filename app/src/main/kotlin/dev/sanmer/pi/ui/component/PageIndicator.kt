@@ -99,6 +99,7 @@ fun PageIndicator(
 
 @Composable
 fun Loading(
+    modifier: Modifier = Modifier,
     minHeight: Dp? = null
 ) = PageIndicator(
     icon = {
@@ -115,16 +116,19 @@ fun Loading(
             color = MaterialTheme.colorScheme.outline
         )
     },
+    modifier = modifier,
     minHeight = minHeight
 )
 
 @Composable
 fun Failed(
     message: String?,
+    modifier: Modifier = Modifier,
     minHeight: Dp? = null
 ) = PageIndicator(
     icon = R.drawable.alert_triangle,
     text = message ?: stringResource(id = R.string.unknown_error),
+    modifier = modifier,
     minHeight = minHeight
 )
 

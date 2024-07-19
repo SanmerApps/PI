@@ -44,7 +44,8 @@ import kotlinx.coroutines.launch
 internal fun AppList(
     list: List<IPackageInfo>,
     state: LazyListState,
-    buildSettings: (IPackageInfo) -> AppsViewModel.Settings
+    buildSettings: (IPackageInfo) -> AppsViewModel.Settings,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     var packageName by remember { mutableStateOf("") }
     val packageInfo by remember(list, packageName) {
@@ -63,7 +64,8 @@ internal fun AppList(
 
     LazyColumn(
         modifier = Modifier.animateContentSize(),
-        state = state
+        state = state,
+        contentPadding = contentPadding
     ) {
         items(
             items = list,

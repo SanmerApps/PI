@@ -5,8 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -54,15 +52,13 @@ fun SettingsScreen(
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        },
-        contentWindowInsets = WindowInsets(0)
-    ) { innerPadding ->
+        }
+    ) { contentPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxWidth()
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
+                .padding(contentPadding)
         ) {
             TittleItem(
                 text = stringResource(id = R.string.settings_behavior)

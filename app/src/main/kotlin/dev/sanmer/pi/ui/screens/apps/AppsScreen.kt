@@ -2,7 +2,6 @@ package dev.sanmer.pi.ui.screens.apps
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -63,30 +62,32 @@ fun AppsScreen(
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        },
-        contentWindowInsets = WindowInsets(0)
-    ) { innerPadding ->
+        }
+    ) { contentPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
                 .imePadding()
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
             if (viewModel.isLoading) {
-                Loading()
+                Loading(
+                    modifier = Modifier.padding(contentPadding)
+                )
             }
 
             if (list.isEmpty() && !viewModel.isLoading) {
                 PageIndicator(
                     icon = R.drawable.list_search,
                     text = R.string.empty_list,
+                    modifier = Modifier.padding(contentPadding)
                 )
             }
 
             AppList(
                 list = list,
                 state = state,
-                buildSettings = viewModel::buildSettings
+                buildSettings = viewModel::buildSettings,
+                contentPadding = contentPadding
             )
         }
     }
