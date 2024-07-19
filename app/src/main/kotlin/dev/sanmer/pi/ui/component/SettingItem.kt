@@ -200,7 +200,7 @@ object SettingItemDefaults {
     fun textStyle(
         titleTextColor: Color = LocalContentColor.current,
         descTextColor: Color = MaterialTheme.colorScheme.outline,
-        titleTextStyle: TextStyle = MaterialTheme.typography.titleMedium,
+        titleTextStyle: TextStyle = MaterialTheme.typography.bodyLarge,
         descTextStyle: TextStyle = MaterialTheme.typography.bodyMedium
     ) = SettingTextStyle(
         titleTextColor = titleTextColor,
