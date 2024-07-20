@@ -17,11 +17,7 @@ import timber.log.Timber
 @HiltAndroidApp
 class App : Application(), ImageLoaderFactory {
     init {
-        if (BuildConfig.DEBUG) {
-            Timber.plant(DebugTree())
-        } else {
-            Timber.plant(ReleaseTree())
-        }
+        Timber.plant(Timber.DebugTree())
     }
 
     override fun onCreate() {
@@ -51,22 +47,6 @@ class App : Application(), ImageLoaderFactory {
         NotificationManagerCompat.from(context).apply {
             createNotificationChannels(channels)
             deleteUnlistedNotificationChannels(channels.map { it.id })
-        }
-    }
-
-    class DebugTree : Timber.DebugTree() {
-        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-            super.log(priority, "<PI_DEBUG>$tag", message, t)
-        }
-
-        override fun createStackElementTag(element: StackTraceElement): String {
-            return super.createStackElementTag(element) + "(L${element.lineNumber})"
-        }
-    }
-
-    class ReleaseTree : Timber.DebugTree() {
-        override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-            super.log(priority, "<PI_REL>$tag", message, t)
         }
     }
 }
