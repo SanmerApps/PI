@@ -2,6 +2,7 @@ package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -84,6 +85,7 @@ fun InstallScreen(
     ) { contentPadding ->
         Crossfade(
             modifier = Modifier
+                .animateContentSize()
                 .padding(contentPadding)
                 .padding(all = 20.dp),
             targetState = viewModel.state,

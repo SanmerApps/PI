@@ -2,6 +2,7 @@ package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -67,10 +68,11 @@ fun PermissionScreen(
     ) { contentPadding ->
         Crossfade(
             modifier = Modifier
+                .animateContentSize()
                 .padding(contentPadding)
                 .padding(all = 20.dp),
             targetState = viewModel.isLoading,
-            label = "InstallScreen"
+            label = "PermissionScreen"
         ) { isLoading ->
             when {
                 isLoading -> Loading(
