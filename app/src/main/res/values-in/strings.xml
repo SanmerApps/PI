@@ -40,4 +40,8 @@
     <string name="setup_root_desc">Memerlukan izin Root dari Magisk, KernelSU, atau APatch</string>
     <string name="settings_service_not_running">Layanan tidak berjalan</string>
     <string name="settings_translation_desc">Bantu kami menerjemahkan PI ke dalam bahasa Anda</string>
+    <string name="permission_permissions_title">Izin</string>
+    <string name="permission_button_deny">Tolak</string>
+    <string name="permission_app_title">Aplikasi</string>
+    <string name="permission_button_grant">Izinkan</string>
 </resources>
