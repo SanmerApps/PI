@@ -40,4 +40,8 @@
     <string name="app_authorized">מורשה</string>
     <string name="app_executor">מבצע</string>
     <string name="app_requester">מבקש</string>
+    <string name="permission_permissions_title">הרשאות</string>
+    <string name="permission_button_deny">דחה</string>
+    <string name="permission_button_grant">קבל</string>
+    <string name="permission_app_title">אפליקציה</string>
 </resources>
