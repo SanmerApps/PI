@@ -42,8 +42,8 @@ android {
             storePassword = project.releaseKeyStorePassword
             keyAlias = project.releaseKeyAlias
             keyPassword = project.releaseKeyPassword
-            enableV2Signing = true
             enableV3Signing = true
+            enableV4Signing = true
         }
     } else {
         signingConfigs.getByName("debug")
@@ -74,10 +74,8 @@ android {
         "META-INF/**",
         "okhttp3/**",
         "kotlin/**",
-        "org/**",
-        "**.properties",
         "**.bin",
-        "**/*.proto"
+        "**.properties"
     )
 
     dependenciesInfo.includeInApk = false
