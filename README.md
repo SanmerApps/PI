@@ -4,7 +4,7 @@
 PI is short for `Package Installer`.
 
 ## Supported Versions
-Android 10 ~ 14
+Android 11 ~ 15
 
 ## Credits
  - [tabler/tabler-icons](https://github.com/tabler/tabler-icons.git)
