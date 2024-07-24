@@ -4,12 +4,10 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.system.Os
-import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
@@ -17,7 +15,6 @@ import java.io.File
 import java.io.IOException
 
 object MediaStoreCompat {
-    @RequiresApi(Build.VERSION_CODES.R)
     fun Context.createMediaStoreUri(
         file: File,
         collection: Uri = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL),
@@ -45,17 +42,13 @@ object MediaStoreCompat {
     fun Context.createDownloadUri(
         path: String,
         mimeType: String
-    ) = when {
-        BuildCompat.atLeastR -> runCatching {
-            createMediaStoreUri(
-                file = File(Environment.DIRECTORY_DOWNLOADS, path),
-                mimeType = mimeType
-            )
-        }.getOrElse {
-            createDownloadUri(path)
-        }
-
-        else -> createDownloadUri(path)
+    ) = runCatching {
+        createMediaStoreUri(
+            file = File(Environment.DIRECTORY_DOWNLOADS, path),
+            mimeType = mimeType
+        )
+    }.getOrElse {
+        createDownloadUri(path)
     }
 
     private fun ContentResolver.queryString(uri: Uri, columnName: String): String? {
