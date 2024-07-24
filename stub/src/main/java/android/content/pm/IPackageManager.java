@@ -44,10 +44,6 @@ public interface IPackageManager extends IInterface {
 
     String[] getPackagesForUid(int uid) throws RemoteException;
 
-    void grantRuntimePermission(String packageName, String permissionName, int userId) throws RemoteException;
-
-    void revokeRuntimePermission(String packageName, String permissionName, int userId) throws RemoteException;
-
     int checkPermission(String permName, String pkgName, int userId) throws RemoteException;
 
     abstract class Stub extends Binder implements IPackageManager {
