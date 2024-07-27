@@ -1,4 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="install_activity">Pasang</string>
+    <string name="install_config_density_title">Kapadetan layar</string>
+    <string name="setup_title">Modeu gawé</string>
+    <string name="setup_shizuku_desc">Ngabutuhkeun idin nu disadiakeun ku Sui atawa Shizuku</string>
+    <string name="setup_root_desc">Ngabutuhkeun idin Root nu disadiakeun ku Magisk, KernelSU, atawa APatch</string>
+    <string name="app_authorized">Diijinkeun</string>
+    <string name="app_requester">Paménta</string>
+    <string name="app_executor">Éksékutor</string>
+    <string name="settings_title">Pangaturan</string>
+    <string name="settings_service_running">Layanan geus jalan</string>
+    <string name="settings_service_version">Vérsi %1$d, %2$s</string>
+    <string name="settings_service_not_running">Layanan teu jalan</string>
+    <string name="settings_service_try_start">Klik keur ngajalankeun</string>
+    <string name="settings_language">Basa</string>
+    <string name="message_loading">Ngamuat…</string>
+    <string name="search_placeholder">Téang…</string>
+    <string name="install_invalid_package">Parsing pakét gagal</string>
+    <string name="permission_app_title">Aplikasi</string>
+    <string name="empty_list">Eusi kosong</string>
+    <string name="permission_permissions_title">Idin</string>
+    <string name="permission_button_deny">Tolak</string>
+    <string name="permission_button_grant">Idinkeun</string>
+    <string name="dialog_ok">Heug</string>
+    <string name="dialog_cancel">Bolay</string>
+    <string name="message_install_success">Pamasangan réngsé</string>
+    <string name="message_install_fail">Pamasangan gagal</string>
+    <string name="settings_language_system">Bawaan ti sistem</string>
+    <string name="settings_translation">Babantu pikeun tarjamahan</string>
+    <string name="settings_translation_desc">Ngabantu ka urang pikeun tarjamahan PI kana basa anjeun</string>
+    <string name="settings_source_code">Sumber kodeu</string>
+    <string name="install_package_title">Pakét pamasangan</string>
+    <string name="install_requester_title">Paménta pamasangan</string>
+    <string name="install_config_feature_title">Fitur dinamis</string>
+    <string name="install_config_abi_title">ABI</string>
+    <string name="install_config_language_title">Basa</string>
+    <string name="install_config_unspecified_title">Teu puguh rupana</string>
+    <string name="install_button_install">Pasang</string>
+    <string name="install_invalid_provider">Layanan teu sadia</string>
+    <string name="notification_name_install">Pasang layanan</string>
+    <string name="unknown_error">Error teu dipikanyaho</string>
 </resources>
