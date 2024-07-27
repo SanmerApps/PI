@@ -9,7 +9,6 @@
     <string name="install_requester_title">مقدم طلب التثبيت</string>
     <string name="empty_list">قائمة فارغة</string>
     <string name="settings_title">الإعدادات</string>
-    <string name="settings_dynamic_color">لون ديناميكي</string>
     <string name="settings_translation">المشاركة في الترجمة</string>
     <string name="settings_translation_desc">ساعدنا في ترجمة PI إلى لغتك</string>
     <string name="install_package_title">حزمة التثبيت</string>
@@ -25,11 +24,8 @@
     <string name="notification_name_install">تثبيت الخدمة</string>
     <string name="unknown_error">خطأ غير معروف</string>
     <string name="install_config_abi_title">ABI</string>
-    <string name="settings_dynamic_color_desc">إستخدام لون مظهر النظام</string>
     <string name="setup_root_desc">يتطلب صلاحيات الروت التي يوفرها Magisk أو KernelSU أو APatch</string>
-    <string name="settings_behavior">السلوك</string>
     <string name="settings_service_try_start">إضغط لمحاولة البدء</string>
-    <string name="settings_interface">الواجهة</string>
     <string name="settings_language">اللغة</string>
     <string name="settings_language_system">إفتراضي تبع النظام</string>
     <string name="settings_source_code">رمز المصدر</string>

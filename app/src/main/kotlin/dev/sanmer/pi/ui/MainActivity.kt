@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 return@setContent
             } else {
                 isLoading = false
-                checkNotNull(userPreferences)
+                requireNotNull(userPreferences)
             }
 
             LaunchedEffect(userPreferences) {
@@ -56,9 +56,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalUserPreferences provides preferences
             ) {
-                AppTheme(
-                    dynamicColor = preferences.dynamicColor
-                ) {
+                AppTheme {
                     Crossfade(
                         targetState = preferences.provider != Provider.None,
                         label = "MainActivity"

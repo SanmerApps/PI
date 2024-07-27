@@ -20,14 +20,6 @@ class UserPreferencesDataSource @Inject constructor(
         }
     }
 
-    suspend fun setDynamicColor(value: Boolean) = withContext(Dispatchers.IO) {
-        userPreferences.updateData {
-            it.copy(
-                dynamicColor = value
-            )
-        }
-    }
-
     suspend fun setRequester(value: String) = withContext(Dispatchers.IO) {
         userPreferences.updateData {
             it.copy(

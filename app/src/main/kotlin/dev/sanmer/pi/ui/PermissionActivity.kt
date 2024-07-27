@@ -44,15 +44,13 @@ class PermissionActivity : ComponentActivity() {
             val preferences = if (userPreferences == null) {
                 return@setContent
             } else {
-                checkNotNull(userPreferences)
+                requireNotNull(userPreferences)
             }
 
             CompositionLocalProvider(
                 LocalUserPreferences provides preferences
             ) {
-                AppTheme(
-                    dynamicColor = preferences.dynamicColor
-                ) {
+                AppTheme {
                     PermissionScreen()
                 }
             }

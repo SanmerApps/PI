@@ -22,12 +22,6 @@ class SettingsViewModel @Inject constructor(
         Timber.d("SettingsViewModel init")
     }
 
-    fun setDynamicColor(value: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.setDynamicColor(value)
-        }
-    }
-
     fun setProvider(value: Provider) {
         viewModelScope.launch {
             userPreferencesRepository.setProvider(value)

@@ -17,13 +17,9 @@
     <string name="install_config_unspecified_title">Неопределённый</string>
     <string name="message_install_success">Установка завершена</string>
     <string name="notification_name_install">Сервис установки</string>
-    <string name="settings_behavior">Поведение</string>
     <string name="settings_service_try_start">Нажмите, чтобы попытаться начать</string>
-    <string name="settings_interface">Интерфейс</string>
     <string name="settings_language">Язык</string>
     <string name="settings_language_system">Системный по умолчанию</string>
-    <string name="settings_dynamic_color">Динамический цвет</string>
-    <string name="settings_dynamic_color_desc">Использует системные цвета</string>
     <string name="settings_translation">Участие в переводе</string>
     <string name="settings_translation_desc">Помогите нам перевести PI на ваш язык</string>
     <string name="settings_source_code">Исходный код</string>

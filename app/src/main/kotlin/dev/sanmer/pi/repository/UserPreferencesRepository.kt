@@ -13,8 +13,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setProvider(value: Provider) = userPreferencesDataSource.setProvider(value)
 
-    suspend fun setDynamicColor(value: Boolean) = userPreferencesDataSource.setDynamicColor(value)
-
     suspend fun setRequester(value: String) = userPreferencesDataSource.setRequester(value)
 
     suspend fun setExecutor(value: String) = userPreferencesDataSource.setExecutor(value)

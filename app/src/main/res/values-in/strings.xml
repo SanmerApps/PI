@@ -4,15 +4,11 @@
     <string name="setup_title">Mode kerja</string>
     <string name="app_authorized">Diotorisasi</string>
     <string name="app_executor">Eksekutor</string>
-    <string name="settings_behavior">Tindakan</string>
     <string name="settings_service_running">Layanan telah berjalan</string>
     <string name="settings_service_version">Versi %1$d, %2$s</string>
     <string name="settings_service_try_start">Klik untuk mencoba memulai</string>
-    <string name="settings_interface">Antarmuka</string>
     <string name="settings_language">Bahasa</string>
     <string name="settings_language_system">Bawaan sistem</string>
-    <string name="settings_dynamic_color">Warna dinamis</string>
-    <string name="settings_dynamic_color_desc">Menggunakan warna tema sistem</string>
     <string name="settings_translation">Berpartisipasi dalam penerjemahan</string>
     <string name="settings_source_code">Kode sumber</string>
     <string name="install_package_title">Paket instalasi</string>

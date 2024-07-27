@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -18,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.pi.BuildConfig
@@ -31,7 +28,6 @@ import dev.sanmer.pi.ktx.localizedDisplayName
 import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.NavigateUpTopBar
 import dev.sanmer.pi.ui.component.SettingNormalItem
-import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
 import dev.sanmer.pi.ui.main.Screen
 import dev.sanmer.pi.ui.provider.LocalUserPreferences
@@ -60,10 +56,6 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(contentPadding)
         ) {
-            TittleItem(
-                text = stringResource(id = R.string.settings_behavior)
-            )
-
             ServiceItem(
                 isAlive = viewModel.isProviderAlive,
                 platform = viewModel.providerPlatform,
@@ -85,21 +77,8 @@ fun SettingsScreen(
                 }
             )
 
-            TittleItem(
-                text = stringResource(id = R.string.settings_interface)
-            )
-
             LanguageItem(
                 context = context
-            )
-
-            SettingSwitchItem(
-                icon = R.drawable.color_swatch,
-                title = stringResource(id = R.string.settings_dynamic_color),
-                desc = stringResource(id = R.string.settings_dynamic_color_desc),
-                checked = userPreferences.dynamicColor,
-                onChange = viewModel::setDynamicColor,
-                enabled = BuildCompat.atLeastS
             )
 
             SettingNormalItem(
@@ -122,17 +101,6 @@ fun SettingsScreen(
         }
     }
 }
-
-@Composable
-private fun TittleItem(
-    text: String,
-    modifier: Modifier = Modifier
-) = Text(
-    modifier = modifier.padding(all = 16.dp),
-    text = text,
-    style = MaterialTheme.typography.titleSmall,
-    color = MaterialTheme.colorScheme.primary
-)
 
 @Composable
 private fun ServiceItem(

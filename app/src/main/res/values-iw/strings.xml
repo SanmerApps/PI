@@ -6,7 +6,6 @@
     <string name="setup_shizuku_desc">דורש הרשאות המסופקות על ידי Sui או Shizuku</string>
     <string name="install_config_abi_title">ארכיטקטורה</string>
     <string name="install_config_feature_title">פיצ\'ר דינמי</string>
-    <string name="settings_behavior">תפעול</string>
     <string name="install_package_title">חבילת התקנה</string>
     <string name="install_requester_title">מבקש ההתקנה</string>
     <string name="install_config_density_title">צפיפות תצוגה</string>
@@ -16,11 +15,8 @@
     <string name="settings_service_running">השירות פועל</string>
     <string name="settings_service_version">גרסה %1$d, %2$s</string>
     <string name="settings_service_not_running">השירות לא פועל</string>
-    <string name="settings_interface">ממשק</string>
     <string name="settings_language">שפה</string>
     <string name="settings_language_system">ברירת מחדל של המערכת</string>
-    <string name="settings_dynamic_color">צבע דינמי</string>
-    <string name="settings_dynamic_color_desc">שימוש בצבע ערכת הנושא של המערכת</string>
     <string name="settings_translation_desc">עזור לנו לתרגם את PI לשפה שלך</string>
     <string name="settings_source_code">קוד מקור</string>
     <string name="unknown_error">שגיאה לא ידועה</string>

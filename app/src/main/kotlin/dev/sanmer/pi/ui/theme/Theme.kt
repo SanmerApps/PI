@@ -17,11 +17,10 @@ import dev.sanmer.pi.compat.BuildCompat
 
 @Composable
 fun AppTheme(
-    dynamicColor: Boolean,
     darkMode: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = getColorScheme(dynamicColor, darkMode)
+    val colorScheme = getColorScheme(darkMode)
 
     SystemBarStyle(
         darkMode = darkMode
@@ -36,9 +35,9 @@ fun AppTheme(
 }
 
 @Composable
-private fun getColorScheme(dynamicColor: Boolean, darkMode: Boolean): ColorScheme {
+private fun getColorScheme(darkMode: Boolean): ColorScheme {
     val context = LocalContext.current
-    return if (BuildCompat.atLeastS && dynamicColor) {
+    return if (BuildCompat.atLeastS) {
         when {
             darkMode -> dynamicDarkColorScheme(context)
             else -> dynamicLightColorScheme(context)
