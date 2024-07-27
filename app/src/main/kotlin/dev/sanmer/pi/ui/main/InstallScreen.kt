@@ -93,17 +93,17 @@ fun InstallScreen(
         ) { state ->
             when (state) {
                 State.None -> Loading(
-                    minHeight = 240.dp
+                    height = 240.dp
                 )
 
                 State.InvalidProvider -> Failed(
                     message = stringResource(id = R.string.install_invalid_provider),
-                    minHeight = 240.dp
+                    height = 240.dp
                 )
 
                 State.InvalidPackage -> Failed(
                     message = stringResource(id = R.string.install_invalid_package),
-                    minHeight = 240.dp
+                    height = 240.dp
                 )
 
                 else -> InstallContent()

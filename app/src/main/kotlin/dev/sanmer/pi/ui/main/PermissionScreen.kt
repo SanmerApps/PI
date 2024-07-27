@@ -76,7 +76,7 @@ fun PermissionScreen(
         ) { isLoading ->
             when {
                 isLoading -> Loading(
-                    minHeight = 240.dp
+                    height = 240.dp
                 )
 
                 else -> PermissionContent()
