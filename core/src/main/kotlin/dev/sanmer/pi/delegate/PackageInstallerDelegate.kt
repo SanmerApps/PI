@@ -18,6 +18,8 @@ import dev.sanmer.pi.IntentReceiverCompat
 import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat.getSystemService
 import dev.sanmer.su.ServiceManagerCompat.proxyBy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class PackageInstallerDelegate(
@@ -183,7 +185,7 @@ class PackageInstallerDelegate(
             commit(sender)
         }
 
-        fun PackageInstaller.Session.writeApk(path: File) {
+        suspend fun PackageInstaller.Session.writeApk(path: File) = withContext(Dispatchers.IO) {
             openWrite(path.name, 0, path.length()).use { output ->
                 path.inputStream().buffered().use { input ->
                     input.copyTo(output)
@@ -192,7 +194,7 @@ class PackageInstallerDelegate(
             }
         }
 
-        fun PackageInstaller.Session.writeApks(path: File, filenames: List<String>) {
+        suspend fun PackageInstaller.Session.writeApks(path: File, filenames: List<String>) {
             filenames.forEach { name ->
                 val file = File(path, name)
                 if (file.exists()) writeApk(file)
