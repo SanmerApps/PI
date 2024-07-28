@@ -53,19 +53,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.PermissionActivity"
-            android:theme="@style/DialogTheme"
-            android:exported="true"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
-            android:taskAffinity="${applicationId}.PERMISSION">
-            <intent-filter>
-                <action android:name="${applicationId}.action.REQUEST_PERMISSIONS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <service
             android:name=".service.InstallService"
             android:foregroundServiceType="specialUse"
