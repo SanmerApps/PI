@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionInfo
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.os.Process
 import androidx.core.app.NotificationCompat
@@ -32,33 +33,43 @@ import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.ktx.tmpDir
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import me.zhanghai.android.appiconloader.AppIconLoader
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallback {
     @Inject
     lateinit var userPreferencesRepository: UserPreferencesRepository
 
-    private val appIconLoader by lazy {
-        AppIconLoader(45.dp, true, this)
-    }
+    private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
+    private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     private val pm by lazy { Compat.getPackageManager() }
     private val pi by lazy { Compat.getPackageInstaller() }
 
-    private val tasks = mutableListOf<Int>()
+    init {
+        lifecycleScope.launch {
+            while (currentCoroutineContext().isActive) {
+                delay(5.seconds)
+                if (pendingTask.isEmpty()) stopSelf()
+            }
+        }
+    }
 
     override fun onCreated(sessionId: Int) {
         val session = pi.getSessionInfo(sessionId)
         Timber.i("onCreated<$sessionId>: ${session?.appPackageName}")
-        tasks.add(sessionId)
 
-        onProgressChanged(
+        notifyProgress(
             id = sessionId,
             appLabel = session?.label ?: sessionId.toString(),
             appIcon = session?.appIcon,
@@ -69,21 +80,12 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     override fun onProgressChanged(sessionId: Int, progress: Float) {
         val session = pi.getSessionInfo(sessionId)
 
-        onProgressChanged(
+        notifyProgress(
             id = sessionId,
             appLabel = session?.label ?: sessionId.toString(),
             appIcon = session?.appIcon,
             progress = progress
         )
-    }
-
-    override fun onFinished(sessionId: Int, success: Boolean) {
-        Timber.i("onFinished<$sessionId>: success = $success")
-        tasks.remove(sessionId)
-
-        if (tasks.isEmpty()) {
-            stopSelf()
-        }
     }
 
     private val SessionInfo.label get() =
@@ -107,69 +109,79 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val sticky = super.onStartCommand(intent, flags, startId)
+        val archivePath = intent?.archivePathOrNull ?: return sticky
+        val archiveInfo = intent.archiveInfoOrNull ?: return sticky
+        val filenames = intent.filenames
+
         lifecycleScope.launch(Dispatchers.IO) {
-            val archivePath = intent?.archivePathOrNull ?: return@launch
-            val archiveInfo = intent.archiveInfoOrNull ?: return@launch
-            val filenames = intent.filenames
+            install(archivePath, archiveInfo, filenames)
+            pendingTask.removeAt(0)
+        }
 
-            val appIcon = archiveInfo.applicationInfo?.let(appIconLoader::loadIcon)
-            val appLabel = archiveInfo.applicationInfo?.loadLabel(packageManager)
-                ?: archiveInfo.packageName
+        return sticky
+    }
 
-            val userPreferences = userPreferencesRepository.data.first()
-            val originatingUid = getPackageUid(userPreferences.requester)
-            pi.setInstallerPackageName(userPreferences.executor)
+    private suspend fun install(
+        archivePath: File,
+        archiveInfo: PackageInfo,
+        filenames: List<String>
+    ) = withContext(Dispatchers.IO) {
+        val appIcon = archiveInfo.applicationInfo?.let(appIconLoader::loadIcon)
+        val appLabel = archiveInfo.applicationInfo?.loadLabel(packageManager)
+            ?: archiveInfo.packageName
 
-            val params = createSessionParams()
-            params.setAppIcon(appIcon)
-            params.setAppLabel(appLabel)
-            params.setAppPackageName(archiveInfo.packageName)
-            if (originatingUid != Process.INVALID_UID) {
-                params.setOriginatingUid(originatingUid)
+        val userPreferences = userPreferencesRepository.data.first()
+        val originatingUid = getPackageUid(userPreferences.requester)
+        pi.setInstallerPackageName(userPreferences.executor)
+
+        val params = createSessionParams()
+        params.setAppIcon(appIcon)
+        params.setAppLabel(appLabel)
+        params.setAppPackageName(archiveInfo.packageName)
+        if (originatingUid != Process.INVALID_UID) {
+            params.setOriginatingUid(originatingUid)
+        }
+
+        val sessionId = pi.createSession(params)
+        val session = pi.openSession(sessionId)
+
+        when {
+            archivePath.isDirectory -> {
+                session.writeApks(archivePath, filenames)
             }
 
-            val sessionId = pi.createSession(params)
-            val session = pi.openSession(sessionId)
-
-            when {
-                archivePath.isDirectory -> {
-                    session.writeApks(archivePath, filenames)
-                }
-
-                archivePath.isFile -> {
-                    session.writeApk(archivePath)
-                }
-            }
-
-            val result = session.commit()
-            val status = result.getIntExtra(
-                PackageInstaller.EXTRA_STATUS,
-                PackageInstaller.STATUS_FAILURE
-            )
-
-            when (status) {
-                PackageInstaller.STATUS_SUCCESS -> {
-                    onInstallSucceeded(
-                        id = sessionId,
-                        appLabel = appLabel,
-                        appIcon = appIcon,
-                        packageName = archiveInfo.packageName
-                    )
-                }
-
-                else -> {
-                    val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                    Timber.e("onFailed<${archiveInfo.packageName}>: $msg")
-                    onInstallFailed(
-                        id = sessionId,
-                        appLabel = appLabel,
-                        appIcon = appIcon,
-                    )
-                }
+            archivePath.isFile -> {
+                session.writeApk(archivePath)
             }
         }
 
-        return super.onStartCommand(intent, flags, startId)
+        val result = session.commit()
+        val status = result.getIntExtra(
+            PackageInstaller.EXTRA_STATUS,
+            PackageInstaller.STATUS_FAILURE
+        )
+
+        when (status) {
+            PackageInstaller.STATUS_SUCCESS -> {
+                notifySuccess(
+                    id = sessionId,
+                    appLabel = appLabel,
+                    appIcon = appIcon,
+                    packageName = archiveInfo.packageName
+                )
+            }
+
+            else -> {
+                val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
+                Timber.e("onFailed<${archiveInfo.packageName}>: $msg")
+                notifyFailure(
+                    id = sessionId,
+                    appLabel = appLabel,
+                    appIcon = appIcon,
+                )
+            }
+        }
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {
@@ -200,13 +212,30 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             Process.INVALID_UID
         )
 
-    private fun onProgressChanged(
+    private fun setForeground() {
+        val notification = newNotificationBuilder()
+            .setContentTitle(getText(R.string.notification_name_install))
+            .setSilent(true)
+            .setOngoing(true)
+            .setGroup(GROUP_KEY)
+            .setGroupSummary(true)
+            .build()
+
+        ServiceCompat.startForeground(
+            this,
+            notification.hashCode(),
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+        )
+    }
+
+    private fun notifyProgress(
         id: Int,
         appLabel: CharSequence,
         appIcon: Bitmap?,
         progress: Float
     ) {
-        val notification = baseNotificationBuilder()
+        val notification = newNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
             .setProgress(100, (100 * progress).toInt(), false)
@@ -218,7 +247,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         notify(id, notification)
     }
 
-    private fun onInstallSucceeded(
+    private fun notifySuccess(
         id: Int,
         appLabel: CharSequence,
         appIcon: Bitmap?,
@@ -230,10 +259,10 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             )
         }
 
-        val notification = baseNotificationBuilder()
+        val notification = newNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
-            .setContentText(getString(R.string.message_install_success))
+            .setContentText(getText(R.string.message_install_success))
             .setContentIntent(intent)
             .setSilent(true)
             .setAutoCancel(true)
@@ -242,34 +271,22 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         notify(id, notification)
     }
 
-    private fun onInstallFailed(
+    private fun notifyFailure(
         id: Int,
         appLabel: CharSequence,
         appIcon: Bitmap?
     ) {
-        val notification = baseNotificationBuilder()
+        val notification = newNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
-            .setContentText(getString(R.string.message_install_fail))
+            .setContentText(getText(R.string.message_install_fail))
             .build()
 
         notify(id, notification)
     }
 
-    private fun setForeground() {
-        val notification = baseNotificationBuilder()
-            .setContentTitle(getString(R.string.notification_name_install))
-            .setSilent(true)
-            .setOngoing(true)
-            .setGroup(GROUP_KEY)
-            .setGroupSummary(true)
-            .build()
-
-        startForeground(Const.NOTIFICATION_ID_INSTALL, notification)
-    }
-
-    private fun baseNotificationBuilder() =
-        NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
+    private fun newNotificationBuilder() =
+        NotificationCompat.Builder(applicationContext, Const.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
 
     @SuppressLint("MissingPermission")
@@ -280,13 +297,13 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             true
         }
 
-        NotificationManagerCompat.from(this).apply {
-            if (granted) notify(id, notification)
+        if (granted) {
+            notificationManager.notify(id, notification)
         }
     }
 
     companion object {
-        private const val GROUP_KEY = "INSTALL_SERVICE_GROUP_KEY"
+        private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
 
         private const val EXTRA_ARCHIVE_PATH = "dev.sanmer.pi.extra.ARCHIVE_PATH"
         private val Intent.archivePathOrNull: File?
@@ -300,6 +317,8 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         private val Intent.filenames: List<String>
             get() = getStringArrayExtra(EXTRA_ARCHIVE_FILENAMES)?.toList() ?: emptyList()
 
+        private val pendingTask = mutableListOf<String>()
+
         fun start(
             context: Context,
             archivePath: File,
@@ -311,6 +330,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             intent.putExtra(EXTRA_ARCHIVE_INFO, archiveInfo)
             intent.putExtra(EXTRA_ARCHIVE_FILENAMES, filenames.toTypedArray())
 
+            pendingTask.add(archiveInfo.packageName)
             context.startService(intent)
         }
     }
