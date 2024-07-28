@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -28,28 +25,21 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.Logo
 
 @Composable
-internal fun AppItem(
+fun AppItem(
     pi: IPackageInfo,
-    iconSize: Dp = 45.dp,
-    iconEnd: Dp = 12.dp,
-    contentPaddingValues: PaddingValues = PaddingValues(12.dp),
-    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    onClick: () -> Unit = {},
-    enabled: Boolean = true
+    onClick: () -> Unit,
+    trailing: @Composable (() -> Unit)? = null
 ) = Row(
     modifier = Modifier
-        .clip(shape = MaterialTheme.shapes.medium)
-        .clickable(
-            enabled = enabled,
-            onClick = onClick
-        )
-        .padding(contentPaddingValues)
+        .clickable(onClick = onClick)
+        .padding(all = 10.dp)
         .fillMaxWidth(),
-    verticalAlignment = verticalAlignment
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(10.dp)
 ) {
     val context = LocalContext.current
     AsyncImage(
-        modifier = Modifier.size(iconSize),
+        modifier = Modifier.size(40.dp),
         model = ImageRequest.Builder(context)
             .data(pi)
             .crossfade(true)
@@ -58,9 +48,7 @@ internal fun AppItem(
     )
 
     Column(
-        modifier = Modifier
-            .padding(start = iconEnd)
-            .weight(1f)
+        modifier = Modifier.weight(1f),
     ) {
         Text(
             text = pi.appLabel,
@@ -94,6 +82,8 @@ internal fun AppItem(
             if (pi.isAuthorized) Icon(R.drawable.package_import)
         }
     }
+
+    trailing?.invoke()
 }
 
 @Composable

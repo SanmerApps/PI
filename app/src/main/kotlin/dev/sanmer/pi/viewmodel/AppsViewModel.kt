@@ -15,7 +15,6 @@ import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.compat.MediaStoreCompat.createDownloadUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
-import dev.sanmer.pi.ktx.viewPackage
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -30,7 +29,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
-import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
@@ -75,7 +73,9 @@ class AppsViewModel @Inject constructor(
             .onEach { isAlive ->
                 if (!isAlive) return@onEach
 
-                packagesFlow.value = getPackages()
+                packagesFlow.update {
+                    getPackages()
+                }
 
                 aom.startWatchingMode(
                     op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
@@ -161,26 +161,10 @@ class AppsViewModel @Inject constructor(
 
     fun closeSearch() {
         isSearch = false
-        keyFlow.value = ""
+        keyFlow.update { "" }
     }
 
     fun buildSettings(packageInfo: IPackageInfo) = object : Settings {
-        private val launchIntent by lazy {
-            pm.getLaunchIntentForPackage(
-                packageInfo.packageName, UserHandleCompat.myUserId()
-            )
-        }
-
-        override val isOpenable by lazy { launchIntent != null }
-
-        override fun launch(context: Context) {
-            context.startActivity(launchIntent)
-        }
-
-        override fun view(context: Context) {
-            context.viewPackage(packageInfo.packageName)
-        }
-
         override suspend fun export(context: Context): Boolean {
             val sourceDir = packageInfo.applicationInfo?.let { File(it.sourceDir) }
             if (sourceDir == null) return false
@@ -192,25 +176,19 @@ class AppsViewModel @Inject constructor(
                 file.name.endsWith(".apk")
             } ?: return false
 
-            val streams = files.map { it to it.inputStream().buffered() }
-            when {
-                streams.size == 1 -> {
-                    context.exportApk(
-                        input = streams.first().second,
-                        path = path
-                    )
-                }
+            return when {
+                files.size == 1 -> context.exportApk(
+                    file = files.first(),
+                    path = path
+                )
 
-                streams.size > 1 -> {
-                    context.exportApks(
-                        inputs = streams,
-                        path = path + 's'
-                    )
-                }
+                files.size > 1 -> context.exportApks(
+                    files = files.toList(),
+                    path = path + 's'
+                )
+
+                else -> false
             }
-
-            streams.forEach { it.second.close() }
-            return true
         }
 
         override suspend fun setAuthorized() {
@@ -244,7 +222,7 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun Context.exportApk(
-        input: InputStream,
+        file: File,
         path: String,
     ) = withContext(Dispatchers.IO) {
         val uri = createDownloadUri(
@@ -253,7 +231,7 @@ class AppsViewModel @Inject constructor(
         )
 
         contentResolver.openOutputStream(uri)?.use { output ->
-            input.copyTo(output)
+            file.inputStream().buffered().copyTo(output)
             return@withContext true
         }
 
@@ -261,7 +239,7 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun Context.exportApks(
-        inputs: List<Pair<File, InputStream>>,
+        files: List<File>,
         path: String,
     ) = withContext(Dispatchers.IO) {
         val uri = createDownloadUri(
@@ -270,9 +248,9 @@ class AppsViewModel @Inject constructor(
         )
 
         contentResolver.openOutputStream(uri)?.let(::ZipOutputStream)?.use { output ->
-            inputs.forEach { (file, input) ->
+            files.forEach { file ->
                 output.putNextEntry(ZipEntry(file.name))
-                input.copyTo(output)
+                file.inputStream().buffered().copyTo(output)
                 output.closeEntry()
             }
 
@@ -288,9 +266,6 @@ class AppsViewModel @Inject constructor(
     ).isAllowed()
 
     interface Settings {
-        val isOpenable: Boolean
-        fun launch(context: Context)
-        fun view(context: Context)
         suspend fun export(context: Context): Boolean
         suspend fun setAuthorized()
         suspend fun setRequester()

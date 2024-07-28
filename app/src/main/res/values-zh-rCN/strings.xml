@@ -12,6 +12,7 @@
     <string name="app_authorized">已授权</string>
     <string name="app_requester">请求者</string>
     <string name="app_executor">执行者</string>
+    <string name="app_export">导出</string>
 
     <!-- Settings -->
     <string name="settings_title">设置</string>

@@ -12,6 +12,7 @@
     <string name="app_authorized">Authorized</string>
     <string name="app_requester">Requester</string>
     <string name="app_executor">Executor</string>
+    <string name="app_export">Export</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
