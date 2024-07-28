@@ -3,6 +3,7 @@ package dev.sanmer.pi.viewmodel
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,7 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
-import dev.sanmer.pi.compat.MediaStoreCompat.createDownloadUri
+import dev.sanmer.pi.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.model.IPackageInfo
@@ -225,8 +226,8 @@ class AppsViewModel @Inject constructor(
         file: File,
         path: String,
     ) = withContext(Dispatchers.IO) {
-        val uri = createDownloadUri(
-            path = path,
+        val uri = createMediaStoreUri(
+            file = File(Environment.DIRECTORY_DOWNLOADS, path),
             mimeType = "android/vnd.android.package-archive"
         )
 
@@ -242,8 +243,8 @@ class AppsViewModel @Inject constructor(
         files: List<File>,
         path: String,
     ) = withContext(Dispatchers.IO) {
-        val uri = createDownloadUri(
-            path = path,
+        val uri = createMediaStoreUri(
+            file = File(Environment.DIRECTORY_DOWNLOADS, path),
             mimeType = "android/zip"
         )
 

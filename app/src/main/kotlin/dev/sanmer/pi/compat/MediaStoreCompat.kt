@@ -4,15 +4,12 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.system.Os
 import androidx.core.net.toFile
-import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import java.io.File
-import java.io.IOException
 
 object MediaStoreCompat {
     fun Context.createMediaStoreUri(
@@ -26,29 +23,7 @@ object MediaStoreCompat {
             put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
         }
 
-        return contentResolver.insert(collection, entry) ?: throw IOException("Cannot insert $file")
-    }
-
-    private fun createDownloadUri(
-        path: String
-    ) = Environment.getExternalStoragePublicDirectory(
-        Environment.DIRECTORY_DOWNLOADS
-    ).let {
-        val file = File(it, path)
-        file.parentFile?.apply { if (!exists()) mkdirs() }
-        file.toUri()
-    }
-
-    fun Context.createDownloadUri(
-        path: String,
-        mimeType: String
-    ) = runCatching {
-        createMediaStoreUri(
-            file = File(Environment.DIRECTORY_DOWNLOADS, path),
-            mimeType = mimeType
-        )
-    }.getOrElse {
-        createDownloadUri(path)
+        return requireNotNull(contentResolver.insert(collection, entry))
     }
 
     private fun ContentResolver.queryString(uri: Uri, columnName: String): String? {
@@ -111,8 +86,7 @@ object MediaStoreCompat {
         require(uri.scheme == "content") { "Uri lacks 'content' scheme: $uri" }
 
         contentResolver.openFileDescriptor(
-            getDocumentUri(this, uri),
-            "r"
+            getDocumentUri(this, uri), "r"
         )?.use {
             return Os.readlink("/proc/self/fd/${it.fd}")
         }
