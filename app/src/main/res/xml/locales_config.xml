@@ -9,6 +9,7 @@
     <locale android:name="pt" />
     <locale android:name="pt-BR" />
     <locale android:name="ru" />
+    <locale android:name="su" />
     <locale android:name="vi" />
     <locale android:name="zh-CN" />
 </locale-config>

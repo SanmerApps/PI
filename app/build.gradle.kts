@@ -31,6 +31,7 @@ android {
             "pt",
             "pt-rBR",
             "ru",
+            "su",
             "vi",
             "zh-rCN"
         )
