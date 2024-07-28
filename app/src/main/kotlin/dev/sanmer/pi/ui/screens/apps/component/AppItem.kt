@@ -32,7 +32,7 @@ fun AppItem(
 ) = Row(
     modifier = Modifier
         .clickable(onClick = onClick)
-        .padding(all = 10.dp)
+        .padding(all = 15.dp)
         .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(10.dp)

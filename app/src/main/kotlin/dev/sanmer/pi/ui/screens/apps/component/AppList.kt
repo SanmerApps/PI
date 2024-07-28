@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
@@ -62,7 +63,7 @@ private fun AppItem(
     pi: IPackageInfo,
     buildSettings: (IPackageInfo) -> AppsViewModel.Settings
 ) {
-    var expend by rememberSaveable { mutableStateOf(false) }
+    var expend by rememberSaveable(pi) { mutableStateOf(false) }
     val degrees by animateFloatAsState(
         targetValue = if (expend) 90f else 0f,
         label = "AppItem Icon"
@@ -82,15 +83,13 @@ private fun AppItem(
 
     if (expend) SettingItem(
         pi = pi,
-        settings = buildSettings(pi),
-        onClose = { expend = false }
+        settings = buildSettings(pi)
     )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SettingItem(
-    onClose: () -> Unit,
     pi: IPackageInfo,
     settings: AppsViewModel.Settings
 ) = Box(
@@ -105,7 +104,7 @@ private fun SettingItem(
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 10.dp),
+            .padding(all = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -114,10 +113,10 @@ private fun SettingItem(
 
         MenuChip(
             selected = pi.isAuthorized,
+            enabled = pi.packageName != BuildConfig.APPLICATION_ID,
             onClick = {
                 scope.launch {
                     settings.setAuthorized()
-                    onClose()
                 }
             },
             label = { Text(text = stringResource(id = R.string.app_authorized)) },
@@ -125,6 +124,7 @@ private fun SettingItem(
 
         MenuChip(
             selected = pi.isRequester,
+            enabled = !pi.isRequester,
             onClick = {
                 scope.launch {
                     settings.setRequester()
@@ -135,22 +135,20 @@ private fun SettingItem(
 
         MenuChip(
             selected = pi.isExecutor,
+            enabled = !pi.isExecutor,
             onClick = {
                 scope.launch {
                     settings.setExecutor()
-                    onClose()
                 }
             },
-            label = { Text(text = stringResource(id = R.string.app_executor)) },
+            label = { Text(text = stringResource(id = R.string.app_executor)) }
         )
 
         MenuChip(
             selected = false,
             onClick = {
                 scope.launch {
-                    if (settings.export(context)) {
-                        onClose()
-                    }
+                    settings.export(context)
                 }
             },
             label = { Text(text = stringResource(id = R.string.app_export)) },
