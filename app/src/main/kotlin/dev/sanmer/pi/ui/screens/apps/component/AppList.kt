@@ -34,6 +34,7 @@ import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
+import dev.sanmer.pi.ui.provider.LocalSnackbarHostState
 import dev.sanmer.pi.viewmodel.AppsViewModel
 import kotlinx.coroutines.launch
 
@@ -101,6 +102,8 @@ private fun SettingItem(
             shape = MaterialTheme.shapes.medium
         )
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,7 +151,13 @@ private fun SettingItem(
             selected = false,
             onClick = {
                 scope.launch {
-                    settings.export(context)
+                    if (settings.export(context)) {
+                        snackbarHostState.showSnackbar(
+                            message = context.getString(
+                                R.string.app_export_msg, "Download/PI"
+                            )
+                        )
+                    }
                 }
             },
             label = { Text(text = stringResource(id = R.string.app_export)) },
