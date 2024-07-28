@@ -17,11 +17,7 @@
     <string name="message_loading">Ngamuat…</string>
     <string name="search_placeholder">Téang…</string>
     <string name="install_invalid_package">Parsing pakét gagal</string>
-    <string name="permission_app_title">Aplikasi</string>
     <string name="empty_list">Eusi kosong</string>
-    <string name="permission_permissions_title">Idin</string>
-    <string name="permission_button_deny">Tolak</string>
-    <string name="permission_button_grant">Idinkeun</string>
     <string name="dialog_ok">Heug</string>
     <string name="dialog_cancel">Bolay</string>
     <string name="message_install_success">Pamasangan réngsé</string>

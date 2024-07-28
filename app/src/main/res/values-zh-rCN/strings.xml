@@ -38,12 +38,6 @@
     <string name="install_invalid_provider">服务不可用</string>
     <string name="install_invalid_package">安装包解析失败</string>
 
-    <!-- Permission -->
-    <string name="permission_app_title">应用</string>
-    <string name="permission_permissions_title">权限</string>
-    <string name="permission_button_deny">拒绝</string>
-    <string name="permission_button_grant">允许</string>
-
     <!-- Dialog -->
     <string name="dialog_ok">确定</string>
     <string name="dialog_cancel">取消</string>

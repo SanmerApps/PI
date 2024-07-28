@@ -36,8 +36,4 @@
     <string name="app_authorized">Autorizado</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Ejecutor</string>
-    <string name="permission_permissions_title">Permisos</string>
-    <string name="permission_button_deny">Denegar</string>
-    <string name="permission_app_title">Aplicación</string>
-    <string name="permission_button_grant">Conceder</string>
 </resources>

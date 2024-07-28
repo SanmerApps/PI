@@ -38,12 +38,6 @@
     <string name="install_invalid_provider">Service is not available</string>
     <string name="install_invalid_package">Package parsing failed</string>
 
-    <!-- Permission -->
-    <string name="permission_app_title">Application</string>
-    <string name="permission_permissions_title">Permissions</string>
-    <string name="permission_button_deny">Deny</string>
-    <string name="permission_button_grant">Grant</string>
-
     <!-- Dialog -->
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
