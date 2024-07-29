@@ -36,4 +36,6 @@
     <string name="app_authorized">Autorizado</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Executor</string>
+    <string name="app_export">Exportar</string>
+    <string name="app_export_msg">Exportado para %1$s</string>
 </resources>
