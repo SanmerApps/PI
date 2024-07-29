@@ -73,7 +73,7 @@ fun SettingsScreen(
                     }
                 ),
                 onClick = {
-                    navController.navigateSingleTopTo(Screen.WorkingMode.route)
+                    navController.navigateSingleTopTo(Screen.WorkingMode())
                 }
             )
 
