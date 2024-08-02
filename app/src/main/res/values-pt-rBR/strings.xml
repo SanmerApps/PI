@@ -16,7 +16,7 @@
     <string name="message_install_fail">Falha na instalação</string>
     <string name="message_loading">Carregando…</string>
     <string name="search_placeholder">Pesquisar…</string>
-    <string name="notification_name_install">Instalar serviço</string>
+    <string name="install_service">Instalar serviço</string>
     <string name="unknown_error">Erro desconhecido</string>
     <string name="install_config_density_title">Densidade da tela</string>
     <string name="install_config_feature_title">Recurso dinâmico</string>
@@ -28,12 +28,11 @@
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_source_code">Código fonte</string>
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_cancel">Cancelar</string>
+    <string name="install_button_cancel">Cancelar</string>
     <string name="settings_language_system">Padrão do sistema</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>
-    <string name="app_authorized">Autorizado</string>
+    <string name="app_authorize">Autorizado</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Executor</string>
     <string name="app_export">Exportar</string>

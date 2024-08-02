@@ -9,9 +9,9 @@
     <string name="setup_root_desc">需要由 Magisk, KernelSU 或 APatch 提供 Root 权限</string>
 
     <!-- Apps -->
-    <string name="app_authorized">已授权</string>
     <string name="app_requester">请求者</string>
     <string name="app_executor">执行者</string>
+    <string name="app_authorize">授权</string>
     <string name="app_export">导出</string>
     <string name="app_export_msg">已导出至 %1$s</string>
 
@@ -36,25 +36,19 @@
     <string name="install_config_language_title">语言</string>
     <string name="install_config_unspecified_title">未知</string>
     <string name="install_button_install">安装</string>
+    <string name="install_button_cancel">取消</string>
     <string name="install_invalid_provider">服务不可用</string>
     <string name="install_invalid_package">安装包解析失败</string>
 
-    <!-- Dialog -->
-    <string name="dialog_ok">确定</string>
-    <string name="dialog_cancel">取消</string>
-
     <!-- Message -->
+    <string name="install_service">安装服务</string>
     <string name="message_install_success">安装成功</string>
     <string name="message_install_fail">安装失败</string>
     <string name="message_loading">加载中…</string>
+    <string name="unknown_error">未知错误</string>
 
     <!-- Search -->
     <string name="search_placeholder">搜索…</string>
     <string name="empty_list">空列表</string>
 
-    <!-- Notification -->
-    <string name="notification_name_install">安装服务</string>
-
-    <!-- Other -->
-    <string name="unknown_error">未知错误</string>
 </resources>

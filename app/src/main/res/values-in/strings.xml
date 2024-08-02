@@ -2,7 +2,7 @@
 <resources>
     <string name="settings_title">Setelan</string>
     <string name="setup_title">Mode kerja</string>
-    <string name="app_authorized">Diotorisasi</string>
+    <string name="app_authorize">Diotorisasi</string>
     <string name="app_executor">Eksekutor</string>
     <string name="settings_service_running">Layanan telah berjalan</string>
     <string name="settings_service_version">Versi %1$d, %2$s</string>
@@ -23,14 +23,13 @@
     <string name="install_button_install">Pasang</string>
     <string name="install_invalid_provider">Layanan tidak tersedia</string>
     <string name="install_invalid_package">Parsing paket gagal</string>
-    <string name="dialog_ok">Oke</string>
-    <string name="dialog_cancel">Batal</string>
+    <string name="install_button_cancel">Batal</string>
     <string name="message_install_success">Pemasangan berhasil</string>
     <string name="message_install_fail">Pemasangan gagal</string>
     <string name="message_loading">Memuat…</string>
     <string name="search_placeholder">Cari…</string>
     <string name="empty_list">Daftar kosong</string>
-    <string name="notification_name_install">Layanan pemasangan</string>
+    <string name="install_service">Layanan pemasangan</string>
     <string name="unknown_error">Kesalahan tidak diketahui</string>
     <string name="install_activity">Pasang</string>
     <string name="setup_root_desc">Memerlukan izin Root dari Magisk, KernelSU, atau APatch</string>

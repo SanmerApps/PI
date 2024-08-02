@@ -9,14 +9,13 @@
     <string name="setup_shizuku_desc">Требуется разрешение Sui или Shizuku</string>
     <string name="install_config_density_title">Плотность экрана</string>
     <string name="install_config_language_title">Язык</string>
-    <string name="dialog_ok">ОК</string>
     <string name="message_install_fail">Установка прервана</string>
     <string name="empty_list">Пустой список</string>
     <string name="unknown_error">Неизвестная ошибка</string>
     <string name="install_config_feature_title">Динамическая функция</string>
     <string name="install_config_unspecified_title">Неопределённый</string>
     <string name="message_install_success">Установка завершена</string>
-    <string name="notification_name_install">Сервис установки</string>
+    <string name="install_service">Сервис установки</string>
     <string name="settings_service_try_start">Нажмите, чтобы попытаться начать</string>
     <string name="settings_language">Язык</string>
     <string name="settings_language_system">Системный по умолчанию</string>
@@ -31,6 +30,6 @@
     <string name="settings_title">Настройки</string>
     <string name="install_invalid_provider">Сервис не доступен</string>
     <string name="install_invalid_package">Сбой синтаксического анализа пакета</string>
-    <string name="dialog_cancel">Отмена</string>
+    <string name="install_button_cancel">Отмена</string>
     <string name="search_placeholder">Поиск…</string>
 </resources>

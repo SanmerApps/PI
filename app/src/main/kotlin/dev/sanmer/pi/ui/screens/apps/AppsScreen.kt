@@ -149,7 +149,7 @@ private fun TopBar(
                 onClick = { navController.navigateSingleTopTo(Screen.Settings()) }
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.settings),
+                    painter = painterResource(id = R.drawable.settings_2),
                     contentDescription = null
                 )
             }

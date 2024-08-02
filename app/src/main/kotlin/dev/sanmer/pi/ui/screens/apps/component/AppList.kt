@@ -115,17 +115,6 @@ private fun SettingItem(
         val scope = rememberCoroutineScope()
 
         MenuChip(
-            selected = pi.isAuthorized,
-            enabled = pi.packageName != BuildConfig.APPLICATION_ID,
-            onClick = {
-                scope.launch {
-                    settings.setAuthorized()
-                }
-            },
-            label = { Text(text = stringResource(id = R.string.app_authorized)) },
-        )
-
-        MenuChip(
             selected = pi.isRequester,
             enabled = !pi.isRequester,
             onClick = {
@@ -145,6 +134,17 @@ private fun SettingItem(
                 }
             },
             label = { Text(text = stringResource(id = R.string.app_executor)) }
+        )
+
+        MenuChip(
+            selected = pi.isAuthorized,
+            enabled = pi.packageName != BuildConfig.APPLICATION_ID,
+            onClick = {
+                scope.launch {
+                    settings.setAuthorized()
+                }
+            },
+            label = { Text(text = stringResource(id = R.string.app_authorize)) },
         )
 
         MenuChip(

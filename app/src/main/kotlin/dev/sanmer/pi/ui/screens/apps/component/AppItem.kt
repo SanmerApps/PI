@@ -77,9 +77,9 @@ fun AppItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            if (pi.isRequester) Icon(R.drawable.cube_plus)
-            if (pi.isExecutor) Icon(R.drawable.code)
-            if (pi.isAuthorized) Icon(R.drawable.package_import)
+            if (pi.isRequester) Icon(R.drawable.file_import)
+            if (pi.isExecutor) Icon(R.drawable.player_play)
+            if (pi.isAuthorized) Icon(R.drawable.shield)
         }
     }
 

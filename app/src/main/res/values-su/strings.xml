@@ -5,7 +5,7 @@
     <string name="setup_title">Modeu gawé</string>
     <string name="setup_shizuku_desc">Ngabutuhkeun idin nu disadiakeun ku Sui atawa Shizuku</string>
     <string name="setup_root_desc">Ngabutuhkeun idin Root nu disadiakeun ku Magisk, KernelSU, atawa APatch</string>
-    <string name="app_authorized">Diijinkeun</string>
+    <string name="app_authorize">Diijinkeun</string>
     <string name="app_requester">Paménta</string>
     <string name="app_executor">Éksékutor</string>
     <string name="settings_title">Pangaturan</string>
@@ -18,8 +18,7 @@
     <string name="search_placeholder">Téang…</string>
     <string name="install_invalid_package">Parsing pakét gagal</string>
     <string name="empty_list">Eusi kosong</string>
-    <string name="dialog_ok">Heug</string>
-    <string name="dialog_cancel">Bolay</string>
+    <string name="install_button_cancel">Bolay</string>
     <string name="message_install_success">Pamasangan réngsé</string>
     <string name="message_install_fail">Pamasangan gagal</string>
     <string name="settings_language_system">Bawaan ti sistem</string>
@@ -34,6 +33,6 @@
     <string name="install_config_unspecified_title">Teu puguh rupana</string>
     <string name="install_button_install">Pasang</string>
     <string name="install_invalid_provider">Layanan teu sadia</string>
-    <string name="notification_name_install">Pasang layanan</string>
+    <string name="install_service">Pasang layanan</string>
     <string name="unknown_error">Error teu dipikanyaho</string>
 </resources>

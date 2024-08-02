@@ -214,7 +214,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
     private fun setForeground() {
         val notification = newNotificationBuilder()
-            .setContentTitle(getText(R.string.notification_name_install))
+            .setContentTitle(getText(R.string.install_service))
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)

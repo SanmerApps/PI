@@ -9,9 +9,9 @@
     <string name="setup_root_desc">Requires Root permissions provided by Magisk, KernelSU or APatch</string>
 
     <!-- Apps -->
-    <string name="app_authorized">Authorized</string>
     <string name="app_requester">Requester</string>
     <string name="app_executor">Executor</string>
+    <string name="app_authorize">Authorize</string>
     <string name="app_export">Export</string>
     <string name="app_export_msg">Exported to %1$s</string>
 
@@ -36,25 +36,19 @@
     <string name="install_config_language_title">Language</string>
     <string name="install_config_unspecified_title">Unspecified</string>
     <string name="install_button_install">Install</string>
+    <string name="install_button_cancel">Cancel</string>
     <string name="install_invalid_provider">Service is not available</string>
     <string name="install_invalid_package">Package parsing failed</string>
 
-    <!-- Dialog -->
-    <string name="dialog_ok">OK</string>
-    <string name="dialog_cancel">Cancel</string>
-
     <!-- Message -->
+    <string name="install_service">Install service</string>
     <string name="message_install_success">Install successful</string>
     <string name="message_install_fail">Install failed</string>
     <string name="message_loading">Loading…</string>
+    <string name="unknown_error">Unknown error</string>
 
     <!-- Search -->
     <string name="search_placeholder">Search…</string>
     <string name="empty_list">Empty list</string>
 
-    <!-- Notification -->
-    <string name="notification_name_install">Install service</string>
-
-    <!-- Other -->
-    <string name="unknown_error">Unknown error</string>
 </resources>
