@@ -16,15 +16,14 @@ import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
+import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,7 +43,7 @@ class AppsViewModel @Inject constructor(
 
     var isSearch by mutableStateOf(false)
         private set
-    private val keyFlow = MutableStateFlow("")
+    private val queryFlow = MutableStateFlow("")
 
     private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
     private val cacheFlow = MutableStateFlow(listOf<IPackageInfo>())
@@ -66,25 +65,23 @@ class AppsViewModel @Inject constructor(
         Timber.d("AppsViewModel init")
         providerObserver()
         dataObserver()
-        keyObserver()
+        queryObserver()
     }
 
     private fun providerObserver() {
-        Compat.isAliveFlow
-            .onEach { isAlive ->
-                if (!isAlive) return@onEach
+        viewModelScope.launch {
+            Compat.isAliveFlow.collectLatest { isAlive ->
+                if (isAlive) {
+                    packagesFlow.update { getPackages() }
 
-                packagesFlow.update {
-                    getPackages()
+                    aom.startWatchingMode(
+                        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                        packageName = null,
+                        callback = this@AppsViewModel
+                    )
                 }
-
-                aom.startWatchingMode(
-                    op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-                    packageName = null,
-                    callback = this
-                )
-
-            }.launchIn(viewModelScope)
+            }
+        }
 
         addCloseable {
             if (isProviderAlive) {
@@ -94,46 +91,37 @@ class AppsViewModel @Inject constructor(
     }
 
     private fun dataObserver() {
-        combine(
-            userPreferencesRepository.data,
-            packagesFlow,
-        ) { preferences, source ->
-            if (source.isEmpty()) return@combine
-
-            cacheFlow.update {
-                source.map { pi ->
-                    pi.copy(
-                        isRequester = preferences.requester == pi.packageName,
-                        isExecutor = preferences.executor == pi.packageName
-                    )
-                }.sortedByDescending { it.lastUpdateTime }
-                    .sortedByDescending { it.isAuthorized }
-                    .sortedByDescending { it.isExecutor || it.isRequester }
+        viewModelScope.launch {
+            packagesFlow.combineToLatest(userPreferencesRepository.data) { source, preferences ->
+                cacheFlow.update {
+                    source.map { pi ->
+                        pi.copy(
+                            isRequester = preferences.requester == pi.packageName,
+                            isExecutor = preferences.executor == pi.packageName
+                        )
+                    }.sortedByDescending { it.lastUpdateTime }
+                        .sortedByDescending { it.isAuthorized }
+                        .sortedByDescending { it.isExecutor || it.isRequester }
+                }
             }
-
-            isLoading = false
-
-        }.launchIn(viewModelScope)
+        }
     }
 
-    private fun keyObserver() {
-        combine(
-            keyFlow,
-            cacheFlow
-        ) { key, source ->
-
-            appsFlow.update {
-                source.filter {
-                    if (key.isNotBlank()) {
-                        it.appLabel.contains(key, ignoreCase = true)
-                                || it.packageName.contains(key, ignoreCase = true)
-                    } else {
-                        true
+    private fun queryObserver() {
+        viewModelScope.launch {
+            cacheFlow.combineToLatest(queryFlow) { source, key ->
+                appsFlow.update {
+                    source.filter {
+                        if (key.isNotBlank()) {
+                            it.appLabel.contains(key, ignoreCase = true)
+                                    || it.packageName.contains(key, ignoreCase = true)
+                        } else {
+                            true
+                        }
                     }
                 }
             }
-
-        }.launchIn(viewModelScope)
+        }
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
@@ -149,11 +137,13 @@ class AppsViewModel @Inject constructor(
             it.toIPackageInfo(
                 isAuthorized = it.isAuthorized()
             )
+        }.also {
+            isLoading = it.isEmpty()
         }
     }
 
     fun search(key: String) {
-        keyFlow.value = key
+        queryFlow.value = key
     }
 
     fun openSearch() {
@@ -162,7 +152,7 @@ class AppsViewModel @Inject constructor(
 
     fun closeSearch() {
         isSearch = false
-        keyFlow.update { "" }
+        queryFlow.value = ""
     }
 
     fun buildSettings(packageInfo: IPackageInfo) = object : Settings {
