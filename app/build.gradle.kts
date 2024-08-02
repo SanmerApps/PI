@@ -112,7 +112,6 @@ dependencies {
     implementation(libs.coil.kt)
     implementation(libs.coil.kt.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.timber)
 }

@@ -19,7 +19,6 @@ hiddenApiRefine = "4.4.0"
 hilt = "2.51.1"
 kotlin = "2.0.0"
 kotlinxCoroutines = "1.8.1"
-kotlinxDatetime = "0.6.0"
 kotlinxSerialization = "1.7.1"
 ksp = "2.0.0-1.0.24"
 timber = "5.0.1"
@@ -58,7 +57,6 @@ coil-kt-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 rikka-refine-annotation = { module = "dev.rikka.tools.refine:annotation", version.ref = "hiddenApiRefine" }
 rikka-refine-compiler = { module = "dev.rikka.tools.refine:annotation-processor", version.ref = "hiddenApiRefine" }
