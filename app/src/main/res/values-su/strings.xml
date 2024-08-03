@@ -23,7 +23,7 @@
     <string name="message_install_fail">Pamasangan gagal</string>
     <string name="settings_language_system">Bawaan ti sistem</string>
     <string name="settings_translation">Babantu pikeun tarjamahan</string>
-    <string name="settings_translation_desc">Ngabantu ka urang pikeun tarjamahan PI kana basa anjeun</string>
+    <string name="settings_translation_desc">Ngabantu pikeun tarjamahan PI kana basa anjeun</string>
     <string name="settings_source_code">Sumber kodeu</string>
     <string name="install_package_title">Pakét pamasangan</string>
     <string name="install_requester_title">Paménta pamasangan</string>
@@ -35,6 +35,6 @@
     <string name="install_invalid_provider">Layanan teu sadia</string>
     <string name="install_service">Pasang layanan</string>
     <string name="unknown_error">Error teu dipikanyaho</string>
-    <string name="app_export">Ekspor</string>
-    <string name="app_export_msg">Diekspor ka %1$s</string>
+    <string name="app_export">Ékspor</string>
+    <string name="app_export_msg">Diékspor ka %1$s</string>
 </resources>
