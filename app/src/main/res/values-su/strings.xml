@@ -35,4 +35,6 @@
     <string name="install_invalid_provider">Layanan teu sadia</string>
     <string name="install_service">Pasang layanan</string>
     <string name="unknown_error">Error teu dipikanyaho</string>
+    <string name="app_export">Ekspor</string>
+    <string name="app_export_msg">Diekspor ka %1$s</string>
 </resources>
