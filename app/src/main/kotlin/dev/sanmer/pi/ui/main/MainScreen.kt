@@ -6,9 +6,11 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -24,17 +26,16 @@ import dev.sanmer.pi.ui.screens.workingmode.WorkingModeScreen
 fun MainScreen() {
     val navController = rememberNavController()
 
-    Surface(
-        color = MaterialTheme.colorScheme.background
+    NavHost(
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize(),
+        navController = navController,
+        startDestination = Screen.Apps()
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Apps()
-        ) {
-            Screen.Apps(navController).addTo(this)
-            Screen.Settings(navController).addTo(this)
-            Screen.WorkingMode(navController).addTo(this)
-        }
+        Screen.Apps(navController).addTo(this)
+        Screen.Settings(navController).addTo(this)
+        Screen.WorkingMode(navController).addTo(this)
     }
 }
 
