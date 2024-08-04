@@ -160,22 +160,21 @@ class AppsViewModel @Inject constructor(
             val sourceDir = packageInfo.applicationInfo?.let { File(it.sourceDir) }
             if (sourceDir == null) return false
 
-            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
-            val path = "PI" + File.separator + filename
-
             val files = sourceDir.parentFile?.listFiles { file ->
                 file.name.endsWith(".apk")
             } ?: return false
 
+            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
+
             return when {
                 files.size == 1 -> context.exportApk(
                     file = files.first(),
-                    path = path
+                    path = "PI/${filename}"
                 )
 
                 files.size > 1 -> context.exportApks(
                     files = files.toList(),
-                    path = path + 's'
+                    path = "PI/${filename}s"
                 )
 
                 else -> false
@@ -183,32 +182,26 @@ class AppsViewModel @Inject constructor(
         }
 
         override suspend fun setAuthorized() {
-            withContext(Dispatchers.IO) {
-                val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
-                    aom.setMode(
-                        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-                        packageInfo = packageInfo,
-                        mode = it
-                    )
-                }
+            val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
+                aom.setMode(
+                    op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                    packageInfo = packageInfo,
+                    mode = it
+                )
+            }
 
-                when {
-                    packageInfo.isAuthorized -> setMode(AppOpsManagerDelegate.Mode.Default)
-                    else -> setMode(AppOpsManagerDelegate.Mode.Allow)
-                }
+            when {
+                packageInfo.isAuthorized -> setMode(AppOpsManagerDelegate.Mode.Default)
+                else -> setMode(AppOpsManagerDelegate.Mode.Allow)
             }
         }
 
         override suspend fun setRequester() {
-            withContext(Dispatchers.IO) {
-                userPreferencesRepository.setRequester(packageInfo.packageName)
-            }
+            userPreferencesRepository.setRequester(packageInfo.packageName)
         }
 
         override suspend fun setExecutor() {
-            withContext(Dispatchers.IO) {
-                userPreferencesRepository.setExecutor(packageInfo.packageName)
-            }
+            userPreferencesRepository.setExecutor(packageInfo.packageName)
         }
     }
 

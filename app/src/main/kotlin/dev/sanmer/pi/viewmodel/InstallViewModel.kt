@@ -40,12 +40,12 @@ import javax.inject.Inject
 class InstallViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     application: Application
-) : AndroidViewModel(application), AppOpsManagerDelegate.AppOpsCallback {
+) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
     private val pm by lazy { Compat.getPackageManager() }
     private val aom by lazy { Compat.getAppOpsService() }
 
-    private var archivePath = File("")
+    private var archivePath = File("/")
     private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
 
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
@@ -60,9 +60,7 @@ class InstallViewModel @Inject constructor(
 
     private var baseSize = 0L
     private val totalSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.size } }
-    val totalSizeStr: String by derivedStateOf {
-        Formatter.formatFileSize(context, totalSize)
-    }
+    val totalSizeStr: String by derivedStateOf { Formatter.formatFileSize(context, totalSize) }
 
     var splitConfigs = listOf<SplitConfig>()
         private set
@@ -70,11 +68,6 @@ class InstallViewModel @Inject constructor(
 
     var state by mutableStateOf(State.None)
         private set
-
-    override fun opChanged(op: Int, uid: Int, packageName: String) {
-        val isAuthorized = aom.checkOpNoThrow(op, uid, packageName).isAllowed()
-        sourceInfo = sourceInfo.copy(isAuthorized = isAuthorized)
-    }
 
     init {
         Timber.d("InstallViewModel init")
@@ -183,7 +176,6 @@ class InstallViewModel @Inject constructor(
     }
 
     fun deleteTempDir() {
-        Timber.d("deleteTempDir")
         tempDir.deleteRecursively()
     }
 
@@ -209,8 +201,6 @@ class InstallViewModel @Inject constructor(
         AppBundle;
 
         companion object {
-            fun State.isLoading() = this == None
-            fun State.isFailed() = this == InvalidProvider || this == InvalidPackage
             fun State.isReady() = this == Apk || this == AppBundle
         }
     }
