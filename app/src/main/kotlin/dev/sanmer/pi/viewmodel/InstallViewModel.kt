@@ -20,7 +20,8 @@ import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
 import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
 import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
-import dev.sanmer.pi.compat.VersionCompat
+import dev.sanmer.pi.compat.VersionCompat.sdkVersionDiff
+import dev.sanmer.pi.compat.VersionCompat.versionDiff
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.ktx.tmpDir
@@ -55,8 +56,8 @@ class InstallViewModel @Inject constructor(
     val hasSourceInfo by lazy { sourceInfo.isNotEmpty }
 
     private val currentInfo by lazy { getPackageInfo(archiveInfo.packageName) }
-    val versionDiff by lazy { VersionCompat.getVersionDiff(currentInfo, archiveInfo) }
-    val sdkDiff by lazy { VersionCompat.getSdkVersionDiff(currentInfo, archiveInfo) }
+    val versionDiff by lazy { currentInfo.versionDiff(archiveInfo) }
+    val sdkDiff by lazy { currentInfo.sdkVersionDiff(archiveInfo) }
 
     private var baseSize = 0L
     private val totalSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.size } }

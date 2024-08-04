@@ -20,7 +20,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.VersionCompat
+import dev.sanmer.pi.compat.VersionCompat.sdkVersion
+import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.Logo
 
@@ -61,13 +62,13 @@ fun AppItem(
         )
 
         Text(
-            text = VersionCompat.getVersion(pi),
+            text = pi.versionStr,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline
         )
 
         Text(
-            text = VersionCompat.getSdkVersion(pi),
+            text = pi.sdkVersion,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline
         )

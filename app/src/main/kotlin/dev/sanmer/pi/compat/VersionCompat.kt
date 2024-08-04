@@ -15,31 +15,13 @@ object VersionCompat {
         val (k0, s0) = v0
         val (k1, s1) = v1
 
-        if (s0.isNotEmpty()) {
-            append(s0)
-        } else {
-            append(k0.toString())
-        }
-
+        if (s0.isNotEmpty()) append(s0) else append(k0)
         when {
-            k0 == k1 -> {
-                return
-            }
-
-            k0 < k1 -> {
-                append(" $ARROW ")
-            }
-
-            k0 > k1 -> {
-                append(" $ARROW_REVERT ")
-            }
+            k0 == k1 -> return
+            k0 < k1 -> append(" $ARROW ")
+            k0 > k1 -> append(" $ARROW_REVERT ")
         }
-
-        if (s1.isNotEmpty()) {
-            append(s1)
-        } else {
-            append(k1.toString())
-        }
+        if (s1.isNotEmpty()) append(s1) else append(k1)
     }
 
     private fun <T : Comparable<T>> StringBuilder.comparator(
@@ -50,83 +32,57 @@ object VersionCompat {
         v1 = v1 to ""
     )
 
-    private val PackageInfo.versionStr
-        get() = "$versionName (${longVersionCode})"
+    val PackageInfo.versionStr
+        inline get() = "$versionName (${longVersionCode})"
 
-    fun getVersionDiff(
-        old: PackageInfo,
-        new: PackageInfo
-    ) = buildString {
-        when {
-            new.isEmpty -> {}
-            old.isEmpty -> {
-                append(new.versionStr)
-            }
+    val PackageInfo.hasCompileSdkVersion
+        inline get() = compileSdkVersion != 0
 
-            else -> {
-                comparator(
-                    v0 = with(old) { longVersionCode to versionStr },
-                    v1 = with(new) { longVersionCode to versionStr },
-                )
+    val PackageInfo.sdkVersion
+        inline get() = buildString {
+            if (isEmpty) return@buildString
+            val appInfo = requireNotNull(applicationInfo)
+
+            append("Target: ")
+            append(appInfo.targetSdkVersion)
+            append(", ")
+            append("Min: ")
+            append(appInfo.minSdkVersion)
+            if (hasCompileSdkVersion) {
+                append(", ")
+                append("Compile: ")
+                append(compileSdkVersion)
             }
+        }
+
+    fun PackageInfo.versionDiff(other: PackageInfo): String {
+        if (isEmpty) return other.versionStr
+        if (other.isEmpty) return versionStr
+        return buildString {
+            comparator(
+                v0 = longVersionCode to versionStr,
+                v1 = other.longVersionCode to other.versionStr,
+            )
         }
     }
 
-    fun getSdkVersionDiff(
-        old: PackageInfo,
-        new: PackageInfo
-    ) = buildString {
-        val oldAppInfo = old.applicationInfo
-        val newAppInfo = new.applicationInfo
+    fun PackageInfo.sdkVersionDiff(other: PackageInfo): String {
+        if (isEmpty) return other.sdkVersion
+        if (other.isEmpty) return sdkVersion
+        return buildString {
+            val appInfo = requireNotNull(applicationInfo)
+            val otherAppInfo = requireNotNull(other.applicationInfo)
 
-        when {
-            new.isEmpty -> {}
-            old.isEmpty -> {
-                append("Target: ")
-                append("${newAppInfo!!.targetSdkVersion}")
+            append("Target: ")
+            comparator(appInfo.targetSdkVersion, otherAppInfo.targetSdkVersion)
+            append(", ")
+            append("Min: ")
+            comparator(appInfo.minSdkVersion, otherAppInfo.minSdkVersion)
+            if (other.hasCompileSdkVersion) {
                 append(", ")
-                append("Min: ")
-                append("${newAppInfo.minSdkVersion}")
-
-                if (new.compileSdkVersion != 0) {
-                    append(", ")
-                    append("Compile: ")
-                    append("${new.compileSdkVersion}")
-                }
-            }
-
-            else -> {
-                append("Target: ")
-                comparator(
-                    v0 = oldAppInfo!!.targetSdkVersion,
-                    v1 = newAppInfo!!.targetSdkVersion
-                )
-                append(", ")
-                append("Min: ")
-                comparator(
-                    v0 = oldAppInfo.minSdkVersion,
-                    v1 = newAppInfo.minSdkVersion
-                )
-
-                if (new.compileSdkVersion != 0) {
-                    append(", ")
-                    append("Compile: ")
-                    comparator(
-                        v0 = old.compileSdkVersion,
-                        v1 = new.compileSdkVersion
-                    )
-                }
+                append("Compile: ")
+                comparator(compileSdkVersion, other.compileSdkVersion)
             }
         }
     }
-
-    fun getVersion(pi: PackageInfo) = getVersionDiff(
-        old = PackageInfo(),
-        new = pi
-    )
-
-    fun getSdkVersion(pi: PackageInfo) = getSdkVersionDiff(
-        old = PackageInfo(),
-        new = pi
-    )
 }
