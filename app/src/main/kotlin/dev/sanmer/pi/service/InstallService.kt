@@ -58,8 +58,8 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     init {
         lifecycleScope.launch {
             while (currentCoroutineContext().isActive) {
-                delay(5.seconds)
                 if (pendingTask.isEmpty()) stopSelf()
+                delay(5.seconds)
             }
         }
     }
@@ -114,6 +114,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
         lifecycleScope.launch(Dispatchers.IO) {
             install(archivePath, archiveInfo, filenames)
+            archivePath.deleteRecursively()
             pendingTask.removeAt(0)
         }
 
@@ -180,8 +181,6 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
                 )
             }
         }
-
-        archivePath.deleteRecursively()
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {

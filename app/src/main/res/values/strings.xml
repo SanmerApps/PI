@@ -46,6 +46,8 @@
     <string name="message_install_fail">Install failed</string>
     <string name="message_loading">Loading…</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="updated_title">PI Updated</string>
+    <string name="updated_text">Tap to open app</string>
 
     <!-- Search -->
     <string name="search_placeholder">Search…</string>
