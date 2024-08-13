@@ -82,7 +82,7 @@ class InstallActivity : ComponentActivity() {
         lifecycleScope.launch {
             loadPackage(checkNotNull(intent.data))
             if (sourceInfo.isAuthorized && state != InstallViewModel.State.AppBundle) {
-                startInstall()
+                install()
                 finish()
             }
         }

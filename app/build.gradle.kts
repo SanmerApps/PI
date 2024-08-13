@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.self.application)
     alias(libs.plugins.self.compose)
     alias(libs.plugins.self.hilt)
+    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
 

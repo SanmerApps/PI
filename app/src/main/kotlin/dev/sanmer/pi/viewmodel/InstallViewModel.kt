@@ -158,24 +158,30 @@ class InstallViewModel @Inject constructor(
         }
     }
 
-    fun startInstall() {
-        val filenames = requiredConfigs
-            .map { it.filename }
-            .toMutableList()
-            .apply {
-                add(0, PackageParserCompat.BASE_APK)
-            }
-
-        if (state == State.AppBundle) {
-            Timber.d("startInstall<AppBundle>: files = ${splitConfigs.size}")
+    fun install() = when (state) {
+        State.Apk -> {
+            InstallService.apk(
+                context = context,
+                archivePath = archivePath,
+                archiveInfo = archiveInfo
+            )
         }
+        State.AppBundle -> {
+            val filenames = requiredConfigs
+                .map { it.filename }
+                .toMutableList()
+                .apply {
+                    add(0, PackageParserCompat.BASE_APK)
+                }
 
-        InstallService.start(
-            context = context,
-            archivePath = archivePath,
-            archiveInfo = archiveInfo,
-            filenames = filenames
-        )
+            InstallService.appBundle(
+                context = context,
+                archivePath = archivePath,
+                archiveInfo = archiveInfo,
+                filenames = filenames
+            )
+        }
+        else -> {}
     }
 
     fun deleteCache() {

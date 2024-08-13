@@ -77,7 +77,7 @@ fun InstallScreen(
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 20.dp),
                     onDeny = viewModel::deleteCache,
-                    onStart = viewModel::startInstall
+                    onStart = viewModel::install
                 )
             }
         },
@@ -162,7 +162,7 @@ private fun InstallContent(
 
     when {
         viewModel.state == State.AppBundle -> {
-            AppBundlesItem(
+            AppBundleItem(
                 configs = viewModel.splitConfigs,
                 isRequiredConfig = viewModel::isRequiredConfig,
                 toggleSplitConfig = viewModel::toggleSplitConfig
@@ -291,7 +291,7 @@ private fun RequesterItem(
 }
 
 @Composable
-private fun AppBundlesItem(
+private fun AppBundleItem(
     configs: List<SplitConfig>,
     isRequiredConfig: (SplitConfig) -> Boolean,
     toggleSplitConfig: (SplitConfig) -> Unit
