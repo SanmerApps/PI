@@ -228,7 +228,7 @@ class AppsViewModel @Inject constructor(
     ) = withContext(Dispatchers.IO) {
         val uri = createMediaStoreUri(
             file = File(Environment.DIRECTORY_DOWNLOADS, path),
-            mimeType = "android/zip"
+            mimeType = "application/zip"
         )
 
         contentResolver.openOutputStream(uri)?.let(::ZipOutputStream)?.use { output ->
