@@ -17,14 +17,13 @@ import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.compat.MediaStoreCompat.copyToDir
+import dev.sanmer.pi.compat.MediaStoreCompat.copyToFile
 import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
 import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.VersionCompat.sdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.versionDiff
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
-import dev.sanmer.pi.ktx.tmpDir
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -46,8 +45,9 @@ class InstallViewModel @Inject constructor(
     private val pm by lazy { Compat.getPackageManager() }
     private val aom by lazy { Compat.getAppOpsService() }
 
-    private var archivePath = File("/")
-    private val tempDir by lazy { context.tmpDir.resolve(UUID.randomUUID().toString()) }
+    private val externalCacheDir inline get() = requireNotNull(context.externalCacheDir)
+    private val uuid inline get() = UUID.randomUUID().toString()
+    private var archivePath = File(externalCacheDir, uuid)
 
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
         private set
@@ -92,10 +92,9 @@ class InstallViewModel @Inject constructor(
         }
 
         Timber.d("loadPackage<path>: ${context.getPathForUri(uri)}")
-        val path = context.copyToDir(uri, tempDir)
-        PackageParserCompat.parsePackage(path, 0)?.let { pi ->
+        context.copyToFile(uri, archivePath)
+        PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
             archiveInfo = pi.toIPackageInfo()
-            archivePath = path
             baseSize = archivePath.length()
 
             Timber.i("loadPackage<Apk>: ${pi.packageName}")
@@ -103,15 +102,18 @@ class InstallViewModel @Inject constructor(
             return@withContext
         }
 
-        PackageParserCompat.parseAppBundle(path, 0, tempDir)?.let { bi ->
+        val archivePathNew = File(externalCacheDir, uuid).apply { mkdirs() }
+        PackageParserCompat.parseAppBundle(archivePath, 0, archivePathNew)?.let { bi ->
             archiveInfo = bi.baseInfo.toIPackageInfo()
-            archivePath = tempDir
             baseSize = bi.baseFile.length()
 
             splitConfigs = bi.splitConfigs
             requiredConfigs.addAll(
                 bi.splitConfigs.filter { it.isRequired || it.isRecommended }
             )
+
+            archivePath.delete()
+            archivePath = archivePathNew
 
             Timber.i("loadPackage<AppBundle>: ${bi.baseInfo.packageName}")
             Timber.i("loadPackage<AppBundle>: allSplits = ${splitConfigs.size}")
@@ -176,8 +178,8 @@ class InstallViewModel @Inject constructor(
         )
     }
 
-    fun deleteTempDir() {
-        tempDir.deleteRecursively()
+    fun deleteCache() {
+        archivePath.deleteRecursively()
     }
 
     private fun getPackageInfo(packageName: String?): PackageInfo {

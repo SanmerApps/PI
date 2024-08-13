@@ -101,14 +101,15 @@ object MediaStoreCompat {
         }
     }
 
-    fun Context.copyToDir(uri: Uri, dir: File): File {
-        if (!dir.exists()) dir.mkdirs()
-        val tmp = dir.resolve(getDisplayNameForUri(uri))
-
-        contentResolver.openInputStream(uri)?.buffered()?.use { input ->
-            tmp.outputStream().use(input::copyTo)
+    fun Context.copyToFile(uri: Uri, file: File): Long? {
+        return contentResolver.openInputStream(uri)?.buffered()?.use { input ->
+            file.outputStream().use(input::copyTo)
         }
+    }
 
-        return tmp
+    fun Context.copyToDir(uri: Uri, dir: File): Long? {
+        if (!dir.exists()) dir.mkdirs()
+        val file = File(dir, getDisplayNameForUri(uri))
+        return copyToFile(uri, file)
     }
 }

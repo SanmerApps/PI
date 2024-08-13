@@ -64,7 +64,7 @@ fun InstallScreen(
     val context = LocalContext.current
 
     BackHandler {
-        viewModel.deleteTempDir()
+        viewModel.deleteCache()
         context.finishActivity()
     }
 
@@ -76,7 +76,7 @@ fun InstallScreen(
                         .padding(bottomPadding)
                         .padding(horizontal = 20.dp)
                         .padding(bottom = 20.dp),
-                    onDeny = viewModel::deleteTempDir,
+                    onDeny = viewModel::deleteCache,
                     onStart = viewModel::startInstall
                 )
             }

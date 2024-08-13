@@ -9,11 +9,6 @@ import android.provider.Settings
 import androidx.core.app.LocaleManagerCompat
 import java.util.Locale
 
-val Context.tmpDir get() = checkNotNull(externalCacheDir).resolve("tmp")
-    .apply {
-        if (!exists()) mkdirs()
-    }
-
 val Context.applicationLocale: Locale?
     get() = LocaleManagerCompat.getApplicationLocales(applicationContext)
         .toList().firstOrNull()

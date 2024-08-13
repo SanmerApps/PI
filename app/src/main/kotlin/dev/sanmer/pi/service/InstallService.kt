@@ -30,7 +30,6 @@ import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.writeApk
 import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.writeApks
 import dev.sanmer.pi.ktx.dp
 import dev.sanmer.pi.ktx.parcelable
-import dev.sanmer.pi.ktx.tmpDir
 import dev.sanmer.pi.repository.UserPreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -100,7 +99,6 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     }
 
     override fun onDestroy() {
-        tmpDir.deleteRecursively()
         pi.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
@@ -182,6 +180,8 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
                 )
             }
         }
+
+        archivePath.deleteRecursively()
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {
