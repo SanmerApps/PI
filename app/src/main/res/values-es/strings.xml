@@ -37,4 +37,6 @@
     <string name="app_executor">Ejecutor</string>
     <string name="app_export">Exportar</string>
     <string name="app_export_msg">Exportado a %1$s</string>
+    <string name="updated_title">PI Actualizado</string>
+    <string name="updated_text">Toca para abrir la app</string>
 </resources>
