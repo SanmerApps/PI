@@ -164,17 +164,16 @@ class AppsViewModel @Inject constructor(
                 file.name.endsWith(".apk")
             } ?: return false
 
-            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}.apk" }
-
+            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}" }
             return when {
                 files.size == 1 -> context.exportApk(
                     file = files.first(),
-                    path = "PI/${filename}"
+                    path = "PI/${filename}.apk"
                 )
 
                 files.size > 1 -> context.exportApks(
                     files = files.toList(),
-                    path = "PI/${filename}s"
+                    path = "PI/${filename}.zip"
                 )
 
                 else -> false
