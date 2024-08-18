@@ -35,4 +35,8 @@
     <string name="app_authorize">مخول</string>
     <string name="app_requester">الطالب</string>
     <string name="app_executor">المنفذ</string>
+    <string name="updated_title">PI محدث</string>
+    <string name="updated_text">انقر لفتح البرنامج</string>
+    <string name="app_export">تصدير</string>
+    <string name="app_export_msg">تصدير إلى %1$s</string>
 </resources>
