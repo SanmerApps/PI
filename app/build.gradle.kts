@@ -32,6 +32,7 @@ android {
             "iw",
             "pt",
             "pt-rBR",
+            "ro",
             "ru",
             "su",
             "vi",
