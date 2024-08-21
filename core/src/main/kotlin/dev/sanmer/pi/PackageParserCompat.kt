@@ -5,12 +5,8 @@ import android.content.pm.PackageParser
 import android.content.pm.PackageUserState
 import android.content.pm.pkg.FrameworkPackageUserState
 import android.util.Log
-import dev.sanmer.pi.bundle.AbiSplitConfig
-import dev.sanmer.pi.bundle.DensitySplitConfig
-import dev.sanmer.pi.bundle.FeatureSplitConfig
-import dev.sanmer.pi.bundle.LanguageSplitConfig
+import dev.sanmer.pi.bundle.BundleInfo
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.bundle.UnspecifiedSplitConfig
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -21,9 +17,8 @@ import java.util.zip.ZipInputStream
 object PackageParserCompat {
     private const val TAG = "PackageParserCompat"
     const val BASE_APK = "base.apk"
-    const val APK_FILE_EXTENSION = ".apk"
 
-    fun parseApkLite(file: File) =
+    private fun parseApkLite(file: File) =
         try {
             PackageParser.parseApkLite(file, 0)
         } catch (e: PackageParser.PackageParserException) {
@@ -35,7 +30,7 @@ object PackageParserCompat {
 
     private fun parsePackageInner(file: File, flags: Int): PackageInfo? {
         val pkg = PackageParser().parsePackage(file, flags, false)
-        return generatePackageInfo(pkg, null, flags, 0, 0, null)?.also {
+        return generatePackageInfo(pkg, flags)?.also {
             it.applicationInfo?.sourceDir = file.path
             it.applicationInfo?.publicSourceDir = file.path
         }
@@ -51,74 +46,67 @@ object PackageParserCompat {
             null
         }
 
-    fun generatePackageInfo(
+    private fun generatePackageInfo(
         pkg: PackageParser.Package,
-        gid: IntArray?,
         flags: Int,
-        firstInstallTime: Long,
-        lastUpdateTime: Long,
-        grantedPermissions: Set<String>?,
     ): PackageInfo? {
         return if (BuildCompat.atLeastT) {
             PackageParser.generatePackageInfo(
                 pkg,
-                gid,
+                null,
                 flags,
-                firstInstallTime,
-                lastUpdateTime,
-                grantedPermissions,
+                0,
+                0,
+                null,
                 FrameworkPackageUserState.DEFAULT
             )
         } else {
             PackageParser.generatePackageInfo(
                 pkg,
-                gid,
+                null,
                 flags,
-                firstInstallTime,
-                lastUpdateTime,
-                grantedPermissions,
+                0,
+                0,
+                null,
                 PackageUserState()
             )
         }
     }
 
-    private fun parseAppBundleInner(file: File, flags: Int, cacheDir: File): AppBundleInfo {
+    private fun parseAppBundleInner(file: File, flags: Int, cacheDir: File): BundleInfo {
         file.unzip(cacheDir)
 
         val baseFile = File(cacheDir, BASE_APK).apply {
             if (!exists()) throw FileNotFoundException(BASE_APK)
         }
+
         val baseInfo = parsePackageInner(baseFile, flags)
             ?: throw NullPointerException("Failed to parse $BASE_APK")
 
-        val apkFiles = cacheDir.listFiles { f ->
-            f.name.endsWith(APK_FILE_EXTENSION)
-        } ?: throw FileNotFoundException("*.apk")
+        val apkFiles = cacheDir.listFiles { f -> f.extension == "apk" }
+            ?: throw FileNotFoundException("*.apk")
+
         val splitFiles = mutableListOf<File>()
         val splitConfigs = mutableListOf<SplitConfig>()
-
         for (apkFile in apkFiles) {
-            if (apkFile.name == BASE_APK) {
-                continue
-            }
+            if (apkFile.name == BASE_APK) continue
 
             val apk = parseApkLite(apkFile)
             if (apk != null) {
-                val splitConfig = parseSplitConfig(apk, apkFile)
+                val splitConfig = SplitConfig.parse(apk, apkFile)
                 splitConfigs.add(splitConfig)
                 splitFiles.add(apkFile)
             }
         }
 
-        return AppBundleInfo(
+        return BundleInfo(
             baseFile = baseFile,
             baseInfo = baseInfo,
-            splitFiles = splitFiles.toList(),
-            splitConfigs = splitConfigs.sortedBy { it.filename }
+            splitConfigs = splitConfigs.sortedBy { it.file.name }
         )
     }
 
-    fun parseAppBundle(file: File, flags: Int, cacheDir: File): AppBundleInfo? =
+    fun parseAppBundle(file: File, flags: Int, cacheDir: File): BundleInfo? =
         try {
             parseAppBundleInner(file, flags, cacheDir)
         } catch (e: PackageParser.PackageParserException) {
@@ -127,17 +115,6 @@ object PackageParserCompat {
             Log.w(TAG, "Failed to parse ${file.path}", e)
             null
         }
-
-    private fun parseSplitConfig(
-        apk: PackageParser.ApkLite,
-        file: File
-    ): SplitConfig {
-        return FeatureSplitConfig.build(apk, file.name, file.length())
-            ?: AbiSplitConfig.build(apk, file.name, file.length())
-            ?: DensitySplitConfig.build(apk, file.name, file.length())
-            ?: LanguageSplitConfig.build(apk, file.name, file.length())
-            ?: UnspecifiedSplitConfig(file.name, file.length())
-    }
 
     private fun File.unzip(folder: File) {
         inputStream().buffered().use {
@@ -151,23 +128,12 @@ object PackageParserCompat {
             var entry: ZipEntry
             while (true) {
                 entry = zin.nextEntry ?: break
-                if (!entry.name.endsWith(APK_FILE_EXTENSION) || entry.isDirectory) {
-                    continue
-                }
-
+                if (!entry.name.endsWith(".apk") || entry.isDirectory) continue
                 val dest = File(folder, entry.name)
-                dest.parentFile?.apply { if (!exists()) mkdirs() }
                 dest.outputStream().use(zin::copyTo)
             }
         } catch (e: IllegalArgumentException) {
             throw IOException(e)
         }
     }
-
-    data class AppBundleInfo(
-        val baseFile: File,
-        val baseInfo: PackageInfo,
-        val splitFiles: List<File>,
-        val splitConfigs: List<SplitConfig>
-    )
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -41,12 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.sanmer.pi.R
-import dev.sanmer.pi.bundle.AbiSplitConfig
-import dev.sanmer.pi.bundle.DensitySplitConfig
-import dev.sanmer.pi.bundle.FeatureSplitConfig
-import dev.sanmer.pi.bundle.LanguageSplitConfig
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.bundle.UnspecifiedSplitConfig
 import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.BottomSheetLayout
@@ -162,7 +156,7 @@ private fun InstallContent(
 
     when {
         viewModel.state == State.AppBundle -> {
-            AppBundleItem(
+            BundlesItem(
                 configs = viewModel.splitConfigs,
                 isRequiredConfig = viewModel::isRequiredConfig,
                 toggleSplitConfig = viewModel::toggleSplitConfig
@@ -291,30 +285,28 @@ private fun RequesterItem(
 }
 
 @Composable
-private fun AppBundleItem(
+private fun BundlesItem(
     configs: List<SplitConfig>,
     isRequiredConfig: (SplitConfig) -> Boolean,
     toggleSplitConfig: (SplitConfig) -> Unit
 ) {
     val featureConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<FeatureSplitConfig>() }
+        derivedStateOf { configs.filterIsInstance<SplitConfig.Feature>() }
     }
-    val abiConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<AbiSplitConfig>() }
+    val targetConfigs by remember {
+        derivedStateOf { configs.filterIsInstance<SplitConfig.Target>() }
     }
     val densityConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<DensitySplitConfig>() }
+        derivedStateOf { configs.filterIsInstance<SplitConfig.Density>() }
     }
     val languageConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<LanguageSplitConfig>() }
+        derivedStateOf { configs.filterIsInstance<SplitConfig.Language>() }
     }
     val unspecifiedConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<UnspecifiedSplitConfig>() }
+        derivedStateOf { configs.filterIsInstance<SplitConfig.Unspecified>() }
     }
 
-    val state = rememberLazyListState()
     LazyColumn(
-        state = state,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         if (featureConfigs.isNotEmpty()) {
@@ -323,7 +315,7 @@ private fun AppBundleItem(
             }
             items(
                 items = featureConfigs,
-                key = { it.filename }
+                key = { it.file.name }
             ) {
                 SplitConfigItem(
                     config = it,
@@ -333,13 +325,13 @@ private fun AppBundleItem(
             }
         }
 
-        if (abiConfigs.isNotEmpty()) {
+        if (targetConfigs.isNotEmpty()) {
             item {
                 TittleItem(text = stringResource(id = R.string.install_config_abi_title))
             }
             items(
-                items = abiConfigs,
-                key = { it.filename }
+                items = targetConfigs,
+                key = { it.file.name }
             ) {
                 SplitConfigItem(
                     config = it,
@@ -355,7 +347,7 @@ private fun AppBundleItem(
             }
             items(
                 items = densityConfigs,
-                key = { it.filename }
+                key = { it.file.name }
             ) {
                 SplitConfigItem(
                     config = it,
@@ -371,7 +363,7 @@ private fun AppBundleItem(
             }
             items(
                 items = languageConfigs,
-                key = { it.filename }
+                key = { it.file.name }
             ) {
                 SplitConfigItem(
                     config = it,
@@ -387,7 +379,7 @@ private fun AppBundleItem(
             }
             items(
                 items = unspecifiedConfigs,
-                key = { it.filename }
+                key = { it.file.name }
             ) {
                 SplitConfigItem(
                     config = it,
@@ -444,7 +436,7 @@ private fun SplitConfigItem(
                             append(", ")
                         }
 
-                        append(config.formattedSize)
+                        append(config.displaySize)
                     },
                     style = MaterialTheme.typography.bodySmall,
                     textDecoration = when {
@@ -465,10 +457,10 @@ private fun ConfigIcon(
 ) = Icon(
     painter = painterResource(
         id = when (config) {
-            is FeatureSplitConfig -> R.drawable.box
-            is AbiSplitConfig -> R.drawable.cpu
-            is DensitySplitConfig -> R.drawable.photo
-            is LanguageSplitConfig -> R.drawable.language
+            is SplitConfig.Feature -> R.drawable.box
+            is SplitConfig.Target -> R.drawable.cpu
+            is SplitConfig.Density -> R.drawable.photo
+            is SplitConfig.Language -> R.drawable.language
             else -> R.drawable.code
         }
     ),

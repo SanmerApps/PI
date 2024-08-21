@@ -60,7 +60,7 @@ class InstallViewModel @Inject constructor(
     val sdkDiff by lazy { currentInfo.sdkVersionDiff(archiveInfo) }
 
     private var baseSize = 0L
-    private val totalSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.size } }
+    private val totalSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.file.length() } }
     val totalSizeStr: String by derivedStateOf { Formatter.formatFileSize(context, totalSize) }
 
     var splitConfigs = listOf<SplitConfig>()
@@ -168,7 +168,7 @@ class InstallViewModel @Inject constructor(
         }
         State.AppBundle -> {
             val filenames = requiredConfigs
-                .map { it.filename }
+                .map { it.file.name }
                 .toMutableList()
                 .apply {
                     add(0, PackageParserCompat.BASE_APK)
