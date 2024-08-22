@@ -1,10 +1,14 @@
 package dev.sanmer.pi.ui.screens.apps.component
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -82,10 +86,16 @@ private fun AppItem(
         }
     )
 
-    if (expend) SettingItem(
-        pi = pi,
-        settings = buildSettings(pi)
-    )
+    AnimatedVisibility(
+        visible = expend,
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically()
+    ) {
+        SettingItem(
+            pi = pi,
+            settings = buildSettings(pi)
+        )
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -93,74 +103,69 @@ private fun AppItem(
 private fun SettingItem(
     pi: IPackageInfo,
     settings: AppsViewModel.Settings
-) = Box(
+) = FlowRow(
     modifier = Modifier
         .padding(all = 10.dp)
         .clip(shape = MaterialTheme.shapes.medium)
         .border(
             border = CardDefaults.outlinedCardBorder(),
-            shape = MaterialTheme.shapes.medium
-        )
+            shape = MaterialTheme.shapes.medium)
+        .fillMaxWidth()
+        .padding(all = 15.dp),
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
+    verticalArrangement = Arrangement.spacedBy(10.dp),
+    maxItemsInEachRow = 2
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
 
-    FlowRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(all = 15.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        val context = LocalContext.current
-        val scope = rememberCoroutineScope()
+    MenuChip(
+        selected = pi.isRequester,
+        enabled = !pi.isRequester,
+        onClick = {
+            scope.launch {
+                settings.setRequester()
+            }
+        },
+        label = { Text(text = stringResource(id = R.string.app_requester)) },
+    )
 
-        MenuChip(
-            selected = pi.isRequester,
-            enabled = !pi.isRequester,
-            onClick = {
-                scope.launch {
-                    settings.setRequester()
-                }
-            },
-            label = { Text(text = stringResource(id = R.string.app_requester)) },
-        )
+    MenuChip(
+        selected = pi.isExecutor,
+        enabled = !pi.isExecutor,
+        onClick = {
+            scope.launch {
+                settings.setExecutor()
+            }
+        },
+        label = { Text(text = stringResource(id = R.string.app_executor)) }
+    )
 
-        MenuChip(
-            selected = pi.isExecutor,
-            enabled = !pi.isExecutor,
-            onClick = {
-                scope.launch {
-                    settings.setExecutor()
-                }
-            },
-            label = { Text(text = stringResource(id = R.string.app_executor)) }
-        )
+    MenuChip(
+        selected = pi.isAuthorized,
+        enabled = pi.packageName != BuildConfig.APPLICATION_ID,
+        onClick = {
+            scope.launch {
+                settings.setAuthorized()
+            }
+        },
+        label = { Text(text = stringResource(id = R.string.app_authorize)) },
+    )
 
-        MenuChip(
-            selected = pi.isAuthorized,
-            enabled = pi.packageName != BuildConfig.APPLICATION_ID,
-            onClick = {
-                scope.launch {
-                    settings.setAuthorized()
-                }
-            },
-            label = { Text(text = stringResource(id = R.string.app_authorize)) },
-        )
-
-        MenuChip(
-            selected = false,
-            onClick = {
-                scope.launch {
-                    if (settings.export(context)) {
-                        snackbarHostState.showSnackbar(
-                            message = context.getString(
-                                R.string.app_export_msg, "Download/PI"
-                            )
+    MenuChip(
+        selected = false,
+        onClick = {
+            scope.launch {
+                if (settings.export(context)) {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(
+                            R.string.app_export_msg, "Download/PI"
                         )
-                    }
+                    )
                 }
-            },
-            label = { Text(text = stringResource(id = R.string.app_export)) },
-        )
-    }
+            }
+        },
+        label = { Text(text = stringResource(id = R.string.app_export)) },
+    )
 }
