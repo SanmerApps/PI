@@ -45,8 +45,7 @@ object MediaStoreCompat {
     }
 
     fun Context.getOwnerPackageNameForUri(uri: Uri): String? {
-        require(uri.scheme == "content") { "Uri lacks 'content' scheme: $uri" }
-
+        require(uri.scheme == "content") { "Expected scheme = content" }
         return when {
             uri.authority == MediaStore.AUTHORITY -> {
                 contentResolver.queryString(
@@ -70,12 +69,18 @@ object MediaStoreCompat {
             return uri.toFile().name
         }
 
-        require(uri.scheme == "content") { "Uri lacks 'content' scheme: $uri" }
-
+        require(uri.scheme == "content") { "Expected scheme = content" }
         return contentResolver.queryString(
             uri = uri,
             columnName = MediaStore.MediaColumns.DISPLAY_NAME
         ) ?: uri.toString()
+    }
+
+    private fun getDocumentUri(context: Context, uri: Uri): Uri {
+        return when {
+            DocumentsContract.isTreeUri(uri) -> DocumentFile.fromTreeUri(context, uri)?.uri ?: uri
+            else -> uri
+        }
     }
 
     fun Context.getPathForUri(uri: Uri): String {
@@ -83,8 +88,7 @@ object MediaStoreCompat {
             return uri.toFile().path
         }
 
-        require(uri.scheme == "content") { "Uri lacks 'content' scheme: $uri" }
-
+        require(uri.scheme == "content") { "Expected scheme = content" }
         contentResolver.openFileDescriptor(
             getDocumentUri(this, uri), "r"
         )?.use {
@@ -94,22 +98,9 @@ object MediaStoreCompat {
         return uri.toString()
     }
 
-    fun getDocumentUri(context: Context, uri: Uri): Uri {
-        return when {
-            DocumentsContract.isTreeUri(uri) -> DocumentFile.fromTreeUri(context, uri)?.uri ?: uri
-            else -> uri
-        }
-    }
-
     fun Context.copyToFile(uri: Uri, file: File): Long? {
         return contentResolver.openInputStream(uri)?.buffered()?.use { input ->
             file.outputStream().use(input::copyTo)
         }
-    }
-
-    fun Context.copyToDir(uri: Uri, dir: File): Long? {
-        if (!dir.exists()) dir.mkdirs()
-        val file = File(dir, getDisplayNameForUri(uri))
-        return copyToFile(uri, file)
     }
 }
