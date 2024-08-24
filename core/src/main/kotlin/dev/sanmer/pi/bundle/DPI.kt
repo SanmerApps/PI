@@ -12,17 +12,17 @@ enum class DPI(val value: Int) {
     XXHDPI(DisplayMetrics.DENSITY_XXHIGH),
     XXXHDPI(DisplayMetrics.DENSITY_XXXHIGH);
 
+    val displayName: String
+        inline get() = "${value}.dpi"
+
+    val isRequired: Boolean
+        get() {
+            val context = ContextCompat.getContext()
+            val densityDpi = context.resources.displayMetrics.densityDpi
+            return this == densityDpi.asDPI()
+        }
+
     companion object Default {
-        val DPI.displayName: String
-            inline get() = "${value}.dpi"
-
-        val DPI.isRequired: Boolean
-            get() {
-                val context = ContextCompat.getContext()
-                val densityDpi = context.resources.displayMetrics.densityDpi
-                return this == densityDpi.asDPI()
-            }
-
         private fun Int.asDPI() = when {
             this <= DisplayMetrics.DENSITY_LOW -> LDPI
             this <= DisplayMetrics.DENSITY_MEDIUM -> MDPI

@@ -23,7 +23,6 @@ import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.VersionCompat.sdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.versionDiff
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
-import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -200,7 +199,7 @@ class InstallViewModel @Inject constructor(
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
-    ).isAllowed()
+    ).isAllowed
 
     enum class State {
         None,
@@ -209,8 +208,6 @@ class InstallViewModel @Inject constructor(
         Apk,
         AppBundle;
 
-        companion object {
-            fun State.isReady() = this == Apk || this == AppBundle
-        }
+        val isReady inline get() = this == Apk || this == AppBundle
     }
 }

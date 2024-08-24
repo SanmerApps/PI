@@ -23,7 +23,7 @@ class AppOpsManagerDelegate(
     }
 
     fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Mode {
-        return Mode.from(
+        return Mode.fromCode(
             appOpsService.checkOperation(op, uid, packageName)
         )
     }
@@ -118,22 +118,21 @@ class AppOpsManagerDelegate(
 
     }
 
-    enum class Mode(val code: Int) {
+    enum class Mode(internal val code: Int) {
         Allow(MODE_ALLOWED),
         Deny(MODE_DENY),
         Ignore(MODE_IGNORED),
         Default(MODE_DEFAULT),
         Foreground(MODE_FOREGROUND);
 
-        companion object {
-            fun from(code: Int) = entries.first { it.code == code }
-            fun fromOrNull(code: Int) = entries.firstOrNull { it.code == code }
+        val isAllowed inline get() = this == Allow
+        val isDenied inline get() = this == Deny
+        val isIgnored inline get() = this == Ignore
+        val isDefaulted inline get() = this == Default
+        val isForegrounded inline get() = this == Foreground
 
-            fun Mode.isAllowed() = this == Allow
-            fun Mode.isDenied() = this == Deny
-            fun Mode.isIgnored() = this == Ignore
-            fun Mode.isDefaulted() = this == Default
-            fun Mode.isForegrounded() = this == Foreground
+        internal companion object {
+            fun fromCode(value: Int) = entries.first { it.code == value }
         }
     }
 

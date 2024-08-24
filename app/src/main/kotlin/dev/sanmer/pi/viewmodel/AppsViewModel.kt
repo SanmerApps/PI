@@ -15,7 +15,6 @@ import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
-import dev.sanmer.pi.delegate.AppOpsManagerDelegate.Mode.Companion.isAllowed
 import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
@@ -246,7 +245,7 @@ class AppsViewModel @Inject constructor(
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
-    ).isAllowed()
+    ).isAllowed
 
     interface Settings {
         suspend fun export(context: Context): Boolean

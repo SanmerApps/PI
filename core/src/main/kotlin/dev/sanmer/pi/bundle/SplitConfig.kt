@@ -3,11 +3,6 @@ package dev.sanmer.pi.bundle
 import android.content.pm.PackageParser
 import android.text.format.Formatter
 import dev.sanmer.pi.ContextCompat
-import dev.sanmer.pi.bundle.ABI.Default.displayName
-import dev.sanmer.pi.bundle.ABI.Default.isEnabled
-import dev.sanmer.pi.bundle.ABI.Default.isRequired
-import dev.sanmer.pi.bundle.DPI.Default.displayName
-import dev.sanmer.pi.bundle.DPI.Default.isRequired
 import java.io.File
 import java.util.Locale
 

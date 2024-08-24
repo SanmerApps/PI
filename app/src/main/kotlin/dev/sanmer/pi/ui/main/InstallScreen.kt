@@ -49,7 +49,6 @@ import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import dev.sanmer.pi.viewmodel.InstallViewModel.State
-import dev.sanmer.pi.viewmodel.InstallViewModel.State.Companion.isReady
 
 @Composable
 fun InstallScreen(
@@ -64,7 +63,7 @@ fun InstallScreen(
 
     BottomSheetLayout(
         bottomBar = { bottomPadding ->
-            if (viewModel.state.isReady()) {
+            if (viewModel.state.isReady) {
                 BottomBar(
                     modifier = Modifier
                         .padding(bottomPadding)
