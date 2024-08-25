@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="setup_title">Рабочий режим</string>
-    <string name="setup_root_desc">Требуются права root, предоставленные Magisk или KernelSU</string>
+    <string name="setup_root_desc">Требуются права root, предоставленные Magisk, KernelSU или APatch</string>
     <string name="settings_service_running">Служба работает</string>
     <string name="settings_service_not_running">Служба не запущена</string>
     <string name="settings_service_version">Версия %1$d, %2$s</string>
@@ -32,4 +32,11 @@
     <string name="install_invalid_package">Сбой синтаксического анализа пакета</string>
     <string name="install_button_cancel">Отмена</string>
     <string name="search_placeholder">Поиск…</string>
+    <string name="updated_title">PI Обновлён</string>
+    <string name="updated_text">Нажмите чтоб открыть приложение</string>
+    <string name="app_export">Экспорт</string>
+    <string name="app_export_msg">Экспортировано в %1$s</string>
+    <string name="app_authorize">Авторизовать</string>
+    <string name="app_requester">Запросчик</string>
+    <string name="app_executor">Исполнитель</string>
 </resources>
