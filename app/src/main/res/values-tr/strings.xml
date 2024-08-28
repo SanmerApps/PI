@@ -1,8 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="install_activity">Kur</string>
+    <string name="install_activity">Yükle</string>
     <string name="setup_title">Çalışma modu</string>
     <string name="setup_shizuku_desc">Sui veya Shizuku tarafından sağlanan izin gereklidir</string>
     <string name="setup_root_desc">Magisk, KernelSU veya APatch tarafından sağlanan Root izinleri gerektirir</string>
-    <string name="app_requester">Talep eden</string>
+    <string name="app_requester">Talep Eden</string>
+    <string name="app_executor">Yürütücü</string>
+    <string name="app_authorize">Yetkilendir</string>
+    <string name="app_export">Dışa Aktar</string>
+    <string name="app_export_msg">%1$s konumuna dışa aktarıldı</string>
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_service_running">Servis çalışıyor</string>
+    <string name="settings_service_version">Sürüm %1$d, %2$s</string>
+    <string name="settings_service_not_running">Servis çalışmıyor</string>
+    <string name="settings_service_try_start">Başlatmayı denemek için tıklayın</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_language_system">Sistem varsayılanı</string>
+    <string name="settings_translation">Çeviriye katıl</string>
+    <string name="settings_translation_desc">PI\'yi kendi dilinize çevirmemize yardımcı olun</string>
+    <string name="settings_source_code">Kaynak kodu</string>
+    <string name="install_package_title">Kurulum paketi</string>
+    <string name="install_requester_title">Kurulumu talep eden</string>
+    <string name="install_config_feature_title">Dinamik özellik</string>
+    <string name="install_config_abi_title">ABI</string>
+    <string name="install_config_density_title">Ekran yoğunluğu</string>
+    <string name="install_config_language_title">Dil</string>
+    <string name="install_config_unspecified_title">Belirtilmemiş</string>
+    <string name="install_button_install">Yükle</string>
+    <string name="install_button_cancel">İptal</string>
+    <string name="install_invalid_provider">Servis mevcut değil</string>
+    <string name="install_invalid_package">Paket ayrıştırma başarısız oldu</string>
+    <string name="install_service">Servisi yükle</string>
+    <string name="message_install_success">Yükleme başarılı</string>
+    <string name="message_install_fail">Yükleme başarısız</string>
+    <string name="message_loading">Yükleniyor…</string>
+    <string name="unknown_error">Bilinmeyen hata</string>
+    <string name="updated_title">PI Güncellendi</string>
+    <string name="updated_text">Uygulamayı açmak için dokunun</string>
+    <string name="search_placeholder">Ara…</string>
+    <string name="empty_list">Liste boş</string>
 </resources>
