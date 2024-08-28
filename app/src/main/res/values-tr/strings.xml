@@ -1,2 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="install_activity">Kur</string>
+    <string name="setup_title">Çalışma modu</string>
+    <string name="setup_shizuku_desc">Sui veya Shizuku tarafından sağlanan izin gereklidir</string>
+    <string name="setup_root_desc">Magisk, KernelSU veya APatch tarafından sağlanan Root izinleri gerektirir</string>
+    <string name="app_requester">Talep eden</string>
+</resources>
