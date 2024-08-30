@@ -11,6 +11,7 @@
     <locale android:name="ro" />
     <locale android:name="ru" />
     <locale android:name="su" />
+    <locale android:name="tr" />
     <locale android:name="vi" />
     <locale android:name="zh-CN" />
 </locale-config>

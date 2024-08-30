@@ -35,6 +35,7 @@ android {
             "ro",
             "ru",
             "su",
+            "tr",
             "vi",
             "zh-rCN"
         )
