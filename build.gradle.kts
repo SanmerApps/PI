@@ -14,7 +14,7 @@ task<Delete>("clean") {
 }
 
 subprojects {
-    val baseVersionName by extra("1.1.5")
+    val baseVersionName by extra("1.1.6")
 
     apply(plugin = "maven-publish")
     configure<PublishingExtension> {
