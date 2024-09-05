@@ -1,6 +1,7 @@
 package dev.sanmer.pi.ui.component
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +59,7 @@ fun SettingNormalItem(
                 enabled = enabled,
                 onClick = onClick,
                 interactionSource = interactionSource,
-                indication = rememberRipple()
+                indication = LocalIndication.current
             )
             .padding(contentPaddingValues)
             .fillMaxWidth(),
@@ -122,7 +122,7 @@ fun SettingSwitchItem(
                 onValueChange = onChange,
                 role = Role.Switch,
                 interactionSource = interactionSource,
-                indication = rememberRipple()
+                indication = LocalIndication.current
             )
             .padding(contentPaddingValues)
             .fillMaxWidth(),
