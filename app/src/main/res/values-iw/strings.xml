@@ -26,8 +26,6 @@
     <string name="message_loading">נטען…</string>
     <string name="message_install_fail">ההתקנה נכשלה</string>
     <string name="message_install_success">ההתקנה בוצעה בהצלחה</string>
-    <string name="install_button_cancel">ביטול</string>
-    <string name="install_button_install">התקנה</string>
     <string name="install_config_unspecified_title">לא מוגדר</string>
     <string name="install_config_language_title">שפה</string>
     <string name="install_invalid_provider">השירות אינו זמין</string>

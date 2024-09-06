@@ -11,7 +11,6 @@
     <string name="empty_list">Lista vazia</string>
     <string name="settings_title">Configurações</string>
     <string name="install_package_title">Pacote de instalação</string>
-    <string name="install_button_install">Instalar</string>
     <string name="message_install_success">Instalação bem-sucedida</string>
     <string name="message_install_fail">Falha na instalação</string>
     <string name="message_loading">Carregando…</string>
@@ -28,7 +27,6 @@
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_source_code">Código-fonte</string>
-    <string name="install_button_cancel">Cancelar</string>
     <string name="settings_language_system">Padrão do sistema</string>
     <string name="install_invalid_package">Falha na análise do pacote</string>
     <string name="install_invalid_provider">O serviço não está disponível</string>

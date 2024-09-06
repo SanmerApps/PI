@@ -15,7 +15,6 @@
     <string name="install_config_density_title">Mật độ màn hình</string>
     <string name="install_config_language_title">Ngôn ngữ</string>
     <string name="install_config_unspecified_title">Không cụ thể</string>
-    <string name="install_button_install">Cài đặt</string>
     <string name="message_install_success">Cài đặt thành công</string>
     <string name="message_install_fail">Cài đặt thất bại</string>
     <string name="message_loading">Đang tải…</string>

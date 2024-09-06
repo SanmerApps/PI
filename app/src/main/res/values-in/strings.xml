@@ -20,10 +20,8 @@
     <string name="app_requester">Pengaju</string>
     <string name="install_config_language_title">Bahasa</string>
     <string name="install_config_unspecified_title">Tidak spesifik</string>
-    <string name="install_button_install">Pasang</string>
     <string name="install_invalid_provider">Layanan tidak tersedia</string>
     <string name="install_invalid_package">Parsing paket gagal</string>
-    <string name="install_button_cancel">Batal</string>
     <string name="message_install_success">Pemasangan berhasil</string>
     <string name="message_install_fail">Pemasangan gagal</string>
     <string name="message_loading">Memuat…</string>

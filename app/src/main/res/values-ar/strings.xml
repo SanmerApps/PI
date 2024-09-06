@@ -16,7 +16,6 @@
     <string name="install_config_density_title">كثافة الشاشة</string>
     <string name="install_config_language_title">اللغة</string>
     <string name="install_config_unspecified_title">غير محدد</string>
-    <string name="install_button_install">تثبيت</string>
     <string name="message_install_success">تم التثبيت بنجاح</string>
     <string name="message_install_fail">فشل التثبيت</string>
     <string name="message_loading">جاري التحميل…</string>
@@ -29,7 +28,6 @@
     <string name="settings_language">اللغة</string>
     <string name="settings_language_system">إفتراضي تبع النظام</string>
     <string name="settings_source_code">رمز المصدر</string>
-    <string name="install_button_cancel">إلغاء</string>
     <string name="install_invalid_package">فشل تحليل الحزمة</string>
     <string name="install_invalid_provider">الحزمة غير متاحة</string>
     <string name="app_authorize">مخول</string>

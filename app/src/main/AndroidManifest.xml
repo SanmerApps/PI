@@ -46,15 +46,11 @@
             android:theme="@style/DialogTheme"
             android:label="@string/install_activity"
             android:exported="true"
-            android:noHistory="true"
-            android:excludeFromRecents="true"
             android:taskAffinity="${applicationId}.INSTALL">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:scheme="content" />
                 <data android:mimeType="*/*" />
             </intent-filter>

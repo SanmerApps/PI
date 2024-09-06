@@ -24,13 +24,11 @@
     <string name="settings_source_code">Исходный код</string>
     <string name="install_package_title">Установка приложения</string>
     <string name="install_requester_title">Запросчик установки</string>
-    <string name="install_button_install">Установить</string>
     <string name="message_loading">Загрузка…</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="settings_title">Настройки</string>
     <string name="install_invalid_provider">Сервис не доступен</string>
     <string name="install_invalid_package">Сбой синтаксического анализа пакета</string>
-    <string name="install_button_cancel">Отмена</string>
     <string name="search_placeholder">Поиск…</string>
     <string name="updated_title">PI Обновлён</string>
     <string name="updated_text">Нажмите чтоб открыть приложение</string>

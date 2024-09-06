@@ -1,28 +1,33 @@
 package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -30,10 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,12 +46,14 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
+import dev.sanmer.pi.compat.VersionCompat.sdkVersion
+import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.ui.component.BottomSheetLayout
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
-import dev.sanmer.pi.ui.ktx.bottom
+import dev.sanmer.pi.ui.ktx.isScrollingUp
+import dev.sanmer.pi.ui.ktx.plus
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import dev.sanmer.pi.viewmodel.InstallViewModel.State
 
@@ -55,262 +62,152 @@ fun InstallScreen(
     viewModel: InstallViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val listState = rememberLazyListState()
+    val isScrollingUp by listState.isScrollingUp()
 
-    BackHandler {
+    val onDeny = {
         viewModel.deleteCache()
         context.finishActivity()
     }
+    val onStart = {
+        viewModel.install()
+        context.finishActivity()
+    }
 
-    BottomSheetLayout(
-        bottomBar = { bottomPadding ->
-            if (viewModel.state.isReady) {
-                BottomBar(
-                    modifier = Modifier
-                        .padding(bottomPadding)
-                        .padding(horizontal = 20.dp)
-                        .padding(bottom = 20.dp),
-                    onDeny = viewModel::deleteCache,
-                    onStart = viewModel::install
-                )
-            }
+    BackHandler(
+        onBack = onDeny
+    )
+
+    Scaffold(
+        topBar = {
+            TopBar(
+                onDeny = onDeny,
+                scrollBehavior = scrollBehavior
+            )
         },
-        shape = MaterialTheme.shapes.large.bottom(0.dp)
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = viewModel.state.isReady && isScrollingUp,
+                enter = fadeIn() + scaleIn(),
+                exit = scaleOut() + fadeOut(),
+                label = "ActionButton"
+            ) {
+                ActionButton(onStart = onStart)
+            }
+        }
     ) { contentPadding ->
         Crossfade(
-            modifier = Modifier
-                .animateContentSize()
-                .padding(contentPadding)
-                .padding(all = 20.dp),
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             targetState = viewModel.state,
             label = "InstallScreen"
         ) { state ->
             when (state) {
                 State.None -> Loading(
-                    height = 240.dp
+                    modifier = Modifier.padding(contentPadding)
                 )
 
                 State.InvalidProvider -> Failed(
                     message = stringResource(id = R.string.install_invalid_provider),
-                    height = 240.dp
+                    modifier = Modifier.padding(contentPadding)
                 )
 
                 State.InvalidPackage -> Failed(
                     message = stringResource(id = R.string.install_invalid_package),
-                    height = 240.dp
+                    modifier = Modifier.padding(contentPadding)
                 )
 
-                else -> InstallContent()
+                else -> InstallContent(
+                    listState = listState,
+                    contentPadding = contentPadding
+                )
             }
         }
     }
 }
 
 @Composable
-private fun BottomBar(
-    modifier: Modifier = Modifier,
-    onDeny: () -> Unit,
+private fun ActionButton(
     onStart: () -> Unit
-) = Row(
-    modifier = modifier.fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(20.dp)
+) = FloatingActionButton(
+    onClick = onStart
 ) {
-    Spacer(modifier = Modifier.weight(1f))
-
-    val context = LocalContext.current
-    OutlinedButton(
-        onClick = {
-            onDeny()
-            context.finishActivity()
-        }
-    ) {
-        Text(text = stringResource(id = R.string.install_button_cancel))
-    }
-
-    Button(
-        onClick = {
-            onStart()
-            context.finishActivity()
-        }
-    ) {
-        Text(text = stringResource(id = R.string.install_button_install))
-    }
+    Icon(
+        painter = painterResource(id = R.drawable.player_play),
+        contentDescription = null
+    )
 }
+
+@Composable
+private fun TopBar(
+    onDeny: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
+) = TopAppBar(
+    title = { Text(text = stringResource(id = R.string.install_activity)) },
+    navigationIcon = {
+        IconButton(
+            onClick = onDeny
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.x),
+                contentDescription = null
+            )
+        }
+    },
+    scrollBehavior = scrollBehavior
+)
 
 @Composable
 private fun InstallContent(
-    modifier: Modifier = Modifier,
-    viewModel: InstallViewModel = hiltViewModel()
-) = Column(
-    modifier = modifier.fillMaxWidth(),
-    verticalArrangement = Arrangement.spacedBy(16.dp),
-    horizontalAlignment = Alignment.CenterHorizontally
-) {
-    PackageItem(
-        archiveInfo = viewModel.archiveInfo,
-        versionDiff = viewModel.versionDiff,
-        sdkDiff = viewModel.sdkDiff,
-        totalSize = viewModel.totalSizeStr
-    )
-
-    when {
-        viewModel.state == State.AppBundle -> {
-            BundlesItem(
-                configs = viewModel.splitConfigs,
-                isRequiredConfig = viewModel::isRequiredConfig,
-                toggleSplitConfig = viewModel::toggleSplitConfig
-            )
-        }
-
-        viewModel.hasSourceInfo -> {
-            RequesterItem(
-                sourceInfo = viewModel.sourceInfo,
-                toggleAuthorized = viewModel::toggleAuthorized
-            )
-        }
-    }
-}
-
-@Composable
-private fun PackageItem(
-    archiveInfo: IPackageInfo,
-    versionDiff: String,
-    sdkDiff: String,
-    totalSize: String
-) = TittleItem(
-    text = stringResource(id = R.string.install_package_title)
-) {
-    Surface(
-        shape = MaterialTheme.shapes.large,
-        tonalElevation = 6.dp,
-        border = CardDefaults.outlinedCardBorder()
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(15.dp)
-                .fillMaxWidth()
-        ) {
-            val context = LocalContext.current
-            AsyncImage(
-                modifier = Modifier.size(45.dp),
-                model = ImageRequest.Builder(context)
-                    .data(archiveInfo)
-                    .build(),
-                contentDescription = null
-            )
-
-            Column(
-                modifier = Modifier.padding(start = 15.dp)
-            ) {
-                Text(
-                    text = archiveInfo.appLabel,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Text(
-                    text = archiveInfo.packageName,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Text(
-                    text = versionDiff,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-
-                Text(
-                    text = "${sdkDiff}, Size: $totalSize",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RequesterItem(
-    sourceInfo: IPackageInfo,
-    toggleAuthorized: () -> Unit,
-) = TittleItem(
-    text = stringResource(id = R.string.install_requester_title)
-) {
-    OutlinedCard(
-        shape = MaterialTheme.shapes.large
-    ) {
-        Row(
-            modifier = Modifier
-                .clickable(
-                    enabled = true,
-                    onClick = toggleAuthorized,
-                    role = Role.Switch
-                )
-                .padding(all = 16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val context = LocalContext.current
-            AsyncImage(
-                modifier = Modifier.size(45.dp),
-                model = ImageRequest.Builder(context)
-                    .data(sourceInfo)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null
-            )
-
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .weight(1f)
-            ) {
-                Text(
-                    text = sourceInfo.appLabel,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Text(
-                    text = sourceInfo.packageName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Switch(
-                checked = sourceInfo.isAuthorized,
-                onCheckedChange = null
-            )
-        }
-    }
-}
-
-@Composable
-private fun BundlesItem(
-    configs: List<SplitConfig>,
-    isRequiredConfig: (SplitConfig) -> Boolean,
-    toggleSplitConfig: (SplitConfig) -> Unit
+    viewModel: InstallViewModel = hiltViewModel(),
+    listState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val featureConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<SplitConfig.Feature>() }
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Feature>() }
     }
     val targetConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<SplitConfig.Target>() }
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Target>() }
     }
     val densityConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<SplitConfig.Density>() }
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Density>() }
     }
     val languageConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<SplitConfig.Language>() }
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Language>() }
     }
     val unspecifiedConfigs by remember {
-        derivedStateOf { configs.filterIsInstance<SplitConfig.Unspecified>() }
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Unspecified>() }
     }
 
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = contentPadding + PaddingValues(horizontal = 20.dp, vertical = 10.dp)
     ) {
+        if (viewModel.hasSourceInfo) {
+            item {
+                TittleItem(text = stringResource(R.string.install_requester_title))
+            }
+            item {
+                PackageInfo(packageInfo = viewModel.sourceInfo)
+            }
+        }
+
+        item {
+            TittleItem(text = stringResource(R.string.install_package_title))
+        }
+        item {
+            PackageInfo(
+                packageInfo = viewModel.archiveInfo,
+                versionDiff = viewModel.versionDiff,
+                sdkDiff = viewModel.sdkDiff,
+                totalSize = viewModel.totalSizeStr
+            )
+        }
+
         if (featureConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.install_config_feature_title))
+                TittleItem(text = stringResource(R.string.install_config_feature_title))
             }
             items(
                 items = featureConfigs,
@@ -318,15 +215,15 @@ private fun BundlesItem(
             ) {
                 SplitConfigItem(
                     config = it,
-                    isRequiredConfig = isRequiredConfig,
-                    toggleSplitConfig = toggleSplitConfig
+                    isRequiredConfig = viewModel::isRequiredConfig,
+                    toggleSplitConfig = viewModel::toggleSplitConfig
                 )
             }
         }
 
         if (targetConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.install_config_abi_title))
+                TittleItem(text = stringResource(R.string.install_config_abi_title))
             }
             items(
                 items = targetConfigs,
@@ -334,15 +231,15 @@ private fun BundlesItem(
             ) {
                 SplitConfigItem(
                     config = it,
-                    isRequiredConfig = isRequiredConfig,
-                    toggleSplitConfig = toggleSplitConfig
+                    isRequiredConfig = viewModel::isRequiredConfig,
+                    toggleSplitConfig = viewModel::toggleSplitConfig
                 )
             }
         }
 
         if (densityConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.install_config_density_title))
+                TittleItem(text = stringResource(R.string.install_config_density_title))
             }
             items(
                 items = densityConfigs,
@@ -350,15 +247,15 @@ private fun BundlesItem(
             ) {
                 SplitConfigItem(
                     config = it,
-                    isRequiredConfig = isRequiredConfig,
-                    toggleSplitConfig = toggleSplitConfig
+                    isRequiredConfig = viewModel::isRequiredConfig,
+                    toggleSplitConfig = viewModel::toggleSplitConfig
                 )
             }
         }
 
         if (languageConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.install_config_language_title))
+                TittleItem(text = stringResource(R.string.install_config_language_title))
             }
             items(
                 items = languageConfigs,
@@ -366,15 +263,15 @@ private fun BundlesItem(
             ) {
                 SplitConfigItem(
                     config = it,
-                    isRequiredConfig = isRequiredConfig,
-                    toggleSplitConfig = toggleSplitConfig
+                    isRequiredConfig = viewModel::isRequiredConfig,
+                    toggleSplitConfig = viewModel::toggleSplitConfig
                 )
             }
         }
 
         if (unspecifiedConfigs.isNotEmpty()) {
             item {
-                TittleItem(text = stringResource(id = R.string.install_config_unspecified_title))
+                TittleItem(text = stringResource(R.string.install_config_unspecified_title))
             }
             items(
                 items = unspecifiedConfigs,
@@ -382,10 +279,62 @@ private fun BundlesItem(
             ) {
                 SplitConfigItem(
                     config = it,
-                    isRequiredConfig = isRequiredConfig,
-                    toggleSplitConfig = toggleSplitConfig
+                    isRequiredConfig = viewModel::isRequiredConfig,
+                    toggleSplitConfig = viewModel::toggleSplitConfig
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PackageInfo(
+    packageInfo: IPackageInfo,
+    versionDiff: String? = null,
+    sdkDiff: String? = null,
+    totalSize: String? = null
+) = OutlinedCard(
+    shape = MaterialTheme.shapes.large,
+) {
+    Row(
+        modifier = Modifier
+            .padding(15.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val context = LocalContext.current
+        AsyncImage(
+            modifier = Modifier.size(45.dp),
+            model = ImageRequest.Builder(context)
+                .data(packageInfo)
+                .build(),
+            contentDescription = null
+        )
+
+        Column(
+            modifier = Modifier.padding(start = 15.dp)
+        ) {
+            Text(
+                text = packageInfo.appLabel,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = packageInfo.packageName,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = versionDiff ?: packageInfo.versionStr,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+            Text(
+                text = buildString {
+                    append(sdkDiff ?: packageInfo.sdkVersion)
+                    totalSize?.let { append(", Size: $it") }
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline
+            )
         }
     }
 }
@@ -469,18 +418,9 @@ private fun ConfigIcon(
 )
 
 @Composable
-internal fun TittleItem(
+private fun TittleItem(
     text: String,
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit = {}
-) = Column(
-    modifier = modifier,
-    verticalArrangement = Arrangement.spacedBy(4.dp)
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium
-    )
-
-    content()
-}
+) = Text(
+    text = text,
+    style = MaterialTheme.typography.titleMedium
+)

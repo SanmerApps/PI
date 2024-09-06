@@ -135,28 +135,6 @@ class InstallViewModel @Inject constructor(
         }
     }
 
-    fun toggleAuthorized() {
-        val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
-            aom.setMode(
-                op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-                packageInfo = sourceInfo,
-                mode = it
-            )
-        }
-
-        when {
-            sourceInfo.isAuthorized -> {
-                setMode(AppOpsManagerDelegate.Mode.Default)
-                sourceInfo = sourceInfo.copy(isAuthorized = false)
-            }
-
-            else -> {
-                setMode(AppOpsManagerDelegate.Mode.Allow)
-                sourceInfo = sourceInfo.copy(isAuthorized = true)
-            }
-        }
-    }
-
     fun install() = when (state) {
         State.Apk -> {
             InstallService.apk(
