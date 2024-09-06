@@ -154,7 +154,7 @@ class AppsViewModel @Inject constructor(
         queryFlow.value = ""
     }
 
-    fun buildSettings(packageInfo: IPackageInfo) = object : Settings {
+    fun settings(packageInfo: IPackageInfo) = object : Settings {
         override suspend fun export(context: Context): Boolean {
             val sourceDir = packageInfo.applicationInfo?.let { File(it.sourceDir) }
             if (sourceDir == null) return false

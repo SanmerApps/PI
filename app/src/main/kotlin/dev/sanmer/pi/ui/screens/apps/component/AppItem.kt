@@ -28,11 +28,11 @@ import dev.sanmer.pi.ui.component.Logo
 @Composable
 fun AppItem(
     pi: IPackageInfo,
-    onClick: () -> Unit,
-    trailing: @Composable (() -> Unit)? = null
+    onClick: () -> Unit = {},
+    enabled: Boolean = true
 ) = Row(
     modifier = Modifier
-        .clickable(onClick = onClick)
+        .clickable(enabled = enabled, onClick = onClick)
         .padding(all = 15.dp)
         .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
@@ -83,8 +83,6 @@ fun AppItem(
             if (pi.isAuthorized) Icon(R.drawable.shield)
         }
     }
-
-    trailing?.invoke()
 }
 
 @Composable

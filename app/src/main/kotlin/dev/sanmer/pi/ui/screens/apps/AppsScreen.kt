@@ -102,7 +102,7 @@ fun AppsScreen(
             AppList(
                 list = list,
                 state = state,
-                buildSettings = viewModel::buildSettings,
+                settings = viewModel::settings,
                 contentPadding = contentPadding
             )
         }
