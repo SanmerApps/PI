@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -35,7 +32,6 @@ import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
 import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
 import dev.sanmer.pi.ui.main.Screen
-import dev.sanmer.pi.ui.provider.LocalSnackbarHostState
 import dev.sanmer.pi.ui.screens.apps.component.AppList
 import dev.sanmer.pi.viewmodel.AppsViewModel
 
@@ -68,14 +64,6 @@ fun AppsScreen(
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        },
-        snackbarHost = {
-            SnackbarHost(hostState = LocalSnackbarHostState.current) {
-                Snackbar(
-                    snackbarData = it,
-                    shape = MaterialTheme.shapes.medium
-                )
-            }
         }
     ) { contentPadding ->
         Box(

@@ -32,5 +32,4 @@
     <string name="install_config_unspecified_title">Non précisé</string>
     <string name="install_button_install">Installer</string>
     <string name="settings_title">Paramètres</string>
-    <string name="app_export">Exporter</string>
 </resources>

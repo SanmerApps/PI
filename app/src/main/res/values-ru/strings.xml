@@ -34,8 +34,6 @@
     <string name="search_placeholder">Поиск…</string>
     <string name="updated_title">PI Обновлён</string>
     <string name="updated_text">Нажмите чтоб открыть приложение</string>
-    <string name="app_export">Экспорт</string>
-    <string name="app_export_msg">Экспортировано в %1$s</string>
     <string name="app_authorize">Авторизовать</string>
     <string name="app_requester">Запросчик</string>
     <string name="app_executor">Исполнитель</string>

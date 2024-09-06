@@ -23,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.BuildConfig
@@ -32,7 +31,6 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
 import dev.sanmer.pi.ui.ktx.bottom
-import dev.sanmer.pi.ui.provider.LocalSnackbarHostState
 import dev.sanmer.pi.viewmodel.AppsViewModel
 import kotlinx.coroutines.launch
 
@@ -109,9 +107,7 @@ private fun SettingItem(
     verticalArrangement = Arrangement.spacedBy(10.dp),
     maxItemsInEachRow = 2
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val snackbarHostState = LocalSnackbarHostState.current
 
     MenuChip(
         selected = pi.isRequester,
@@ -144,21 +140,5 @@ private fun SettingItem(
             }
         },
         label = { Text(text = stringResource(id = R.string.app_authorize)) },
-    )
-
-    MenuChip(
-        selected = false,
-        onClick = {
-            scope.launch {
-                if (settings.export(context)) {
-                    snackbarHostState.showSnackbar(
-                        message = context.getString(
-                            R.string.app_export_msg, "Download/PI"
-                        )
-                    )
-                }
-            }
-        },
-        label = { Text(text = stringResource(id = R.string.app_export)) },
     )
 }

@@ -35,8 +35,6 @@
     <string name="setup_root_desc">Memerlukan izin Root dari Magisk, KernelSU, atau APatch</string>
     <string name="settings_service_not_running">Layanan tidak berjalan</string>
     <string name="settings_translation_desc">Bantu kami menerjemahkan PI ke dalam bahasa Anda</string>
-    <string name="app_export">Ekspor</string>
-    <string name="app_export_msg">Diekspor ke %1$s</string>
     <string name="updated_text">Ketuk untuk membuka apl</string>
     <string name="updated_title">PI Diperbarui</string>
 </resources>

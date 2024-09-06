@@ -7,8 +7,6 @@
     <string name="app_requester">Talep Eden</string>
     <string name="app_executor">Yürütücü</string>
     <string name="app_authorize">Yetkilendir</string>
-    <string name="app_export">Dışa Aktar</string>
-    <string name="app_export_msg">%1$s konumuna dışa aktarıldı</string>
     <string name="settings_title">Ayarlar</string>
     <string name="settings_service_running">Servis çalışıyor</string>
     <string name="settings_service_version">Sürüm %1$d, %2$s</string>

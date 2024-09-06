@@ -35,8 +35,6 @@
     <string name="app_authorize">Autorizar</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Executor</string>
-    <string name="app_export">Exportar</string>
-    <string name="app_export_msg">Exportado para %1$s</string>
     <string name="updated_title">PI atualizado</string>
     <string name="updated_text">Toque para abrir o app</string>
 </resources>

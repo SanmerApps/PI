@@ -12,8 +12,6 @@
     <string name="app_requester">请求者</string>
     <string name="app_executor">执行者</string>
     <string name="app_authorize">授权</string>
-    <string name="app_export">导出</string>
-    <string name="app_export_msg">已导出至 %1$s</string>
 
     <!-- Settings -->
     <string name="settings_title">设置</string>

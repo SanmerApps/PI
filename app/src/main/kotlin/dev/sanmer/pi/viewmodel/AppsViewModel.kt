@@ -1,9 +1,7 @@
 package dev.sanmer.pi.viewmodel
 
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.os.Environment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,7 +11,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
-import dev.sanmer.pi.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
@@ -27,9 +24,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.File
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -155,30 +149,6 @@ class AppsViewModel @Inject constructor(
     }
 
     fun settings(packageInfo: IPackageInfo) = object : Settings {
-        override suspend fun export(context: Context): Boolean {
-            val sourceDir = packageInfo.applicationInfo?.let { File(it.sourceDir) }
-            if (sourceDir == null) return false
-
-            val files = sourceDir.parentFile?.listFiles { file ->
-                file.name.endsWith(".apk")
-            } ?: return false
-
-            val filename = with(packageInfo) { "${appLabel}-${versionName}-${longVersionCode}" }
-            return when {
-                files.size == 1 -> context.exportApk(
-                    file = files.first(),
-                    path = "PI/${filename}.apk"
-                )
-
-                files.size > 1 -> context.exportApks(
-                    files = files.toList(),
-                    path = "PI/${filename}.zip"
-                )
-
-                else -> false
-            }
-        }
-
         override suspend fun setAuthorized() {
             val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
                 aom.setMode(
@@ -203,52 +173,12 @@ class AppsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun Context.exportApk(
-        file: File,
-        path: String,
-    ) = withContext(Dispatchers.IO) {
-        val uri = createMediaStoreUri(
-            file = File(Environment.DIRECTORY_DOWNLOADS, path),
-            mimeType = "android/vnd.android.package-archive"
-        )
-
-        contentResolver.openOutputStream(uri)?.use { output ->
-            file.inputStream().buffered().copyTo(output)
-            return@withContext true
-        }
-
-        false
-    }
-
-    private suspend fun Context.exportApks(
-        files: List<File>,
-        path: String,
-    ) = withContext(Dispatchers.IO) {
-        val uri = createMediaStoreUri(
-            file = File(Environment.DIRECTORY_DOWNLOADS, path),
-            mimeType = "application/zip"
-        )
-
-        contentResolver.openOutputStream(uri)?.let(::ZipOutputStream)?.use { output ->
-            files.forEach { file ->
-                output.putNextEntry(ZipEntry(file.name))
-                file.inputStream().buffered().copyTo(output)
-                output.closeEntry()
-            }
-
-            return@withContext true
-        }
-
-        false
-    }
-
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
     ).isAllowed
 
     interface Settings {
-        suspend fun export(context: Context): Boolean
         suspend fun setAuthorized()
         suspend fun setRequester()
         suspend fun setExecutor()
