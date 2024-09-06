@@ -94,7 +94,6 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     override fun onCreate() {
         Timber.d("onCreate")
         super.onCreate()
-
         pi.registerCallback(this)
         setForeground()
     }
@@ -102,9 +101,13 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     override fun onDestroy() {
         pi.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-
         Timber.d("onDestroy")
         super.onDestroy()
+    }
+
+    override fun onTimeout(startId: Int) {
+        stopSelf()
+        super.onTimeout(startId)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
