@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.screens.workingmode.component
+package dev.sanmer.pi.ui.screens.settings.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box

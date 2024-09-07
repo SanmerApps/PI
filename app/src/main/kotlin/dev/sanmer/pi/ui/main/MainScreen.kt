@@ -20,7 +20,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.sanmer.pi.ui.screens.apps.AppsScreen
 import dev.sanmer.pi.ui.screens.settings.SettingsScreen
-import dev.sanmer.pi.ui.screens.workingmode.WorkingModeScreen
 
 @Composable
 fun MainScreen() {
@@ -35,7 +34,6 @@ fun MainScreen() {
     ) {
         Screen.Apps(navController).addTo(this)
         Screen.Settings(navController).addTo(this)
-        Screen.WorkingMode(navController).addTo(this)
     }
 }
 
@@ -58,7 +56,6 @@ sealed class Screen(
     companion object Routes {
         fun Apps() = "Apps"
         fun Settings() = "Settings"
-        fun WorkingMode() = "WorkingMode"
     }
 
     class Apps(navController: NavController) : Screen(
@@ -69,10 +66,5 @@ sealed class Screen(
     class Settings(navController: NavController) : Screen(
         route = Settings(),
         content = { SettingsScreen(navController = navController) }
-    )
-
-    class WorkingMode(navController: NavController) : Screen(
-        route = WorkingMode(),
-        content = { WorkingModeScreen(navController = navController) }
     )
 }

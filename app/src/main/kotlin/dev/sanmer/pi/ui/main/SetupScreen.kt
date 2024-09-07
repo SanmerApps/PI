@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
 import dev.sanmer.pi.datastore.model.Provider
-import dev.sanmer.pi.ui.screens.workingmode.component.WorkingModeItem
+import dev.sanmer.pi.ui.screens.settings.component.WorkingModeItem
 
 @Composable
 fun SetupScreen(
