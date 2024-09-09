@@ -1,12 +1,15 @@
 package dev.sanmer.pi.bundle
 
 import android.content.pm.PackageParser
+import android.os.Parcelable
 import android.text.format.Formatter
 import dev.sanmer.pi.ContextCompat
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.util.Locale
 
-sealed class SplitConfig {
+sealed class SplitConfig : Parcelable {
     abstract val file: File
     abstract val name: String
     abstract val configForSplit: String?
@@ -27,57 +30,73 @@ sealed class SplitConfig {
                 "recommended = $isRecommended"
     }
 
+    @Parcelize
     data class Target(
         val abi: ABI,
         override val configForSplit: String?,
         override val file: File
     ) : SplitConfig() {
+        @IgnoredOnParcel
         override val name by lazy { abi.displayName }
+
+        @IgnoredOnParcel
         override val isRequired by lazy { abi.isRequired }
+
+        @IgnoredOnParcel
         override val isDisabled by lazy { !abi.isEnabled }
         override val isRecommended get() = isRequired
     }
 
+    @Parcelize
     data class Density(
         val dpi: DPI,
         override val configForSplit: String?,
         override val file: File
     ) : SplitConfig() {
         override val name get() = dpi.displayName
+
+        @IgnoredOnParcel
         override val isRequired by lazy { dpi.isRequired }
-        override val isDisabled = false
+        override val isDisabled get() = false
         override val isRecommended get() = isRequired
     }
 
+    @Parcelize
     data class Language(
         val locale: Locale,
         override val configForSplit: String?,
         override val file: File
     ) : SplitConfig() {
-        override val name: String get() = locale.localizedDisplayName
+        override val name get() = locale.localizedDisplayName
+
+        @IgnoredOnParcel
         override val isRequired by lazy { locale.language == Locale.getDefault().language }
+
+        @IgnoredOnParcel
         override val isDisabled by lazy { locale !in Locale.getAvailableLocales() }
         override val isRecommended get() = isRequired
     }
 
+    @Parcelize
     data class Feature(
         override val name: String,
-        override val file: File
+        override val file: File,
     ) : SplitConfig() {
-        override val configForSplit = null
-        override val isRequired = false
-        override val isDisabled = false
-        override val isRecommended = true
+        override val configForSplit get() = null
+        override val isRequired get() = false
+        override val isDisabled get() = false
+        override val isRecommended get() = true
     }
 
+    @Parcelize
     data class Unspecified(
         override val configForSplit: String?,
-        override val file: File
+        override val file: File,
     ) : SplitConfig() {
-        override val name: String get() = file.name
-        override val isRequired = false
-        override val isDisabled = false
-        override val isRecommended = true
+        override val name get() = file.name
+        override val isRequired get() = false
+        override val isDisabled get() = false
+        override val isRecommended get() = true
     }
 
     companion object Default {

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.self.library)
     alias(libs.plugins.rikka.refine)
+    alias(libs.plugins.kotlin.parcelize)
     `maven-publish`
 }
 
