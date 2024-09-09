@@ -19,6 +19,8 @@ import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat.getSystemService
 import dev.sanmer.su.ServiceManagerCompat.proxyBy
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -185,20 +187,18 @@ class PackageInstallerDelegate(
             commit(sender)
         }
 
-        suspend fun PackageInstaller.Session.writeApk(path: File) = withContext(Dispatchers.IO) {
-            openWrite(path.name, 0, path.length()).use { output ->
-                path.inputStream().buffered().use { input ->
+        suspend fun PackageInstaller.Session.write(file: File) = withContext(Dispatchers.IO) {
+            openWrite(file.name, 0, file.length()).use { output ->
+                file.inputStream().buffered().use { input ->
                     input.copyTo(output)
                     fsync(output)
                 }
             }
         }
 
-        suspend fun PackageInstaller.Session.writeApks(path: File, filenames: List<String>) {
-            filenames.forEach { name ->
-                val file = File(path, name)
-                if (file.exists()) writeApk(file)
+        suspend fun PackageInstaller.Session.write(files: List<File>) =
+            withContext(Dispatchers.IO) {
+                files.map { async { write(it) } }.awaitAll()
             }
-        }
     }
 }
