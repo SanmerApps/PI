@@ -2,7 +2,6 @@ package dev.sanmer.pi.ui.main
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FloatingActionButton
@@ -50,12 +48,9 @@ import dev.sanmer.pi.compat.VersionCompat.sdkVersion
 import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.ui.component.Failed
-import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.ktx.isScrollingUp
 import dev.sanmer.pi.ui.ktx.plus
 import dev.sanmer.pi.viewmodel.InstallViewModel
-import dev.sanmer.pi.viewmodel.InstallViewModel.State
 
 @Composable
 fun InstallScreen(
@@ -75,9 +70,23 @@ fun InstallScreen(
         context.finishActivity()
     }
 
-    BackHandler(
-        onBack = onDeny
-    )
+    val featureConfigs by remember {
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Feature>() }
+    }
+    val targetConfigs by remember {
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Target>() }
+    }
+    val densityConfigs by remember {
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Density>() }
+    }
+    val languageConfigs by remember {
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Language>() }
+    }
+    val unspecifiedConfigs by remember {
+        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Unspecified>() }
+    }
+
+    BackHandler(onBack = onDeny)
 
     Scaffold(
         topBar = {
@@ -88,7 +97,7 @@ fun InstallScreen(
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = viewModel.state.isReady && isScrollingUp,
+                visible = isScrollingUp,
                 enter = fadeIn() + scaleIn(),
                 exit = scaleOut() + fadeOut(),
                 label = "ActionButton"
@@ -97,30 +106,111 @@ fun InstallScreen(
             }
         }
     ) { contentPadding ->
-        Crossfade(
+        LazyColumn(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            targetState = viewModel.state,
-            label = "InstallScreen"
-        ) { state ->
-            when (state) {
-                State.None -> Loading(
-                    modifier = Modifier.padding(contentPadding)
-                )
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = contentPadding + PaddingValues(horizontal = 20.dp, vertical = 10.dp)
+        ) {
+            if (viewModel.hasSourceInfo) {
+                item {
+                    TittleItem(text = stringResource(R.string.install_requester_title))
+                }
+                item {
+                    PackageInfo(packageInfo = viewModel.sourceInfo)
+                }
+            }
 
-                State.InvalidProvider -> Failed(
-                    message = stringResource(id = R.string.install_invalid_provider),
-                    modifier = Modifier.padding(contentPadding)
+            item {
+                TittleItem(text = stringResource(R.string.install_package_title))
+            }
+            item {
+                PackageInfo(
+                    packageInfo = viewModel.archiveInfo,
+                    versionDiff = viewModel.versionDiff,
+                    sdkDiff = viewModel.sdkDiff,
+                    totalSize = viewModel.totalSizeStr
                 )
+            }
 
-                State.InvalidPackage -> Failed(
-                    message = stringResource(id = R.string.install_invalid_package),
-                    modifier = Modifier.padding(contentPadding)
-                )
+            if (featureConfigs.isNotEmpty()) {
+                item {
+                    TittleItem(text = stringResource(R.string.install_config_feature_title))
+                }
+                items(
+                    items = featureConfigs,
+                    key = { it.file.name }
+                ) {
+                    SplitConfigItem(
+                        config = it,
+                        isRequiredConfig = viewModel::isRequiredConfig,
+                        toggleSplitConfig = viewModel::toggleSplitConfig
+                    )
+                }
+            }
 
-                else -> InstallContent(
-                    listState = listState,
-                    contentPadding = contentPadding
-                )
+            if (targetConfigs.isNotEmpty()) {
+                item {
+                    TittleItem(text = stringResource(R.string.install_config_abi_title))
+                }
+                items(
+                    items = targetConfigs,
+                    key = { it.file.name }
+                ) {
+                    SplitConfigItem(
+                        config = it,
+                        isRequiredConfig = viewModel::isRequiredConfig,
+                        toggleSplitConfig = viewModel::toggleSplitConfig
+                    )
+                }
+            }
+
+            if (densityConfigs.isNotEmpty()) {
+                item {
+                    TittleItem(text = stringResource(R.string.install_config_density_title))
+                }
+                items(
+                    items = densityConfigs,
+                    key = { it.file.name }
+                ) {
+                    SplitConfigItem(
+                        config = it,
+                        isRequiredConfig = viewModel::isRequiredConfig,
+                        toggleSplitConfig = viewModel::toggleSplitConfig
+                    )
+                }
+            }
+
+            if (languageConfigs.isNotEmpty()) {
+                item {
+                    TittleItem(text = stringResource(R.string.install_config_language_title))
+                }
+                items(
+                    items = languageConfigs,
+                    key = { it.file.name }
+                ) {
+                    SplitConfigItem(
+                        config = it,
+                        isRequiredConfig = viewModel::isRequiredConfig,
+                        toggleSplitConfig = viewModel::toggleSplitConfig
+                    )
+                }
+            }
+
+            if (unspecifiedConfigs.isNotEmpty()) {
+                item {
+                    TittleItem(text = stringResource(R.string.install_config_unspecified_title))
+                }
+                items(
+                    items = unspecifiedConfigs,
+                    key = { it.file.name }
+                ) {
+                    SplitConfigItem(
+                        config = it,
+                        isRequiredConfig = viewModel::isRequiredConfig,
+                        toggleSplitConfig = viewModel::toggleSplitConfig
+                    )
+                }
             }
         }
     }
@@ -156,136 +246,6 @@ private fun TopBar(
     },
     scrollBehavior = scrollBehavior
 )
-
-@Composable
-private fun InstallContent(
-    viewModel: InstallViewModel = hiltViewModel(),
-    listState: LazyListState = rememberLazyListState(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-) {
-    val featureConfigs by remember {
-        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Feature>() }
-    }
-    val targetConfigs by remember {
-        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Target>() }
-    }
-    val densityConfigs by remember {
-        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Density>() }
-    }
-    val languageConfigs by remember {
-        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Language>() }
-    }
-    val unspecifiedConfigs by remember {
-        derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Unspecified>() }
-    }
-
-    LazyColumn(
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        contentPadding = contentPadding + PaddingValues(horizontal = 20.dp, vertical = 10.dp)
-    ) {
-        if (viewModel.hasSourceInfo) {
-            item {
-                TittleItem(text = stringResource(R.string.install_requester_title))
-            }
-            item {
-                PackageInfo(packageInfo = viewModel.sourceInfo)
-            }
-        }
-
-        item {
-            TittleItem(text = stringResource(R.string.install_package_title))
-        }
-        item {
-            PackageInfo(
-                packageInfo = viewModel.archiveInfo,
-                versionDiff = viewModel.versionDiff,
-                sdkDiff = viewModel.sdkDiff,
-                totalSize = viewModel.totalSizeStr
-            )
-        }
-
-        if (featureConfigs.isNotEmpty()) {
-            item {
-                TittleItem(text = stringResource(R.string.install_config_feature_title))
-            }
-            items(
-                items = featureConfigs,
-                key = { it.file.name }
-            ) {
-                SplitConfigItem(
-                    config = it,
-                    isRequiredConfig = viewModel::isRequiredConfig,
-                    toggleSplitConfig = viewModel::toggleSplitConfig
-                )
-            }
-        }
-
-        if (targetConfigs.isNotEmpty()) {
-            item {
-                TittleItem(text = stringResource(R.string.install_config_abi_title))
-            }
-            items(
-                items = targetConfigs,
-                key = { it.file.name }
-            ) {
-                SplitConfigItem(
-                    config = it,
-                    isRequiredConfig = viewModel::isRequiredConfig,
-                    toggleSplitConfig = viewModel::toggleSplitConfig
-                )
-            }
-        }
-
-        if (densityConfigs.isNotEmpty()) {
-            item {
-                TittleItem(text = stringResource(R.string.install_config_density_title))
-            }
-            items(
-                items = densityConfigs,
-                key = { it.file.name }
-            ) {
-                SplitConfigItem(
-                    config = it,
-                    isRequiredConfig = viewModel::isRequiredConfig,
-                    toggleSplitConfig = viewModel::toggleSplitConfig
-                )
-            }
-        }
-
-        if (languageConfigs.isNotEmpty()) {
-            item {
-                TittleItem(text = stringResource(R.string.install_config_language_title))
-            }
-            items(
-                items = languageConfigs,
-                key = { it.file.name }
-            ) {
-                SplitConfigItem(
-                    config = it,
-                    isRequiredConfig = viewModel::isRequiredConfig,
-                    toggleSplitConfig = viewModel::toggleSplitConfig
-                )
-            }
-        }
-
-        if (unspecifiedConfigs.isNotEmpty()) {
-            item {
-                TittleItem(text = stringResource(R.string.install_config_unspecified_title))
-            }
-            items(
-                items = unspecifiedConfigs,
-                key = { it.file.name }
-            ) {
-                SplitConfigItem(
-                    config = it,
-                    isRequiredConfig = viewModel::isRequiredConfig,
-                    toggleSplitConfig = viewModel::toggleSplitConfig
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun PackageInfo(

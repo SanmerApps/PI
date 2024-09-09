@@ -15,7 +15,7 @@
     <string name="install_config_feature_title">Динамическая функция</string>
     <string name="install_config_unspecified_title">Неопределённый</string>
     <string name="message_install_success">Установка завершена</string>
-    <string name="install_service">Сервис установки</string>
+    <string name="installing_service">Сервис установки</string>
     <string name="settings_service_try_start">Нажмите, чтобы попытаться начать</string>
     <string name="settings_language">Язык</string>
     <string name="settings_language_system">Системный по умолчанию</string>
@@ -27,8 +27,8 @@
     <string name="message_loading">Загрузка…</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="settings_title">Настройки</string>
-    <string name="install_invalid_provider">Сервис не доступен</string>
-    <string name="install_invalid_package">Сбой синтаксического анализа пакета</string>
+    <string name="message_invalid_provider">Сервис не доступен</string>
+    <string name="message_invalid_package">Сбой синтаксического анализа пакета</string>
     <string name="search_placeholder">Поиск…</string>
     <string name="updated_title">PI Обновлён</string>
     <string name="updated_text">Нажмите чтоб открыть приложение</string>

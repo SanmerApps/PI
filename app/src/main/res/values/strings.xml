@@ -33,13 +33,15 @@
     <string name="install_config_density_title">Screen density</string>
     <string name="install_config_language_title">Language</string>
     <string name="install_config_unspecified_title">Unspecified</string>
-    <string name="install_invalid_provider">Service is not available</string>
-    <string name="install_invalid_package">Package parsing failed</string>
 
     <!-- Message -->
-    <string name="install_service">Install service</string>
+    <string name="installing_service">Installing service</string>
+    <string name="parsing_service">Parsing service</string>
     <string name="message_install_success">Install successful</string>
     <string name="message_install_fail">Install failed</string>
+    <string name="message_invalid_provider">Service is not available</string>
+    <string name="message_parsing_package">Parsing %1$s</string>
+    <string name="message_invalid_package">Package parsing failed</string>
     <string name="message_loading">Loading…</string>
     <string name="unknown_error">Unknown error</string>
     <string name="updated_title">PI Updated</string>

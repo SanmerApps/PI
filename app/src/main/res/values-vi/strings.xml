@@ -19,7 +19,7 @@
     <string name="message_install_fail">Cài đặt thất bại</string>
     <string name="message_loading">Đang tải…</string>
     <string name="search_placeholder">Tìm…</string>
-    <string name="install_service">Cài đặt dịch vụ</string>
+    <string name="installing_service">Cài đặt dịch vụ</string>
     <string name="unknown_error">Lỗi không rõ</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="setup_title">Chế độ làm việc</string>

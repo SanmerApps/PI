@@ -3,7 +3,6 @@ package dev.sanmer.pi.viewmodel
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
-import android.net.Uri
 import android.text.format.Formatter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -12,42 +11,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.Compat
-import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
-import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.compat.MediaStoreCompat.copyToFile
-import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
-import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.VersionCompat.sdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.versionDiff
-import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
-import dev.sanmer.pi.repository.UserPreferencesRepository
 import dev.sanmer.pi.service.InstallService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
+import dev.sanmer.pi.service.InstallService.Task
 import timber.log.Timber
 import java.io.File
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class InstallViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
     application: Application
 ) : AndroidViewModel(application) {
     private val context: Context by lazy { getApplication() }
-    private val pm by lazy { Compat.getPackageManager() }
-    private val aom by lazy { Compat.getAppOpsService() }
+    private val pm by lazy { context.packageManager }
 
-    private val externalCacheDir inline get() = requireNotNull(context.externalCacheDir)
-    private val uuid inline get() = UUID.randomUUID().toString()
-    private var archivePath = File(externalCacheDir, uuid)
-
+    private var archivePath = File(".")
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
         private set
     var archiveInfo by mutableStateOf(IPackageInfo.empty())
@@ -66,61 +49,31 @@ class InstallViewModel @Inject constructor(
         private set
     private val requiredConfigs = mutableStateListOf<SplitConfig>()
 
-    var state by mutableStateOf(State.None)
-        private set
+    private var type by mutableStateOf(Type.Apk)
 
     init {
         Timber.d("InstallViewModel init")
     }
 
-    suspend fun loadPackage(uri: Uri) = withContext(Dispatchers.IO) {
-        val userPreferences = userPreferencesRepository.data.first()
+    fun load(task: Task, source: PackageInfo?) {
+        sourceInfo = (source ?: PackageInfo()).toIPackageInfo()
+        archivePath = task.archivePath
+        archiveInfo = task.archiveInfo.toIPackageInfo()
 
-        if (!Compat.init(userPreferences.provider)) {
-            state = State.InvalidProvider
-            return@withContext
+        when (task) {
+            is Task.Apk -> {
+                baseSize = archivePath.length()
+            }
+
+            is Task.AppBundle -> {
+                type = Type.AppBundle
+                baseSize = task.baseFile.length()
+                splitConfigs = task.splitConfigs
+                requiredConfigs.addAll(
+                    task.splitConfigs.filter { it.isRequired || it.isRecommended }
+                )
+            }
         }
-
-        val packageName = context.getOwnerPackageNameForUri(uri)
-        Timber.d("loadPackage<sourceInfo>: $packageName")
-        val source = getPackageInfo(packageName)
-        if (source.isNotEmpty) {
-            sourceInfo = source.toIPackageInfo(
-                isAuthorized = source.isAuthorized()
-            )
-        }
-
-        Timber.d("loadPackage<path>: ${context.getPathForUri(uri)}")
-        context.copyToFile(uri, archivePath)
-        PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
-            archiveInfo = pi.toIPackageInfo()
-            baseSize = archivePath.length()
-
-            Timber.i("loadPackage<Apk>: ${pi.packageName}")
-            state = State.Apk
-            return@withContext
-        }
-
-        val archivePathNew = File(externalCacheDir, uuid).apply { mkdirs() }
-        PackageParserCompat.parseAppBundle(archivePath, 0, archivePathNew)?.let { bi ->
-            archiveInfo = bi.baseInfo.toIPackageInfo()
-            baseSize = bi.baseFile.length()
-
-            splitConfigs = bi.splitConfigs
-            requiredConfigs.addAll(
-                bi.splitConfigs.filter { it.isRequired || it.isRecommended }
-            )
-
-            archivePath.delete()
-            archivePath = archivePathNew
-
-            Timber.i("loadPackage<AppBundle>: ${bi.baseInfo.packageName}")
-            Timber.i("loadPackage<AppBundle>: allSplits = ${splitConfigs.size}")
-            state = State.AppBundle
-            return@withContext
-        }
-
-        state = State.InvalidPackage
     }
 
     fun isRequiredConfig(config: SplitConfig): Boolean {
@@ -135,57 +88,39 @@ class InstallViewModel @Inject constructor(
         }
     }
 
-    fun install() = when (state) {
-        State.Apk -> {
+    fun install() = when (type) {
+        Type.Apk -> {
             InstallService.apk(
                 context = context,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo
             )
         }
-        State.AppBundle -> {
-            val filenames = requiredConfigs
-                .map { it.file.name }
-                .toMutableList()
-                .apply {
-                    add(0, PackageParserCompat.BASE_APK)
-                }
 
+        Type.AppBundle -> {
             InstallService.appBundle(
                 context = context,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
-                filenames = filenames
+                splitConfigs = requiredConfigs
             )
         }
-        else -> {}
     }
 
     fun deleteCache() {
         archivePath.deleteRecursively()
     }
 
-    private fun getPackageInfo(packageName: String?): PackageInfo {
-        if (packageName == null) return PackageInfo()
+    private fun getPackageInfo(packageName: String): PackageInfo {
         return runCatching {
             pm.getPackageInfo(
-                packageName, 0, context.userId
+                packageName, 0
             )
         }.getOrNull() ?: PackageInfo()
     }
 
-    private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
-        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-        packageInfo = this
-    ).isAllowed
-
-    enum class State {
-        None,
-        InvalidProvider,
-        InvalidPackage,
+    enum class Type {
         Apk,
-        AppBundle;
-
-        val isReady inline get() = this == Apk || this == AppBundle
+        AppBundle
     }
 }

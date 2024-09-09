@@ -21,13 +21,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
+import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.commit
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.writeApk
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.writeApks
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.write
 import dev.sanmer.pi.ktx.dp
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.repository.UserPreferencesRepository
@@ -51,8 +52,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     lateinit var userPreferencesRepository: UserPreferencesRepository
 
     private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
-    private val notificationManager by lazy { NotificationManagerCompat.from(this) }
-
+    private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm by lazy { Compat.getPackageManager() }
     private val pi by lazy { Compat.getPackageInstaller() }
 
@@ -106,18 +106,17 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     }
 
     override fun onTimeout(startId: Int) {
-        stopSelf()
+        stopSelf(startId)
         super.onTimeout(startId)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
-            intent ?: return@launch
-            val task = intent.task
+            val task = intent?.task ?: return@launch
 
             install(task)
             task.archivePath.deleteRecursively()
-            pendingTasks.removeAt(0)
+            pendingTasks.remove(task.archivePath)
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -144,8 +143,8 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val session = pi.openSession(sessionId)
 
         when (task) {
-            is Task.Apk -> session.writeApk(task.archivePath)
-            is Task.AppBundle -> session.writeApks(task.archivePath, task.filenames)
+            is Task.Apk -> session.write(task.archivePath)
+            is Task.AppBundle -> session.write(task.archiveFiles)
         }
 
         val result = session.commit()
@@ -206,7 +205,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
     private fun setForeground() {
         val notification = newNotificationBuilder()
-            .setContentTitle(getText(R.string.install_service))
+            .setContentTitle(getText(R.string.installing_service))
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)
@@ -215,7 +214,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
         ServiceCompat.startForeground(
             this,
-            notification.hashCode(),
+            Const.NOTIFICATION_ID_INSTALL,
             notification,
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
         )
@@ -287,9 +286,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             true
         }
 
-        if (granted) {
-            notificationManager.notify(id, notification)
-        }
+        if (granted) nm.notify(id, notification)
     }
 
     sealed class Task : Parcelable {
@@ -306,21 +303,32 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         data class AppBundle(
             override val archivePath: File,
             override val archiveInfo: PackageInfo,
-            val filenames: List<String>,
-        ) : Task()
+            val splitConfigs: List<SplitConfig>,
+        ) : Task() {
+            val baseFile get() = File(archivePath, PackageParserCompat.BASE_APK)
+
+            val archiveFiles
+                get() = splitConfigs.map { it.file }
+                    .toMutableList().apply {
+                        add(0, baseFile)
+                    }
+        }
     }
 
     companion object {
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
         private const val EXTRA_TASK = "dev.sanmer.pi.extra.TASK"
 
-        private fun Intent.putTask(value: Task) =
+        fun Intent.putTask(value: Task) =
             putExtra(EXTRA_TASK, value)
 
-        private val Intent.task: Task
-            get() = checkNotNull(parcelable(EXTRA_TASK))
+        val Intent.taskOrNull: Task?
+            get() = parcelable(EXTRA_TASK)
 
-        private val pendingTasks = mutableListOf<Task>()
+        private val Intent.task: Task
+            get() = checkNotNull(taskOrNull)
+
+        private val pendingTasks = mutableListOf<File>()
 
         fun apk(
             context: Context,
@@ -328,7 +336,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             archiveInfo: PackageInfo
         ) {
             val task = Task.Apk(archivePath, archiveInfo)
-            pendingTasks.add(task)
+            pendingTasks.add(task.archivePath)
             context.startService(
                 Intent(context, InstallService::class.java).also {
                     it.putTask(task)
@@ -340,10 +348,10 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             context: Context,
             archivePath: File,
             archiveInfo: PackageInfo,
-            filenames: List<String>
+            splitConfigs: List<SplitConfig>
         ) {
-            val task = Task.AppBundle(archivePath, archiveInfo, filenames)
-            pendingTasks.add(task)
+            val task = Task.AppBundle(archivePath, archiveInfo, splitConfigs)
+            pendingTasks.add(task.archivePath)
             context.startService(
                 Intent(context, InstallService::class.java).also {
                     it.putTask(task)

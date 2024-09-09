@@ -20,7 +20,7 @@
     <string name="settings_translation_desc">עזור לנו לתרגם את PI לשפה שלך</string>
     <string name="settings_source_code">קוד מקור</string>
     <string name="unknown_error">שגיאה לא ידועה</string>
-    <string name="install_service">התקנת שירות</string>
+    <string name="installing_service">התקנת שירות</string>
     <string name="empty_list">רשימה ריקה</string>
     <string name="search_placeholder">חיפוש…</string>
     <string name="message_loading">נטען…</string>
@@ -28,8 +28,8 @@
     <string name="message_install_success">ההתקנה בוצעה בהצלחה</string>
     <string name="install_config_unspecified_title">לא מוגדר</string>
     <string name="install_config_language_title">שפה</string>
-    <string name="install_invalid_provider">השירות אינו זמין</string>
-    <string name="install_invalid_package">ניתוח החבילה כשל</string>
+    <string name="message_invalid_provider">השירות אינו זמין</string>
+    <string name="message_invalid_package">ניתוח החבילה כשל</string>
     <string name="app_authorize">מורשה</string>
     <string name="app_executor">מבצע</string>
     <string name="app_requester">מבקש</string>
