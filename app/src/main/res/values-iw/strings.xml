@@ -33,4 +33,8 @@
     <string name="app_authorize">מורשה</string>
     <string name="app_executor">מבצע</string>
     <string name="app_requester">מבקש</string>
+    <string name="parsing_service"></string>
+    <string name="updated_title"></string>
+    <string name="updated_text"></string>
+    <string name="message_parsing"></string>
 </resources>
