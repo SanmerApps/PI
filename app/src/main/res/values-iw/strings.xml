@@ -18,7 +18,6 @@
     <string name="settings_language">שפה</string>
     <string name="settings_language_system">ברירת מחדל של המערכת</string>
     <string name="settings_translation_desc">עזור לנו לתרגם את PI לשפה שלך</string>
-    <string name="settings_source_code">קוד מקור</string>
     <string name="unknown_error">שגיאה לא ידועה</string>
     <string name="installation_service">התקנת שירות</string>
     <string name="empty_list">רשימה ריקה</string>

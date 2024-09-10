@@ -23,7 +23,6 @@
     <string name="settings_language_system">Bawaan ti sistem</string>
     <string name="settings_translation">Babantu pikeun tarjamahan</string>
     <string name="settings_translation_desc">Ngabantu pikeun tarjamahan PI kana basa anjeun</string>
-    <string name="settings_source_code">Sumber kodeu</string>
     <string name="install_package_title">Pakét pamasangan</string>
     <string name="install_requester_title">Paménta pamasangan</string>
     <string name="install_config_feature_title">Fitur dinamis</string>

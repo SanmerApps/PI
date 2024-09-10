@@ -10,7 +10,6 @@
     <string name="settings_language">Bahasa</string>
     <string name="settings_language_system">Bawaan sistem</string>
     <string name="settings_translation">Berpartisipasi dalam penerjemahan</string>
-    <string name="settings_source_code">Kode sumber</string>
     <string name="install_package_title">Paket instalasi</string>
     <string name="install_requester_title">Pengaju Instalasi</string>
     <string name="install_config_feature_title">Fitur dinamis</string>

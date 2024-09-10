@@ -27,7 +27,6 @@
     <string name="settings_service_try_start">إضغط لمحاولة البدء</string>
     <string name="settings_language">اللغة</string>
     <string name="settings_language_system">إفتراضي تبع النظام</string>
-    <string name="settings_source_code">رمز المصدر</string>
     <string name="message_parsing_failed">فشل تحليل الحزمة</string>
     <string name="message_invalid_provider">الحزمة غير متاحة</string>
     <string name="app_authorize">مخول</string>

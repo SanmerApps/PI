@@ -12,7 +12,6 @@
     <string name="settings_service_try_start">Cliquer pour essayer de démarrer</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">Système par défaut</string>
-    <string name="settings_source_code">Code source</string>
     <string name="message_parsing_failed">Échec de l\'analyse du paquet</string>
     <string name="install_package_title">Paquet d\'installation</string>
     <string name="message_invalid_provider">Le service n\'est pas disponible</string>

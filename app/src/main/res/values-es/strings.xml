@@ -13,7 +13,6 @@
     <string name="settings_language_system">Sistema por defecto</string>
     <string name="settings_translation">Participar en la traducción</string>
     <string name="settings_translation_desc">Ayúdenos a traducir PI a su idioma</string>
-    <string name="settings_source_code">Código fuente</string>
     <string name="install_package_title">Paquete de instalación</string>
     <string name="install_requester_title">Solicitud de instalación</string>
     <string name="install_config_feature_title">Función dinámica</string>

@@ -27,7 +27,6 @@
     <string name="settings_service_try_start">Clique para tentar começar</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Padrão do sistema</string>
-    <string name="settings_source_code">Código-fonte</string>
     <string name="message_invalid_provider">O serviço não está disponível</string>
     <string name="message_parsing_failed">Falha na análise do pacote</string>
     <string name="app_authorize">Autorizar</string>

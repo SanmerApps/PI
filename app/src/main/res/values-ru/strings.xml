@@ -21,7 +21,6 @@
     <string name="settings_language_system">Системный по умолчанию</string>
     <string name="settings_translation">Участие в переводе</string>
     <string name="settings_translation_desc">Помогите нам перевести PI на ваш язык</string>
-    <string name="settings_source_code">Исходный код</string>
     <string name="install_package_title">Установка приложения</string>
     <string name="install_requester_title">Запросчик установки</string>
     <string name="message_loading">Загрузка…</string>

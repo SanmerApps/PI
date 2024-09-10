@@ -16,7 +16,6 @@
     <string name="settings_language_system">Sistem varsayılanı</string>
     <string name="settings_translation">Çeviriye katıl</string>
     <string name="settings_translation_desc">PI\'yi kendi dilinize çevirmemize yardımcı olun</string>
-    <string name="settings_source_code">Kaynak kodu</string>
     <string name="install_package_title">Kurulum paketi</string>
     <string name="install_requester_title">Kurulumu talep eden</string>
     <string name="install_config_feature_title">Dinamik özellik</string>

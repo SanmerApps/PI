@@ -23,7 +23,6 @@
     <string name="settings_language_system">系统默认</string>
     <string name="settings_translation">参与翻译</string>
     <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
-    <string name="settings_source_code">源码</string>
 
     <!-- Install -->
     <string name="install_package_title">安装包</string>

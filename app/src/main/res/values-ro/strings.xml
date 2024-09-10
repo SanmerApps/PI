@@ -9,7 +9,6 @@
     <string name="app_executor">Executorul</string>
     <string name="app_authorize">Autorizează</string>
     <string name="settings_language_system">Valoarea implicită a sistemului</string>
-    <string name="settings_source_code">Codul sursă</string>
     <string name="settings_service_not_running">Serviciul nu rulează</string>
     <string name="settings_translation">Participă in traducere</string>
     <string name="settings_language">Limbă</string>
