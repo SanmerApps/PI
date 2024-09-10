@@ -39,7 +39,7 @@ class App : Application(), ImageLoaderFactory {
         val channels = listOf(
             NotificationChannel(
                 Const.CHANNEL_ID_INSTALL,
-                context.getString(R.string.installing_service),
+                context.getString(R.string.installation_service),
                 NotificationManager.IMPORTANCE_HIGH
             ),
             NotificationChannel(

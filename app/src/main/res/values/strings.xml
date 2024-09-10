@@ -35,13 +35,13 @@
     <string name="install_config_unspecified_title">Unspecified</string>
 
     <!-- Message -->
-    <string name="installing_service">Installing service</string>
+    <string name="installation_service">Installation service</string>
     <string name="parsing_service">Parsing service</string>
-    <string name="message_install_success">Install successful</string>
-    <string name="message_install_fail">Install failed</string>
-    <string name="message_invalid_provider">Service is not available</string>
-    <string name="message_parsing_package">Parsing %1$s</string>
-    <string name="message_invalid_package">Package parsing failed</string>
+    <string name="message_install_successful">Installation successful</string>
+    <string name="message_install_failed">Installation failed</string>
+    <string name="message_invalid_provider">Service unavailable</string>
+    <string name="message_parsing">Parsing</string>
+    <string name="message_parsing_failed">Parsing failed</string>
     <string name="message_loading">Loading…</string>
     <string name="unknown_error">Unknown error</string>
     <string name="updated_title">PI Updated</string>

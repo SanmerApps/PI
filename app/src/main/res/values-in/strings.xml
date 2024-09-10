@@ -21,13 +21,13 @@
     <string name="install_config_language_title">Bahasa</string>
     <string name="install_config_unspecified_title">Tidak spesifik</string>
     <string name="message_invalid_provider">Layanan tidak tersedia</string>
-    <string name="message_invalid_package">Parsing paket gagal</string>
-    <string name="message_install_success">Pemasangan berhasil</string>
-    <string name="message_install_fail">Pemasangan gagal</string>
+    <string name="message_parsing_failed">Parsing paket gagal</string>
+    <string name="message_install_successful">Pemasangan berhasil</string>
+    <string name="message_install_failed">Pemasangan gagal</string>
     <string name="message_loading">Memuat…</string>
     <string name="search_placeholder">Cari…</string>
     <string name="empty_list">Daftar kosong</string>
-    <string name="installing_service">Layanan pemasangan</string>
+    <string name="installation_service">Layanan pemasangan</string>
     <string name="unknown_error">Kesalahan tidak diketahui</string>
     <string name="install_activity">Pasang</string>
     <string name="setup_root_desc">Memerlukan izin Root dari Magisk, KernelSU, atau APatch</string>

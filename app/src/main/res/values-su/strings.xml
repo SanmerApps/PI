@@ -16,10 +16,10 @@
     <string name="settings_language">Basa</string>
     <string name="message_loading">Ngamuat…</string>
     <string name="search_placeholder">Téang…</string>
-    <string name="message_invalid_package">Parsing pakét gagal</string>
+    <string name="message_parsing_failed">Parsing pakét gagal</string>
     <string name="empty_list">Eusi kosong</string>
-    <string name="message_install_success">Pamasangan réngsé</string>
-    <string name="message_install_fail">Pamasangan gagal</string>
+    <string name="message_install_successful">Pamasangan réngsé</string>
+    <string name="message_install_failed">Pamasangan gagal</string>
     <string name="settings_language_system">Bawaan ti sistem</string>
     <string name="settings_translation">Babantu pikeun tarjamahan</string>
     <string name="settings_translation_desc">Ngabantu pikeun tarjamahan PI kana basa anjeun</string>
@@ -31,7 +31,7 @@
     <string name="install_config_language_title">Basa</string>
     <string name="install_config_unspecified_title">Teu puguh rupana</string>
     <string name="message_invalid_provider">Layanan teu sadia</string>
-    <string name="installing_service">Pasang layanan</string>
+    <string name="installation_service">Pasang layanan</string>
     <string name="unknown_error">Error teu dipikanyaho</string>
     <string name="updated_title">PI Dianyarkeun</string>
     <string name="updated_text">Toél pikeun muka apl</string>

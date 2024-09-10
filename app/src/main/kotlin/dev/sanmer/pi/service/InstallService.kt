@@ -205,7 +205,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
     private fun setForeground() {
         val notification = newNotificationBuilder()
-            .setContentTitle(getText(R.string.installing_service))
+            .setContentTitle(getText(R.string.installation_service))
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)
@@ -251,7 +251,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val notification = newNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
-            .setContentText(getText(R.string.message_install_success))
+            .setContentText(getText(R.string.message_install_successful))
             .setContentIntent(pending)
             .setSilent(true)
             .setAutoCancel(true)
@@ -268,7 +268,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val notification = newNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
-            .setContentText(getText(R.string.message_install_fail))
+            .setContentText(getText(R.string.message_install_failed))
             .build()
 
         notify(id, notification)

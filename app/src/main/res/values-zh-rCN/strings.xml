@@ -35,13 +35,13 @@
     <string name="install_config_unspecified_title">未知</string>
 
     <!-- Message -->
-    <string name="installing_service">安装服务</string>
+    <string name="installation_service">安装服务</string>
     <string name="parsing_service">解析服务</string>
-    <string name="message_install_success">安装成功</string>
-    <string name="message_install_fail">安装失败</string>
+    <string name="message_install_successful">安装成功</string>
+    <string name="message_install_failed">安装失败</string>
     <string name="message_invalid_provider">服务不可用</string>
-    <string name="message_parsing_package">正在解析 %1$s</string>
-    <string name="message_invalid_package">安装包解析失败</string>
+    <string name="message_parsing">正在解析</string>
+    <string name="message_parsing_failed">解析失败</string>
     <string name="message_loading">加载中…</string>
     <string name="unknown_error">未知错误</string>
     <string name="updated_title">PI 已完成更新</string>

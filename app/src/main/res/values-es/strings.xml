@@ -21,13 +21,13 @@
     <string name="install_config_language_title">Idioma</string>
     <string name="install_config_unspecified_title">Sin especificar</string>
     <string name="message_invalid_provider">Servicio no disponible</string>
-    <string name="message_invalid_package">Error al analizar el paquete</string>
+    <string name="message_parsing_failed">Error al analizar el paquete</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="empty_list">Lista vacía</string>
-    <string name="installing_service">Instalar servicio</string>
+    <string name="installation_service">Instalar servicio</string>
     <string name="unknown_error">Error desconocido</string>
-    <string name="message_install_success">Instalación correcta</string>
-    <string name="message_install_fail">Instalación fallida</string>
+    <string name="message_install_successful">Instalación correcta</string>
+    <string name="message_install_failed">Instalación fallida</string>
     <string name="message_loading">Cargando…</string>
     <string name="search_placeholder">Buscar…</string>
     <string name="app_authorize">Autorización</string>

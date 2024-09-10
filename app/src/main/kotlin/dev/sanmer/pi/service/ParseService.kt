@@ -75,6 +75,10 @@ class ParseService : LifecycleService() {
         lifecycleScope.launch(Dispatchers.IO) {
             val uri = intent?.data ?: return@launch
             val userPreferences = userPreferencesRepository.data.first()
+            val finish = {
+                nm.cancel(uri.hashCode())
+                pendingUris.remove(uri)
+            }
 
             if (!Compat.init(userPreferences.provider)) {
                 notifyFailure(
@@ -82,6 +86,7 @@ class ParseService : LifecycleService() {
                     title = getText(R.string.parsing_service),
                     text = getText(R.string.message_invalid_provider)
                 )
+
                 stopSelf()
                 pendingUris.clear()
                 return@launch
@@ -89,10 +94,8 @@ class ParseService : LifecycleService() {
 
             val packageName = getOwnerPackageNameForUri(uri)
             val sourceInfo = packageName?.let(::getPackageInfo)
-            Timber.i("from: $packageName")
-
             val path = File(getPathForUri(uri))
-            Timber.i("path: $path")
+            Timber.i("from: $packageName, path: $path")
 
             notifyParsing(
                 id = uri.hashCode(),
@@ -118,8 +121,7 @@ class ParseService : LifecycleService() {
                     )
                 }
 
-                nm.cancel(uri.hashCode())
-                pendingUris.remove(uri)
+                finish()
                 return@launch
             }
 
@@ -134,18 +136,17 @@ class ParseService : LifecycleService() {
                 )
 
                 archivePath.delete()
-                nm.cancel(uri.hashCode())
-                pendingUris.remove(uri)
+                finish()
                 return@launch
             }
 
-            nm.cancel(uri.hashCode())
-            pendingUris.remove(uri)
+            archivePath.delete()
             archiveDir.deleteRecursively()
+            finish()
             notifyFailure(
                 id = uri.hashCode(),
                 title = path.name,
-                text = getText(R.string.message_invalid_package)
+                text = getText(R.string.message_parsing_failed)
             )
         }
         return super.onStartCommand(intent, flags, startId)
@@ -186,7 +187,8 @@ class ParseService : LifecycleService() {
         filename: String
     ) {
         val notification = newNotificationBuilder()
-            .setContentText(getString(R.string.message_parsing_package, filename))
+            .setContentTitle(filename)
+            .setContentText(getString(R.string.message_parsing))
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)

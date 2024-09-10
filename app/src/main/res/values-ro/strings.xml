@@ -16,10 +16,10 @@
     <string name="settings_translation_desc">Ajută-ne să traducem PI în limba ta</string>
     <string name="settings_service_try_start">Apasă pentru a solicita pornirea</string>
     <string name="install_config_abi_title">ABI</string>
-    <string name="message_invalid_package">Analiza pachetului a eșuat</string>
-    <string name="message_install_success">Instalat cu succes</string>
-    <string name="installing_service">Instalează serviciul</string>
-    <string name="message_install_fail">Instalarea a eșuat</string>
+    <string name="message_parsing_failed">Analiza pachetului a eșuat</string>
+    <string name="message_install_successful">Instalat cu succes</string>
+    <string name="installation_service">Instalează serviciul</string>
+    <string name="message_install_failed">Instalarea a eșuat</string>
     <string name="unknown_error">Eroare necunoscută</string>
     <string name="updated_text">Apăsați aici pentru a deschide aplicația</string>
     <string name="search_placeholder">Căutare…</string>

@@ -9,13 +9,13 @@
     <string name="install_requester_title">Solicitante de instalação</string>
     <string name="empty_list">Lista vazia</string>
     <string name="install_package_title">Pacote de instalação</string>
-    <string name="message_install_fail">Falha na instalação</string>
+    <string name="message_install_failed">Falha na instalação</string>
     <string name="message_loading">Carregando…</string>
     <string name="search_placeholder">Pesquisar…</string>
     <string name="setup_shizuku_desc">Necessita de permissão concedida por Sui ou Shizuku</string>
     <string name="settings_title">Definições</string>
-    <string name="message_install_success">Instalação bem-sucedida</string>
-    <string name="installing_service">Instalar serviço</string>
+    <string name="message_install_successful">Instalação bem-sucedida</string>
+    <string name="installation_service">Instalar serviço</string>
     <string name="unknown_error">Erro desconhecido</string>
     <string name="install_config_feature_title">Recurso dinâmico</string>
     <string name="install_config_abi_title">ABI</string>
@@ -29,7 +29,7 @@
     <string name="settings_language_system">Padrão do sistema</string>
     <string name="settings_source_code">Código-fonte</string>
     <string name="message_invalid_provider">O serviço não está disponível</string>
-    <string name="message_invalid_package">Falha na análise do pacote</string>
+    <string name="message_parsing_failed">Falha na análise do pacote</string>
     <string name="app_authorize">Autorizar</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Executor</string>
