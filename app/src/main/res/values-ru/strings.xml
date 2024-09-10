@@ -35,6 +35,4 @@
     <string name="app_authorize">Авторизовать</string>
     <string name="app_requester">Запросчик</string>
     <string name="app_executor">Исполнитель</string>
-    <string name="parsing_service"></string>
-    <string name="message_parsing"></string>
 </resources>

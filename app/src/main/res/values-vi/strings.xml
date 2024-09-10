@@ -24,17 +24,4 @@
     <string name="install_config_abi_title">ABI</string>
     <string name="setup_title">Chế độ làm việc</string>
     <string name="setup_root_desc">Yêu cầu quyền Root do Magisk hoặc KernelSU cung cấp</string>
-    <string name="app_authorize"></string>
-    <string name="parsing_service"></string>
-    <string name="updated_title"></string>
-    <string name="updated_text"></string>
-    <string name="message_invalid_provider"></string>
-    <string name="app_requester"></string>
-    <string name="app_executor"></string>
-    <string name="message_parsing"></string>
-    <string name="message_parsing_failed"></string>
-    <string name="settings_language_system"></string>
-    <string name="settings_source_code"></string>
-    <string name="settings_service_try_start"></string>
-    <string name="settings_language"></string>
 </resources>

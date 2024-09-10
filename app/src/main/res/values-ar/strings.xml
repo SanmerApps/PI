@@ -35,6 +35,4 @@
     <string name="app_executor">المنفذ</string>
     <string name="updated_title">PI محدث</string>
     <string name="updated_text">انقر لفتح البرنامج</string>
-    <string name="parsing_service"></string>
-    <string name="message_parsing"></string>
 </resources>
