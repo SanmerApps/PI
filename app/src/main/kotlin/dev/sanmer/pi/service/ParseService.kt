@@ -13,6 +13,7 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
@@ -106,7 +107,9 @@ class ParseService : LifecycleService() {
             copyToFile(uri, archivePath)
 
             PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
-                if (sourceInfo?.isAuthorized() == true) {
+                if (sourceInfo?.isAuthorized() == true ||
+                    sourceInfo?.packageName == pi.packageName ||
+                    pi.packageName == BuildConfig.APPLICATION_ID) {
                     InstallService.apk(
                         context = applicationContext,
                         archivePath = archivePath,
