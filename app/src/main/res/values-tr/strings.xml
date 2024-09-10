@@ -35,4 +35,6 @@
     <string name="updated_text">Uygulamayı açmak için dokunun</string>
     <string name="search_placeholder">Ara…</string>
     <string name="empty_list">Liste boş</string>
+    <string name="parsing_service"></string>
+    <string name="message_parsing"></string>
 </resources>
