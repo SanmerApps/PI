@@ -2,17 +2,14 @@
 <resources>
     <!-- Activity -->
     <string name="install_activity">安装</string>
-
     <!-- Setup -->
     <string name="setup_title">工作模式</string>
     <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
     <string name="setup_root_desc">需要由 Magisk, KernelSU 或 APatch 提供 Root 权限</string>
-
     <!-- Apps -->
     <string name="app_requester">请求者</string>
     <string name="app_executor">执行者</string>
     <string name="app_authorize">授权</string>
-
     <!-- Settings -->
     <string name="settings_title">设置</string>
     <string name="settings_service_running">服务正在运行</string>
@@ -24,7 +21,6 @@
     <string name="settings_translation">参与翻译</string>
     <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
     <string name="settings_source_code">源码</string>
-
     <!-- Install -->
     <string name="install_package_title">安装包</string>
     <string name="install_requester_title">请求者</string>
@@ -33,7 +29,6 @@
     <string name="install_config_density_title">屏幕密度</string>
     <string name="install_config_language_title">语言</string>
     <string name="install_config_unspecified_title">未知</string>
-
     <!-- Message -->
     <string name="installation_service">安装服务</string>
     <string name="parsing_service">解析服务</string>
@@ -46,9 +41,7 @@
     <string name="unknown_error">未知错误</string>
     <string name="updated_title">PI 已完成更新</string>
     <string name="updated_text">点按即可打开应用</string>
-
     <!-- Search -->
     <string name="search_placeholder">搜索…</string>
     <string name="empty_list">空列表</string>
-
 </resources>
