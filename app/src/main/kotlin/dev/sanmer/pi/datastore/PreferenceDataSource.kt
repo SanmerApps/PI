@@ -1,19 +1,19 @@
 package dev.sanmer.pi.datastore
 
 import androidx.datastore.core.DataStore
+import dev.sanmer.pi.datastore.model.Preference
 import dev.sanmer.pi.datastore.model.Provider
-import dev.sanmer.pi.datastore.model.UserPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UserPreferencesDataSource @Inject constructor(
-    private val userPreferences: DataStore<UserPreferences>
+class PreferenceDataSource @Inject constructor(
+    private val dataStore: DataStore<Preference>
 ) {
-    val data get() = userPreferences.data
+    val data get() = dataStore.data
 
     suspend fun setProvider(value: Provider) = withContext(Dispatchers.IO) {
-        userPreferences.updateData {
+        dataStore.updateData {
             it.copy(
                 provider = value
             )
@@ -21,7 +21,7 @@ class UserPreferencesDataSource @Inject constructor(
     }
 
     suspend fun setRequester(value: String) = withContext(Dispatchers.IO) {
-        userPreferences.updateData {
+        dataStore.updateData {
             it.copy(
                 requester = value
             )
@@ -29,7 +29,7 @@ class UserPreferencesDataSource @Inject constructor(
     }
 
     suspend fun setExecutor(value: String) = withContext(Dispatchers.IO) {
-        userPreferences.updateData {
+        dataStore.updateData {
             it.copy(
                 executor = value
             )

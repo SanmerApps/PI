@@ -31,7 +31,7 @@ import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.commit
 import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.write
 import dev.sanmer.pi.ktx.dp
 import dev.sanmer.pi.ktx.parcelable
-import dev.sanmer.pi.repository.UserPreferencesRepository
+import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -49,7 +49,7 @@ import kotlin.time.Duration.Companion.seconds
 @AndroidEntryPoint
 class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallback {
     @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository
+    lateinit var preference: PreferenceRepository
 
     private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
     private val nm by lazy { NotificationManagerCompat.from(this) }
@@ -127,9 +127,9 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val appLabel = task.archiveInfo.applicationInfo?.loadLabel(packageManager)
             ?: task.archiveInfo.packageName
 
-        val userPreferences = userPreferencesRepository.data.first()
-        val originatingUid = getPackageUid(userPreferences.requester)
-        pi.setInstallerPackageName(userPreferences.executor)
+        val preference = preference.data.first()
+        val originatingUid = getPackageUid(preference.requester)
+        pi.setInstallerPackageName(preference.executor)
 
         val params = createSessionParams()
         params.setAppIcon(appIcon)

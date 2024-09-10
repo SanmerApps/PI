@@ -11,25 +11,25 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import dev.sanmer.pi.datastore.model.UserPreferences
+import dev.sanmer.pi.datastore.model.Preference
 import kotlinx.serialization.SerializationException
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class UserPreferencesSerializer @Inject constructor() : Serializer<UserPreferences> {
-    override val defaultValue = UserPreferences()
+class PreferenceSerializer @Inject constructor() : Serializer<Preference> {
+    override val defaultValue = Preference()
 
     override suspend fun readFrom(input: InputStream) =
         try {
-            UserPreferences.decodeFrom(input)
+            Preference.decodeFromStream(input)
         } catch (e: SerializationException) {
             throw CorruptionException("Failed to read proto", e)
         }
 
-    override suspend fun writeTo(t: UserPreferences, output: OutputStream) {
-        t.encodeTo(output)
+    override suspend fun writeTo(t: Preference, output: OutputStream) {
+        t.encodeToStream(output)
     }
 
     @Module
@@ -39,10 +39,10 @@ class UserPreferencesSerializer @Inject constructor() : Serializer<UserPreferenc
         @Singleton
         fun DataStore(
             @ApplicationContext context: Context,
-            userPreferencesSerializer: UserPreferencesSerializer
-        ): DataStore<UserPreferences> =
+            serializer: PreferenceSerializer
+        ): DataStore<Preference> =
             DataStoreFactory.create(
-                serializer = userPreferencesSerializer
+                serializer = serializer
             ) {
                 context.dataStoreFile("user_preferences.pb")
             }

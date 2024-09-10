@@ -15,7 +15,7 @@ import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
-import dev.sanmer.pi.repository.UserPreferencesRepository
+import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,9 +28,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val preference: PreferenceRepository
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
-    private val isProviderAlive get() = Compat.isAlive
+    private val isAlive get() = Compat.isAlive
     private val pm by lazy { Compat.getPackageManager() }
     private val aom by lazy { Compat.getAppOpsService() }
 
@@ -77,7 +77,7 @@ class AppsViewModel @Inject constructor(
         }
 
         addCloseable {
-            if (isProviderAlive) {
+            if (isAlive) {
                 aom.stopWatchingMode(callback = this)
             }
         }
@@ -85,7 +85,7 @@ class AppsViewModel @Inject constructor(
 
     private fun dataObserver() {
         viewModelScope.launch {
-            packagesFlow.combineToLatest(userPreferencesRepository.data) { source, preferences ->
+            packagesFlow.combineToLatest(preference.data) { source, preferences ->
                 cacheFlow.update {
                     source.map { pi ->
                         pi.copy(
@@ -118,7 +118,7 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
-        if (!isProviderAlive) return@withContext emptyList()
+        if (!isAlive) return@withContext emptyList()
 
         val allPackages = pm.getInstalledPackages(
             PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()
@@ -164,13 +164,8 @@ class AppsViewModel @Inject constructor(
             }
         }
 
-        override suspend fun setRequester() {
-            userPreferencesRepository.setRequester(packageInfo.packageName)
-        }
-
-        override suspend fun setExecutor() {
-            userPreferencesRepository.setExecutor(packageInfo.packageName)
-        }
+        override suspend fun setRequester() = preference.setRequester(packageInfo.packageName)
+        override suspend fun setExecutor() = preference.setExecutor(packageInfo.packageName)
     }
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(

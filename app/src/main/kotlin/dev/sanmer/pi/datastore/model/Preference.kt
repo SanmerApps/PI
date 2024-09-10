@@ -10,7 +10,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 @Serializable
-data class UserPreferences(
+data class Preference(
     @ProtoNumber(1)
     val provider: Provider = Provider.None,
     @ProtoNumber(3)
@@ -18,12 +18,12 @@ data class UserPreferences(
     @ProtoNumber(4)
     val executor: String = BuildConfig.APPLICATION_ID
 ) {
-    fun encodeTo(output: OutputStream) = output.write(
+    fun encodeToStream(output: OutputStream) = output.write(
         ProtoBuf.encodeToByteArray(this)
     )
 
     companion object {
-        fun decodeFrom(input: InputStream): UserPreferences =
+        fun decodeFromStream(input: InputStream): Preference =
             ProtoBuf.decodeFromByteArray(input.readBytes())
     }
 }

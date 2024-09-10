@@ -16,10 +16,10 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.Compat
 import dev.sanmer.pi.datastore.model.Provider
-import dev.sanmer.pi.repository.UserPreferencesRepository
+import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.ui.main.MainScreen
 import dev.sanmer.pi.ui.main.SetupScreen
-import dev.sanmer.pi.ui.provider.LocalUserPreferences
+import dev.sanmer.pi.ui.provider.LocalPreference
 import dev.sanmer.pi.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository
+    lateinit var preference: PreferenceRepository
 
     private var isLoading by mutableStateOf(true)
 
@@ -39,26 +39,20 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { isLoading }
 
         setContent {
-            val userPreferences by userPreferencesRepository.data
-                .collectAsStateWithLifecycle(initialValue = null)
+            val preferenceState = preference.data.collectAsStateWithLifecycle(initialValue = null)
+            val preference = preferenceState.value ?: return@setContent
+            isLoading = false
 
-            val preferences = if (userPreferences == null) {
-                return@setContent
-            } else {
-                isLoading = false
-                requireNotNull(userPreferences)
-            }
-
-            LaunchedEffect(userPreferences) {
-                Compat.init(preferences.provider)
+            LaunchedEffect(preference) {
+                Compat.init(preference.provider)
             }
 
             CompositionLocalProvider(
-                LocalUserPreferences provides preferences
+                LocalPreference provides preference
             ) {
                 AppTheme {
                     Crossfade(
-                        targetState = preferences.provider != Provider.None,
+                        targetState = preference.provider != Provider.None,
                         label = "MainActivity"
                     ) { isReady ->
                         if (isReady) {
@@ -76,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
     private fun setProvider(value: Provider) {
         lifecycleScope.launch {
-            userPreferencesRepository.setProvider(value)
+            preference.setProvider(value)
         }
     }
 }

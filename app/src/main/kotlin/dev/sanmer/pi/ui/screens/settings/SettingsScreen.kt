@@ -1,9 +1,5 @@
 package dev.sanmer.pi.ui.screens.settings
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,17 +31,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.datastore.model.Provider
-import dev.sanmer.pi.ktx.applicationLocale
-import dev.sanmer.pi.ktx.localizedDisplayName
 import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.ktx.bottom
-import dev.sanmer.pi.ui.provider.LocalUserPreferences
+import dev.sanmer.pi.ui.provider.LocalPreference
+import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
+import dev.sanmer.pi.ui.screens.settings.component.ServiceItem
 import dev.sanmer.pi.ui.screens.settings.component.WorkingModeItem
 import dev.sanmer.pi.viewmodel.SettingsViewModel
 
@@ -55,7 +49,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val userPreferences = LocalUserPreferences.current
+    val preference = LocalPreference.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     var workingMode by remember { mutableStateOf(false) }
@@ -79,16 +73,16 @@ fun SettingsScreen(
                 .padding(contentPadding)
         ) {
             ServiceItem(
-                isAlive = viewModel.isProviderAlive,
-                platform = viewModel.providerPlatform,
-                tryStart = viewModel::tryStartProvider
+                isAlive = viewModel.isAlive,
+                platform = viewModel.platform,
+                tryStart = viewModel::tryStart
             )
 
             SettingNormalItem(
                 icon = R.drawable.command,
                 title = stringResource(id = R.string.setup_title),
                 desc = stringResource(
-                    id = when (userPreferences.provider) {
+                    id = when (preference.provider) {
                         Provider.Superuser -> R.string.setup_root_title
                         Provider.Shizuku -> R.string.setup_shizuku_title
                         else -> R.string.unknown_error
@@ -105,62 +99,10 @@ fun SettingsScreen(
                 desc = stringResource(id = R.string.settings_translation_desc),
                 onClick = { context.viewUrl(Const.TRANSLATE_URL) }
             )
-
-            SettingNormalItem(
-                icon = R.drawable.brand_github,
-                title = stringResource(id = R.string.settings_source_code),
-                desc = Const.GITHUB_URL,
-                onClick = { context.viewUrl(Const.GITHUB_URL) }
-            )
         }
     }
 }
 
-@Composable
-private fun ServiceItem(
-    isAlive: Boolean,
-    platform: String,
-    tryStart: () -> Unit
-) = SettingNormalItem(
-    icon = when {
-        isAlive -> R.drawable.mood_wink
-        else -> R.drawable.mood_puzzled
-    },
-    title = when {
-        isAlive -> stringResource(id = R.string.settings_service_running)
-        else -> stringResource(id = R.string.settings_service_not_running)
-    },
-    desc = when {
-        isAlive -> stringResource(
-            id = R.string.settings_service_version,
-            BuildConfig.VERSION_CODE,
-            platform
-        )
-
-        else -> stringResource(id = R.string.settings_service_try_start)
-    },
-    onClick = tryStart
-)
-
-@Composable
-private fun LanguageItem(
-    context: Context
-) = SettingNormalItem(
-    icon = R.drawable.world,
-    title = stringResource(id = R.string.settings_language),
-    desc = context.applicationLocale?.localizedDisplayName
-        ?: stringResource(id = R.string.settings_language_system),
-    onClick = {
-        // noinspection InlinedApi
-        context.startActivity(
-            Intent(
-                Settings.ACTION_APP_LOCALE_SETTINGS,
-                Uri.fromParts("package", context.packageName, null)
-            )
-        )
-    },
-    enabled = BuildCompat.atLeastT
-)
 
 @Composable
 private fun WorkingModeBottomSheet(
@@ -172,7 +114,7 @@ private fun WorkingModeBottomSheet(
     sheetState = sheetState,
     shape = MaterialTheme.shapes.large.bottom(0.dp)
 ) {
-    val userPreferences = LocalUserPreferences.current
+    val preference = LocalPreference.current
 
     Text(
         text = stringResource(id = R.string.setup_title),
@@ -192,14 +134,14 @@ private fun WorkingModeBottomSheet(
         WorkingModeItem(
             title = stringResource(id = R.string.setup_root_title),
             desc = stringResource(id = R.string.setup_root_desc),
-            selected = userPreferences.provider == Provider.Superuser,
+            selected = preference.provider == Provider.Superuser,
             onClick = { setProvider(Provider.Superuser) }
         )
 
         WorkingModeItem(
             title = stringResource(id = R.string.setup_shizuku_title),
             desc = stringResource(id = R.string.setup_shizuku_desc),
-            selected = userPreferences.provider == Provider.Shizuku,
+            selected = preference.provider == Provider.Shizuku,
             onClick = { setProvider(Provider.Shizuku) }
         )
     }
@@ -217,6 +159,17 @@ private fun TopBar(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_left),
+                contentDescription = null
+            )
+        }
+    },
+    actions = {
+        val context = LocalContext.current
+        IconButton(
+            onClick = { context.viewUrl(Const.GITHUB_URL) }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.brand_github),
                 contentDescription = null
             )
         }

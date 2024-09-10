@@ -24,7 +24,7 @@ import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
 import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
-import dev.sanmer.pi.repository.UserPreferencesRepository
+import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.ui.InstallActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -41,7 +41,7 @@ import kotlin.time.Duration.Companion.seconds
 @AndroidEntryPoint
 class ParseService : LifecycleService() {
     @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository
+    lateinit var preference: PreferenceRepository
 
     private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm by lazy { Compat.getPackageManager() }
@@ -74,13 +74,13 @@ class ParseService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val uri = intent?.data ?: return@launch
-            val userPreferences = userPreferencesRepository.data.first()
+            val preference = preference.data.first()
             val finish = {
                 nm.cancel(uri.hashCode())
                 pendingUris.remove(uri)
             }
 
-            if (!Compat.init(userPreferences.provider)) {
+            if (!Compat.init(preference.provider)) {
                 notifyFailure(
                     id = Const.NOTIFICATION_ID_PARSE,
                     title = getText(R.string.parsing_service),
