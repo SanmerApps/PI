@@ -35,4 +35,6 @@
     <string name="app_executor">Executor</string>
     <string name="updated_title">PI atualizado</string>
     <string name="updated_text">Toque para abrir o app</string>
+    <string name="parsing_service"></string>
+    <string name="message_parsing"></string>
 </resources>
