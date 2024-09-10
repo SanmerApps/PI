@@ -35,4 +35,6 @@
     <string name="setup_shizuku_desc">Necesită o permisiune oferită de Sui sau Shizuku</string>
     <string name="install_config_language_title">Limbă</string>
     <string name="install_package_title">Pachetul de instalare</string>
+    <string name="parsing_service"></string>
+    <string name="message_parsing"></string>
 </resources>
