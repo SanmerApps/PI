@@ -28,10 +28,12 @@
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Padrão do sistema</string>
     <string name="message_parsing_failed">Falha na análise do pacote</string>
-    <string name="message_invalid_provider">O serviço não está disponível</string>
+    <string name="message_invalid_provider">Serviço não disponível</string>
     <string name="app_authorize">Autorizar</string>
     <string name="app_requester">Solicitante</string>
     <string name="app_executor">Executor</string>
     <string name="updated_title">PI atualizado</string>
     <string name="updated_text">Toque para abrir o app</string>
+    <string name="message_parsing">Análise</string>
+    <string name="parsing_service">Serviço de análise</string>
 </resources>
