@@ -34,4 +34,6 @@
     <string name="app_executor">Ejecutor</string>
     <string name="updated_title">PI Actualizado</string>
     <string name="updated_text">Toca para abrir la app</string>
+    <string name="parsing_service">Servicio de análisis</string>
+    <string name="message_parsing">Analizando</string>
 </resources>
