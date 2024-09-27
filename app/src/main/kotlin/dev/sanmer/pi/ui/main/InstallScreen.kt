@@ -6,16 +6,20 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,7 +48,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.compat.VersionCompat.sdkVersion
+import dev.sanmer.pi.compat.VersionCompat.getSdkVersion
 import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.model.IPackageInfo
@@ -128,8 +132,8 @@ fun InstallScreen(
                 PackageInfo(
                     packageInfo = viewModel.archiveInfo,
                     versionDiff = viewModel.versionDiff,
-                    sdkDiff = viewModel.sdkDiff,
-                    totalSize = viewModel.totalSizeStr
+                    sdkVersionDiff = viewModel.sdkVersionDiff,
+                    fileSize = viewModel.fileSizeStr
                 )
             }
 
@@ -251,8 +255,8 @@ private fun TopBar(
 private fun PackageInfo(
     packageInfo: IPackageInfo,
     versionDiff: String? = null,
-    sdkDiff: String? = null,
-    totalSize: String? = null
+    sdkVersionDiff: String? = null,
+    fileSize: String? = null
 ) = OutlinedCard(
     shape = MaterialTheme.shapes.large,
 ) {
@@ -274,24 +278,41 @@ private fun PackageInfo(
         Column(
             modifier = Modifier.padding(start = 15.dp)
         ) {
-            Text(
-                text = packageInfo.appLabel,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Row(
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = packageInfo.appLabel,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.width(15.dp))
+
+                if (fileSize != null) {
+                    LabelText(text = fileSize)
+                }
+            }
+
             Text(
                 text = packageInfo.packageName,
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            val versionStr by remember {
+                derivedStateOf { versionDiff ?: packageInfo.versionStr }
+            }
             Text(
-                text = versionDiff ?: packageInfo.versionStr,
+                text = versionStr,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
+
+            val sdkVersion by remember {
+                derivedStateOf { sdkVersionDiff ?: packageInfo.getSdkVersion(context) }
+            }
             Text(
-                text = buildString {
-                    append(sdkDiff ?: packageInfo.sdkVersion)
-                    totalSize?.let { append(", Size: $it") }
-                },
+                text = sdkVersion,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -383,4 +404,19 @@ private fun TittleItem(
 ) = Text(
     text = text,
     style = MaterialTheme.typography.titleMedium
+)
+
+@Composable
+private fun LabelText(
+    text: String
+) = Text(
+    text = text,
+    style = MaterialTheme.typography.titleSmall,
+    color = MaterialTheme.colorScheme.onSecondaryContainer,
+    modifier = Modifier
+        .background(
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            shape = CircleShape
+        )
+        .padding(horizontal = 10.dp)
 )

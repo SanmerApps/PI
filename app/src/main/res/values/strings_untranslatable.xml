@@ -6,4 +6,8 @@
     <string name="setup_shizuku_title" translatable="false">Shizuku</string>
     <string name="setup_root_title" translatable="false">Root</string>
 
+    <!-- Version -->
+    <string name="comparator" translatable="false">%1$s → %2$s</string>
+    <string name="sdk_versions" translatable="false">Target: %1$s, Min: %2$s, Compile: %3$s</string>
+
 </resources>

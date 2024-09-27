@@ -13,8 +13,8 @@ import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.compat.VersionCompat.sdkVersionDiff
-import dev.sanmer.pi.compat.VersionCompat.versionDiff
+import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
+import dev.sanmer.pi.compat.VersionCompat.getVersionDiff
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
 import dev.sanmer.pi.service.InstallService
@@ -38,12 +38,12 @@ class InstallViewModel @Inject constructor(
     val hasSourceInfo by lazy { sourceInfo.isNotEmpty }
 
     private val currentInfo by lazy { getPackageInfo(archiveInfo.packageName) }
-    val versionDiff by lazy { currentInfo.versionDiff(archiveInfo) }
-    val sdkDiff by lazy { currentInfo.sdkVersionDiff(archiveInfo) }
+    val versionDiff by lazy { currentInfo.getVersionDiff(context, archiveInfo) }
+    val sdkVersionDiff by lazy { currentInfo.getSdkVersionDiff(context, archiveInfo) }
 
     private var baseSize = 0L
-    private val totalSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.file.length() } }
-    val totalSizeStr: String by derivedStateOf { Formatter.formatFileSize(context, totalSize) }
+    private val fileSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.file.length() } }
+    val fileSizeStr: String by derivedStateOf { Formatter.formatFileSize(context, fileSize) }
 
     var splitConfigs = listOf<SplitConfig>()
         private set

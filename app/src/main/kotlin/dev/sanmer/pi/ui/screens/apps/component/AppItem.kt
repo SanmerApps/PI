@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.VersionCompat.sdkVersion
+import dev.sanmer.pi.compat.VersionCompat.getSdkVersion
 import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.component.Logo
@@ -61,14 +64,20 @@ fun AppItem(
             style = MaterialTheme.typography.bodyMedium
         )
 
+        val versionStr by remember {
+            derivedStateOf { pi.versionStr }
+        }
         Text(
-            text = pi.versionStr,
+            text = versionStr,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline
         )
 
+        val sdkVersion by remember {
+            derivedStateOf { pi.getSdkVersion(context) }
+        }
         Text(
-            text = pi.sdkVersion,
+            text = sdkVersion,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline
         )
