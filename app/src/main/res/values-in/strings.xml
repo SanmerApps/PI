@@ -34,4 +34,6 @@
     <string name="settings_translation_desc">Bantu kami menerjemahkan PI ke dalam bahasa Anda</string>
     <string name="updated_text">Ketuk untuk membuka apl</string>
     <string name="updated_title">PI Diperbarui</string>
+    <string name="message_parsing">Penguraian</string>
+    <string name="parsing_service">Layanan penguraian</string>
 </resources>
