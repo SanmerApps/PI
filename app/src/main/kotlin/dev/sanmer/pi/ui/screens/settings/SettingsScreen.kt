@@ -97,7 +97,8 @@ fun SettingsScreen(
                 icon = R.drawable.language,
                 title = stringResource(id = R.string.settings_translation),
                 desc = stringResource(id = R.string.settings_translation_desc),
-                onClick = { context.viewUrl(Const.TRANSLATE_URL) }
+                onClick = {},
+                enabled = false
             )
         }
     }
