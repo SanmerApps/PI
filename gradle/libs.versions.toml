@@ -17,10 +17,10 @@ appiconloader = "1.5.0"
 coil = "2.7.0"
 hiddenApiRefine = "4.4.0"
 hilt = "2.53"
-kotlin = "2.0.21"
+kotlin = "2.1.0"
 kotlinxCoroutines = "1.9.0"
 kotlinxSerialization = "1.7.3"
-ksp = "2.0.21-1.0.28"
+ksp = "2.1.0-1.0.29"
 timber = "5.0.1"
 
 [libraries]
