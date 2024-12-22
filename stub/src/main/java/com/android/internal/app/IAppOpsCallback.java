@@ -5,11 +5,13 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 
+import androidx.annotation.RequiresApi;
+
 public interface IAppOpsCallback extends IInterface {
 
     void opChanged(int op, int uid, String packageName) throws RemoteException;
 
-    // Android 14 QPR3
+    @RequiresApi(35)
     void opChanged(int op, int uid, String packageName, String persistentDeviceId) throws RemoteException;
 
     abstract class Stub extends Binder implements IAppOpsCallback {

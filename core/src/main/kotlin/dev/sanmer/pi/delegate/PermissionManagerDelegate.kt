@@ -1,7 +1,6 @@
 package dev.sanmer.pi.delegate
 
 import android.companion.virtual.VirtualDeviceManagerHidden
-import android.content.Context
 import android.content.pm.IPackageManager
 import android.permission.IPermissionManager
 import dev.sanmer.pi.BuildCompat
@@ -25,26 +24,12 @@ class PermissionManagerDelegate(
 
     fun grantRuntimePermission(packageName: String, permissionName: String, userId: Int) {
         when {
-            BuildCompat.atLeastU ->
-                rollback {
-                    permissionManager.grantRuntimePermission(
-                        packageName,
-                        permissionName,
-                        VirtualDeviceManagerHidden.PERSISTENT_DEVICE_ID_DEFAULT,
-                        userId
-                    )
-                } ?: rollback {
-                    permissionManager.grantRuntimePermission(
-                        packageName,
-                        permissionName,
-                        Context.DEVICE_ID_DEFAULT,
-                        userId
-                    )
-                } ?: permissionManager.grantRuntimePermission(
-                    packageName,
-                    permissionName,
-                    userId
-                )
+            BuildCompat.atLeastV -> permissionManager.grantRuntimePermission(
+                packageName,
+                permissionName,
+                VirtualDeviceManagerHidden.PERSISTENT_DEVICE_ID_DEFAULT,
+                userId
+            )
 
             else -> permissionManager.grantRuntimePermission(
                 packageName,
@@ -56,29 +41,13 @@ class PermissionManagerDelegate(
 
     fun revokeRuntimePermission(packageName: String, permissionName: String, userId: Int) {
         when {
-            BuildCompat.atLeastU ->
-                rollback {
-                    permissionManager.revokeRuntimePermission(
-                        packageName,
-                        permissionName,
-                        VirtualDeviceManagerHidden.PERSISTENT_DEVICE_ID_DEFAULT,
-                        userId,
-                        null
-                    )
-                } ?: rollback {
-                    permissionManager.revokeRuntimePermission(
-                        packageName,
-                        permissionName,
-                        Context.DEVICE_ID_DEFAULT,
-                        userId,
-                        null
-                    )
-                } ?: permissionManager.revokeRuntimePermission(
-                    packageName,
-                    permissionName,
-                    userId,
-                    null
-                )
+            BuildCompat.atLeastV -> permissionManager.revokeRuntimePermission(
+                packageName,
+                permissionName,
+                VirtualDeviceManagerHidden.PERSISTENT_DEVICE_ID_DEFAULT,
+                userId,
+                null
+            )
 
             else -> permissionManager.revokeRuntimePermission(
                 packageName,
@@ -91,42 +60,18 @@ class PermissionManagerDelegate(
 
     fun checkPermission(packageName: String, permissionName: String, userId: Int): Int {
         return when {
-            BuildCompat.atLeastU ->
-                rollback {
-                    permissionManager.checkPermission(
-                        packageName,
-                        permissionName,
-                        VirtualDeviceManagerHidden.PERSISTENT_DEVICE_ID_DEFAULT,
-                        userId
-                    )
-                } ?: rollback {
-                    permissionManager.checkPermission(
-                        packageName,
-                        permissionName,
-                        Context.DEVICE_ID_DEFAULT,
-                        userId
-                    )
-                } ?: packageManager.checkPermission(
-                    packageName,
-                    permissionName,
-                    userId
-                )
-
-            else -> packageManager.checkPermission(
-                permissionName,
+            BuildCompat.atLeastV -> permissionManager.checkPermission(
                 packageName,
+                permissionName,
+                VirtualDeviceManagerHidden.PERSISTENT_DEVICE_ID_DEFAULT,
                 userId
             )
-        }
-    }
 
-    private inline fun <T> rollback(block: () -> T): T? {
-        return try {
-            block()
-        } catch (_: NoSuchMethodError) {
-            null
-        } catch (_: NoSuchFieldError) {
-            null
+            else -> packageManager.checkPermission(
+                packageName,
+                permissionName,
+                userId
+            )
         }
     }
 }
