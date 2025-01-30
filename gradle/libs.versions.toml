@@ -20,7 +20,7 @@ hilt = "2.55"
 kotlin = "2.1.10"
 kotlinxCoroutines = "1.10.1"
 kotlinxSerialization = "1.8.0"
-ksp = "2.1.0-1.0.29"
+ksp = "2.1.10-1.0.29"
 timber = "5.0.1"
 
 [libraries]
