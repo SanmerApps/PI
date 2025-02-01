@@ -23,7 +23,11 @@ android {
         versionCode = commitCount
 
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
-        resourceConfigurations += arrayOf(
+    }
+
+    @Suppress("UnstableApiUsage")
+    androidResources {
+        localeFilters += listOf(
             "en",
             "ar",
             "es",
