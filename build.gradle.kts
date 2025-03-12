@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.ksp) apply false
 }
 
-task<Delete>("clean") {
+tasks.register<Delete>("clean") {
     delete(layout.buildDirectory)
 }
 
