@@ -170,7 +170,7 @@ class PackageInstallerDelegate(
                 original.installFlags = installFlags or flags
             }
 
-        companion object {
+        companion object Default {
             val INSTALL_REPLACE_EXISTING get() = PackageManagerHidden.INSTALL_REPLACE_EXISTING
 
             val INSTALL_ALLOW_TEST get() = PackageManagerHidden.INSTALL_ALLOW_TEST
@@ -182,7 +182,7 @@ class PackageInstallerDelegate(
         }
     }
 
-    companion object {
+    companion object Default {
         suspend fun PackageInstaller.Session.commit() = IntentReceiverCompat.onDelegate { sender ->
             commit(sender)
         }

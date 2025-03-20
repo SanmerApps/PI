@@ -11,7 +11,7 @@ data class IPackageInfo(
     val isRequester: Boolean,
     val isExecutor: Boolean
 ) : PackageInfoDelegate(inner) {
-    companion object {
+    companion object Default {
         fun PackageInfo.toIPackageInfo(
             isAuthorized: Boolean = false,
             isRequester: Boolean = false,

@@ -14,8 +14,8 @@ import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.ktx.parcelable
-import dev.sanmer.pi.service.InstallService.Companion.putTask
-import dev.sanmer.pi.service.InstallService.Companion.taskOrNull
+import dev.sanmer.pi.service.InstallService.Default.putTask
+import dev.sanmer.pi.service.InstallService.Default.taskOrNull
 import dev.sanmer.pi.service.InstallService.Task
 import dev.sanmer.pi.service.ParseService
 import dev.sanmer.pi.ui.main.InstallScreen
@@ -67,7 +67,7 @@ class InstallActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    companion object {
+    companion object Default {
         private const val EXTRA_SOURCE_INFO = "dev.sanmer.pi.extra.SOURCE_INFO"
 
         private fun Intent.putSourceInfo(value: PackageInfo?) =

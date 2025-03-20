@@ -16,7 +16,7 @@ import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.getVersionDiff
 import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
+import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.service.InstallService
 import dev.sanmer.pi.service.InstallService.Task
 import timber.log.Timber

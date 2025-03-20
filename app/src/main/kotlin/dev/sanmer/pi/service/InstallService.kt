@@ -27,8 +27,8 @@ import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.commit
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Companion.write
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.commit
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.write
 import dev.sanmer.pi.ktx.dp
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.repository.PreferenceRepository
@@ -315,7 +315,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         }
     }
 
-    companion object {
+    companion object Default {
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
         private const val EXTRA_TASK = "dev.sanmer.pi.extra.TASK"
 

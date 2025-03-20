@@ -228,7 +228,7 @@ class ParseService : LifecycleService() {
         if (granted) nm.notify(id, notification)
     }
 
-    companion object {
+    companion object Default {
         private const val GROUP_KEY = "dev.sanmer.pi.PARSE_SERVICE_GROUP_KEY"
 
         private val pendingUris = mutableListOf<Uri>()

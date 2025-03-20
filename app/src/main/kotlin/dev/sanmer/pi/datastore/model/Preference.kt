@@ -22,7 +22,7 @@ data class Preference(
         ProtoBuf.encodeToByteArray(this)
     )
 
-    companion object {
+    companion object Default {
         fun decodeFromStream(input: InputStream): Preference =
             ProtoBuf.decodeFromByteArray(input.readBytes())
     }

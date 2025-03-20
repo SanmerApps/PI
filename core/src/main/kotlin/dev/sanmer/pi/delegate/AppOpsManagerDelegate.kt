@@ -153,7 +153,7 @@ class AppOpsManagerDelegate(
         val ops by lazy { original.ops.map { OpEntry(it) } }
     }
 
-    companion object {
+    companion object Default {
         val MODE_ALLOWED get() = AppOpsManager.MODE_ALLOWED
 
         val MODE_IGNORED get() = AppOpsManager.MODE_IGNORED

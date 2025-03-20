@@ -14,7 +14,7 @@ import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.model.IPackageInfo.Companion.toIPackageInfo
+import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
