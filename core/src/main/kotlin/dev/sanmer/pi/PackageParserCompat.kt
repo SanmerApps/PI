@@ -86,16 +86,15 @@ object PackageParserCompat {
         val apkFiles = cacheDir.listFiles { f -> f.extension == "apk" }
             ?: throw FileNotFoundException("*.apk")
 
-        val splitFiles = mutableListOf<File>()
         val splitConfigs = mutableListOf<SplitConfig>()
         for (apkFile in apkFiles) {
             if (apkFile.name == BASE_APK) continue
 
             val apk = parseApkLite(apkFile)
             if (apk != null) {
-                val splitConfig = SplitConfig.parse(apk, apkFile)
-                splitConfigs.add(splitConfig)
-                splitFiles.add(apkFile)
+                splitConfigs.add(
+                    SplitConfig.parse(apk, apkFile)
+                )
             }
         }
 

@@ -8,7 +8,7 @@ import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 
 object PackageInfoCompat {
-    internal val PackageInfo.original
+    private inline val PackageInfo.original
         get() = Refine.unsafeCast<PackageInfoHidden>(this)
     
     var PackageInfo.versionCodeMajor: Int

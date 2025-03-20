@@ -7,9 +7,8 @@ import android.content.ContextWrapper
 import dev.rikka.tools.refine.Refine
 
 object ContextCompat {
-    val Context.userId get() =
-        Refine.unsafeCast<ContextHidden>(this)
-            .userId
+    val Context.userId
+        get() = Refine.unsafeCast<ContextHidden>(this).userId
 
     internal fun getContext(): Context {
         var context: Context = ActivityThread.currentApplication()
