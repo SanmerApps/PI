@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppList(
     list: List<IPackageInfo>,
-    state: LazyListState,
+    listState: LazyListState,
     settings: (IPackageInfo) -> AppsViewModel.Settings,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
@@ -52,7 +52,7 @@ fun AppList(
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize(),
-        state = state,
+        state = listState,
         contentPadding = contentPadding
     ) {
         items(list) {
