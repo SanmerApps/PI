@@ -77,7 +77,7 @@ fun SettingsScreen(
                 .padding(contentPadding)
         ) {
             ServiceItem(
-                isSucceed = state.isSucceed,
+                state = state,
                 getPlatform = PIService::platform,
                 tryStart = viewModel::tryStart
             )
