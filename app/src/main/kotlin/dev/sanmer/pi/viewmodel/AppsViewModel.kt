@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.Compat
+import dev.sanmer.pi.PIService
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
@@ -30,9 +30,8 @@ import javax.inject.Inject
 class AppsViewModel @Inject constructor(
     private val preference: PreferenceRepository
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
-    private val isAlive get() = Compat.isAlive
-    private val pm by lazy { Compat.getPackageManager() }
-    private val aom by lazy { Compat.getAppOpsService() }
+    private val pm get() = PIService.packageManager
+    private val aom get() = PIService.appOpsService
 
     var isSearch by mutableStateOf(false)
         private set
@@ -63,8 +62,8 @@ class AppsViewModel @Inject constructor(
 
     private fun providerObserver() {
         viewModelScope.launch {
-            Compat.isAliveFlow.collectLatest { isAlive ->
-                if (isAlive) {
+            PIService.stateFlow.collectLatest { state ->
+                if (state.isSucceed) {
                     packagesFlow.update { getPackages() }
 
                     aom.startWatchingMode(
@@ -77,7 +76,7 @@ class AppsViewModel @Inject constructor(
         }
 
         addCloseable {
-            if (isAlive) {
+            if (PIService.isSucceed) {
                 aom.stopWatchingMode(callback = this)
             }
         }
@@ -118,7 +117,7 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
-        if (!isAlive) return@withContext emptyList()
+        if (!PIService.isSucceed) return@withContext emptyList()
 
         val allPackages = pm.getInstalledPackages(
             PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()

@@ -14,7 +14,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import dev.sanmer.pi.Compat
+import dev.sanmer.pi.PIService
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.ui.main.MainScreen
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
             isLoading = false
 
             LaunchedEffect(preference) {
-                Compat.init(preference.provider)
+                PIService.init(preference.provider)
             }
 
             CompositionLocalProvider(

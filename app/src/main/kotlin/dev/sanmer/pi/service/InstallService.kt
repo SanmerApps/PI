@@ -18,9 +18,9 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import dev.sanmer.pi.Compat
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.PIService
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
@@ -53,8 +53,8 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
     private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
     private val nm by lazy { NotificationManagerCompat.from(this) }
-    private val pm by lazy { Compat.getPackageManager() }
-    private val pi by lazy { Compat.getPackageInstaller() }
+    private val pm get() = PIService.packageManager
+    private val pi get() = PIService.packageInstaller
 
     init {
         lifecycleScope.launch {

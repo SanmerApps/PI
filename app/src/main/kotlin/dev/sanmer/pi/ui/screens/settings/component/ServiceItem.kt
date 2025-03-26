@@ -8,23 +8,23 @@ import dev.sanmer.pi.ui.component.SettingNormalItem
 
 @Composable
 fun ServiceItem(
-    isAlive: Boolean,
-    platform: String,
+    isSucceed: Boolean,
+    getPlatform: () -> String,
     tryStart: () -> Unit
 ) = SettingNormalItem(
     icon = when {
-        isAlive -> R.drawable.mood_wink
+        isSucceed -> R.drawable.mood_wink
         else -> R.drawable.mood_xd
     },
     title = when {
-        isAlive -> stringResource(id = R.string.settings_service_running)
+        isSucceed -> stringResource(id = R.string.settings_service_running)
         else -> stringResource(id = R.string.settings_service_not_running)
     },
     desc = when {
-        isAlive -> stringResource(
+        isSucceed -> stringResource(
             id = R.string.settings_service_version,
             BuildConfig.VERSION_CODE,
-            platform
+            getPlatform()
         )
 
         else -> stringResource(id = R.string.settings_service_try_start)

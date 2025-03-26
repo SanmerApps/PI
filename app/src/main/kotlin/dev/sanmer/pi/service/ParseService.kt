@@ -14,9 +14,9 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.BuildConfig
-import dev.sanmer.pi.Compat
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.PIService
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
@@ -45,8 +45,8 @@ class ParseService : LifecycleService() {
     lateinit var preference: PreferenceRepository
 
     private val nm by lazy { NotificationManagerCompat.from(this) }
-    private val pm by lazy { Compat.getPackageManager() }
-    private val aom by lazy { Compat.getAppOpsService() }
+    private val pm get() = PIService.packageManager
+    private val aom get() = PIService.appOpsService
 
     init {
         lifecycleScope.launch {
@@ -81,7 +81,7 @@ class ParseService : LifecycleService() {
                 pendingUris.remove(uri)
             }
 
-            if (!Compat.init(preference.provider)) {
+            if (!PIService.init(preference.provider)) {
                 notifyFailure(
                     id = Const.NOTIFICATION_ID_PARSE,
                     title = getText(R.string.parsing_service),

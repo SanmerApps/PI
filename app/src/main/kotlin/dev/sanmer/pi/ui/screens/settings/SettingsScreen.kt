@@ -30,8 +30,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.Const
+import dev.sanmer.pi.PIService
 import dev.sanmer.pi.R
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
@@ -48,6 +50,8 @@ fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val state by PIService.stateFlow.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
     val preference = LocalPreference.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -73,8 +77,8 @@ fun SettingsScreen(
                 .padding(contentPadding)
         ) {
             ServiceItem(
-                isAlive = viewModel.isAlive,
-                platform = viewModel.platform,
+                isSucceed = state.isSucceed,
+                getPlatform = PIService::platform,
                 tryStart = viewModel::tryStart
             )
 

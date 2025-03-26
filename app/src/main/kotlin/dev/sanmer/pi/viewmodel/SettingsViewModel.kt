@@ -3,7 +3,7 @@ package dev.sanmer.pi.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.Compat
+import dev.sanmer.pi.PIService
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.flow.first
@@ -15,9 +15,6 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val preference: PreferenceRepository
 ) : ViewModel() {
-    val isAlive get() = Compat.isAlive
-    val platform get() = Compat.get("") { platform }
-
     init {
         Timber.d("SettingsViewModel init")
     }
@@ -31,7 +28,7 @@ class SettingsViewModel @Inject constructor(
     fun tryStart() {
         viewModelScope.launch {
             val preference = preference.data.first()
-            Compat.init(preference.provider)
+            PIService.init(preference.provider)
         }
     }
 }
