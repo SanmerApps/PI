@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val preference: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
     private val pm get() = PIService.packageManager
     private val aom get() = PIService.appOpsService
@@ -84,7 +84,7 @@ class AppsViewModel @Inject constructor(
 
     private fun dataObserver() {
         viewModelScope.launch {
-            packagesFlow.combineToLatest(preference.data) { source, preferences ->
+            packagesFlow.combineToLatest(preferenceRepository.data) { source, preferences ->
                 cacheFlow.update {
                     source.map { pi ->
                         pi.copy(
@@ -163,8 +163,11 @@ class AppsViewModel @Inject constructor(
             }
         }
 
-        override suspend fun setRequester() = preference.setRequester(packageInfo.packageName)
-        override suspend fun setExecutor() = preference.setExecutor(packageInfo.packageName)
+        override suspend fun setRequester() =
+            preferenceRepository.setRequester(packageInfo.packageName)
+
+        override suspend fun setExecutor() =
+            preferenceRepository.setExecutor(packageInfo.packageName)
     }
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(

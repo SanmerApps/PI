@@ -49,7 +49,7 @@ import kotlin.time.Duration.Companion.seconds
 @AndroidEntryPoint
 class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallback {
     @Inject
-    lateinit var preference: PreferenceRepository
+    lateinit var preferenceRepository: PreferenceRepository
 
     private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
     private val nm by lazy { NotificationManagerCompat.from(this) }
@@ -127,7 +127,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val appLabel = task.archiveInfo.applicationInfo?.loadLabel(packageManager)
             ?: task.archiveInfo.packageName
 
-        val preference = preference.data.first()
+        val preference = preferenceRepository.data.first()
         val originatingUid = getPackageUid(preference.requester)
         pi.setInstallerPackageName(preference.executor)
 

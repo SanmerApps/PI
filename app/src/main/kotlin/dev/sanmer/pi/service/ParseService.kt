@@ -42,7 +42,7 @@ import kotlin.time.Duration.Companion.seconds
 @AndroidEntryPoint
 class ParseService : LifecycleService() {
     @Inject
-    lateinit var preference: PreferenceRepository
+    lateinit var preferenceRepository: PreferenceRepository
 
     private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm get() = PIService.packageManager
@@ -75,7 +75,7 @@ class ParseService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val uri = intent?.data ?: return@launch
-            val preference = preference.data.first()
+            val preference = preferenceRepository.data.first()
             val finish = {
                 nm.cancel(uri.hashCode())
                 pendingUris.remove(uri)

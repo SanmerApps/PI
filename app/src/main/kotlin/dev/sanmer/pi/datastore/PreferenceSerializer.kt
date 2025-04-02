@@ -34,10 +34,10 @@ class PreferenceSerializer @Inject constructor() : Serializer<Preference> {
 
     @Module
     @InstallIn(SingletonComponent::class)
-    object Provider {
+    object Impl {
         @Provides
         @Singleton
-        fun DataStore(
+        fun dataStore(
             @ApplicationContext context: Context,
             serializer: PreferenceSerializer
         ): DataStore<Preference> =

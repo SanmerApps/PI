@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val preference: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
     init {
         Timber.d("SettingsViewModel init")
@@ -21,13 +21,13 @@ class SettingsViewModel @Inject constructor(
 
     fun setProvider(value: Provider) {
         viewModelScope.launch {
-            preference.setProvider(value)
+            preferenceRepository.setProvider(value)
         }
     }
 
     fun tryStart() {
         viewModelScope.launch {
-            val preference = preference.data.first()
+            val preference = preferenceRepository.data.first()
             PIService.init(preference.provider)
         }
     }
