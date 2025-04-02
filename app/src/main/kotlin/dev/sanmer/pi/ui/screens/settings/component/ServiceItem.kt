@@ -1,36 +1,44 @@
 package dev.sanmer.pi.ui.screens.settings.component
 
+import android.os.Process
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import dev.sanmer.pi.BuildConfig
-import dev.sanmer.pi.PIService.State
 import dev.sanmer.pi.R
+import dev.sanmer.pi.model.ServiceState
 import dev.sanmer.pi.ui.component.SettingNormalItem
+import dev.sanmer.su.IServiceManager
 
 @Composable
 fun ServiceItem(
-    state: State,
-    getPlatform: () -> String,
-    tryStart: () -> Unit
+    state: ServiceState,
+    restart: () -> Unit
 ) = SettingNormalItem(
     icon = when (state) {
-        State.Pending -> R.drawable.mood_neutral
-        State.Success -> R.drawable.mood_wink
-        State.Failure -> R.drawable.mood_xd
+        ServiceState.Pending -> R.drawable.mood_neutral
+        is ServiceState.Success -> R.drawable.mood_wink
+        is ServiceState.Failure -> R.drawable.mood_xd
     },
     title = stringResource(id = when (state) {
-        State.Pending -> R.string.settings_service_starting
-        State.Success -> R.string.settings_service_running
-        State.Failure -> R.string.settings_service_not_running
+        ServiceState.Pending -> R.string.settings_service_starting
+        is ServiceState.Success -> R.string.settings_service_running
+        is ServiceState.Failure -> R.string.settings_service_not_running
     }),
     desc = when (state) {
-        State.Pending -> stringResource(id = R.string.settings_service_wait)
-        State.Success -> stringResource(
+        ServiceState.Pending -> stringResource(id = R.string.settings_service_wait)
+        is ServiceState.Success -> stringResource(
             id = R.string.settings_service_version,
             BuildConfig.VERSION_CODE,
-            getPlatform()
+            state.service.platform
         )
-        State.Failure -> stringResource(id = R.string.settings_service_try_start)
+        is ServiceState.Failure -> stringResource(id = R.string.settings_service_try_start)
     },
-    onClick = { if (state.isFailed) tryStart() }
+    onClick = { if (state.isFailed) restart() }
 )
+
+private val IServiceManager.platform
+    inline get() = when (uid) {
+        Process.ROOT_UID -> "root"
+        Process.SHELL_UID -> "adb"
+        else -> "unknown (${uid})"
+    }

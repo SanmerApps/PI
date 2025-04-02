@@ -26,7 +26,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import dev.sanmer.pi.PIService
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
@@ -42,7 +41,6 @@ fun AppsScreen(
     navController: NavController,
     viewModel: AppsViewModel = hiltViewModel()
 ) {
-    val state by PIService.stateFlow.collectAsStateWithLifecycle()
     val list by viewModel.apps.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -76,7 +74,7 @@ fun AppsScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (state.isFailed) {
+            if (viewModel.isFailed) {
                 Failed(
                     message = stringResource(id = R.string.settings_service_not_running),
                     modifier = Modifier.padding(contentPadding)

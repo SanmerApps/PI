@@ -8,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.PIService
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
@@ -16,6 +15,7 @@ import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.repository.PreferenceRepository
+import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,10 +28,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppsViewModel @Inject constructor(
-    private val preferenceRepository: PreferenceRepository
+    private val preferenceRepository: PreferenceRepository,
+    private val serviceRepository: ServiceRepository
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
-    private val pm get() = PIService.packageManager
-    private val aom get() = PIService.appOpsService
+    private val pm by lazy { serviceRepository.getPackageManager() }
+    private val aom by lazy { serviceRepository.getAppOpsManager() }
 
     var isSearch by mutableStateOf(false)
         private set
@@ -45,11 +46,14 @@ class AppsViewModel @Inject constructor(
     var isLoading by mutableStateOf(true)
         private set
 
+    var isFailed by mutableStateOf(false)
+        private set
+
     override fun opChanged(op: Int, uid: Int, packageName: String) {
         Timber.d("opChanged<${AppOpsManagerDelegate.opToName(op)}>: $packageName")
 
         viewModelScope.launch {
-            packagesFlow.value = getPackages()
+            packagesFlow.update { getPackages() }
         }
     }
 
@@ -62,7 +66,7 @@ class AppsViewModel @Inject constructor(
 
     private fun providerObserver() {
         viewModelScope.launch {
-            PIService.stateFlow.collectLatest { state ->
+            serviceRepository.state.collectLatest { state ->
                 if (state.isSucceed) {
                     packagesFlow.update { getPackages() }
 
@@ -72,11 +76,12 @@ class AppsViewModel @Inject constructor(
                         callback = this@AppsViewModel
                     )
                 }
+                isFailed = state.isFailed
             }
         }
 
         addCloseable {
-            if (PIService.isSucceed) {
+            if (serviceRepository.isSucceed) {
                 aom.stopWatchingMode(callback = this)
             }
         }
@@ -117,7 +122,7 @@ class AppsViewModel @Inject constructor(
     }
 
     private suspend fun getPackages() = withContext(Dispatchers.IO) {
-        if (!PIService.isSucceed) return@withContext emptyList()
+        if (!serviceRepository.isSucceed) return@withContext emptyList()
 
         val allPackages = pm.getInstalledPackages(
             PackageManager.GET_PERMISSIONS, UserHandleCompat.myUserId()

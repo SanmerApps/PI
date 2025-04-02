@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.pi.PIService
 import dev.sanmer.pi.datastore.model.Preference
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.PreferenceRepository
@@ -33,7 +32,6 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             preferenceRepository.data.collect {
                 state = LoadState.Ready(it)
-                PIService.init(it.provider)
             }
         }
     }
@@ -50,6 +48,7 @@ class MainViewModel @Inject constructor(
         data object Pending : LoadState() {
             override val preference = Preference()
         }
+
         data class Ready(
             override val preference: Preference
         ) : LoadState()

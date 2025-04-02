@@ -16,7 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
-import dev.sanmer.pi.PIService
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
@@ -25,7 +24,7 @@ import dev.sanmer.pi.compat.MediaStoreCompat.getOwnerPackageNameForUri
 import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
-import dev.sanmer.pi.repository.PreferenceRepository
+import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.ui.InstallActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -42,11 +41,11 @@ import kotlin.time.Duration.Companion.seconds
 @AndroidEntryPoint
 class ParseService : LifecycleService() {
     @Inject
-    lateinit var preferenceRepository: PreferenceRepository
+    lateinit var serviceRepository: ServiceRepository
 
     private val nm by lazy { NotificationManagerCompat.from(this) }
-    private val pm get() = PIService.packageManager
-    private val aom get() = PIService.appOpsService
+    private val pm by lazy { serviceRepository.getPackageManager() }
+    private val aom by lazy { serviceRepository.getAppOpsManager() }
 
     init {
         lifecycleScope.launch {
@@ -75,13 +74,13 @@ class ParseService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val uri = intent?.data ?: return@launch
-            val preference = preferenceRepository.data.first()
             val finish = {
                 nm.cancel(uri.hashCode())
                 pendingUris.remove(uri)
             }
 
-            if (!PIService.init(preference.provider)) {
+            val state = serviceRepository.state.first { !it.isPending }
+            if (state.isFailed) {
                 notifyFailure(
                     id = Const.NOTIFICATION_ID_PARSE,
                     title = getText(R.string.parsing_service),

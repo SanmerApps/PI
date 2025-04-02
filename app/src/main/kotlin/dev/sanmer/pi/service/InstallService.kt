@@ -20,7 +20,6 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
-import dev.sanmer.pi.PIService
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
@@ -32,6 +31,7 @@ import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.write
 import dev.sanmer.pi.ktx.dp
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.repository.PreferenceRepository
+import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -51,10 +51,13 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     @Inject
     lateinit var preferenceRepository: PreferenceRepository
 
+    @Inject
+    lateinit var serviceRepository: ServiceRepository
+
     private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
     private val nm by lazy { NotificationManagerCompat.from(this) }
-    private val pm get() = PIService.packageManager
-    private val pi get() = PIService.packageInstaller
+    private val pm by lazy { serviceRepository.getPackageManager() }
+    private val pi by lazy { serviceRepository.getPackageInstaller() }
 
     init {
         lifecycleScope.launch {

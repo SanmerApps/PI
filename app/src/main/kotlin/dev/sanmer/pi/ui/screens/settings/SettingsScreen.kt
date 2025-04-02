@@ -33,7 +33,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.Const
-import dev.sanmer.pi.PIService
 import dev.sanmer.pi.R
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
@@ -50,7 +49,7 @@ fun SettingsScreen(
     navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val state by PIService.stateFlow.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val preference = LocalPreference.current
@@ -78,8 +77,7 @@ fun SettingsScreen(
         ) {
             ServiceItem(
                 state = state,
-                getPlatform = PIService::platform,
-                tryStart = viewModel::tryStart
+                restart = viewModel::restart
             )
 
             SettingNormalItem(
