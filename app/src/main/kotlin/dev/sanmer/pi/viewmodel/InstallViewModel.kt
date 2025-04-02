@@ -1,6 +1,5 @@
 package dev.sanmer.pi.viewmodel
 
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.text.format.Formatter
@@ -9,8 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
@@ -25,9 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstallViewModel @Inject constructor(
-    application: Application
-) : AndroidViewModel(application) {
-    private val context: Context by lazy { getApplication() }
+    @ApplicationContext private val context: Context
+) : ViewModel() {
     private val pm by lazy { context.packageManager }
 
     private var archivePath = File(".")

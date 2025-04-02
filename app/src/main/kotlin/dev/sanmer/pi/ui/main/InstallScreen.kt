@@ -103,8 +103,7 @@ fun InstallScreen(
             AnimatedVisibility(
                 visible = isScrollingUp,
                 enter = fadeIn() + scaleIn(),
-                exit = scaleOut() + fadeOut(),
-                label = "ActionButton"
+                exit = scaleOut() + fadeOut()
             ) {
                 ActionButton(onStart = onStart)
             }
