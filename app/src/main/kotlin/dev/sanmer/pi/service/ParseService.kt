@@ -32,6 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.util.UUID
@@ -57,6 +58,7 @@ class ParseService : LifecycleService() {
     }
 
     override fun onCreate() {
+        Timber.d("onCreate")
         super.onCreate()
         setForeground()
     }
@@ -68,89 +70,90 @@ class ParseService : LifecycleService() {
 
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        Timber.d("onDestroy")
         super.onDestroy()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val uri = intent?.data ?: return@launch
-            val finish = {
-                nm.cancel(uri.hashCode())
-                pendingUris.remove(uri)
-            }
-
             val state = serviceRepository.state.first { !it.isPending }
-            if (state.isFailed) {
+
+            if (state.isSucceed) {
+                parse(uri)
+            } else {
                 notifyFailure(
                     id = Const.NOTIFICATION_ID_PARSE,
                     title = getText(R.string.parsing_service),
                     text = getText(R.string.message_invalid_provider)
                 )
-
-                pendingUris.remove(uri)
-                return@launch
             }
-
-            val packageName = getOwnerPackageNameForUri(uri)
-            val sourceInfo = packageName?.let(::getPackageInfo)
-            val path = File(getPathForUri(uri))
-            Timber.i("from: $packageName, path: $path")
-
-            notifyParsing(
-                id = uri.hashCode(),
-                filename = path.name
-            )
-
-            val archivePath = File(externalCacheDir, UUID.randomUUID().toString())
-            copyToFile(uri, archivePath)
-
-            PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
-                if (sourceInfo?.isAuthorized() == true ||
-                    sourceInfo?.packageName == pi.packageName ||
-                    pi.packageName == BuildConfig.APPLICATION_ID) {
-                    InstallService.apk(
-                        context = applicationContext,
-                        archivePath = archivePath,
-                        archiveInfo = pi
-                    )
-                } else {
-                    InstallActivity.apk(
-                        context = applicationContext,
-                        archivePath = archivePath,
-                        archiveInfo = pi,
-                        sourceInfo = sourceInfo
-                    )
-                }
-
-                finish()
-                return@launch
-            }
-
-            val archiveDir = File(externalCacheDir, UUID.randomUUID().toString()).apply { mkdirs() }
-            PackageParserCompat.parseAppBundle(archivePath, 0, archiveDir)?.let { bi ->
-                InstallActivity.appBundle(
-                    context = applicationContext,
-                    archivePath = archiveDir,
-                    archiveInfo = bi.baseInfo,
-                    splitConfigs = bi.splitConfigs,
-                    sourceInfo = sourceInfo
-                )
-
-                archivePath.delete()
-                finish()
-                return@launch
-            }
-
-            archivePath.delete()
-            archiveDir.deleteRecursively()
-            finish()
-            notifyFailure(
-                id = uri.hashCode(),
-                title = path.name,
-                text = getText(R.string.message_parsing_failed)
-            )
+            pendingUris.remove(uri)
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private suspend fun parse(uri: Uri) = withContext(Dispatchers.IO) {
+        val packageName = getOwnerPackageNameForUri(uri)
+        val sourceInfo = packageName?.let(::getPackageInfo)
+        val path = File(getPathForUri(uri))
+        Timber.i("from: $packageName, path: $path")
+
+        notifyParsing(
+            id = uri.hashCode(),
+            filename = path.name
+        )
+
+        val archivePath = File(externalCacheDir, UUID.randomUUID().toString())
+        copyToFile(uri, archivePath)
+
+        PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
+            if (sourceInfo?.isAuthorized() == true ||
+                sourceInfo?.packageName == pi.packageName ||
+                pi.packageName == BuildConfig.APPLICATION_ID) {
+                InstallService.apk(
+                    context = applicationContext,
+                    archivePath = archivePath,
+                    archiveInfo = pi
+                )
+            } else {
+                InstallActivity.apk(
+                    context = applicationContext,
+                    archivePath = archivePath,
+                    archiveInfo = pi,
+                    sourceInfo = sourceInfo
+                )
+            }
+
+            nm.cancel(uri.hashCode())
+            return@withContext true
+        }
+
+        val archiveDir = File(externalCacheDir, UUID.randomUUID().toString()).apply { mkdirs() }
+        PackageParserCompat.parseAppBundle(archivePath, 0, archiveDir)?.let { bi ->
+            InstallActivity.appBundle(
+                context = applicationContext,
+                archivePath = archiveDir,
+                archiveInfo = bi.baseInfo,
+                splitConfigs = bi.splitConfigs,
+                sourceInfo = sourceInfo
+            )
+
+            archivePath.delete()
+            nm.cancel(uri.hashCode())
+            return@withContext true
+        }
+
+        archivePath.delete()
+        archiveDir.deleteRecursively()
+        nm.cancel(uri.hashCode())
+        notifyFailure(
+            id = uri.hashCode(),
+            title = path.name,
+            text = getText(R.string.message_parsing_failed)
+        )
+
+        return@withContext false
     }
 
     private fun getPackageInfo(packageName: String): PackageInfo {
