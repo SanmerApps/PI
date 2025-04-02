@@ -44,7 +44,7 @@
         <activity
             android:name=".ui.InstallActivity"
             android:theme="@style/DialogTheme"
-            android:label="@string/install_activity"
+            android:label="@string/install_activity_label"
             android:exported="true"
             android:noHistory="true"
             android:excludeFromRecents="true"
