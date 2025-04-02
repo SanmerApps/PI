@@ -23,15 +23,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.R
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
+import dev.sanmer.pi.service.OptimizeService
 import dev.sanmer.pi.ui.component.MenuChip
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.viewmodel.AppsViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -100,14 +104,16 @@ private fun SettingItem(
         .clip(shape = MaterialTheme.shapes.medium)
         .border(
             border = CardDefaults.outlinedCardBorder(),
-            shape = MaterialTheme.shapes.medium)
+            shape = MaterialTheme.shapes.medium
+        )
         .fillMaxWidth()
         .padding(all = 15.dp),
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(10.dp),
     maxItemsInEachRow = 2
 ) {
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope { Dispatchers.IO }
 
     MenuChip(
         selected = pi.isRequester,
@@ -139,6 +145,32 @@ private fun SettingItem(
                 settings.setAuthorized()
             }
         },
-        label = { Text(text = stringResource(id = R.string.app_authorize)) },
+        label = {
+            Text(
+                text = stringResource(
+                    id = if (pi.isAuthorized) R.string.app_authorized
+                    else R.string.app_authorize
+                )
+            )
+        },
+    )
+
+    val state by OptimizeService.getJobState(pi.packageName).collectAsStateWithLifecycle(
+        initialValue = OptimizeService.JobState.Empty
+    )
+    MenuChip(
+        selected = state.isSucceed,
+        onClick = { OptimizeService.start(context, pi.packageName) },
+        label = {
+            Text(
+                text = stringResource(
+                    id = when {
+                        state.isRunning -> R.string.message_optimizing
+                        state.isSucceed -> R.string.app_optimized
+                        else -> R.string.app_optimize
+                    }
+                )
+            )
+        },
     )
 }

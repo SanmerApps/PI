@@ -12,6 +12,9 @@
     <string name="app_requester">Requester</string>
     <string name="app_executor">Executor</string>
     <string name="app_authorize">Authorize</string>
+    <string name="app_authorized">Authorized</string>
+    <string name="app_optimize">Re-optimize</string>
+    <string name="app_optimized">Optimized</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -37,12 +40,15 @@
 
     <!-- Message -->
     <string name="installation_service">Installation service</string>
-    <string name="parsing_service">Parsing service</string>
     <string name="message_install_successful">Installation successful</string>
     <string name="message_install_failed">Installation failed</string>
+    <string name="parsing_service">Parsing service</string>
     <string name="message_invalid_provider">Service unavailable</string>
     <string name="message_parsing">Parsing</string>
     <string name="message_parsing_failed">Parsing failed</string>
+    <string name="optimize_service">Optimization service</string>
+    <string name="message_optimizing">Optimizing</string>
+    <string name="message_optimize_failed">Optimization failed</string>
     <string name="message_loading">Loading…</string>
     <string name="unknown_error">Unknown error</string>
     <string name="updated_title">PI Updated</string>

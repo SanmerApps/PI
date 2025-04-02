@@ -59,12 +59,17 @@
         </activity>
 
         <service
+            android:name=".service.ParseService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
+
+        <service
             android:name=".service.InstallService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
 
         <service
-            android:name=".service.ParseService"
+            android:name=".service.OptimizeService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
 

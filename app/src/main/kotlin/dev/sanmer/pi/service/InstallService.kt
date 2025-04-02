@@ -164,6 +164,11 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
                     appIcon = appIcon,
                     packageName = task.archiveInfo.packageName
                 )
+
+                OptimizeService.start(
+                    context = this@InstallService,
+                    packageName = task.archiveInfo.packageName
+                )
             }
 
             else -> {
@@ -199,7 +204,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         return params
     }
 
-    private fun getPackageUid(packageName: String): Int =
+    private fun getPackageUid(packageName: String) =
         runCatching {
             pm.getPackageUid(packageName, 0, userId)
         }.getOrDefault(
