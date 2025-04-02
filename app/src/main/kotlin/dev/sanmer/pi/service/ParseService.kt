@@ -88,8 +88,7 @@ class ParseService : LifecycleService() {
                     text = getText(R.string.message_invalid_provider)
                 )
 
-                stopSelf()
-                pendingUris.clear()
+                pendingUris.remove(uri)
                 return@launch
             }
 
