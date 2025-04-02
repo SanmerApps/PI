@@ -31,7 +31,7 @@ fun ServiceItem(
             BuildConfig.VERSION_CODE,
             state.service.platform
         )
-        is ServiceState.Failure -> stringResource(id = R.string.settings_service_try_start)
+        is ServiceState.Failure -> stringResource(id = R.string.settings_service_restart)
     },
     onClick = { if (state.isFailed) restart() }
 )

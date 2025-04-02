@@ -123,7 +123,7 @@ private fun SettingItem(
                 settings.setRequester()
             }
         },
-        label = { Text(text = stringResource(id = R.string.app_requester)) },
+        label = { Text(text = stringResource(id = R.string.app_action_requester)) },
     )
 
     MenuChip(
@@ -134,7 +134,7 @@ private fun SettingItem(
                 settings.setExecutor()
             }
         },
-        label = { Text(text = stringResource(id = R.string.app_executor)) }
+        label = { Text(text = stringResource(id = R.string.app_action_executor)) }
     )
 
     MenuChip(
@@ -148,8 +148,8 @@ private fun SettingItem(
         label = {
             Text(
                 text = stringResource(
-                    id = if (pi.isAuthorized) R.string.app_authorized
-                    else R.string.app_authorize
+                    id = if (pi.isAuthorized) R.string.app_action_authorized
+                    else R.string.app_action_authorize
                 )
             )
         },
@@ -166,8 +166,8 @@ private fun SettingItem(
                 text = stringResource(
                     id = when {
                         state.isRunning -> R.string.message_optimizing
-                        state.isSucceed -> R.string.app_optimized
-                        else -> R.string.app_optimize
+                        state.isSucceed -> R.string.app_action_optimized
+                        else -> R.string.app_action_optimize
                     }
                 )
             )

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="install_activity">Instalar</string>
+    <string name="install_activity_label">Instalar</string>
     <string name="settings_title">Configuración</string>
     <string name="setup_title">Modo de trabajo</string>
     <string name="setup_shizuku_desc">Se requiere permiso de Sui o Shizuku</string>
@@ -8,7 +8,7 @@
     <string name="settings_service_running">El servicio se está ejecutando</string>
     <string name="settings_service_version">Versión %1$d, %2$s</string>
     <string name="settings_service_not_running">El servicio no está en funcionamiento</string>
-    <string name="settings_service_try_start">Haga clic para intentar iniciar</string>
+    <string name="settings_service_restart">Haga clic para intentar iniciar</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Sistema por defecto</string>
     <string name="settings_translation">Participar en la traducción</string>
@@ -19,19 +19,18 @@
     <string name="install_config_density_title">Densidad de pantalla</string>
     <string name="install_config_language_title">Idioma</string>
     <string name="install_config_unspecified_title">Sin especificar</string>
-    <string name="message_invalid_provider">Servicio no disponible</string>
     <string name="message_parsing_failed">Error al analizar el paquete</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="empty_list">Lista vacía</string>
     <string name="installation_service">Instalar servicio</string>
     <string name="unknown_error">Error desconocido</string>
-    <string name="message_install_successful">Instalación correcta</string>
+    <string name="message_install_succeed">Instalación correcta</string>
     <string name="message_install_failed">Instalación fallida</string>
     <string name="message_loading">Cargando…</string>
     <string name="search_placeholder">Buscar…</string>
-    <string name="app_authorize">Autorización</string>
-    <string name="app_requester">Solicitante</string>
-    <string name="app_executor">Ejecutor</string>
+    <string name="app_action_authorize">Autorización</string>
+    <string name="app_action_requester">Solicitante</string>
+    <string name="app_action_executor">Ejecutor</string>
     <string name="updated_title">PI Actualizado</string>
     <string name="updated_text">Toca para abrir la app</string>
     <string name="parsing_service">Servicio de análisis</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="install_activity">Instalar</string>
+    <string name="install_activity_label">Instalar</string>
     <string name="setup_title">Modo de trabalho</string>
     <string name="setup_root_desc">Necessita de permissões root concedida por Magisk, KernelSU ou APatch</string>
     <string name="settings_service_running">O serviço está em execução</string>
@@ -14,7 +14,7 @@
     <string name="search_placeholder">Pesquisar…</string>
     <string name="setup_shizuku_desc">Necessita de permissão concedida por Sui ou Shizuku</string>
     <string name="settings_title">Definições</string>
-    <string name="message_install_successful">Instalação bem-sucedida</string>
+    <string name="message_install_succeed">Instalação bem-sucedida</string>
     <string name="installation_service">Instalar serviço</string>
     <string name="unknown_error">Erro desconhecido</string>
     <string name="install_config_feature_title">Recurso dinâmico</string>
@@ -24,14 +24,13 @@
     <string name="install_config_unspecified_title">Não especificado</string>
     <string name="settings_translation">Participe da tradução</string>
     <string name="settings_translation_desc">Ajude-nos a traduzir o PI para o seu idioma</string>
-    <string name="settings_service_try_start">Clique para tentar começar</string>
+    <string name="settings_service_restart">Clique para tentar começar</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Padrão do sistema</string>
-    <string name="message_invalid_provider">Serviço não disponível</string>
     <string name="message_parsing_failed">Falha na análise do pacote</string>
-    <string name="app_authorize">Autorizar</string>
-    <string name="app_requester">Solicitante</string>
-    <string name="app_executor">Executor</string>
+    <string name="app_action_authorize">Autorizar</string>
+    <string name="app_action_requester">Solicitante</string>
+    <string name="app_action_executor">Executor</string>
     <string name="updated_title">PI atualizado</string>
     <string name="updated_text">Toque para abrir o app</string>
     <string name="parsing_service">Serviço de análise</string>

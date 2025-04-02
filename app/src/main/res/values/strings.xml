@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Activity -->
-    <string name="install_activity">Install</string>
+    <string name="install_activity_label">Install</string>
 
     <!-- Setup -->
     <string name="setup_title">Working mode</string>
@@ -9,12 +9,12 @@
     <string name="setup_root_desc">Requires Root permissions provided by Magisk, KernelSU or APatch</string>
 
     <!-- Apps -->
-    <string name="app_requester">Requester</string>
-    <string name="app_executor">Executor</string>
-    <string name="app_authorize">Authorize</string>
-    <string name="app_authorized">Authorized</string>
-    <string name="app_optimize">Re-optimize</string>
-    <string name="app_optimized">Optimized</string>
+    <string name="app_action_requester">Requester</string>
+    <string name="app_action_executor">Executor</string>
+    <string name="app_action_authorize">Authorize</string>
+    <string name="app_action_authorized">Authorized</string>
+    <string name="app_action_optimize">Re-optimize</string>
+    <string name="app_action_optimized">Optimized</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -23,7 +23,7 @@
     <string name="settings_service_running">Service is running</string>
     <string name="settings_service_version">Version %1$d, %2$s</string>
     <string name="settings_service_not_running">Service is not running</string>
-    <string name="settings_service_try_start">Click to try to start</string>
+    <string name="settings_service_restart">Click to try to restart</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">System default</string>
     <string name="settings_translation">Participate in translation</string>
@@ -40,10 +40,9 @@
 
     <!-- Message -->
     <string name="installation_service">Installation service</string>
-    <string name="message_install_successful">Installation successful</string>
+    <string name="message_install_succeed">Installation successful</string>
     <string name="message_install_failed">Installation failed</string>
     <string name="parsing_service">Parsing service</string>
-    <string name="message_invalid_provider">Service unavailable</string>
     <string name="message_parsing">Parsing</string>
     <string name="message_parsing_failed">Parsing failed</string>
     <string name="optimize_service">Optimization service</string>

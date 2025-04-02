@@ -85,7 +85,7 @@ class ParseService : LifecycleService() {
                 notifyFailure(
                     id = Const.NOTIFICATION_ID_PARSE,
                     title = getText(R.string.parsing_service),
-                    text = getText(R.string.message_invalid_provider)
+                    text = getText(R.string.settings_service_not_running)
                 )
             }
             pendingUris.remove(uri)

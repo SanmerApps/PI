@@ -259,7 +259,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val notification = newNotificationBuilder()
             .setLargeIcon(appIcon)
             .setContentTitle(appLabel)
-            .setContentText(getText(R.string.message_install_successful))
+            .setContentText(getText(R.string.message_install_succeed))
             .setContentIntent(pending)
             .setSilent(true)
             .setAutoCancel(true)

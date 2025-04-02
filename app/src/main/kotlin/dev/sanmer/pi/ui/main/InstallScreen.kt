@@ -236,7 +236,7 @@ private fun TopBar(
     onDeny: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
-    title = { Text(text = stringResource(id = R.string.install_activity)) },
+    title = { Text(text = stringResource(id = R.string.install_activity_label)) },
     navigationIcon = {
         IconButton(
             onClick = onDeny

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="install_activity">تثبيت</string>
+    <string name="install_activity_label">تثبيت</string>
     <string name="setup_title">وضع العمل</string>
     <string name="settings_service_running">الخدمة قيد التشغيل</string>
     <string name="settings_service_not_running">الخدمة لا تعمل</string>
@@ -16,7 +16,7 @@
     <string name="install_config_density_title">كثافة الشاشة</string>
     <string name="install_config_language_title">اللغة</string>
     <string name="install_config_unspecified_title">غير محدد</string>
-    <string name="message_install_successful">تم التثبيت بنجاح</string>
+    <string name="message_install_succeed">تم التثبيت بنجاح</string>
     <string name="message_install_failed">فشل التثبيت</string>
     <string name="message_loading">جاري التحميل…</string>
     <string name="search_placeholder">بحث…</string>
@@ -24,14 +24,13 @@
     <string name="unknown_error">خطأ غير معروف</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="setup_root_desc">يتطلب صلاحيات الروت التي يوفرها Magisk أو KernelSU أو APatch</string>
-    <string name="settings_service_try_start">إضغط لمحاولة البدء</string>
+    <string name="settings_service_restart">إضغط لمحاولة البدء</string>
     <string name="settings_language">اللغة</string>
     <string name="settings_language_system">إفتراضي تبع النظام</string>
     <string name="message_parsing_failed">فشل تحليل الحزمة</string>
-    <string name="message_invalid_provider">الخدمة غير متاحة</string>
-    <string name="app_authorize">مخول</string>
-    <string name="app_requester">الطالب</string>
-    <string name="app_executor">المنفذ</string>
+    <string name="app_action_authorize">مخول</string>
+    <string name="app_action_requester">الطالب</string>
+    <string name="app_action_executor">المنفذ</string>
     <string name="updated_title">PI محدث</string>
     <string name="updated_text">انقر لفتح البرنامج</string>
 </resources>

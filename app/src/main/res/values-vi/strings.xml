@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="install_activity">Cài đặt</string>
+    <string name="install_activity_label">Cài đặt</string>
     <string name="setup_shizuku_desc">Cần có sự cho phép của Sui hoặc Shizuku</string>
     <string name="settings_service_running">Dịch vụ đang chạy</string>
     <string name="settings_service_not_running">Dịch vụ không chạy</string>
@@ -15,7 +15,7 @@
     <string name="install_config_density_title">Mật độ màn hình</string>
     <string name="install_config_language_title">Ngôn ngữ</string>
     <string name="install_config_unspecified_title">Không cụ thể</string>
-    <string name="message_install_successful">Cài đặt thành công</string>
+    <string name="message_install_succeed">Cài đặt thành công</string>
     <string name="message_install_failed">Cài đặt thất bại</string>
     <string name="message_loading">Đang tải…</string>
     <string name="search_placeholder">Tìm…</string>

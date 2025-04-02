@@ -2,11 +2,11 @@
 <resources>
     <string name="settings_title">Setelan</string>
     <string name="setup_title">Mode kerja</string>
-    <string name="app_authorize">Diotorisasi</string>
-    <string name="app_executor">Eksekutor</string>
+    <string name="app_action_authorize">Diotorisasi</string>
+    <string name="app_action_executor">Eksekutor</string>
     <string name="settings_service_running">Layanan telah berjalan</string>
     <string name="settings_service_version">Versi %1$d, %2$s</string>
-    <string name="settings_service_try_start">Klik untuk mencoba memulai</string>
+    <string name="settings_service_restart">Klik untuk mencoba memulai</string>
     <string name="settings_language">Bahasa</string>
     <string name="settings_language_system">Bawaan sistem</string>
     <string name="settings_translation">Berpartisipasi dalam penerjemahan</string>
@@ -16,19 +16,18 @@
     <string name="install_config_abi_title">ABI</string>
     <string name="install_config_density_title">Kepadatan layar</string>
     <string name="setup_shizuku_desc">Memerlukan izin dari Sui atau Shizuku</string>
-    <string name="app_requester">Pengaju</string>
+    <string name="app_action_requester">Pengaju</string>
     <string name="install_config_language_title">Bahasa</string>
     <string name="install_config_unspecified_title">Tidak spesifik</string>
-    <string name="message_invalid_provider">Layanan tidak tersedia</string>
     <string name="message_parsing_failed">Parsing paket gagal</string>
-    <string name="message_install_successful">Pemasangan berhasil</string>
+    <string name="message_install_succeed">Pemasangan berhasil</string>
     <string name="message_install_failed">Pemasangan gagal</string>
     <string name="message_loading">Memuat…</string>
     <string name="search_placeholder">Cari…</string>
     <string name="empty_list">Daftar kosong</string>
     <string name="installation_service">Layanan pemasangan</string>
     <string name="unknown_error">Kesalahan tidak diketahui</string>
-    <string name="install_activity">Pasang</string>
+    <string name="install_activity_label">Pasang</string>
     <string name="setup_root_desc">Memerlukan izin Root dari Magisk, KernelSU, atau APatch</string>
     <string name="settings_service_not_running">Layanan tidak berjalan</string>
     <string name="settings_translation_desc">Bantu kami menerjemahkan PI ke dalam bahasa Anda</string>
