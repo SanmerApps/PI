@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInfo
 import android.content.pm.ResolveInfo
+import android.os.SystemProperties
 import dev.sanmer.pi.BuildCompat
 import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat.getSystemService
@@ -96,5 +97,20 @@ class PackageManagerDelegate(
         )
 
         return intent
+    }
+
+    fun clearApplicationProfileData(packageName: String) {
+        packageManager.clearApplicationProfileData(packageName)
+    }
+
+    fun performDexOpt(packageName: String): Boolean {
+        return packageManager.performDexOptMode(
+            packageName,
+            SystemProperties.getBoolean("dalvik.vm.usejitprofiles", false),
+            SystemProperties.get("pm.dexopt.install", "speed-profile"),
+            true,
+            true,
+            null
+        )
     }
 }

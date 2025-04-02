@@ -46,6 +46,10 @@ public interface IPackageManager extends IInterface {
 
     int checkPermission(String permName, String pkgName, int userId) throws RemoteException;
 
+    boolean performDexOptMode(String packageName, boolean checkProfiles, String targetCompilerFilter, boolean force, boolean bootComplete, String splitName) throws RemoteException;
+
+    void clearApplicationProfileData(String packageName) throws RemoteException;
+
     abstract class Stub extends Binder implements IPackageManager {
 
         public static IPackageManager asInterface(IBinder obj) {
