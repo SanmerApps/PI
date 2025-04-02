@@ -23,7 +23,6 @@ class Updated : BroadcastReceiver() {
         externalCacheDir?.deleteRecursively()
     }
 
-    @Throws(SecurityException::class)
     private fun Context.notifyUpdated() {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

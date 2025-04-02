@@ -169,7 +169,6 @@ class OptimizeService : LifecycleService() {
         NotificationCompat.Builder(applicationContext, Const.CHANNEL_ID_OPTIMIZE)
             .setSmallIcon(R.drawable.launcher_outline)
 
-    @Throws(SecurityException::class)
     private fun notify(id: Int, notification: Notification) {
         val granted = if (BuildCompat.atLeastT) {
             PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)

@@ -23,9 +23,7 @@ class AppOpsManagerDelegate(
     }
 
     fun checkOpNoThrow(op: Int, uid: Int, packageName: String): Mode {
-        return Mode.fromCode(
-            appOpsService.checkOperation(op, uid, packageName)
-        )
+        return Mode.Unsafe(appOpsService.checkOperation(op, uid, packageName))
     }
 
     fun checkOpNoThrow(op: Int, packageInfo: PackageInfo): Mode {
@@ -131,8 +129,8 @@ class AppOpsManagerDelegate(
         val isDefaulted inline get() = this == Default
         val isForegrounded inline get() = this == Foreground
 
-        internal companion object {
-            fun fromCode(value: Int) = entries.first { it.code == value }
+        internal companion object Unsafe {
+            operator fun invoke(value: Int) = entries.first { it.code == value }
         }
     }
 
