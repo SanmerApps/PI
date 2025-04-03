@@ -45,9 +45,7 @@
     <string name="parsing_service">解析服务</string>
     <string name="message_parsing">正在解析</string>
     <string name="message_parsing_failed">解析失败</string>
-    <string name="optimize_service">优化服务</string>
     <string name="message_optimizing">正在优化</string>
-    <string name="message_optimize_failed">优化失败</string>
     <string name="message_loading">加载中…</string>
     <string name="unknown_error">未知错误</string>
     <string name="updated_title">PI 已完成更新</string>

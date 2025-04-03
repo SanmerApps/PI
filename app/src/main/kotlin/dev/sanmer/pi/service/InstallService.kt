@@ -158,15 +158,18 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
         when (status) {
             PackageInstaller.STATUS_SUCCESS -> {
+                notifyOptimizing(
+                    id = sessionId,
+                    appLabel = appLabel,
+                    appIcon = appIcon
+                )
+
+                optimize(task.archiveInfo.packageName)
+
                 notifySuccess(
                     id = sessionId,
                     appLabel = appLabel,
                     appIcon = appIcon,
-                    packageName = task.archiveInfo.packageName
-                )
-
-                OptimizeService.start(
-                    context = this@InstallService,
                     packageName = task.archiveInfo.packageName
                 )
             }
@@ -181,6 +184,17 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
                 )
             }
         }
+    }
+
+    private suspend fun optimize(packageName: String) = withContext(Dispatchers.IO) {
+        runCatching {
+            pm.clearApplicationProfileData(packageName)
+            pm.performDexOpt(packageName).also {
+                if (!it) Timber.e("Failed to optimize $packageName")
+            }
+        }.onFailure { error ->
+            Timber.e(error, "Failed to optimize $packageName")
+        }.getOrDefault(false)
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {
@@ -246,6 +260,23 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         notify(id, notification)
     }
 
+    private fun notifyOptimizing(
+        id: Int,
+        appLabel: CharSequence,
+        appIcon: Bitmap?
+    ) {
+        val notification = newNotificationBuilder()
+            .setLargeIcon(appIcon)
+            .setContentTitle(appLabel)
+            .setContentText(getString(R.string.message_optimizing))
+            .setSilent(true)
+            .setOngoing(true)
+            .setGroup(GROUP_KEY)
+            .build()
+
+        notify(id, notification)
+    }
+
     private fun notifySuccess(
         id: Int,
         appLabel: CharSequence,
@@ -287,13 +318,10 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             .setSmallIcon(R.drawable.launcher_outline)
 
     private fun notify(id: Int, notification: Notification) {
-        val granted = if (BuildCompat.atLeastT) {
-            PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
-        }
-
-        if (granted) nm.notify(id, notification)
+        if (
+            !BuildCompat.atLeastT
+            || PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        ) nm.notify(id, notification)
     }
 
     sealed class Task : Parcelable {

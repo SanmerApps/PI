@@ -219,13 +219,10 @@ class ParseService : LifecycleService() {
             .setSmallIcon(R.drawable.launcher_outline)
 
     private fun notify(id: Int, notification: Notification) {
-        val granted = if (BuildCompat.atLeastT) {
-            PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
-        }
-
-        if (granted) nm.notify(id, notification)
+        if (
+            !BuildCompat.atLeastT
+            || PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        ) nm.notify(id, notification)
     }
 
     companion object Default {

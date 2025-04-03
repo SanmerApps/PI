@@ -46,11 +46,6 @@ class App : Application(), ImageLoaderFactory {
                 Const.CHANNEL_ID_INSTALL,
                 context.getString(R.string.installation_service),
                 NotificationManager.IMPORTANCE_HIGH
-            ),
-            NotificationChannel(
-                Const.CHANNEL_ID_OPTIMIZE,
-                context.getString(R.string.optimize_service),
-                NotificationManager.IMPORTANCE_HIGH
             )
         )
 

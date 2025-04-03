@@ -39,15 +39,13 @@
     <string name="install_config_unspecified_title">Unspecified</string>
 
     <!-- Message -->
-    <string name="installation_service">Installation service</string>
-    <string name="message_install_succeed">Installation successful</string>
-    <string name="message_install_failed">Installation failed</string>
     <string name="parsing_service">Parsing service</string>
     <string name="message_parsing">Parsing</string>
     <string name="message_parsing_failed">Parsing failed</string>
-    <string name="optimize_service">Optimization service</string>
+    <string name="installation_service">Installation service</string>
+    <string name="message_install_succeed">Installation successful</string>
+    <string name="message_install_failed">Installation failed</string>
     <string name="message_optimizing">Optimizing</string>
-    <string name="message_optimize_failed">Optimization failed</string>
     <string name="message_loading">Loading…</string>
     <string name="unknown_error">Unknown error</string>
     <string name="updated_title">PI Updated</string>

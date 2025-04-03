@@ -68,11 +68,6 @@
             android:foregroundServiceType="dataSync"
             android:exported="false" />
 
-        <service
-            android:name=".service.OptimizeService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false" />
-
         <receiver
             android:name=".receiver.Updated"
             android:exported="false">
