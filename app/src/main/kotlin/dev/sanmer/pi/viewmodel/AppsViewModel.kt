@@ -59,12 +59,12 @@ class AppsViewModel @Inject constructor(
 
     init {
         Timber.d("AppsViewModel init")
-        providerObserver()
+        serviceObserver()
         dataObserver()
         queryObserver()
     }
 
-    private fun providerObserver() {
+    private fun serviceObserver() {
         viewModelScope.launch {
             serviceRepository.state.collectLatest { state ->
                 if (state.isSucceed) {

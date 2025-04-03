@@ -5,7 +5,6 @@ object Const {
 
     const val CHANNEL_ID_INSTALL = "INSTALL"
     const val CHANNEL_ID_PARSE = "PARSE"
-    const val CHANNEL_ID_OPTIMIZE = "OPTIMIZE"
 
     const val NOTIFICATION_ID_INSTALL = 1024
     const val NOTIFICATION_ID_PARSE = 1025
