@@ -315,7 +315,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
     private fun newNotificationBuilder() =
         NotificationCompat.Builder(applicationContext, Const.CHANNEL_ID_INSTALL)
-            .setSmallIcon(R.drawable.launcher_outline)
+            .setSmallIcon(R.drawable.layout_list)
 
     private fun notify(id: Int, notification: Notification) {
         if (

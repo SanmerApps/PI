@@ -73,7 +73,7 @@ class Updated : BroadcastReceiver() {
         val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         val pending = PendingIntent.getActivity(this, 0, intent, flag)
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
-            .setSmallIcon(R.drawable.launcher_outline)
+            .setSmallIcon(R.drawable.layout_list)
             .setContentIntent(pending)
             .setContentTitle(getText(R.string.updated_title))
             .setContentText(getText(R.string.updated_text))
