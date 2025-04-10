@@ -17,9 +17,9 @@ import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -37,8 +37,8 @@ class AppsViewModel @Inject constructor(
         private set
     private val queryFlow = MutableStateFlow("")
 
-    private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
-    private val cacheFlow = MutableStateFlow(listOf<IPackageInfo>())
+    private val packagesFlow = MutableSharedFlow<List<IPackageInfo>>(1)
+    private val cacheFlow = MutableSharedFlow<List<IPackageInfo>>(1)
 
     var loadState by mutableStateOf<LoadState>(LoadState.Pending)
         private set
@@ -54,7 +54,7 @@ class AppsViewModel @Inject constructor(
         Timber.d("opChanged<${AppOpsManagerDelegate.opToName(op)}>: $packageName")
 
         viewModelScope.launch {
-            packagesFlow.update { getPackages() }
+            packagesFlow.tryEmit(getPackages())
         }
     }
 
@@ -69,7 +69,7 @@ class AppsViewModel @Inject constructor(
         viewModelScope.launch {
             serviceRepository.state.collectLatest { state ->
                 if (state.isSucceed) {
-                    packagesFlow.update { getPackages() }
+                    packagesFlow.tryEmit(getPackages())
 
                     aom.startWatchingMode(
                         op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
@@ -91,7 +91,7 @@ class AppsViewModel @Inject constructor(
     private fun dataObserver() {
         viewModelScope.launch {
             packagesFlow.combineToLatest(preferenceRepository.data) { source, preferences ->
-                cacheFlow.update {
+                cacheFlow.tryEmit(
                     source.map { pi ->
                         pi.copy(
                             isRequester = preferences.requester == pi.packageName,
@@ -100,7 +100,7 @@ class AppsViewModel @Inject constructor(
                     }.sortedByDescending { it.lastUpdateTime }
                         .sortedByDescending { it.isAuthorized }
                         .sortedByDescending { it.isExecutor || it.isRequester }
-                }
+                )
             }
         }
     }
