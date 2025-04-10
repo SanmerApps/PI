@@ -24,7 +24,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Failed
@@ -41,8 +40,6 @@ fun AppsScreen(
     navController: NavController,
     viewModel: AppsViewModel = hiltViewModel()
 ) {
-    val list by viewModel.apps.collectAsStateWithLifecycle()
-
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
 
@@ -82,13 +79,11 @@ fun AppsScreen(
                 return@Scaffold
             }
 
-            if (viewModel.isLoading) {
+            if (viewModel.isPending) {
                 Loading(
                     modifier = Modifier.padding(contentPadding)
                 )
-            }
-
-            if (list.isEmpty() && !viewModel.isLoading) {
+            } else if (viewModel.apps.isEmpty() && !viewModel.isQueryEmpty) {
                 PageIndicator(
                     icon = R.drawable.list_search,
                     text = R.string.empty_list,
@@ -97,7 +92,7 @@ fun AppsScreen(
             }
 
             AppList(
-                list = list,
+                list = viewModel.apps,
                 listState = listState,
                 settings = viewModel::settings,
                 contentPadding = contentPadding

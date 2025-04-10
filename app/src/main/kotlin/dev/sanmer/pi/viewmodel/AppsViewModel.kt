@@ -18,7 +18,6 @@ import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -40,14 +39,16 @@ class AppsViewModel @Inject constructor(
 
     private val packagesFlow = MutableStateFlow(listOf<IPackageInfo>())
     private val cacheFlow = MutableStateFlow(listOf<IPackageInfo>())
-    private val appsFlow = MutableStateFlow(listOf<IPackageInfo>())
-    val apps get() = appsFlow.asStateFlow()
 
-    var isLoading by mutableStateOf(true)
+    var loadState by mutableStateOf<LoadState>(LoadState.Pending)
         private set
+    val apps inline get() = loadState.apps
+    val isPending inline get() = loadState.isPending
 
     var isFailed by mutableStateOf(false)
         private set
+
+    val isQueryEmpty get() = queryFlow.value.isEmpty()
 
     override fun opChanged(op: Int, uid: Int, packageName: String) {
         Timber.d("opChanged<${AppOpsManagerDelegate.opToName(op)}>: $packageName")
@@ -107,7 +108,7 @@ class AppsViewModel @Inject constructor(
     private fun queryObserver() {
         viewModelScope.launch {
             cacheFlow.combineToLatest(queryFlow) { source, key ->
-                appsFlow.update {
+                loadState = LoadState.Ready(
                     source.filter {
                         if (key.isNotBlank()) {
                             it.appLabel.contains(key, ignoreCase = true)
@@ -116,7 +117,7 @@ class AppsViewModel @Inject constructor(
                             true
                         }
                     }
-                }
+                )
             }
         }
     }
@@ -134,8 +135,6 @@ class AppsViewModel @Inject constructor(
             it.toIPackageInfo(
                 isAuthorized = it.isAuthorized()
             )
-        }.also {
-            isLoading = it.isEmpty()
         }
     }
 
@@ -184,5 +183,19 @@ class AppsViewModel @Inject constructor(
         suspend fun setAuthorized()
         suspend fun setRequester()
         suspend fun setExecutor()
+    }
+
+    sealed class LoadState {
+        abstract val apps: List<IPackageInfo>
+
+        data object Pending : LoadState() {
+            override val apps = emptyList<IPackageInfo>()
+        }
+
+        data class Ready(
+            override val apps: List<IPackageInfo>
+        ) : LoadState()
+
+        val isPending inline get() = this is Pending
     }
 }
