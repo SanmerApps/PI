@@ -1,6 +1,6 @@
 package dev.sanmer.pi.ui.screens.apps.component
 
-import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -26,7 +29,6 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.VersionCompat.getSdkVersion
 import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.ui.component.Logo
 
 @Composable
 fun AppItem(
@@ -85,21 +87,33 @@ fun AppItem(
         Spacer(modifier = Modifier.height(6.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            if (pi.isRequester) Icon(R.drawable.file_import)
-            if (pi.isExecutor) Icon(R.drawable.player_play)
-            if (pi.isAuthorized) Icon(R.drawable.shield)
+            if (pi.isRequester) LabelText(
+                text = stringResource(id = R.string.app_action_requester)
+            )
+            if (pi.isExecutor) LabelText(
+                text = stringResource(id = R.string.app_action_executor)
+            )
+            if (pi.isAuthorized) LabelText(
+                text = stringResource(id = R.string.app_action_authorized)
+            )
         }
     }
 }
 
 @Composable
-private fun Icon(
-    @DrawableRes icon: Int
-) = Logo(
-    icon = icon,
-    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-    modifier = Modifier.size(30.dp)
+private fun LabelText(
+    text: String,
+    backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer
+) = Text(
+    text = text,
+    style = MaterialTheme.typography.labelMedium,
+    color = MaterialTheme.colorScheme.onSecondaryContainer,
+    modifier = Modifier
+        .background(
+            color = backgroundColor,
+            shape = CircleShape
+        )
+        .padding(horizontal = 8.dp, vertical = 2.dp)
 )
