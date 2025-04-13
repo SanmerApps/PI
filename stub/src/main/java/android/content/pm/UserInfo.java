@@ -5,16 +5,10 @@ import android.os.Parcelable;
 import android.os.UserHandle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 public class UserInfo implements Parcelable {
     public int id;
     public String name;
-    public int flags;
-    public int serialNumber;
-
-    @RequiresApi(30)
-    public String userType;
 
     public boolean isPrimary() {
         throw new RuntimeException("Stub!");
