@@ -2,6 +2,7 @@ package dev.sanmer.pi.viewmodel
 
 import android.content.Context
 import android.content.pm.PackageInfo
+import android.content.pm.UserInfo
 import android.text.format.Formatter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -17,6 +18,7 @@ import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.getVersionDiff
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
+import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.service.InstallService
 import dev.sanmer.pi.service.InstallService.Task
 import timber.log.Timber
@@ -25,9 +27,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InstallViewModel @Inject constructor(
+    private val serviceRepository: ServiceRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val pm by lazy { context.packageManager }
+    private val um by lazy { serviceRepository.getUserManager() }
 
     private var archivePath = File(".")
     var sourceInfo by mutableStateOf(IPackageInfo.empty())
@@ -50,14 +54,38 @@ class InstallViewModel @Inject constructor(
 
     private var type by mutableStateOf(Type.Apk)
 
+    var users by mutableStateOf(listOf<UserInfoCompat>())
+        private set
+    var user by mutableStateOf(UserInfoCompat.Empty)
+        private set
+
     init {
         Timber.d("InstallViewModel init")
+        loadUsers()
+    }
+
+    private fun loadUsers() {
+        runCatching {
+            users = um.getUsers().map(::UserInfoCompat)
+        }.onFailure {
+            Timber.w(it)
+        }
+    }
+
+    fun updateUser(userInfo: UserInfoCompat) {
+        user = userInfo
     }
 
     fun load(task: Task, source: PackageInfo?) {
         sourceInfo = (source ?: PackageInfo()).toIPackageInfo()
         archivePath = task.archivePath
         archiveInfo = task.archiveInfo.toIPackageInfo()
+
+        runCatching {
+            user = UserInfoCompat(um.getUserInfo(task.userId))
+        }.onFailure {
+            Timber.w(it)
+        }
 
         when (task) {
             is Task.Apk -> {
@@ -91,6 +119,7 @@ class InstallViewModel @Inject constructor(
         Type.Apk -> {
             InstallService.apk(
                 context = context,
+                userId = user.id,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo
             )
@@ -99,6 +128,7 @@ class InstallViewModel @Inject constructor(
         Type.AppBundle -> {
             InstallService.appBundle(
                 context = context,
+                userId = user.id,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
                 splitConfigs = requiredConfigs
@@ -121,5 +151,22 @@ class InstallViewModel @Inject constructor(
     enum class Type {
         Apk,
         AppBundle
+    }
+
+    class UserInfoCompat(
+        val id: Int,
+        val name: String
+    ) {
+        constructor(userInfo: UserInfo) : this(
+            id = userInfo.id,
+            name = userInfo.name ?: userInfo.id.toString()
+        )
+
+        companion object Default {
+            val Empty = UserInfoCompat(
+                id = -1,
+                name = ""
+            )
+        }
     }
 }

@@ -13,8 +13,6 @@
     <string name="app_action_executor">Executor</string>
     <string name="app_action_authorize">Authorize</string>
     <string name="app_action_authorized">Authorized</string>
-    <string name="app_action_optimize">Re-optimize</string>
-    <string name="app_action_optimized">Optimized</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -37,6 +35,7 @@
     <string name="install_config_density_title">Screen density</string>
     <string name="install_config_language_title">Language</string>
     <string name="install_config_unspecified_title">Unspecified</string>
+    <string name="install_select_user_title">Select user</string>
 
     <!-- Message -->
     <string name="parsing_service">Parsing service</string>

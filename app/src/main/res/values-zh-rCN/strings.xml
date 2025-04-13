@@ -13,8 +13,6 @@
     <string name="app_action_executor">执行者</string>
     <string name="app_action_authorize">授权</string>
     <string name="app_action_authorized">已授权</string>
-    <string name="app_action_optimize">重新优化</string>
-    <string name="app_action_optimized">优化完成</string>
 
     <!-- Settings -->
     <string name="settings_title">设置</string>
@@ -37,6 +35,7 @@
     <string name="install_config_density_title">屏幕密度</string>
     <string name="install_config_language_title">语言</string>
     <string name="install_config_unspecified_title">未知</string>
+    <string name="install_select_user_title">选择用户</string>
 
     <!-- Message -->
     <string name="installation_service">安装服务</string>

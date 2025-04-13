@@ -5,6 +5,7 @@ import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.delegate.PackageManagerDelegate
 import dev.sanmer.pi.delegate.PermissionManagerDelegate
+import dev.sanmer.pi.delegate.UserManagerDelegate
 import dev.sanmer.pi.model.ServiceState
 import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat
@@ -68,4 +69,5 @@ class ServiceRepository @Inject constructor(
     fun getPackageManager() = unsafe { PackageManagerDelegate(it) }
     fun getPackageInstaller() = unsafe { PackageInstallerDelegate(it) }
     fun getPermissionManager() = unsafe { PermissionManagerDelegate(it) }
+    fun getUserManager() = unsafe { UserManagerDelegate(it) }
 }

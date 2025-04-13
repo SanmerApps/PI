@@ -30,6 +30,7 @@ class PackageInstallerDelegate(
     private val context = ContextCompat.getContext()
     private var installerPackageName = context.packageName
     private var installerAttributionTag = context.packageName
+    private var userId = context.userId
     private val delegates = mutableListOf<SessionCallbackDelegate>()
 
     private val packageManager by lazy {
@@ -49,19 +50,23 @@ class PackageInstallerDelegate(
         installerAttributionTag = packageName
     }
 
+    fun setUserId(id: Int) {
+        userId = id
+    }
+
     fun createSession(params: PackageInstaller.SessionParams): Int {
         return if (BuildCompat.atLeastS) {
             packageInstaller.createSession(
                 params,
                 installerPackageName,
                 installerAttributionTag,
-                context.userId
+                userId
             )
         } else {
             packageInstaller.createSession(
                 params,
                 installerPackageName,
-                context.userId
+                userId
             )
         }
     }
@@ -81,7 +86,7 @@ class PackageInstallerDelegate(
     }
 
     fun getAllSessions(): List<PackageInstaller.SessionInfo> {
-        return packageInstaller.getAllSessions(context.userId).list
+        return packageInstaller.getAllSessions(userId).list
     }
 
     fun getMySessions(): List<PackageInstaller.SessionInfo> {
@@ -100,7 +105,7 @@ class PackageInstallerDelegate(
 
     fun registerCallback(callback: SessionCallback) {
         val delegate = SessionCallbackDelegate(callback)
-        packageInstaller.registerCallback(delegate, context.userId)
+        packageInstaller.registerCallback(delegate, userId)
         delegates.add(delegate)
     }
 
@@ -117,7 +122,7 @@ class PackageInstallerDelegate(
             installerPackageName,
             0,
             sender,
-            context.userId
+            userId
         )
     }
 

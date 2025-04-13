@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
@@ -18,7 +19,7 @@ import dev.sanmer.pi.service.InstallService.Default.putTask
 import dev.sanmer.pi.service.InstallService.Default.taskOrNull
 import dev.sanmer.pi.service.InstallService.Task
 import dev.sanmer.pi.service.ParseService
-import dev.sanmer.pi.ui.main.InstallScreen
+import dev.sanmer.pi.ui.screens.install.InstallScreen
 import dev.sanmer.pi.ui.theme.AppTheme
 import dev.sanmer.pi.viewmodel.InstallViewModel
 import timber.log.Timber
@@ -81,8 +82,9 @@ class InstallActivity : ComponentActivity() {
             archivePath: File,
             archiveInfo: PackageInfo,
             sourceInfo: PackageInfo?,
+            userId: Int = context.userId,
         ) {
-            val task = Task.Apk(archivePath, archiveInfo)
+            val task = Task.Apk(archivePath, archiveInfo, userId)
             context.startActivity(
                 Intent(context, InstallActivity::class.java).also {
                     it.putTask(task)
@@ -98,8 +100,9 @@ class InstallActivity : ComponentActivity() {
             archiveInfo: PackageInfo,
             splitConfigs: List<SplitConfig>,
             sourceInfo: PackageInfo?,
+            userId: Int = context.userId,
         ) {
-            val task = Task.AppBundle(archivePath, archiveInfo, splitConfigs)
+            val task = Task.AppBundle(archivePath, archiveInfo, userId, splitConfigs)
             context.startActivity(
                 Intent(context, InstallActivity::class.java).also {
                     it.putTask(task)
