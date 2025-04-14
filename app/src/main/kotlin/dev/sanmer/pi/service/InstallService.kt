@@ -133,6 +133,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         val preference = preferenceRepository.data.first()
         val originatingUid = getPackageUid(preference.requester)
         pi.setInstallerPackageName(preference.executor)
+        pi.setUserId(task.userId)
 
         val params = createSessionParams()
         params.setAppIcon(appIcon)
@@ -327,17 +328,20 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     sealed class Task : Parcelable {
         abstract val archivePath: File
         abstract val archiveInfo: PackageInfo
+        abstract val userId: Int
 
         @Parcelize
         data class Apk(
             override val archivePath: File,
-            override val archiveInfo: PackageInfo
+            override val archiveInfo: PackageInfo,
+            override val userId: Int
         ) : Task()
 
         @Parcelize
         data class AppBundle(
             override val archivePath: File,
             override val archiveInfo: PackageInfo,
+            override val userId: Int,
             val splitConfigs: List<SplitConfig>,
         ) : Task() {
             val baseFile get() = File(archivePath, PackageParserCompat.BASE_APK)
@@ -368,9 +372,10 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         fun apk(
             context: Context,
             archivePath: File,
-            archiveInfo: PackageInfo
+            archiveInfo: PackageInfo,
+            userId: Int = context.userId
         ) {
-            val task = Task.Apk(archivePath, archiveInfo)
+            val task = Task.Apk(archivePath, archiveInfo, userId)
             pendingTasks.add(task.archivePath)
             context.startService(
                 Intent(context, InstallService::class.java).also {
@@ -383,9 +388,10 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             context: Context,
             archivePath: File,
             archiveInfo: PackageInfo,
-            splitConfigs: List<SplitConfig>
+            splitConfigs: List<SplitConfig>,
+            userId: Int = context.userId,
         ) {
-            val task = Task.AppBundle(archivePath, archiveInfo, splitConfigs)
+            val task = Task.AppBundle(archivePath, archiveInfo, userId, splitConfigs)
             pendingTasks.add(task.archivePath)
             context.startService(
                 Intent(context, InstallService::class.java).also {

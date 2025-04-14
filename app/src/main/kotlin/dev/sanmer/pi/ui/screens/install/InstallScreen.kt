@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.main
+package dev.sanmer.pi.ui.screens.install
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -6,25 +6,19 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -33,27 +27,25 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.compat.VersionCompat.getSdkVersion
-import dev.sanmer.pi.compat.VersionCompat.versionStr
 import dev.sanmer.pi.ktx.finishActivity
-import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.ui.ktx.isScrollingUp
 import dev.sanmer.pi.ui.ktx.plus
+import dev.sanmer.pi.ui.screens.install.component.PackageInfoItem
+import dev.sanmer.pi.ui.screens.install.component.SelectUserItem
+import dev.sanmer.pi.ui.screens.install.component.SplitConfigItem
+import dev.sanmer.pi.ui.screens.install.component.TittleItem
 import dev.sanmer.pi.viewmodel.InstallViewModel
 
 @Composable
@@ -95,6 +87,9 @@ fun InstallScreen(
     Scaffold(
         topBar = {
             TopBar(
+                user = viewModel.user,
+                users = viewModel.users,
+                updateUser = viewModel::updateUser,
                 onDeny = onDeny,
                 scrollBehavior = scrollBehavior
             )
@@ -120,7 +115,7 @@ fun InstallScreen(
                     TittleItem(text = stringResource(R.string.install_requester_title))
                 }
                 item {
-                    PackageInfo(packageInfo = viewModel.sourceInfo)
+                    PackageInfoItem(packageInfo = viewModel.sourceInfo)
                 }
             }
 
@@ -128,7 +123,7 @@ fun InstallScreen(
                 TittleItem(text = stringResource(R.string.install_package_title))
             }
             item {
-                PackageInfo(
+                PackageInfoItem(
                     packageInfo = viewModel.archiveInfo,
                     versionDiff = viewModel.versionDiff,
                     sdkVersionDiff = viewModel.sdkVersionDiff,
@@ -233,6 +228,9 @@ private fun ActionButton(
 
 @Composable
 private fun TopBar(
+    user: InstallViewModel.UserInfoCompat,
+    users: List<InstallViewModel.UserInfoCompat>,
+    updateUser: (InstallViewModel.UserInfoCompat) -> Unit,
     onDeny: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
@@ -247,175 +245,24 @@ private fun TopBar(
             )
         }
     },
-    scrollBehavior = scrollBehavior
-)
-
-@Composable
-private fun PackageInfo(
-    packageInfo: IPackageInfo,
-    versionDiff: String? = null,
-    sdkVersionDiff: String? = null,
-    fileSize: String? = null
-) = OutlinedCard(
-    shape = MaterialTheme.shapes.large,
-) {
-    Row(
-        modifier = Modifier
-            .padding(15.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val context = LocalContext.current
-        AsyncImage(
-            modifier = Modifier.size(45.dp),
-            model = ImageRequest.Builder(context)
-                .data(packageInfo)
-                .build(),
-            contentDescription = null
+    actions = {
+        var select by remember { mutableStateOf(false) }
+        if (select) SelectUserItem(
+            onDismiss = { select = false },
+            user = user,
+            users = users,
+            onChange = updateUser
         )
 
-        Column(
-            modifier = Modifier.padding(start = 15.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = packageInfo.appLabel,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Spacer(modifier = Modifier.width(15.dp))
-
-                if (fileSize != null) {
-                    LabelText(text = fileSize)
-                }
-            }
-
-            Text(
-                text = packageInfo.packageName,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            val versionStr by remember {
-                derivedStateOf { versionDiff ?: packageInfo.versionStr }
-            }
-            Text(
-                text = versionStr,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-
-            val sdkVersion by remember {
-                derivedStateOf { sdkVersionDiff ?: packageInfo.getSdkVersion(context) }
-            }
-            Text(
-                text = sdkVersion,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
-    }
-}
-
-@Composable
-private fun SplitConfigItem(
-    config: SplitConfig,
-    isRequiredConfig: (SplitConfig) -> Boolean,
-    toggleSplitConfig: (SplitConfig) -> Unit,
-) {
-    val required by remember {
-        derivedStateOf { isRequiredConfig(config) }
-    }
-
-    OutlinedCard(
-        shape = MaterialTheme.shapes.medium,
-        onClick = { toggleSplitConfig(config) },
-        enabled = !config.isDisabled
-    ) {
-        Row(
+        if (user.id != -1) AssistChip(
             modifier = Modifier
-                .padding(vertical = 10.dp, horizontal = 15.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ConfigIcon(
-                config = config,
-                enable = required
-            )
-
-            Column(
-                modifier = Modifier.padding(start = 10.dp)
-            ) {
-                Text(
-                    text = config.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = when {
-                        !required -> MaterialTheme.colorScheme.outline
-                        else -> Color.Unspecified
-                    }
-                )
-
-                Text(
-                    text = buildString {
-                        if (config.isConfigForSplit) {
-                            append(config.configForSplit)
-                            append(", ")
-                        }
-
-                        append(config.displaySize)
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    textDecoration = when {
-                        !required -> TextDecoration.LineThrough
-                        else -> TextDecoration.None
-                    },
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ConfigIcon(
-    config: SplitConfig,
-    enable: Boolean
-) = Icon(
-    painter = painterResource(
-        id = when (config) {
-            is SplitConfig.Feature -> R.drawable.box
-            is SplitConfig.Target -> R.drawable.cpu
-            is SplitConfig.Density -> R.drawable.photo
-            is SplitConfig.Language -> R.drawable.language
-            else -> R.drawable.code
-        }
-    ),
-    contentDescription = null,
-    tint = MaterialTheme.colorScheme.onSurfaceVariant
-        .copy(alpha = if (enable) 1f else 0.3f)
-)
-
-@Composable
-private fun TittleItem(
-    text: String,
-) = Text(
-    text = text,
-    style = MaterialTheme.typography.titleMedium
-)
-
-@Composable
-private fun LabelText(
-    text: String
-) = Text(
-    text = text,
-    style = MaterialTheme.typography.titleSmall,
-    color = MaterialTheme.colorScheme.onSecondaryContainer,
-    modifier = Modifier
-        .background(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            shape = CircleShape
+                .height(AssistChipDefaults.Height)
+                .padding(end = 20.dp),
+            onClick = { select = true},
+            enabled = users.size > 1,
+            shape = CircleShape,
+            label = { Text(user.name) }
         )
-        .padding(horizontal = 10.dp)
+    },
+    scrollBehavior = scrollBehavior
 )
