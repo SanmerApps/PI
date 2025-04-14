@@ -34,19 +34,19 @@ fun SetupScreen(
         color = MaterialTheme.colorScheme.onBackground
     )
 
-    Spacer(modifier = Modifier.height(30.dp))
-    WorkingModeItem(
-        title = stringResource(id = R.string.setup_shizuku_title),
-        desc = stringResource(id = R.string.setup_shizuku_desc),
-        modifier = Modifier.requiredHeightIn(min = 150.dp),
-        onClick = { setProvider(Provider.Shizuku) }
-    )
-
     Spacer(modifier = Modifier.height(20.dp))
     WorkingModeItem(
         title = stringResource(id = R.string.setup_root_title),
         desc = stringResource(id = R.string.setup_root_desc),
         modifier = Modifier.requiredHeightIn(min = 150.dp),
         onClick = { setProvider(Provider.Superuser) }
+    )
+
+    Spacer(modifier = Modifier.height(30.dp))
+    WorkingModeItem(
+        title = stringResource(id = R.string.setup_shizuku_title),
+        desc = stringResource(id = R.string.setup_shizuku_desc),
+        modifier = Modifier.requiredHeightIn(min = 150.dp),
+        onClick = { setProvider(Provider.Shizuku) }
     )
 }

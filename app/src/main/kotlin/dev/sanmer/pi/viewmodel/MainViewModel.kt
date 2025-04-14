@@ -17,11 +17,12 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
-    var state by mutableStateOf<LoadState>(LoadState.Pending)
+    var loadState by mutableStateOf<LoadState>(LoadState.Pending)
         private set
 
-    val isPending inline get() = state is LoadState.Pending
-    val preference inline get() = state.preference
+    val isPending inline get() = loadState.isPending
+    val preference inline get() = loadState.preference
+    val isNone inline get() = preference.provider == Provider.None
 
     init {
         Timber.d("MainViewModel init")
@@ -31,7 +32,7 @@ class MainViewModel @Inject constructor(
     private fun preferenceObserver() {
         viewModelScope.launch {
             preferenceRepository.data.collect {
-                state = LoadState.Ready(it)
+                loadState = LoadState.Ready(it)
             }
         }
     }
@@ -52,5 +53,7 @@ class MainViewModel @Inject constructor(
         data class Ready(
             override val preference: Preference
         ) : LoadState()
+
+        val isPending inline get() = this is Pending
     }
 }

@@ -9,7 +9,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
-import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ui.main.MainScreen
 import dev.sanmer.pi.ui.main.SetupScreen
 import dev.sanmer.pi.ui.provider.LocalPreference
@@ -29,21 +28,21 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { viewModel.isPending }
 
         setContent {
-            when (viewModel.state) {
+            when (viewModel.loadState) {
                 LoadState.Pending -> {}
                 is LoadState.Ready -> CompositionLocalProvider(
                     LocalPreference provides viewModel.preference
                 ) {
                     AppTheme {
                         Crossfade(
-                            targetState = viewModel.preference.provider != Provider.None,
-                        ) { isReady ->
-                            if (isReady) {
-                                MainScreen()
-                            } else {
+                            targetState = viewModel.isNone,
+                        ) { isNone ->
+                            if (isNone) {
                                 SetupScreen(
                                     setProvider = viewModel::setProvider
                                 )
+                            } else {
+                                MainScreen()
                             }
                         }
                     }
