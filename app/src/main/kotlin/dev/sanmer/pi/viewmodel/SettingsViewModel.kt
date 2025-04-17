@@ -16,7 +16,7 @@ class SettingsViewModel @Inject constructor(
     private val preferenceRepository: PreferenceRepository,
     private val serviceRepository: ServiceRepository
 ) : ViewModel() {
-    val state get() = serviceRepository.state
+    val state = serviceRepository.state
 
     init {
         Timber.d("SettingsViewModel init")
