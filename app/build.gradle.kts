@@ -31,6 +31,7 @@ android {
             "en",
             "ar",
             "es",
+            "fa",
             "fr",
             "in",
             "iw",
