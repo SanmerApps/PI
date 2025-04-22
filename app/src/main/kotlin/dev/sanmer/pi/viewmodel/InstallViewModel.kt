@@ -3,7 +3,6 @@ package dev.sanmer.pi.viewmodel
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.UserInfo
-import android.text.format.Formatter
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -14,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
 import dev.sanmer.pi.bundle.SplitConfig
+import dev.sanmer.pi.compat.VersionCompat.fileSize
 import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.getVersionDiff
 import dev.sanmer.pi.model.IPackageInfo
@@ -45,8 +45,9 @@ class InstallViewModel @Inject constructor(
     val sdkVersionDiff by lazy { currentInfo.getSdkVersionDiff(context, archiveInfo) }
 
     private var baseSize = 0L
-    private val fileSize by derivedStateOf { baseSize + requiredConfigs.sumOf { it.file.length() } }
-    val fileSizeStr: String by derivedStateOf { Formatter.formatFileSize(context, fileSize) }
+    val fileSize by derivedStateOf {
+        (baseSize + requiredConfigs.sumOf { it.file.length() }).fileSize(context)
+    }
 
     var splitConfigs = listOf<SplitConfig>()
         private set
@@ -58,6 +59,7 @@ class InstallViewModel @Inject constructor(
         private set
     var user by mutableStateOf(UserInfoCompat.Empty)
         private set
+    val enableSelectUser inline get() = user.id != -1 && users.size > 1
 
     init {
         Timber.d("InstallViewModel init")

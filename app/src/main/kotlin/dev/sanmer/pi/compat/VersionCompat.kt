@@ -2,6 +2,7 @@ package dev.sanmer.pi.compat
 
 import android.content.Context
 import android.content.pm.PackageInfo
+import android.text.format.Formatter
 import dev.sanmer.pi.PackageInfoCompat.compileSdkVersion
 import dev.sanmer.pi.PackageInfoCompat.isEmpty
 import dev.sanmer.pi.R
@@ -77,5 +78,10 @@ object VersionCompat {
                 other = other.compileSdkVersion to other.compileSdkDisplay
             )
         )
+    }
+
+    fun Long.fileSize(context: Context): String {
+        val value = Formatter.formatFileSize(context, this)
+        return context.getString(R.string.file_size, value)
     }
 }

@@ -8,14 +8,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -82,14 +77,21 @@ fun InstallScreen(
         derivedStateOf { viewModel.splitConfigs.filterIsInstance<SplitConfig.Unspecified>() }
     }
 
+    var select by remember { mutableStateOf(false) }
+    if (select) SelectUserItem(
+        onDismiss = { select = false },
+        user = viewModel.user,
+        users = viewModel.users,
+        onChange = viewModel::updateUser
+    )
+
     BackHandler(onBack = onDeny)
 
     Scaffold(
         topBar = {
             TopBar(
-                user = viewModel.user,
-                users = viewModel.users,
-                updateUser = viewModel::updateUser,
+                enableSelectUser = viewModel.enableSelectUser,
+                onSelectUer = { select = true },
                 onDeny = onDeny,
                 scrollBehavior = scrollBehavior
             )
@@ -127,7 +129,8 @@ fun InstallScreen(
                     packageInfo = viewModel.archiveInfo,
                     versionDiff = viewModel.versionDiff,
                     sdkVersionDiff = viewModel.sdkVersionDiff,
-                    fileSize = viewModel.fileSizeStr
+                    fileSize = viewModel.fileSize,
+                    userName = viewModel.user.name
                 )
             }
 
@@ -228,9 +231,8 @@ private fun ActionButton(
 
 @Composable
 private fun TopBar(
-    user: InstallViewModel.UserInfoCompat,
-    users: List<InstallViewModel.UserInfoCompat>,
-    updateUser: (InstallViewModel.UserInfoCompat) -> Unit,
+    enableSelectUser: Boolean,
+    onSelectUer: () -> Unit,
     onDeny: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
@@ -246,23 +248,15 @@ private fun TopBar(
         }
     },
     actions = {
-        var select by remember { mutableStateOf(false) }
-        if (select) SelectUserItem(
-            onDismiss = { select = false },
-            user = user,
-            users = users,
-            onChange = updateUser
-        )
-
-        if (user.id != -1) AssistChip(
-            modifier = Modifier
-                .height(AssistChipDefaults.Height)
-                .padding(end = 20.dp),
-            onClick = { select = true},
-            enabled = users.size > 1,
-            shape = CircleShape,
-            label = { Text(user.name) }
-        )
+        IconButton(
+            onClick = onSelectUer,
+            enabled = enableSelectUser
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.user_circle),
+                contentDescription = null
+            )
+        }
     },
     scrollBehavior = scrollBehavior
 )

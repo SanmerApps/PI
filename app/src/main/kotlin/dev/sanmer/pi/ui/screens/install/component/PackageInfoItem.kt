@@ -31,7 +31,8 @@ fun PackageInfoItem(
     packageInfo: IPackageInfo,
     versionDiff: String? = null,
     sdkVersionDiff: String? = null,
-    fileSize: String? = null
+    fileSize: String? = null,
+    userName: String? = null
 ) = OutlinedCard(
     shape = MaterialTheme.shapes.large,
 ) {
@@ -64,8 +65,8 @@ fun PackageInfoItem(
 
                 Spacer(modifier = Modifier.width(15.dp))
 
-                if (fileSize != null) {
-                    LabelText(text = fileSize)
+                if (userName != null) {
+                    LabelText(text = userName)
                 }
             }
 
@@ -87,7 +88,13 @@ fun PackageInfoItem(
                 derivedStateOf { sdkVersionDiff ?: packageInfo.getSdkVersion(context) }
             }
             Text(
-                text = sdkVersion,
+                text = buildString {
+                    append(sdkVersion)
+                    fileSize?.let {
+                        append(", ")
+                        append(it)
+                    }
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )

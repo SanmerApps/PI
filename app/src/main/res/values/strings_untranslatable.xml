@@ -9,5 +9,6 @@
     <!-- Version -->
     <string name="comparator" translatable="false">%1$s → %2$s</string>
     <string name="sdk_versions" translatable="false">Target: %1$s, Min: %2$s, Compile: %3$s</string>
+    <string name="file_size" translatable="false">Size: %1$s</string>
 
 </resources>
