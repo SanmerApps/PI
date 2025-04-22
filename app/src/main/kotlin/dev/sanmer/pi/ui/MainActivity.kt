@@ -6,7 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.ui.main.MainScreen
@@ -35,6 +38,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppTheme {
                         Crossfade(
+                            modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.background
+                            ),
                             targetState = viewModel.isNone,
                         ) { isNone ->
                             if (isNone) {
