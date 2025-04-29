@@ -1,14 +1,10 @@
 package dev.sanmer.pi.ui.screens.install.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -31,8 +27,7 @@ fun PackageInfoItem(
     packageInfo: IPackageInfo,
     versionDiff: String? = null,
     sdkVersionDiff: String? = null,
-    fileSize: String? = null,
-    userName: String? = null
+    fileSize: String? = null
 ) = OutlinedCard(
     shape = MaterialTheme.shapes.large,
 ) {
@@ -54,21 +49,10 @@ fun PackageInfoItem(
         Column(
             modifier = Modifier.padding(start = 15.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = packageInfo.appLabel,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Spacer(modifier = Modifier.width(15.dp))
-
-                if (userName != null) {
-                    LabelText(text = userName)
-                }
-            }
+            Text(
+                text = packageInfo.appLabel,
+                style = MaterialTheme.typography.bodyLarge
+            )
 
             Text(
                 text = packageInfo.packageName,
@@ -101,19 +85,3 @@ fun PackageInfoItem(
         }
     }
 }
-
-@Composable
-private fun LabelText(
-    text: String
-) = Text(
-    text = text,
-    style = MaterialTheme.typography.labelLarge,
-    color = MaterialTheme.colorScheme.onSecondaryContainer,
-    modifier = Modifier
-        .background(
-            color =  MaterialTheme.colorScheme.secondaryContainer,
-            shape = CircleShape
-        )
-        .padding(horizontal = 8.dp, vertical = 2.dp)
-)
-

@@ -59,7 +59,6 @@ class InstallViewModel @Inject constructor(
         private set
     var user by mutableStateOf(UserInfoCompat.Empty)
         private set
-    val enableSelectUser inline get() = user.id != -1 && users.size > 1
 
     init {
         Timber.d("InstallViewModel init")

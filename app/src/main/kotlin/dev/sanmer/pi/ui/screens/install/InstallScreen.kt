@@ -6,15 +6,23 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -90,7 +98,7 @@ fun InstallScreen(
     Scaffold(
         topBar = {
             TopBar(
-                enableSelectUser = viewModel.enableSelectUser,
+                user = viewModel.user,
                 onSelectUer = { select = true },
                 onDeny = onDeny,
                 scrollBehavior = scrollBehavior
@@ -130,7 +138,6 @@ fun InstallScreen(
                     versionDiff = viewModel.versionDiff,
                     sdkVersionDiff = viewModel.sdkVersionDiff,
                     fileSize = viewModel.fileSize,
-                    userName = viewModel.user.name
                 )
             }
 
@@ -231,7 +238,7 @@ private fun ActionButton(
 
 @Composable
 private fun TopBar(
-    enableSelectUser: Boolean,
+    user: InstallViewModel.UserInfoCompat,
     onSelectUer: () -> Unit,
     onDeny: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
@@ -248,15 +255,27 @@ private fun TopBar(
         }
     },
     actions = {
-        IconButton(
+        SuggestionChip(
+            modifier = Modifier
+                .height(SuggestionChipDefaults.Height)
+                .padding(end = 15.dp),
+            shape = CircleShape,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
+            ),
             onClick = onSelectUer,
-            enabled = enableSelectUser
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.user_circle),
-                contentDescription = null
-            )
-        }
+            icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.user_circle),
+                    contentDescription = null,
+                    modifier = Modifier.size(SuggestionChipDefaults.IconSize)
+                )
+            },
+            label = {
+                Text(text = user.name)
+            }
+        )
     },
     scrollBehavior = scrollBehavior
 )
