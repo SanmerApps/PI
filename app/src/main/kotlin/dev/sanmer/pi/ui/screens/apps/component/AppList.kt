@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -23,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.BuildConfig
@@ -35,6 +38,7 @@ import dev.sanmer.pi.viewmodel.AppsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AppList(
     list: List<IPackageInfo>,
@@ -42,6 +46,9 @@ fun AppList(
     settings: (IPackageInfo) -> AppsViewModel.Settings,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val isImeVisible = WindowInsets.isImeVisible
+
     var packageName by remember { mutableStateOf("") }
     if (packageName.isNotEmpty()) BottomSheet(
         onDismiss = { packageName = "" },
@@ -59,7 +66,10 @@ fun AppList(
         items(list) {
             AppItem(
                 pi = it,
-                onClick = { packageName = it.packageName },
+                onClick = {
+                    if (isImeVisible) keyboardController?.hide()
+                    packageName = it.packageName
+                }
             )
         }
     }
@@ -89,7 +99,6 @@ private fun BottomSheet(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SettingItem(
     pi: IPackageInfo,
