@@ -9,9 +9,9 @@ import coil.ImageLoader
 import coil.ImageLoaderFactory
 import dagger.hilt.android.HiltAndroidApp
 import dev.sanmer.pi.ktx.dp
-import dev.sanmer.su.ServiceManagerCompat
 import me.zhanghai.android.appiconloader.coil.AppIconFetcher
 import me.zhanghai.android.appiconloader.coil.AppIconKeyer
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import timber.log.Timber
 
 @HiltAndroidApp
@@ -24,7 +24,7 @@ class App : Application(), ImageLoaderFactory {
         super.onCreate()
 
         createNotificationChannels(this)
-        ServiceManagerCompat.setHiddenApiExemptions("")
+        HiddenApiBypass.setHiddenApiExemptions("")
     }
 
     override fun newImageLoader() =

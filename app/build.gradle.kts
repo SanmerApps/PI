@@ -80,6 +80,18 @@ android {
         buildConfig = true
     }
 
+    flavorDimensions += "feature"
+    productFlavors {
+        create("full") {
+            dimension = "feature"
+        }
+
+        create("lite") {
+            dimension = "feature"
+            applicationIdSuffix = ".lite"
+        }
+    }
+
     packaging.resources.excludes += setOf(
         "META-INF/**",
         "okhttp3/**",
@@ -102,14 +114,12 @@ android {
 dependencies {
     compileOnly(projects.stub)
     implementation(projects.core)
-    implementation(libs.sanmer.su)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.core)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -122,6 +132,13 @@ dependencies {
     implementation(libs.coil.kt)
     implementation(libs.coil.kt.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.serialization.protobuf)
+    implementation(libs.hiddenApiBypass)
     implementation(libs.timber)
+
+    "fullImplementation"(libs.sanmer.su)
+    "fullImplementation"(libs.androidx.datastore.core)
+    "fullImplementation"(libs.kotlinx.serialization.protobuf)
+
+    "liteImplementation"(libs.rikka.shizuku.api)
+    "liteImplementation"(libs.rikka.shizuku.provider)
 }
