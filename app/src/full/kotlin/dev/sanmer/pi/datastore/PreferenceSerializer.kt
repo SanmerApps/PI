@@ -12,7 +12,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.sanmer.pi.datastore.model.Preference
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
@@ -23,14 +28,15 @@ class PreferenceSerializer @Inject constructor() : Serializer<Preference> {
 
     override suspend fun readFrom(input: InputStream) =
         try {
-            Preference.decodeFromStream(input)
+            ProtoBuf.decodeFromByteArray<Preference>(input.readBytes())
         } catch (e: SerializationException) {
             throw CorruptionException("Failed to read proto", e)
         }
 
-    override suspend fun writeTo(t: Preference, output: OutputStream) {
-        t.encodeToStream(output)
-    }
+    override suspend fun writeTo(t: Preference, output: OutputStream) =
+        withContext(Dispatchers.IO) {
+            output.write(ProtoBuf.encodeToByteArray(t))
+        }
 
     @Module
     @InstallIn(SingletonComponent::class)
