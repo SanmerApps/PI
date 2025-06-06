@@ -69,7 +69,7 @@ class Updated : BroadcastReceiver() {
             && !PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
         ) return
 
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
+        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return
         val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         val pending = PendingIntent.getActivity(this, 0, intent, flag)
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
