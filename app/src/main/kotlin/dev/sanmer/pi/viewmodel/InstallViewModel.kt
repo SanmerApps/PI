@@ -121,6 +121,7 @@ class InstallViewModel @Inject constructor(
             InstallService.apk(
                 context = context,
                 userId = user.id,
+                sourcePackageName = sourceInfo.packageName,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo
             )
@@ -130,6 +131,7 @@ class InstallViewModel @Inject constructor(
             InstallService.appBundle(
                 context = context,
                 userId = user.id,
+                sourcePackageName = sourceInfo.packageName,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
                 splitConfigs = requiredConfigs

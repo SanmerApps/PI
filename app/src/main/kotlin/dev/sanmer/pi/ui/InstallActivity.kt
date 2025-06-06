@@ -83,8 +83,14 @@ class InstallActivity : ComponentActivity() {
             archiveInfo: PackageInfo,
             sourceInfo: PackageInfo?,
             userId: Int = context.userId,
+            sourcePackageName: String = ""
         ) {
-            val task = Task.Apk(archivePath, archiveInfo, userId)
+            val task = Task.Apk(
+                archivePath = archivePath,
+                archiveInfo = archiveInfo,
+                userId = userId,
+                sourcePackageName = sourcePackageName
+            )
             context.startActivity(
                 Intent(context, InstallActivity::class.java).also {
                     it.putTask(task)
@@ -101,8 +107,15 @@ class InstallActivity : ComponentActivity() {
             splitConfigs: List<SplitConfig>,
             sourceInfo: PackageInfo?,
             userId: Int = context.userId,
+            sourcePackageName: String = ""
         ) {
-            val task = Task.AppBundle(archivePath, archiveInfo, userId, splitConfigs)
+            val task = Task.AppBundle(
+                archivePath = archivePath,
+                archiveInfo = archiveInfo,
+                userId = userId,
+                sourcePackageName = sourcePackageName,
+                splitConfigs = splitConfigs
+            )
             context.startActivity(
                 Intent(context, InstallActivity::class.java).also {
                     it.putTask(task)

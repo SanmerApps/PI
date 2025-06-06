@@ -131,7 +131,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             ?: task.archiveInfo.packageName
 
         val preference = preferenceRepository.data.first()
-        val originatingUid = getPackageUid(preference.requester)
+        val originatingUid = getPackageUid(preference.requester.ifEmpty { task.sourcePackageName })
         pi.setInstallerPackageName(preference.executor)
         pi.setUserId(task.userId)
 
@@ -219,12 +219,14 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         return params
     }
 
-    private fun getPackageUid(packageName: String) =
-        runCatching {
+    private fun getPackageUid(packageName: String): Int {
+        if (packageName.isEmpty()) return Process.INVALID_UID
+        return runCatching {
             pm.getPackageUid(packageName, 0, userId)
         }.getOrDefault(
             Process.INVALID_UID
         )
+    }
 
     private fun setForeground() {
         val notification = newNotificationBuilder()
@@ -329,12 +331,14 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         abstract val archivePath: File
         abstract val archiveInfo: PackageInfo
         abstract val userId: Int
+        abstract val sourcePackageName: String
 
         @Parcelize
         data class Apk(
             override val archivePath: File,
             override val archiveInfo: PackageInfo,
-            override val userId: Int
+            override val userId: Int,
+            override val sourcePackageName: String
         ) : Task()
 
         @Parcelize
@@ -342,7 +346,8 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             override val archivePath: File,
             override val archiveInfo: PackageInfo,
             override val userId: Int,
-            val splitConfigs: List<SplitConfig>,
+            override val sourcePackageName: String,
+            val splitConfigs: List<SplitConfig>
         ) : Task() {
             val baseFile get() = File(archivePath, PackageParserCompat.BASE_APK)
 
@@ -373,9 +378,15 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             context: Context,
             archivePath: File,
             archiveInfo: PackageInfo,
-            userId: Int = context.userId
+            userId: Int = context.userId,
+            sourcePackageName: String = ""
         ) {
-            val task = Task.Apk(archivePath, archiveInfo, userId)
+            val task = Task.Apk(
+                archivePath = archivePath,
+                archiveInfo = archiveInfo,
+                userId = userId,
+                sourcePackageName = sourcePackageName
+            )
             pendingTasks.add(task.archivePath)
             context.startService(
                 Intent(context, InstallService::class.java).also {
@@ -390,8 +401,15 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
             archiveInfo: PackageInfo,
             splitConfigs: List<SplitConfig>,
             userId: Int = context.userId,
+            sourcePackageName: String = ""
         ) {
-            val task = Task.AppBundle(archivePath, archiveInfo, userId, splitConfigs)
+            val task = Task.AppBundle(
+                archivePath = archivePath,
+                archiveInfo = archiveInfo,
+                userId = userId,
+                sourcePackageName = sourcePackageName,
+                splitConfigs = splitConfigs
+            )
             pendingTasks.add(task.archivePath)
             context.startService(
                 Intent(context, InstallService::class.java).also {
