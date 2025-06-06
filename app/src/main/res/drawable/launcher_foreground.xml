@@ -9,16 +9,10 @@
         android:translateX="6.881"
         android:translateY="6.881">
         <path
-            android:pathData="M4,4m0,2a2,2 0,0 1,2 -2h12a2,2 0,0 1,2 2v2a2,2 0,0 1,-2 2h-12a2,2 0,0 1,-2 -2z"
+            android:pathData="M5.897,20.188c1.67,0.752 3.896,0.812 6.103,0.812s4.434,-0.059 6.104,-0.812c0.868,-0.392 1.614,-0.982 2.133,-1.856c0.514,-0.865 0.763,-1.94 0.763,-3.234c0,-2.577 -0.983,-5.315 -2.557,-7.416c-1.57,-2.094 -3.833,-3.682 -6.443,-3.682s-4.873,1.588 -6.443,3.682c-1.574,2.101 -2.557,4.84 -2.557,7.416c0,1.295 0.249,2.369 0.763,3.234c0.519,0.874 1.265,1.464 2.134,1.856"
             android:strokeLineJoin="round"
             android:strokeWidth="2"
             android:strokeColor="@color/launcher_tint"
-            android:strokeLineCap="round" />
-        <path
-            android:pathData="M4,14m0,2a2,2 0,0 1,2 -2h12a2,2 0,0 1,2 2v2a2,2 0,0 1,-2 2h-12a2,2 0,0 1,-2 -2z"
-            android:strokeLineJoin="round"
-            android:strokeWidth="2"
-            android:strokeColor="@color/launcher_tint"
-            android:strokeLineCap="round" />
+            android:strokeLineCap="round"/>
     </group>
 </vector>

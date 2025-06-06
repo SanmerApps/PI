@@ -16,11 +16,13 @@ androidxRoom = "2.7.1"
 appiconloader = "1.5.0"
 coil = "2.7.0"
 hiddenApiRefine = "4.4.0"
+hiddenApiBypass = "6.1"
 hilt = "2.56.2"
 kotlin = "2.1.21"
 kotlinxCoroutines = "1.10.2"
 kotlinxSerialization = "1.8.1"
 ksp = "2.1.21-2.0.1"
+shizuku = "13.1.5"
 timber = "5.0.1"
 
 [libraries]
@@ -54,6 +56,7 @@ appiconloader = { module = "me.zhanghai.android.appiconloader:appiconloader", ve
 appiconloader-coil = { module = "me.zhanghai.android.appiconloader:appiconloader-coil", version.ref = "appiconloader" }
 coil-kt = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil-kt-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+hiddenApiBypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
@@ -61,6 +64,8 @@ kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-seria
 rikka-refine-annotation = { module = "dev.rikka.tools.refine:annotation", version.ref = "hiddenApiRefine" }
 rikka-refine-compiler = { module = "dev.rikka.tools.refine:annotation-processor", version.ref = "hiddenApiRefine" }
 rikka-refine-runtime = { module = "dev.rikka.tools.refine:runtime", version.ref = "hiddenApiRefine" }
+rikka-shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
+rikka-shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 sanmer-su = { module = "dev.sanmer.su:core", version = "+" }
 

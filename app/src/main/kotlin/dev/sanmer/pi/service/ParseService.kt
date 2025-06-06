@@ -216,7 +216,7 @@ class ParseService : LifecycleService() {
 
     private fun newNotificationBuilder() =
         NotificationCompat.Builder(applicationContext, Const.CHANNEL_ID_PARSE)
-            .setSmallIcon(R.drawable.layout_list)
+            .setSmallIcon(R.drawable.launcher_outline)
 
     private fun notify(id: Int, notification: Notification) {
         if (
