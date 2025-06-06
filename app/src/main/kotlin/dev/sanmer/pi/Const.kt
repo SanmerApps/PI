@@ -9,4 +9,6 @@ object Const {
     const val NOTIFICATION_ID_INSTALL = 1024
     const val NOTIFICATION_ID_PARSE = 1025
     const val NOTIFICATION_ID_UPDATED = 1026
+
+    const val SHELL = "com.android.shell"
 }

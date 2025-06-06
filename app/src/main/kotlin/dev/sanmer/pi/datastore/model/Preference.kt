@@ -1,6 +1,6 @@
 package dev.sanmer.pi.datastore.model
 
-import dev.sanmer.pi.BuildConfig
+import dev.sanmer.pi.Const
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
@@ -14,9 +14,9 @@ data class Preference(
     @ProtoNumber(1)
     val provider: Provider = Provider.None,
     @ProtoNumber(3)
-    val requester: String = BuildConfig.APPLICATION_ID,
+    val requester: String = "",
     @ProtoNumber(4)
-    val executor: String = BuildConfig.APPLICATION_ID
+    val executor: String = Const.SHELL
 ) {
     fun encodeToStream(output: OutputStream) = output.write(
         ProtoBuf.encodeToByteArray(this)

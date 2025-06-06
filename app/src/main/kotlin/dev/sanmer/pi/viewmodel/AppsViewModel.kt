@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.Const
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
@@ -167,11 +168,11 @@ class AppsViewModel @Inject constructor(
             }
         }
 
-        override suspend fun setRequester() =
-            preferenceRepository.setRequester(packageInfo.packageName)
+        override suspend fun setRequester(enable: Boolean) =
+            preferenceRepository.setRequester(if (enable) packageInfo.packageName else "")
 
-        override suspend fun setExecutor() =
-            preferenceRepository.setExecutor(packageInfo.packageName)
+        override suspend fun setExecutor(enable: Boolean) =
+            preferenceRepository.setExecutor(if (enable) packageInfo.packageName else Const.SHELL)
     }
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
@@ -181,8 +182,8 @@ class AppsViewModel @Inject constructor(
 
     interface Settings {
         suspend fun setAuthorized()
-        suspend fun setRequester()
-        suspend fun setExecutor()
+        suspend fun setRequester(enable: Boolean)
+        suspend fun setExecutor(enable: Boolean)
     }
 
     sealed class LoadState {

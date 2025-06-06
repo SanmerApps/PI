@@ -120,10 +120,9 @@ private fun SettingItem(
 
     MenuChip(
         selected = pi.isRequester,
-        enabled = !pi.isRequester,
         onClick = {
             scope.launch {
-                settings.setRequester()
+                settings.setRequester(!pi.isRequester)
             }
         },
         label = { Text(text = stringResource(id = R.string.app_action_requester)) },
@@ -131,10 +130,9 @@ private fun SettingItem(
 
     MenuChip(
         selected = pi.isExecutor,
-        enabled = !pi.isExecutor,
         onClick = {
             scope.launch {
-                settings.setExecutor()
+                settings.setExecutor(!pi.isExecutor)
             }
         },
         label = { Text(text = stringResource(id = R.string.app_action_executor)) }
