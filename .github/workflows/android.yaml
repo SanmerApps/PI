@@ -50,34 +50,34 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Get release name
-        if: success()
+        if: success() && github.ref == 'refs/heads/main'
         id: release-name
         run: |
           name=`ls app/build/outputs/apk/full/release/*.apk | awk -F '(/|-full-release.apk)' '{print $7}'` && echo "name=${name}" >> $GITHUB_OUTPUT
 
       - name: Upload full apk
-        if: success()
+        if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.release-name.outputs.name }}-full
           path: app/build/outputs/apk/full/release/*.apk*
 
       - name: Upload full mapping
-        if: success()
+        if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.release-name.outputs.name }}-full-mapping
           path: app/build/outputs/mapping/fullRelease
 
       - name: Upload lite apk
-        if: success()
+        if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.release-name.outputs.name }}-lite
           path: app/build/outputs/apk/lite/release/*.apk*
 
       - name: Upload lite mapping
-        if: success()
+        if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.release-name.outputs.name }}-lite-mapping
