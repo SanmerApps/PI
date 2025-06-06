@@ -75,4 +75,6 @@ object PackageInfoCompat {
             it.flags and (ApplicationInfo.FLAG_SYSTEM or
                     ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
         } ?: false
+
+    fun PackageInfo?.orEmpty() = this ?: PackageInfo()
 }
