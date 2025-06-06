@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.PackageInfoCompat.orEmpty
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
@@ -95,7 +96,7 @@ class ParseService : LifecycleService() {
 
     private suspend fun parse(uri: Uri) = withContext(Dispatchers.IO) {
         val packageName = getOwnerPackageNameForUri(uri)
-        val sourceInfo = packageName?.let(::getPackageInfo)
+        val sourceInfo = packageName?.let(::getPackageInfo).orEmpty()
         val path = File(getPathForUri(uri))
         Timber.i("from: $packageName, path: $path")
 
@@ -108,13 +109,20 @@ class ParseService : LifecycleService() {
         copyToFile(uri, archivePath)
 
         PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
-            if (sourceInfo?.isAuthorized() == true ||
-                sourceInfo?.packageName == pi.packageName ||
-                pi.packageName == BuildConfig.APPLICATION_ID) {
+            val isPIUpdate = pi.packageName == BuildConfig.APPLICATION_ID
+                    && pi.longVersionCode > BuildConfig.VERSION_CODE
+            val isSelfUpdate = pi.packageName == sourceInfo.packageName
+                    && pi.longVersionCode > sourceInfo.longVersionCode
+            val isAuthorizedUpdate = sourceInfo.isAuthorized()
+                    && pi.longVersionCode > getPackageInfo(pi.packageName).longVersionCode
+
+            if (isPIUpdate || isSelfUpdate || isAuthorizedUpdate) {
                 InstallService.apk(
                     context = applicationContext,
                     archivePath = archivePath,
-                    archiveInfo = pi
+                    archiveInfo = pi,
+                    userId = userId,
+                    sourceInfo = sourceInfo
                 )
             } else {
                 InstallActivity.apk(
@@ -158,9 +166,7 @@ class ParseService : LifecycleService() {
 
     private fun getPackageInfo(packageName: String): PackageInfo {
         return runCatching {
-            pm.getPackageInfo(
-                packageName, 0, userId
-            )
+            pm.getPackageInfo(packageName, 0, userId)
         }.getOrNull() ?: PackageInfo()
     }
 
