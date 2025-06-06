@@ -32,8 +32,6 @@ publishing {
 }
 
 dependencies {
-    api(libs.sanmer.su)
-
     compileOnly(projects.stub)
     implementation(libs.rikka.refine.runtime)
 

@@ -9,15 +9,14 @@ import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.VersionedPackage
+import android.os.IBinder
+import android.os.ServiceManager
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.pi.BuildCompat
 import dev.sanmer.pi.ContextCompat
 import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.IntentReceiverCompat
-import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.getSystemService
-import dev.sanmer.su.ServiceManagerCompat.proxyBy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,7 +24,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class PackageInstallerDelegate(
-    private val service: IServiceManager
+    private val proxy: IBinder.() -> IBinder = { this }
 ) {
     private val context = ContextCompat.getContext()
     private var installerPackageName = context.packageName
@@ -35,13 +34,13 @@ class PackageInstallerDelegate(
 
     private val packageManager by lazy {
         IPackageManager.Stub.asInterface(
-            service.getSystemService("package")
+            ServiceManager.getService("package").proxy()
         )
     }
 
     private val packageInstaller by lazy {
         IPackageInstaller.Stub.asInterface(
-            packageManager.packageInstaller.proxyBy(service)
+            packageManager.packageInstaller.asBinder().proxy()
         )
     }
 
@@ -73,7 +72,7 @@ class PackageInstallerDelegate(
 
     fun openSession(sessionId: Int): PackageInstaller.Session {
         val session = IPackageInstallerSession.Stub.asInterface(
-            packageInstaller.openSession(sessionId).proxyBy(service)
+            packageInstaller.openSession(sessionId).asBinder().proxy()
         )
 
         return Refine.unsafeCast(

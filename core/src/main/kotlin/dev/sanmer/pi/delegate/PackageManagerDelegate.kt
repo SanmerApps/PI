@@ -5,17 +5,17 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInfo
 import android.content.pm.ResolveInfo
+import android.os.IBinder
+import android.os.ServiceManager
 import android.os.SystemProperties
 import dev.sanmer.pi.BuildCompat
-import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.getSystemService
 
 class PackageManagerDelegate(
-    private val service: IServiceManager
+    private val proxy: IBinder.() -> IBinder = { this }
 ) {
     private val packageManager by lazy {
         IPackageManager.Stub.asInterface(
-            service.getSystemService("package")
+            ServiceManager.getService("package").proxy()
         )
     }
 

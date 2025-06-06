@@ -2,16 +2,16 @@ package dev.sanmer.pi.delegate
 
 import android.content.Context
 import android.content.pm.UserInfo
+import android.os.IBinder
 import android.os.IUserManager
-import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.getSystemService
+import android.os.ServiceManager
 
 class UserManagerDelegate(
-    private val service: IServiceManager
+    private val proxy: IBinder.() -> IBinder = { this }
 ) {
     private val userManager by lazy {
         IUserManager.Stub.asInterface(
-            service.getSystemService(Context.USER_SERVICE)
+            ServiceManager.getService(Context.USER_SERVICE).proxy()
         )
     }
 

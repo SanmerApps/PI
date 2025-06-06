@@ -2,23 +2,23 @@ package dev.sanmer.pi.delegate
 
 import android.companion.virtual.VirtualDeviceManagerHidden
 import android.content.pm.IPackageManager
+import android.os.IBinder
+import android.os.ServiceManager
 import android.permission.IPermissionManager
 import dev.sanmer.pi.BuildCompat
-import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.getSystemService
 
 class PermissionManagerDelegate(
-    private val service: IServiceManager
+    private val proxy: IBinder.() -> IBinder = { this }
 ) {
     private val packageManager by lazy {
         IPackageManager.Stub.asInterface(
-            service.getSystemService("package")
+            ServiceManager.getService("package").proxy()
         )
     }
 
     private val permissionManager by lazy {
         IPermissionManager.Stub.asInterface(
-            service.getSystemService("permissionmgr")
+            ServiceManager.getService("permissionmgr").proxy()
         )
     }
 

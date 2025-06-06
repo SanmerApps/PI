@@ -9,6 +9,7 @@ import dev.sanmer.pi.delegate.UserManagerDelegate
 import dev.sanmer.pi.model.ServiceState
 import dev.sanmer.su.IServiceManager
 import dev.sanmer.su.ServiceManagerCompat
+import dev.sanmer.su.ServiceManagerCompat.proxyBy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,9 +66,9 @@ class ServiceRepository @Inject constructor(
         }
     }
 
-    fun getAppOpsManager() = unsafe { AppOpsManagerDelegate(it) }
-    fun getPackageManager() = unsafe { PackageManagerDelegate(it) }
-    fun getPackageInstaller() = unsafe { PackageInstallerDelegate(it) }
-    fun getPermissionManager() = unsafe { PermissionManagerDelegate(it) }
-    fun getUserManager() = unsafe { UserManagerDelegate(it) }
+    fun getAppOpsManager() = unsafe { ism -> AppOpsManagerDelegate { proxyBy(ism) } }
+    fun getPackageManager() = unsafe { ism -> PackageManagerDelegate { proxyBy(ism) }  }
+    fun getPackageInstaller() = unsafe { ism -> PackageInstallerDelegate { proxyBy(ism) }  }
+    fun getPermissionManager() = unsafe { ism -> PermissionManagerDelegate { proxyBy(ism) }  }
+    fun getUserManager() = unsafe { ism -> UserManagerDelegate { proxyBy(ism) }  }
 }

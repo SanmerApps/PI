@@ -102,6 +102,7 @@ android {
 dependencies {
     compileOnly(projects.stub)
     implementation(projects.core)
+    implementation(libs.sanmer.su)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)

@@ -4,21 +4,21 @@ import android.app.AppOpsManager
 import android.app.AppOpsManagerHidden
 import android.content.Context
 import android.content.pm.PackageInfo
+import android.os.IBinder
+import android.os.ServiceManager
 import com.android.internal.app.IAppOpsCallback
 import com.android.internal.app.IAppOpsService
 import dev.sanmer.pi.PackageInfoCompat.isEmpty
 import dev.sanmer.pi.UserHandleCompat
-import dev.sanmer.su.IServiceManager
-import dev.sanmer.su.ServiceManagerCompat.getSystemService
 
 class AppOpsManagerDelegate(
-    private val service: IServiceManager
+    private val proxy: IBinder.() -> IBinder = { this }
 ) {
     private val delegates = mutableListOf<AppOpsActiveCallbackDelegate>()
 
     private val appOpsService by lazy {
         IAppOpsService.Stub.asInterface(
-            service.getSystemService(Context.APP_OPS_SERVICE)
+            ServiceManager.getService(Context.APP_OPS_SERVICE).proxy()
         )
     }
 
