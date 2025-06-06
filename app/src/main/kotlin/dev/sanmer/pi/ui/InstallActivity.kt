@@ -14,7 +14,6 @@ import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
-import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.service.InstallService.Default.putTask
 import dev.sanmer.pi.service.InstallService.Default.taskOrNull
 import dev.sanmer.pi.service.InstallService.Task
@@ -50,7 +49,7 @@ class InstallActivity : ComponentActivity() {
 
         val task = intent.taskOrNull
         if (task != null) {
-            viewModel.load(task, intent.sourceInfoOrNull)
+            viewModel.load(task)
         } else {
             finish()
             return
@@ -69,32 +68,22 @@ class InstallActivity : ComponentActivity() {
     }
 
     companion object Default {
-        private const val EXTRA_SOURCE_INFO = "dev.sanmer.pi.extra.SOURCE_INFO"
-
-        private fun Intent.putSourceInfo(value: PackageInfo?) =
-            putExtra(EXTRA_SOURCE_INFO, value)
-
-        private val Intent.sourceInfoOrNull: PackageInfo?
-            get() = parcelable(EXTRA_SOURCE_INFO)
-
         fun apk(
             context: Context,
             archivePath: File,
             archiveInfo: PackageInfo,
-            sourceInfo: PackageInfo?,
-            userId: Int = context.userId,
-            sourcePackageName: String = ""
+            sourceInfo: PackageInfo,
+            userId: Int = context.userId
         ) {
             val task = Task.Apk(
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
                 userId = userId,
-                sourcePackageName = sourcePackageName
+                sourceInfo = sourceInfo
             )
             context.startActivity(
                 Intent(context, InstallActivity::class.java).also {
                     it.putTask(task)
-                    it.putSourceInfo(sourceInfo)
                     it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
             )
@@ -105,21 +94,19 @@ class InstallActivity : ComponentActivity() {
             archivePath: File,
             archiveInfo: PackageInfo,
             splitConfigs: List<SplitConfig>,
-            sourceInfo: PackageInfo?,
-            userId: Int = context.userId,
-            sourcePackageName: String = ""
+            sourceInfo: PackageInfo,
+            userId: Int = context.userId
         ) {
             val task = Task.AppBundle(
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
+                splitConfigs = splitConfigs,
                 userId = userId,
-                sourcePackageName = sourcePackageName,
-                splitConfigs = splitConfigs
+                sourceInfo = sourceInfo
             )
             context.startActivity(
                 Intent(context, InstallActivity::class.java).also {
                     it.putTask(task)
-                    it.putSourceInfo(sourceInfo)
                     it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
             )

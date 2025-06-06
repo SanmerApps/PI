@@ -77,10 +77,10 @@ class InstallViewModel @Inject constructor(
         user = userInfo
     }
 
-    fun load(task: Task, source: PackageInfo?) {
-        sourceInfo = (source ?: PackageInfo()).toIPackageInfo()
+    fun load(task: Task) {
         archivePath = task.archivePath
         archiveInfo = task.archiveInfo.toIPackageInfo()
+        sourceInfo = task.sourceInfo.toIPackageInfo()
 
         runCatching {
             user = UserInfoCompat(um.getUserInfo(task.userId))
@@ -120,21 +120,21 @@ class InstallViewModel @Inject constructor(
         Type.Apk -> {
             InstallService.apk(
                 context = context,
-                userId = user.id,
-                sourcePackageName = sourceInfo.packageName,
                 archivePath = archivePath,
-                archiveInfo = archiveInfo
+                archiveInfo = archiveInfo,
+                userId = user.id,
+                sourceInfo = sourceInfo
             )
         }
 
         Type.AppBundle -> {
             InstallService.appBundle(
                 context = context,
-                userId = user.id,
-                sourcePackageName = sourceInfo.packageName,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
-                splitConfigs = requiredConfigs
+                splitConfigs = requiredConfigs,
+                userId = user.id,
+                sourceInfo = sourceInfo
             )
         }
     }
