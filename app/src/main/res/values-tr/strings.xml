@@ -27,8 +27,6 @@
     <string name="installation_service">Servisi yükle</string>
     <string name="message_install_succeed">Yükleme başarılı</string>
     <string name="message_install_failed">Yükleme başarısız</string>
-    <string name="message_loading">Yükleniyor…</string>
-    <string name="unknown_error">Bilinmeyen hata</string>
     <string name="updated_title">PI Güncellendi</string>
     <string name="updated_text">Uygulamayı açmak için dokunun</string>
     <string name="search_placeholder">Ara…</string>

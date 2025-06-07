@@ -45,8 +45,6 @@
     <string name="message_parsing">正在解析</string>
     <string name="message_parsing_failed">解析失败</string>
     <string name="message_optimizing">正在优化</string>
-    <string name="message_loading">加载中…</string>
-    <string name="unknown_error">未知错误</string>
     <string name="updated_title">PI 已完成更新</string>
     <string name="updated_text">点按即可打开应用</string>
 

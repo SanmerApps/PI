@@ -17,10 +17,8 @@
     <string name="install_config_unspecified_title">Không cụ thể</string>
     <string name="message_install_succeed">Cài đặt thành công</string>
     <string name="message_install_failed">Cài đặt thất bại</string>
-    <string name="message_loading">Đang tải…</string>
     <string name="search_placeholder">Tìm…</string>
     <string name="installation_service">Cài đặt dịch vụ</string>
-    <string name="unknown_error">Lỗi không rõ</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="setup_title">Chế độ làm việc</string>
     <string name="setup_root_desc">Yêu cầu quyền Root do Magisk hoặc KernelSU cung cấp</string>

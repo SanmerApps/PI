@@ -18,11 +18,9 @@
     <string name="settings_language">שפה</string>
     <string name="settings_language_system">ברירת מחדל של המערכת</string>
     <string name="settings_translation_desc">עזור לנו לתרגם את PI לשפה שלך</string>
-    <string name="unknown_error">שגיאה לא ידועה</string>
     <string name="installation_service">התקנת שירות</string>
     <string name="empty_list">רשימה ריקה</string>
     <string name="search_placeholder">חיפוש…</string>
-    <string name="message_loading">נטען…</string>
     <string name="message_install_failed">ההתקנה נכשלה</string>
     <string name="message_install_succeed">ההתקנה בוצעה בהצלחה</string>
     <string name="install_config_unspecified_title">לא מוגדר</string>

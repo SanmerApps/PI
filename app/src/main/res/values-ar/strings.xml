@@ -18,10 +18,8 @@
     <string name="install_config_unspecified_title">غير محدد</string>
     <string name="message_install_succeed">تم التثبيت بنجاح</string>
     <string name="message_install_failed">فشل التثبيت</string>
-    <string name="message_loading">جاري التحميل…</string>
     <string name="search_placeholder">بحث…</string>
     <string name="installation_service">تثبيت الخدمة</string>
-    <string name="unknown_error">خطأ غير معروف</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="setup_root_desc">يتطلب صلاحيات الروت التي يوفرها Magisk أو KernelSU أو APatch</string>
     <string name="settings_service_restart">إضغط لمحاولة البدء</string>

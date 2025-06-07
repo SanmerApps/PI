@@ -19,11 +19,9 @@
     <string name="message_install_succeed">Instalat cu succes</string>
     <string name="installation_service">Instalează serviciul</string>
     <string name="message_install_failed">Instalarea a eșuat</string>
-    <string name="unknown_error">Eroare necunoscută</string>
     <string name="updated_text">Apăsați aici pentru a deschide aplicația</string>
     <string name="search_placeholder">Căutare…</string>
     <string name="updated_title">PI a fost actualizat</string>
-    <string name="message_loading">Se încarcă…</string>
     <string name="empty_list">Listă goală</string>
     <string name="setup_title">Modul de lucrare</string>
     <string name="install_config_feature_title">Caracteristică dinamică</string>

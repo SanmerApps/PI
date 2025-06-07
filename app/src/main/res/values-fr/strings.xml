@@ -8,7 +8,6 @@
     <string name="settings_service_not_running">Le service n\'est pas en cours d\'exécution</string>
     <string name="settings_service_version">Version %1$d, %2$s</string>
     <string name="installation_service">Service d\'installation</string>
-    <string name="unknown_error">Erreur inconnue</string>
     <string name="settings_service_restart">Cliquer pour essayer de démarrer</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">Système par défaut</string>
@@ -18,7 +17,6 @@
     <string name="settings_translation_desc">Aidez nous a traduire PI dans vôtre langue</string>
     <string name="message_install_succeed">Installation réussie</string>
     <string name="message_install_failed">Échec de l\'installation</string>
-    <string name="message_loading">Chargement…</string>
     <string name="search_placeholder">Rechercher…</string>
     <string name="empty_list">Liste vide</string>
     <string name="install_requester_title">Demandeur d\'installation</string>

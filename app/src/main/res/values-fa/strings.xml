@@ -39,8 +39,6 @@
     <string name="message_install_succeed">نصب موفقیت‌آمیز بود</string>
     <string name="message_install_failed">نصب ناموفق بود</string>
     <string name="message_optimizing">در حال بهینه‌سازی</string>
-    <string name="message_loading">در حال بارگذاری…</string>
-    <string name="unknown_error">خطای ناشناخته</string>
     <string name="updated_title">PI به‌روز شد</string>
     <string name="updated_text">برای باز کردن برنامه ضربه بزنید</string>
 

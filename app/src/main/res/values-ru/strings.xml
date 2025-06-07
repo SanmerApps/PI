@@ -11,7 +11,6 @@
     <string name="install_config_language_title">Язык</string>
     <string name="message_install_failed">Установка прервана</string>
     <string name="empty_list">Пустой список</string>
-    <string name="unknown_error">Неизвестная ошибка</string>
     <string name="install_config_feature_title">Динамическая функция</string>
     <string name="install_config_unspecified_title">Неопределённый</string>
     <string name="message_install_succeed">Установка завершена</string>
@@ -23,7 +22,6 @@
     <string name="settings_translation_desc">Помогите нам перевести PI на ваш язык</string>
     <string name="install_package_title">Установка приложения</string>
     <string name="install_requester_title">Запросчик установки</string>
-    <string name="message_loading">Загрузка…</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="settings_title">Настройки</string>
     <string name="message_parsing_failed">Сбой синтаксического анализа пакета</string>

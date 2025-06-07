@@ -83,13 +83,11 @@ fun SettingsScreen(
             SettingNormalItem(
                 icon = R.drawable.command,
                 title = stringResource(id = R.string.setup_title),
-                desc = stringResource(
-                    id = when (preference.provider) {
-                        Provider.Superuser -> R.string.setup_root_title
-                        Provider.Shizuku -> R.string.setup_shizuku_title
-                        else -> R.string.unknown_error
-                    }
-                ),
+                desc = when (preference.provider) {
+                    Provider.Superuser -> stringResource(R.string.setup_root_title)
+                    Provider.Shizuku -> stringResource(R.string.setup_shizuku_title)
+                    else -> ""
+                },
                 onClick = { workingMode = true }
             )
 
