@@ -15,6 +15,7 @@ import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.ktx.combineToLatest
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
+import dev.sanmer.pi.model.ServiceState
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +49,8 @@ class AppsViewModel @Inject constructor(
 
     var isFailed by mutableStateOf(false)
         private set
+    var error = Throwable()
+        private set
 
     val isQueryEmpty get() = queryFlow.value.isEmpty()
 
@@ -69,16 +72,22 @@ class AppsViewModel @Inject constructor(
     private fun serviceObserver() {
         viewModelScope.launch {
             serviceRepository.state.collectLatest { state ->
-                if (state.isSucceed) {
-                    packagesFlow.tryEmit(getPackages())
+                when (state) {
+                    is ServiceState.Failure -> {
+                        isFailed = true
+                        error = state.error
+                    }
+                    ServiceState.Pending -> {}
+                    is ServiceState.Success -> {
+                        packagesFlow.tryEmit(getPackages())
 
-                    aom.startWatchingMode(
-                        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
-                        packageName = null,
-                        callback = this@AppsViewModel
-                    )
+                        aom.startWatchingMode(
+                            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                            packageName = null,
+                            callback = this@AppsViewModel
+                        )
+                    }
                 }
-                isFailed = state.isFailed
             }
         }
 

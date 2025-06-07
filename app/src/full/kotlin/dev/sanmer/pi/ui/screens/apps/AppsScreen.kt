@@ -73,7 +73,7 @@ fun AppsScreen(
         ) {
             if (viewModel.isFailed) {
                 Failed(
-                    message = stringResource(id = R.string.settings_service_not_running),
+                    error = viewModel.error,
                     modifier = Modifier.padding(contentPadding)
                 )
                 return@Scaffold
