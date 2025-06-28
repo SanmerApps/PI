@@ -3,9 +3,9 @@
 package dev.sanmer.pi.ui.ktx
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import javax.annotation.concurrent.Immutable
 
 inline operator fun PaddingValues.plus(other: PaddingValues): PaddingValues =
     OperatorPaddingValues(this, other, Dp::plus)
