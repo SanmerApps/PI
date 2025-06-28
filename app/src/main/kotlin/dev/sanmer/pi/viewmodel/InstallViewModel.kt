@@ -28,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class InstallViewModel @Inject constructor(
     private val serviceRepository: ServiceRepository,
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
     private val pm by lazy { context.packageManager }
     private val um by lazy { serviceRepository.getUserManager() }
