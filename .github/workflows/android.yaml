@@ -82,3 +82,21 @@ jobs:
         with:
           name: ${{ steps.release-name.outputs.name }}-lite-mapping
           path: app/build/outputs/mapping/liteRelease
+
+      - name: Post to channel
+        if: success() && github.ref == 'refs/heads/main'
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
+            FULL_FILE=$(find app/build/outputs/apk/full/release -name "*-release.apk")
+            LITE_FILE=$(find app/build/outputs/apk/lite/release -name "*-release.apk")
+            ESCAPED=$(python3 -c 'import json,os; print(json.dumps(os.environ["COMMIT_MESSAGE"]))')
+            curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup" \
+              -F "chat_id=${CHANNEL_ID}" \
+              -F "media=[{\"type\":\"document\",\"media\":\"attach://full\"},{\"type\":\"document\",\"media\":\"attach://lite\",\"caption\":${ESCAPED}}]" \
+              -F "full=@${FULL_FILE}" \
+              -F "lite=@${LITE_FILE}"
+          fi
