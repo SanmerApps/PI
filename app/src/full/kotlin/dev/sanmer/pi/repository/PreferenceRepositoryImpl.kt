@@ -5,16 +5,13 @@ import dev.sanmer.pi.datastore.model.Preference
 import dev.sanmer.pi.datastore.model.Provider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class PreferenceRepository @Inject constructor(
+class PreferenceRepositoryImpl(
     private val dataStore: DataStore<Preference>
-) {
-    val data get() = dataStore.data
+) : PreferenceRepository {
+    override val data = dataStore.data
 
-    suspend fun setProvider(value: Provider) {
+    override suspend fun setProvider(value: Provider) {
         withContext(Dispatchers.IO) {
             dataStore.updateData {
                 it.copy(
@@ -24,7 +21,7 @@ class PreferenceRepository @Inject constructor(
         }
     }
 
-    suspend fun setRequester(value: String) {
+    override suspend fun setRequester(value: String) {
         withContext(Dispatchers.IO) {
             dataStore.updateData {
                 it.copy(
@@ -34,7 +31,7 @@ class PreferenceRepository @Inject constructor(
         }
     }
 
-    suspend fun setExecutor(value: String) {
+    override suspend fun setExecutor(value: String) {
         withContext(Dispatchers.IO) {
             dataStore.updateData {
                 it.copy(

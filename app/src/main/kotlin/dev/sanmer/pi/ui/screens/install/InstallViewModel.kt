@@ -1,6 +1,5 @@
-package dev.sanmer.pi.viewmodel
+package dev.sanmer.pi.ui.screens.install
 
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.UserInfo
 import androidx.compose.runtime.derivedStateOf
@@ -9,8 +8,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.sanmer.pi.ContextCompat
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.VersionCompat.fileSize
@@ -20,23 +19,19 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.service.InstallService
-import dev.sanmer.pi.service.InstallService.Task
-import timber.log.Timber
 import java.io.File
-import javax.inject.Inject
 
-@HiltViewModel
-class InstallViewModel @Inject constructor(
-    private val serviceRepository: ServiceRepository,
-    @param:ApplicationContext private val context: Context
+class InstallViewModel(
+    private val serviceRepository: ServiceRepository
 ) : ViewModel() {
+    private val context by lazy { ContextCompat.getContext() }
     private val pm by lazy { context.packageManager }
     private val um by lazy { serviceRepository.getUserManager() }
 
-    private var archivePath = File(".")
-    var sourceInfo by mutableStateOf(IPackageInfo.empty())
+    private var archivePath = File(".tmp")
+    var sourceInfo by mutableStateOf(IPackageInfo.Default.empty())
         private set
-    var archiveInfo by mutableStateOf(IPackageInfo.empty())
+    var archiveInfo by mutableStateOf(IPackageInfo.Default.empty())
         private set
     val hasSourceInfo by lazy { sourceInfo.isNotEmpty }
 
@@ -60,8 +55,10 @@ class InstallViewModel @Inject constructor(
     var user by mutableStateOf(UserInfoCompat.Empty)
         private set
 
+    val logger = Logger.Android("InstallViewModel")
+
     init {
-        Timber.d("InstallViewModel init")
+        logger.d("init")
         loadUsers()
     }
 
@@ -69,7 +66,7 @@ class InstallViewModel @Inject constructor(
         runCatching {
             users = um.getUsers().map(::UserInfoCompat)
         }.onFailure {
-            Timber.w(it)
+            logger.w(it)
         }
     }
 
@@ -77,7 +74,7 @@ class InstallViewModel @Inject constructor(
         user = userInfo
     }
 
-    fun load(task: Task) {
+    fun load(task: InstallService.Task) {
         archivePath = task.archivePath
         archiveInfo = task.archiveInfo.toIPackageInfo()
         sourceInfo = task.sourceInfo.toIPackageInfo()
@@ -85,15 +82,15 @@ class InstallViewModel @Inject constructor(
         runCatching {
             user = UserInfoCompat(um.getUserInfo(task.userId))
         }.onFailure {
-            Timber.w(it)
+            logger.w(it)
         }
 
         when (task) {
-            is Task.Apk -> {
+            is InstallService.Task.Apk -> {
                 baseSize = archivePath.length()
             }
 
-            is Task.AppBundle -> {
+            is InstallService.Task.AppBundle -> {
                 type = Type.AppBundle
                 baseSize = task.baseFile.length()
                 splitConfigs = task.splitConfigs
@@ -118,7 +115,7 @@ class InstallViewModel @Inject constructor(
 
     fun install() = when (type) {
         Type.Apk -> {
-            InstallService.apk(
+            InstallService.Default.apk(
                 context = context,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,
@@ -128,7 +125,7 @@ class InstallViewModel @Inject constructor(
         }
 
         Type.AppBundle -> {
-            InstallService.appBundle(
+            InstallService.Default.appBundle(
                 context = context,
                 archivePath = archivePath,
                 archiveInfo = archiveInfo,

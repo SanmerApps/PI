@@ -33,7 +33,7 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
 import dev.sanmer.pi.ui.ktx.bottom
-import dev.sanmer.pi.viewmodel.AppsViewModel
+import dev.sanmer.pi.ui.screens.apps.AppsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

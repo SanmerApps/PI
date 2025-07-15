@@ -4,7 +4,6 @@ import java.time.Instant
 plugins {
     alias(libs.plugins.self.application)
     alias(libs.plugins.self.compose)
-    alias(libs.plugins.self.hilt)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -121,7 +120,6 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.documentfile)
-    implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.lifecycle.viewmodel)
@@ -131,9 +129,10 @@ dependencies {
     implementation(libs.appiconloader.coil)
     implementation(libs.coil.kt)
     implementation(libs.coil.kt.compose)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.hiddenApiBypass)
-    implementation(libs.timber)
 
     "fullImplementation"(libs.sanmer.su)
     "fullImplementation"(libs.androidx.datastore.core)

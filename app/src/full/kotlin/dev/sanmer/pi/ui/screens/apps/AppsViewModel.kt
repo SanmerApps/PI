@@ -1,4 +1,4 @@
-package dev.sanmer.pi.viewmodel
+package dev.sanmer.pi.ui.screens.apps
 
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -7,8 +7,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.pi.Const
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
@@ -24,11 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class AppsViewModel @Inject constructor(
+class AppsViewModel(
     private val preferenceRepository: PreferenceRepository,
     private val serviceRepository: ServiceRepository
 ) : ViewModel(), AppOpsManagerDelegate.AppOpsCallback {
@@ -54,8 +51,10 @@ class AppsViewModel @Inject constructor(
 
     val isQueryEmpty get() = queryFlow.value.isEmpty()
 
+    private val logger = Logger.Android("AppsViewModel")
+
     override fun opChanged(op: Int, uid: Int, packageName: String) {
-        Timber.d("opChanged<${AppOpsManagerDelegate.opToName(op)}>: $packageName")
+        logger.d("opChanged<${AppOpsManagerDelegate.Default.opToName(op)}>: $packageName")
 
         viewModelScope.launch {
             packagesFlow.tryEmit(getPackages())
@@ -63,7 +62,7 @@ class AppsViewModel @Inject constructor(
     }
 
     init {
-        Timber.d("AppsViewModel init")
+        logger.d("init")
         serviceObserver()
         dataObserver()
         queryObserver()
@@ -77,12 +76,13 @@ class AppsViewModel @Inject constructor(
                         isFailed = true
                         error = state.error
                     }
+
                     ServiceState.Pending -> {}
                     is ServiceState.Success -> {
                         packagesFlow.tryEmit(getPackages())
 
                         aom.startWatchingMode(
-                            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                            op = AppOpsManagerDelegate.Default.OP_REQUEST_INSTALL_PACKAGES,
                             packageName = null,
                             callback = this@AppsViewModel
                         )
@@ -165,7 +165,7 @@ class AppsViewModel @Inject constructor(
         override suspend fun setAuthorized() {
             val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
                 aom.setMode(
-                    op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+                    op = AppOpsManagerDelegate.Default.OP_REQUEST_INSTALL_PACKAGES,
                     packageInfo = packageInfo,
                     mode = it
                 )
@@ -185,7 +185,7 @@ class AppsViewModel @Inject constructor(
     }
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
-        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
+        op = AppOpsManagerDelegate.Default.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
     ).isAllowed
 

@@ -18,7 +18,8 @@ fun LanguageItem(
 ) = SettingNormalItem(
     icon = R.drawable.world,
     title = stringResource(id = R.string.settings_language),
-    desc = context.applicationLocale?.localizedDisplayName ?: stringResource(id = R.string.settings_language_system),
+    desc = context.applicationLocale?.localizedDisplayName
+        ?: stringResource(id = R.string.settings_language_system),
     onClick = {
         // noinspection InlinedApi
         context.startActivity(

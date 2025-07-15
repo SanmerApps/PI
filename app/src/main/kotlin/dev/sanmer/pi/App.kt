@@ -7,24 +7,26 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import dagger.hilt.android.HiltAndroidApp
+import dev.sanmer.pi.di.Repositories
+import dev.sanmer.pi.di.ViewModel
 import dev.sanmer.pi.ktx.dp
 import me.zhanghai.android.appiconloader.coil.AppIconFetcher
 import me.zhanghai.android.appiconloader.coil.AppIconKeyer
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 import org.lsposed.hiddenapibypass.HiddenApiBypass
-import timber.log.Timber
 
-@HiltAndroidApp
 class App : Application(), ImageLoaderFactory {
-    init {
-        Timber.plant(Timber.DebugTree())
-    }
-
     override fun onCreate() {
         super.onCreate()
-
         createNotificationChannels(this)
         HiddenApiBypass.setHiddenApiExemptions("")
+        startKoin {
+            androidLogger()
+            androidContext(this@App)
+            modules(Repositories, ViewModel)
+        }
     }
 
     override fun newImageLoader() =

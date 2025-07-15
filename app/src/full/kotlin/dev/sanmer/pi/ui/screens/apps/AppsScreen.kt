@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Failed
@@ -33,12 +32,12 @@ import dev.sanmer.pi.ui.component.SearchTopBar
 import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
 import dev.sanmer.pi.ui.main.Screen
 import dev.sanmer.pi.ui.screens.apps.component.AppList
-import dev.sanmer.pi.viewmodel.AppsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppsScreen(
     navController: NavController,
-    viewModel: AppsViewModel = hiltViewModel()
+    viewModel: AppsViewModel = koinViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()

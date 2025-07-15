@@ -7,26 +7,28 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import dagger.hilt.android.EntryPointAccessors
 import dev.sanmer.pi.Const
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
+import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
-class Updated : BroadcastReceiver() {
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+class Updated : BroadcastReceiver(), KoinComponent {
+    private val logger = Logger.Android("Updated")
 
     override fun onReceive(context: Context, intent: Intent?) {
         when (intent?.action) {
             Intent.ACTION_MY_PACKAGE_REPLACED -> {
                 val pending = goAsync()
-                coroutineScope.launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     context.deleteExternalCacheDir()
                     context.performDexOpt()
                     pending.finish()
@@ -40,25 +42,20 @@ class Updated : BroadcastReceiver() {
     }
 
     private suspend fun Context.performDexOpt() = withContext(Dispatchers.IO) {
-        val entryPoint = EntryPointAccessors.fromApplication(
-            applicationContext,
-            BroadcastReceiverEntryPoint::class.java
-        )
-
-        val serviceRepository = entryPoint.serviceRepository()
+        val serviceRepository = get<ServiceRepository>()
         val state = serviceRepository.state.first { !it.isPending }
 
         notifyUpdated()
         if (state.isSucceed) {
             runCatching {
-                Timber.d("optimize $packageName")
+                logger.d("optimize $packageName")
                 val pm = serviceRepository.getPackageManager()
                 pm.clearApplicationProfileData(packageName)
                 pm.performDexOpt(packageName).also {
-                    if (!it) Timber.e("Failed to optimize $packageName")
+                    if (!it) logger.e("Failed to optimize $packageName")
                 }
             }.onFailure { error ->
-                Timber.e(error, "Failed to optimize $packageName")
+                logger.e(error)
             }
         }
     }

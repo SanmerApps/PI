@@ -1,20 +1,17 @@
-package dev.sanmer.pi.viewmodel
+package dev.sanmer.pi.ui.main
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.datastore.model.Preference
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
+class MainViewModel(
     private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
     var loadState by mutableStateOf<LoadState>(LoadState.Pending)
@@ -24,8 +21,10 @@ class MainViewModel @Inject constructor(
     val preference inline get() = loadState.preference
     val isNone inline get() = preference.provider == Provider.None
 
+    private val logger = Logger.Android("MainViewModel")
+
     init {
-        Timber.d("MainViewModel init")
+        logger.d("init")
         preferenceObserver()
     }
 

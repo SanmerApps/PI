@@ -12,10 +12,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.BuildConfig
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.PackageInfoCompat.orEmpty
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
@@ -34,20 +34,20 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
+import org.koin.android.ext.android.inject
+import org.koin.core.component.KoinComponent
 import java.io.File
 import java.util.UUID
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@AndroidEntryPoint
-class ParseService : LifecycleService() {
-    @Inject
-    lateinit var serviceRepository: ServiceRepository
+class ParseService : LifecycleService(), KoinComponent {
+    private val serviceRepository by inject<ServiceRepository>()
 
     private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm by lazy { serviceRepository.getPackageManager() }
     private val aom by lazy { serviceRepository.getAppOpsManager() }
+
+    private val logger = Logger.Android("ParseService")
 
     init {
         lifecycleScope.launch {
@@ -59,7 +59,7 @@ class ParseService : LifecycleService() {
     }
 
     override fun onCreate() {
-        Timber.d("onCreate")
+        logger.d("onCreate")
         super.onCreate()
         setForeground()
     }
@@ -71,7 +71,7 @@ class ParseService : LifecycleService() {
 
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        Timber.d("onDestroy")
+        logger.d("onDestroy")
         super.onDestroy()
     }
 
@@ -98,7 +98,7 @@ class ParseService : LifecycleService() {
         val packageName = getOwnerPackageNameForUri(uri)
         val sourceInfo = packageName?.let(::getPackageInfo).orEmpty()
         val path = File(getPathForUri(uri))
-        Timber.i("from: $packageName, path: $path")
+        logger.i("from: $packageName, path: $path")
 
         notifyParsing(
             id = uri.hashCode(),

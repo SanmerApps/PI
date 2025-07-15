@@ -39,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.ktx.finishActivity
@@ -49,11 +48,11 @@ import dev.sanmer.pi.ui.screens.install.component.PackageInfoItem
 import dev.sanmer.pi.ui.screens.install.component.SelectUserItem
 import dev.sanmer.pi.ui.screens.install.component.SplitConfigItem
 import dev.sanmer.pi.ui.screens.install.component.TittleItem
-import dev.sanmer.pi.viewmodel.InstallViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun InstallScreen(
-    viewModel: InstallViewModel = hiltViewModel()
+    viewModel: InstallViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

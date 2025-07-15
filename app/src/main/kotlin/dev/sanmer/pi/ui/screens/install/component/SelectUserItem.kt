@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.ktx.surface
-import dev.sanmer.pi.viewmodel.InstallViewModel.UserInfoCompat
+import dev.sanmer.pi.ui.screens.install.InstallViewModel.UserInfoCompat
 
 @Composable
 fun SelectUserItem(
