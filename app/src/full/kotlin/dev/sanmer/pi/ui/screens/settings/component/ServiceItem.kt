@@ -19,11 +19,13 @@ fun ServiceItem(
         is ServiceState.Success -> R.drawable.mood_wink
         is ServiceState.Failure -> R.drawable.mood_xd
     },
-    title = stringResource(id = when (state) {
-        ServiceState.Pending -> R.string.settings_service_starting
-        is ServiceState.Success -> R.string.settings_service_running
-        is ServiceState.Failure -> R.string.settings_service_not_running
-    }),
+    title = stringResource(
+        id = when (state) {
+            ServiceState.Pending -> R.string.settings_service_starting
+            is ServiceState.Success -> R.string.settings_service_running
+            is ServiceState.Failure -> R.string.settings_service_not_running
+        }
+    ),
     desc = when (state) {
         ServiceState.Pending -> stringResource(id = R.string.settings_service_wait)
         is ServiceState.Success -> stringResource(
@@ -31,6 +33,7 @@ fun ServiceItem(
             BuildConfig.VERSION_CODE,
             state.service.platform
         )
+
         is ServiceState.Failure -> stringResource(id = R.string.settings_service_restart)
     },
     onClick = { if (state.isFailed) restart() }

@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.pi.Const
@@ -42,12 +41,12 @@ import dev.sanmer.pi.ui.provider.LocalPreference
 import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
 import dev.sanmer.pi.ui.screens.settings.component.ServiceItem
 import dev.sanmer.pi.ui.screens.settings.component.WorkingModeItem
-import dev.sanmer.pi.viewmodel.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

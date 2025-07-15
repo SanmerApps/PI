@@ -8,9 +8,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
@@ -19,17 +18,18 @@ import dev.sanmer.pi.service.InstallService.Default.taskOrNull
 import dev.sanmer.pi.service.InstallService.Task
 import dev.sanmer.pi.service.ParseService
 import dev.sanmer.pi.ui.screens.install.InstallScreen
+import dev.sanmer.pi.ui.screens.install.InstallViewModel
 import dev.sanmer.pi.ui.theme.AppTheme
-import dev.sanmer.pi.viewmodel.InstallViewModel
-import timber.log.Timber
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
-@AndroidEntryPoint
 class InstallActivity : ComponentActivity() {
-    private val viewModel: InstallViewModel by viewModels()
+    private val viewModel by viewModel<InstallViewModel>()
+
+    private val logger = Logger.Android("InstallActivity")
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.d("onCreate")
+        logger.d("onCreate")
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -63,7 +63,7 @@ class InstallActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        Timber.d("onDestroy")
+        logger.d("onDestroy")
         super.onDestroy()
     }
 

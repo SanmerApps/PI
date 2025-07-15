@@ -25,15 +25,5 @@ gradlePlugin {
             id = "self.compose"
             implementationClass = "ComposeConventionPlugin"
         }
-
-        register("self.hilt") {
-            id = "self.hilt"
-            implementationClass = "HiltConventionPlugin"
-        }
-
-        register("self.room") {
-            id = "self.room"
-            implementationClass = "RoomConventionPlugin"
-        }
     }
 }

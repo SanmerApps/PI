@@ -1,5 +1,6 @@
 package dev.sanmer.pi.repository
 
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
@@ -16,27 +17,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class ServiceRepository @Inject constructor(
+class ServiceRepositoryImpl(
     private val preferenceRepository: PreferenceRepository
-) {
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+) : ServiceRepository {
+    private val logger = Logger.Android("ServiceRepositoryImpl")
 
     private var _state = MutableStateFlow<ServiceState>(ServiceState.Pending)
-    val state get() = _state.asStateFlow()
-
-    val isSucceed get() = state.value.isSucceed
+    override val state = _state.asStateFlow()
+    override val isSucceed get() = state.value.isSucceed
 
     init {
         preferenceObserver()
     }
 
     private fun preferenceObserver() {
-        coroutineScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             preferenceRepository.data.collect { preference ->
                 _state.update { if (!it.isSucceed) create(preference.provider) else it }
             }
@@ -50,11 +46,11 @@ class ServiceRepository @Inject constructor(
             Provider.Superuser -> ServiceState.Success(ServiceManagerCompat.fromLibSu())
         }
     } catch (e: Throwable) {
-        Timber.e(e)
+        logger.e(e)
         ServiceState.Failure(e)
     }
 
-    suspend fun recreate(provider: Provider) {
+    override suspend fun recreate(provider: Provider) {
         _state.update { create(provider) }
     }
 
@@ -66,9 +62,11 @@ class ServiceRepository @Inject constructor(
         }
     }
 
-    fun getAppOpsManager() = unsafe { ism -> AppOpsManagerDelegate { proxyBy(ism) } }
-    fun getPackageManager() = unsafe { ism -> PackageManagerDelegate { proxyBy(ism) }  }
-    fun getPackageInstaller() = unsafe { ism -> PackageInstallerDelegate { proxyBy(ism) }  }
-    fun getPermissionManager() = unsafe { ism -> PermissionManagerDelegate { proxyBy(ism) }  }
-    fun getUserManager() = unsafe { ism -> UserManagerDelegate { proxyBy(ism) }  }
+    override fun getAppOpsManager() = unsafe { ism -> AppOpsManagerDelegate { proxyBy(ism) } }
+    override fun getPackageManager() = unsafe { ism -> PackageManagerDelegate { proxyBy(ism) } }
+    override fun getPackageInstaller() = unsafe { ism -> PackageInstallerDelegate { proxyBy(ism) } }
+    override fun getPermissionManager() =
+        unsafe { ism -> PermissionManagerDelegate { proxyBy(ism) } }
+
+    override fun getUserManager() = unsafe { ism -> UserManagerDelegate { proxyBy(ism) } }
 }

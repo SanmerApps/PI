@@ -17,9 +17,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
@@ -41,23 +41,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import me.zhanghai.android.appiconloader.AppIconLoader
-import timber.log.Timber
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
-@AndroidEntryPoint
-class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallback {
-    @Inject
-    lateinit var preferenceRepository: PreferenceRepository
-
-    @Inject
-    lateinit var serviceRepository: ServiceRepository
-
+class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelegate.SessionCallback {
+    private val preferenceRepository by inject<PreferenceRepository>()
+    private val serviceRepository by inject<ServiceRepository>()
     private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
     private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm by lazy { serviceRepository.getPackageManager() }
     private val pi by lazy { serviceRepository.getPackageInstaller() }
+
+    private val logger = Logger.Android("InstallService")
 
     init {
         lifecycleScope.launch {
@@ -70,7 +67,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
     override fun onCreated(sessionId: Int) {
         val session = pi.getSessionInfo(sessionId)
-        Timber.i("onCreated<$sessionId>: ${session?.appPackageName}")
+        logger.i("onCreated<$sessionId>: ${session?.appPackageName}")
 
         notifyProgress(
             id = sessionId,
@@ -95,7 +92,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         inline get() = appLabel ?: appPackageName ?: sessionId.toString()
 
     override fun onCreate() {
-        Timber.d("onCreate")
+        logger.d("onCreate")
         super.onCreate()
         pi.registerCallback(this)
         setForeground()
@@ -104,7 +101,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
     override fun onDestroy() {
         pi.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        Timber.d("onDestroy")
+        logger.d("onDestroy")
         super.onDestroy()
     }
 
@@ -179,7 +176,7 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
 
             else -> {
                 val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                Timber.e("onFailed<${task.archiveInfo.packageName}>: $msg")
+                logger.e("onFailed<${task.archiveInfo.packageName}>: $msg")
                 notifyFailure(
                     id = sessionId,
                     appLabel = appLabel,
@@ -193,10 +190,10 @@ class InstallService : LifecycleService(), PackageInstallerDelegate.SessionCallb
         runCatching {
             pm.clearApplicationProfileData(packageName)
             pm.performDexOpt(packageName).also {
-                if (!it) Timber.e("Failed to optimize $packageName")
+                if (!it) logger.e("Failed to optimize $packageName")
             }
         }.onFailure { error ->
-            Timber.e(error, "Failed to optimize $packageName")
+            logger.e(error)
         }.getOrDefault(false)
     }
 

@@ -10,7 +10,7 @@ object ContextCompat {
     val Context.userId
         get() = Refine.unsafeCast<ContextHidden>(this).userId
 
-    internal fun getContext(): Context {
+    fun getContext(): Context {
         var context: Context = ActivityThread.currentApplication()
         while (context is ContextWrapper) {
             context = context.baseContext

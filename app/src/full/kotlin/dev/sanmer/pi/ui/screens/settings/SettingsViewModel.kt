@@ -1,25 +1,24 @@
-package dev.sanmer.pi.viewmodel
+package dev.sanmer.pi.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.pi.Logger
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val preferenceRepository: PreferenceRepository,
     private val serviceRepository: ServiceRepository
 ) : ViewModel() {
     val state = serviceRepository.state
 
+    private val logger = Logger.Android("SettingsViewModel")
+
     init {
-        Timber.d("SettingsViewModel init")
+        logger.d("init")
     }
 
     fun setProvider(value: Provider) {
