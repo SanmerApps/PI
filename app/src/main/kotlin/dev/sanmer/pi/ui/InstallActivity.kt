@@ -13,9 +13,9 @@ import dev.sanmer.pi.Logger
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
-import dev.sanmer.pi.service.InstallService.Default.putTask
-import dev.sanmer.pi.service.InstallService.Default.taskOrNull
-import dev.sanmer.pi.service.InstallService.Task
+import dev.sanmer.pi.model.Task
+import dev.sanmer.pi.model.Task.Default.putTask
+import dev.sanmer.pi.model.Task.Default.taskOrNull
 import dev.sanmer.pi.service.ParseService
 import dev.sanmer.pi.ui.screens.install.InstallScreen
 import dev.sanmer.pi.ui.screens.install.InstallViewModel

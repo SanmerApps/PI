@@ -10,7 +10,6 @@ import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionInfo
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
-import android.os.Parcelable
 import android.os.Process
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -20,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.Logger
-import dev.sanmer.pi.PackageParserCompat
 import dev.sanmer.pi.R
 import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
@@ -29,7 +27,9 @@ import dev.sanmer.pi.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.commit
 import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.write
 import dev.sanmer.pi.ktx.dp
-import dev.sanmer.pi.ktx.parcelable
+import dev.sanmer.pi.model.Task
+import dev.sanmer.pi.model.Task.Default.putTask
+import dev.sanmer.pi.model.Task.Default.taskOrNull
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.parcelize.Parcelize
 import me.zhanghai.android.appiconloader.AppIconLoader
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -112,7 +111,7 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
-            val task = intent?.task ?: return@launch
+            val task = intent?.taskOrNull ?: return@launch
 
             install(task)
             task.archivePath.deleteRecursively()
@@ -326,50 +325,8 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         ) nm.notify(id, notification)
     }
 
-    sealed class Task : Parcelable {
-        abstract val archivePath: File
-        abstract val archiveInfo: PackageInfo
-        abstract val userId: Int
-        abstract val sourceInfo: PackageInfo
-
-        @Parcelize
-        data class Apk(
-            override val archivePath: File,
-            override val archiveInfo: PackageInfo,
-            override val userId: Int,
-            override val sourceInfo: PackageInfo
-        ) : Task()
-
-        @Parcelize
-        data class AppBundle(
-            override val archivePath: File,
-            override val archiveInfo: PackageInfo,
-            override val userId: Int,
-            override val sourceInfo: PackageInfo,
-            val splitConfigs: List<SplitConfig>
-        ) : Task() {
-            val baseFile get() = File(archivePath, PackageParserCompat.BASE_APK)
-
-            val archiveFiles
-                get() = splitConfigs.map { it.file }
-                    .toMutableList().apply {
-                        add(0, baseFile)
-                    }
-        }
-    }
-
     companion object Default {
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
-        private const val EXTRA_TASK = "dev.sanmer.pi.extra.TASK"
-
-        fun Intent.putTask(value: Task) =
-            putExtra(EXTRA_TASK, value)
-
-        val Intent.taskOrNull: Task?
-            get() = parcelable(EXTRA_TASK)
-
-        private val Intent.task: Task
-            get() = checkNotNull(taskOrNull)
 
         private val pendingTasks = mutableListOf<File>()
 

@@ -17,6 +17,7 @@ import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
 import dev.sanmer.pi.compat.VersionCompat.getVersionDiff
 import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
+import dev.sanmer.pi.model.Task
 import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.service.InstallService
 import java.io.File
@@ -74,7 +75,7 @@ class InstallViewModel(
         user = userInfo
     }
 
-    fun load(task: InstallService.Task) {
+    fun load(task: Task) {
         archivePath = task.archivePath
         archiveInfo = task.archiveInfo.toIPackageInfo()
         sourceInfo = task.sourceInfo.toIPackageInfo()
@@ -86,11 +87,11 @@ class InstallViewModel(
         }
 
         when (task) {
-            is InstallService.Task.Apk -> {
+            is Task.Apk -> {
                 baseSize = archivePath.length()
             }
 
-            is InstallService.Task.AppBundle -> {
+            is Task.AppBundle -> {
                 type = Type.AppBundle
                 baseSize = task.baseFile.length()
                 splitConfigs = task.splitConfigs
