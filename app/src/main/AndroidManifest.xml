@@ -27,7 +27,7 @@
         android:theme="@style/AppTheme"
         android:enableOnBackInvokedCallback="true"
         android:supportsRtl="true"
-        tools:targetApi="35">
+        tools:targetApi="36">
 
         <activity
             android:name=".ui.InstallActivity"
