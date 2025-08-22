@@ -26,6 +26,7 @@ import dev.sanmer.pi.compat.MediaStoreCompat.getPathForUri
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.ktx.temp
+import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.ui.InstallActivity
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class ParseService : LifecycleService(), KoinComponent {
     private val serviceRepository by inject<ServiceRepository>()
+    private val preferenceRepository by inject<PreferenceRepository>()
 
     private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm by lazy { serviceRepository.getPackageManager() }
@@ -79,8 +81,10 @@ class ParseService : LifecycleService(), KoinComponent {
         lifecycleScope.launch(Dispatchers.IO) {
             val uri = intent?.data ?: return@launch
             val state = serviceRepository.state.first { !it.isPending }
+            val preference = preferenceRepository.data.first()
+
             if (state.isSucceed) {
-                parse(uri)
+                parse(uri, preference.automatic)
                 pendingUris.remove(uri)
             } else {
                 notifyFailure(
@@ -95,7 +99,7 @@ class ParseService : LifecycleService(), KoinComponent {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private suspend fun parse(uri: Uri) = withContext(Dispatchers.IO) {
+    private suspend fun parse(uri: Uri, auto: Boolean) = withContext(Dispatchers.IO) {
         val packageName = getOwnerPackageNameForUri(uri)
         val sourceInfo = packageName?.let(::getPackageInfo).orEmpty()
         val path = File(getPathForUri(uri))
@@ -109,8 +113,8 @@ class ParseService : LifecycleService(), KoinComponent {
         val archivePath = externalCacheDir.temp()
         copyToFile(uri, archivePath)
 
-        val isSucceed = if (parseApk(archivePath, sourceInfo)) true
-        else parseZip(archivePath, sourceInfo)
+        val isSucceed = if (parseApk(archivePath, sourceInfo, auto)) true
+        else parseZip(archivePath, sourceInfo, auto)
 
         if (isSucceed) {
             nm.cancel(uri.hashCode())
@@ -123,13 +127,13 @@ class ParseService : LifecycleService(), KoinComponent {
         }
     }
 
-    private fun parseApk(archivePath: File, sourceInfo: PackageInfo): Boolean {
+    private fun parseApk(archivePath: File, sourceInfo: PackageInfo, auto: Boolean): Boolean {
         return PackageParserCompat.parsePackage(archivePath, 0)?.let { pi ->
             val isPIUpdate = pi.packageName == BuildConfig.APPLICATION_ID
                     && pi.longVersionCode > BuildConfig.VERSION_CODE
-            val isSelfUpdate = pi.packageName == sourceInfo.packageName
+            val isSelfUpdate = auto && pi.packageName == sourceInfo.packageName
                     && pi.longVersionCode > sourceInfo.longVersionCode
-            val isAuthorizedUpdate = sourceInfo.isAuthorized()
+            val isAuthorizedUpdate = auto && sourceInfo.isAuthorized()
                     && pi.longVersionCode > getPackageInfo(pi.packageName).longVersionCode
 
             if (isPIUpdate || isSelfUpdate || isAuthorizedUpdate) {
@@ -151,7 +155,7 @@ class ParseService : LifecycleService(), KoinComponent {
         } != null
     }
 
-    private fun parseZip(archivePath: File, sourceInfo: PackageInfo): Boolean {
+    private fun parseZip(archivePath: File, sourceInfo: PackageInfo, auto: Boolean): Boolean {
         val archiveDir = externalCacheDir.temp().apply { mkdirs() }
         val isSucceed = PackageParserCompat.parseAppBundle(archivePath, 0, archiveDir)?.let { bi ->
             InstallActivity.appBundle(
@@ -167,7 +171,7 @@ class ParseService : LifecycleService(), KoinComponent {
         return if (!isSucceed) {
             val isNew = archiveDir.listFiles { f -> f.extension == "apk" }?.firstOrNull()
                 ?.renameTo(archivePath) == true
-            if (isNew) parseApk(archivePath, sourceInfo) else false
+            if (isNew) parseApk(archivePath, sourceInfo, auto) else false
             archiveDir.deleteRecursively()
         } else true
     }

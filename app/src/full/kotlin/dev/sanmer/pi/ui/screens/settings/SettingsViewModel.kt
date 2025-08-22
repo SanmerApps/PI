@@ -27,6 +27,12 @@ class SettingsViewModel(
         }
     }
 
+    fun setAutomatic(value: Boolean) {
+        viewModelScope.launch {
+            preferenceRepository.setAutomatic(value)
+        }
+    }
+
     fun restart() {
         viewModelScope.launch {
             val preference = preferenceRepository.data.first()

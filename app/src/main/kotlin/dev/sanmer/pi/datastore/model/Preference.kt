@@ -8,6 +8,8 @@ import kotlinx.serialization.protobuf.ProtoNumber
 data class Preference(
     @ProtoNumber(1)
     val provider: Provider = Provider.None,
+    @ProtoNumber(2)
+    val automatic: Boolean = true,
     @ProtoNumber(3)
     val requester: String = "",
     @ProtoNumber(4)

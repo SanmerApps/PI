@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface PreferenceRepository {
     val data: Flow<Preference>
     suspend fun setProvider(value: Provider)
+    suspend fun setAutomatic(value: Boolean)
     suspend fun setRequester(value: String)
     suspend fun setExecutor(value: String)
 }

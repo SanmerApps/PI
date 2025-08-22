@@ -22,6 +22,8 @@
     <string name="settings_service_version">版本 %1$d，%2$s</string>
     <string name="settings_service_not_running">服务未运行</string>
     <string name="settings_service_restart">点击尝试启动</string>
+    <string name="settings_automatic_installation">自动安装</string>
+    <string name="settings_automatic_installation_desc">允许应用本身或授权应用发起的更新请求</string>
     <string name="settings_language">语言</string>
     <string name="settings_language_system">系统默认</string>
     <string name="settings_translation">参与翻译</string>

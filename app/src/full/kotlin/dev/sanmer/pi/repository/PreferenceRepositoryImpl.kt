@@ -21,6 +21,16 @@ class PreferenceRepositoryImpl(
         }
     }
 
+    override suspend fun setAutomatic(value: Boolean) {
+        withContext(Dispatchers.IO) {
+            dataStore.updateData {
+                it.copy(
+                    automatic = value
+                )
+            }
+        }
+    }
+
     override suspend fun setRequester(value: String) {
         withContext(Dispatchers.IO) {
             dataStore.updateData {

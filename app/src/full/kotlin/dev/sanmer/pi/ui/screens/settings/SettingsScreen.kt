@@ -36,6 +36,7 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.SettingNormalItem
+import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.provider.LocalPreference
 import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
@@ -88,6 +89,14 @@ fun SettingsScreen(
                     else -> ""
                 },
                 onClick = { workingMode = true }
+            )
+
+            SettingSwitchItem(
+                icon = R.drawable.hand_finger_off,
+                title = stringResource(id = R.string.settings_automatic_installation),
+                desc = stringResource(id = R.string.settings_automatic_installation_desc),
+                checked = preference.automatic,
+                onChange = viewModel::setAutomatic
             )
 
             LanguageItem(context = context)
