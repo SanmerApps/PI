@@ -24,6 +24,10 @@
     <string name="settings_service_restart">Click to try to restart</string>
     <string name="settings_automatic_installation">Automatic installation</string>
     <string name="settings_automatic_installation_desc">Allow update requests from the app itself or authorized apps</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_dark_mode_auto">Auto</string>
+    <string name="settings_dark_mode_on">On</string>
+    <string name="settings_dark_mode_off">Off</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">System default</string>
     <string name="settings_translation">Participate in translation</string>

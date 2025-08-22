@@ -13,5 +13,7 @@ data class Preference(
     @ProtoNumber(3)
     val requester: String = "",
     @ProtoNumber(4)
-    val executor: String = Const.SHELL
+    val executor: String = Const.SHELL,
+    @ProtoNumber(5)
+    val darkMode: DarkMode = DarkMode.Default
 )

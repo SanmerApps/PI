@@ -17,6 +17,8 @@ import dev.sanmer.pi.model.Task
 import dev.sanmer.pi.model.Task.Default.putTask
 import dev.sanmer.pi.model.Task.Default.taskOrNull
 import dev.sanmer.pi.service.ParseService
+import dev.sanmer.pi.ui.main.MainViewModel
+import dev.sanmer.pi.ui.main.MainViewModel.LoadState
 import dev.sanmer.pi.ui.screens.install.InstallScreen
 import dev.sanmer.pi.ui.screens.install.InstallViewModel
 import dev.sanmer.pi.ui.theme.AppTheme
@@ -24,6 +26,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
 class InstallActivity : ComponentActivity() {
+    private val main by viewModel<MainViewModel>()
     private val viewModel by viewModel<InstallViewModel>()
 
     private val logger = Logger.Android("InstallActivity")
@@ -56,8 +59,13 @@ class InstallActivity : ComponentActivity() {
         }
 
         setContent {
-            AppTheme {
-                InstallScreen()
+            when (main.loadState) {
+                LoadState.Pending -> {}
+                is LoadState.Ready -> AppTheme(
+                    darkMode = main.preference.darkMode.isDarkTheme
+                ) {
+                    InstallScreen()
+                }
             }
         }
     }

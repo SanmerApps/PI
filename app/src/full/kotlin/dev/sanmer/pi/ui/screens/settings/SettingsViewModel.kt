@@ -3,6 +3,7 @@ package dev.sanmer.pi.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.pi.Logger
+import dev.sanmer.pi.datastore.model.DarkMode
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
@@ -30,6 +31,12 @@ class SettingsViewModel(
     fun setAutomatic(value: Boolean) {
         viewModelScope.launch {
             preferenceRepository.setAutomatic(value)
+        }
+    }
+
+    fun setDarkMode(value: DarkMode) {
+        viewModelScope.launch {
+            preferenceRepository.setDarkMode(value)
         }
     }
 

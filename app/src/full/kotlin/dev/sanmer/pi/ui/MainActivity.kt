@@ -34,7 +34,9 @@ class MainActivity : ComponentActivity() {
                 is LoadState.Ready -> CompositionLocalProvider(
                     LocalPreference provides viewModel.preference
                 ) {
-                    AppTheme {
+                    AppTheme(
+                        darkMode = viewModel.preference.darkMode.isDarkTheme
+                    ) {
                         Crossfade(
                             modifier = Modifier.background(
                                 color = MaterialTheme.colorScheme.background
