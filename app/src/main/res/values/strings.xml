@@ -51,7 +51,7 @@
     <string name="message_install_succeed">Installation successful</string>
     <string name="message_install_failed">Installation failed</string>
     <string name="message_optimizing">Optimizing</string>
-    <string name="updated_title">PI Updated</string>
+    <string name="updated_title">PI updated</string>
     <string name="updated_text">Tap to open app</string>
 
     <!-- Search -->
