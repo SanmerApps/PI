@@ -199,8 +199,12 @@ class PackageInstallerDelegate(
             name: String,
             fd: ParcelFileDescriptor
         ) = withContext(Dispatchers.IO) {
-            Refine.unsafeCast<PackageInstallerHidden.SessionHidden>(this@writeFd)
-                .write(name, 0, fd.statSize, fd)
+            ParcelFileDescriptor.AutoCloseInputStream(fd).use { input ->
+                openWrite(name, 0, fd.statSize).use { output ->
+                    input.copyTo(output)
+                    fsync(output)
+                }
+            }
         }
 
         suspend fun PackageInstaller.Session.writeZip(
