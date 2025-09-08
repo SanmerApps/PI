@@ -15,7 +15,6 @@
     <string name="settings_service_restart">Klik keur ngajalankeun</string>
     <string name="settings_language">Basa</string>
     <string name="search_placeholder">Téang…</string>
-    <string name="message_parsing_failed">Parsing pakét gagal</string>
     <string name="empty_list">Eusi kosong</string>
     <string name="message_install_succeed">Pamasangan réngsé</string>
     <string name="message_install_failed">Pamasangan gagal</string>
@@ -31,6 +30,4 @@
     <string name="installation_service">Pasang layanan</string>
     <string name="updated_title">PI Dianyarkeun</string>
     <string name="updated_text">Toél pikeun muka apl</string>
-    <string name="parsing_service">Layanan panguraian</string>
-    <string name="message_parsing">Panguraian</string>
 </resources>

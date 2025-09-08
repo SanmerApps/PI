@@ -25,7 +25,6 @@
     <string name="settings_service_restart">إضغط لمحاولة البدء</string>
     <string name="settings_language">اللغة</string>
     <string name="settings_language_system">إفتراضي تبع النظام</string>
-    <string name="message_parsing_failed">فشل تحليل الحزمة</string>
     <string name="app_action_authorize">مخول</string>
     <string name="app_action_requester">الطالب</string>
     <string name="app_action_executor">المنفذ</string>

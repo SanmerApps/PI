@@ -1,5 +1,6 @@
 package dev.sanmer.pi.ui.screens.install.component
 
+import android.content.pm.UserInfo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -22,14 +23,13 @@ import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.ktx.surface
-import dev.sanmer.pi.ui.screens.install.InstallViewModel.UserInfoCompat
 
 @Composable
 fun SelectUserItem(
     onDismiss: () -> Unit,
-    user: UserInfoCompat,
-    users: List<UserInfoCompat>,
-    onChange: (UserInfoCompat) -> Unit
+    user: UserInfo,
+    users: List<UserInfo>,
+    onChange: (UserInfo) -> Unit
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
     shape = MaterialTheme.shapes.large.bottom(0.dp)

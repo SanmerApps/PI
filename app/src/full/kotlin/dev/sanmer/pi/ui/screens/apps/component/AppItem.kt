@@ -25,9 +25,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.sanmer.pi.PackageInfoCompat.compileSdkVersion
+import dev.sanmer.pi.PackageInfoCompat.minSdkVersion
+import dev.sanmer.pi.PackageInfoCompat.targetSdkVersion
 import dev.sanmer.pi.R
-import dev.sanmer.pi.compat.VersionCompat.getSdkVersion
-import dev.sanmer.pi.compat.VersionCompat.versionStr
+import dev.sanmer.pi.factory.VersionFactory.Default.orUnknown
+import dev.sanmer.pi.factory.VersionFactory.Default.version
 import dev.sanmer.pi.model.IPackageInfo
 
 @Composable
@@ -57,7 +60,7 @@ fun AppItem(
         modifier = Modifier.weight(1f),
     ) {
         Text(
-            text = pi.appLabel,
+            text = pi.label,
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -66,20 +69,24 @@ fun AppItem(
             style = MaterialTheme.typography.bodyMedium
         )
 
-        val versionStr by remember {
-            derivedStateOf { pi.versionStr }
+        val version by remember {
+            derivedStateOf {
+                (pi.longVersionCode to pi.versionName.orEmpty()).version
+            }
         }
         Text(
-            text = versionStr,
+            text = version,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline
         )
 
-        val sdkVersion by remember {
-            derivedStateOf { pi.getSdkVersion(context) }
-        }
         Text(
-            text = sdkVersion,
+            text = stringResource(
+                R.string.sdk_versions,
+                pi.targetSdkVersion.orUnknown,
+                pi.minSdkVersion.orUnknown,
+                pi.compileSdkVersion.orUnknown
+            ),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.outline
         )

@@ -47,9 +47,6 @@
     <string name="installation_service">安装服务</string>
     <string name="message_install_succeed">安装成功</string>
     <string name="message_install_failed">安装失败</string>
-    <string name="parsing_service">解析服务</string>
-    <string name="message_parsing">正在解析</string>
-    <string name="message_parsing_failed">解析失败</string>
     <string name="message_optimizing">正在优化</string>
     <string name="updated_title">PI 已完成更新</string>
     <string name="updated_text">点按即可打开应用</string>

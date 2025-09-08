@@ -32,9 +32,6 @@
     <string name="install_config_unspecified_title">مشخص نشده</string>
     <string name="install_select_user_title">انتخاب کاربر</string>
 
-    <string name="parsing_service">سرویس تجزیه</string>
-    <string name="message_parsing">در حال تجزیه</string>
-    <string name="message_parsing_failed">تجزیه ناموفق بود</string>
     <string name="installation_service">سرویس نصب</string>
     <string name="message_install_succeed">نصب موفقیت‌آمیز بود</string>
     <string name="message_install_failed">نصب ناموفق بود</string>

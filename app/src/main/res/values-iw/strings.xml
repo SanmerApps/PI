@@ -25,7 +25,6 @@
     <string name="message_install_succeed">ההתקנה בוצעה בהצלחה</string>
     <string name="install_config_unspecified_title">לא מוגדר</string>
     <string name="install_config_language_title">שפה</string>
-    <string name="message_parsing_failed">ניתוח החבילה כשל</string>
     <string name="app_action_authorize">מורשה</string>
     <string name="app_action_executor">מבצע</string>
     <string name="app_action_requester">מבקש</string>

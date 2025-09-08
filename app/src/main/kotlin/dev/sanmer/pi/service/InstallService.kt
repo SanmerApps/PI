@@ -5,11 +5,14 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionInfo
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
+import android.net.Uri
+import android.os.ParcelFileDescriptor
+import android.os.Parcelable
 import android.os.Process
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -20,16 +23,15 @@ import dev.sanmer.pi.Const
 import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.Logger
 import dev.sanmer.pi.R
-import dev.sanmer.pi.bundle.SplitConfig
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.commit
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.write
-import dev.sanmer.pi.ktx.dp
-import dev.sanmer.pi.model.Task
-import dev.sanmer.pi.model.Task.Default.putTask
-import dev.sanmer.pi.model.Task.Default.taskOrNull
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.writeFd
+import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.writeZip
+import dev.sanmer.pi.factory.BundleFactory
+import dev.sanmer.pi.ktx.parcelable
+import dev.sanmer.pi.parser.PackageInfoLite
 import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.ServiceRepository
 import kotlinx.coroutines.Dispatchers
@@ -39,16 +41,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.zhanghai.android.appiconloader.AppIconLoader
+import kotlinx.parcelize.Parcelize
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
 class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelegate.SessionCallback {
     private val preferenceRepository by inject<PreferenceRepository>()
     private val serviceRepository by inject<ServiceRepository>()
-    private val appIconLoader by lazy { AppIconLoader(45.dp, true, this) }
+    private val bundleFactory by inject<BundleFactory>()
     private val nm by lazy { NotificationManagerCompat.from(this) }
     private val pm by lazy { serviceRepository.getPackageManager() }
     private val pi by lazy { serviceRepository.getPackageInstaller() }
@@ -58,22 +59,10 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     init {
         lifecycleScope.launch {
             while (currentCoroutineContext().isActive) {
-                if (pendingTasks.isEmpty()) stopSelf()
+                if (pendingUris.isEmpty()) stopSelf()
                 delay(5.seconds)
             }
         }
-    }
-
-    override fun onCreated(sessionId: Int) {
-        val session = pi.getSessionInfo(sessionId)
-        logger.i("onCreated<$sessionId>: ${session?.appPackageName}")
-
-        notifyProgress(
-            id = sessionId,
-            appLabel = session?.label ?: sessionId.toString(),
-            appIcon = session?.appIcon,
-            progress = 0f
-        )
     }
 
     override fun onProgressChanged(sessionId: Int, progress: Float) {
@@ -112,41 +101,46 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val task = intent?.taskOrNull ?: return@launch
-
-            install(task)
-            task.archivePath.deleteRecursively()
-            pendingTasks.remove(task.archivePath)
+            bundleFactory.openFd(task.uri).use {
+                install(task, it)
+            }
+            pendingUris.remove(task.uri)
         }
-
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private suspend fun install(task: Task) = withContext(Dispatchers.IO) {
-        val appIcon = task.archiveInfo.applicationInfo?.let(appIconLoader::loadIcon)
-        val appLabel = task.archiveInfo.applicationInfo?.loadLabel(packageManager)
-            ?: task.archiveInfo.packageName
-
+    private suspend fun install(
+        task: Task,
+        fd: ParcelFileDescriptor
+    ) = withContext(Dispatchers.IO) {
         val preference = preferenceRepository.data.first()
-        val originatingUid = getPackageUid(
-            preference.requester.ifEmpty { task.sourceInfo.packageName }
-        )
+        val originating = preference.requester.ifEmpty { task.sourceInfo?.packageName }
+        val originatingUid = originating?.let(::getPackageUid) ?: Process.INVALID_UID
+
         pi.setInstallerPackageName(preference.executor)
         pi.setUserId(task.userId)
 
         val params = createSessionParams()
-        params.setAppIcon(appIcon)
-        params.setAppLabel(appLabel)
+        params.setAppIcon(task.archiveInfo.iconOrDefault)
+        params.setAppLabel(task.archiveInfo.labelOrDefault)
         params.setAppPackageName(task.archiveInfo.packageName)
         if (originatingUid != Process.INVALID_UID) {
             params.setOriginatingUid(originatingUid)
         }
 
         val sessionId = pi.createSession(params)
-        val session = pi.openSession(sessionId)
+        notifyProgress(
+            id = sessionId,
+            appLabel = task.archiveInfo.labelOrDefault,
+            appIcon = task.archiveInfo.iconOrDefault,
+            progress = 0f
+        )
 
-        when (task) {
-            is Task.Apk -> session.write(task.archivePath)
-            is Task.AppBundle -> session.write(task.archiveFiles)
+        val session = pi.openSession(sessionId)
+        if (task.fileNames.isEmpty()) {
+            session.writeFd(task.archiveInfo.packageName, fd)
+        } else {
+            session.writeZip(task.fileNames, fd)
         }
 
         val result = session.commit()
@@ -159,27 +153,27 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
             PackageInstaller.STATUS_SUCCESS -> {
                 notifyOptimizing(
                     id = sessionId,
-                    appLabel = appLabel,
-                    appIcon = appIcon
+                    appLabel = task.archiveInfo.labelOrDefault,
+                    appIcon = task.archiveInfo.iconOrDefault
                 )
 
                 optimize(task.archiveInfo.packageName)
 
                 notifySuccess(
                     id = sessionId,
-                    appLabel = appLabel,
-                    appIcon = appIcon,
+                    appLabel = task.archiveInfo.labelOrDefault,
+                    appIcon = task.archiveInfo.iconOrDefault,
                     packageName = task.archiveInfo.packageName
                 )
             }
 
             else -> {
                 val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                logger.e("onFailed<${task.archiveInfo.packageName}>: $msg")
+                logger.e("Failed to install ${task.archiveInfo.packageName}, $msg")
                 notifyFailure(
                     id = sessionId,
-                    appLabel = appLabel,
-                    appIcon = appIcon
+                    appLabel = task.archiveInfo.labelOrDefault,
+                    appIcon = task.archiveInfo.iconOrDefault,
                 )
             }
         }
@@ -201,6 +195,7 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
             PackageInstaller.SessionParams.MODE_FULL_INSTALL
         )
 
+        params.setInstallReason(PackageManager.INSTALL_REASON_USER)
         params.installFlags = with(PackageInstallerDelegate.SessionParams) {
             val flags = params.installFlags or
                     INSTALL_ALLOW_TEST or
@@ -208,7 +203,8 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
                     INSTALL_REQUEST_DOWNGRADE
 
             if (BuildCompat.atLeastU) {
-                flags or INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
+                flags or INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK or
+                        INSTALL_REQUEST_UPDATE_OWNERSHIP
             } else {
                 flags
             }
@@ -325,51 +321,39 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         ) nm.notify(id, notification)
     }
 
+    @Parcelize
+    private data class Task(
+        val uri: Uri,
+        val archiveInfo: PackageInfoLite,
+        val fileNames: List<String>,
+        val sourceInfo: PackageInfoLite?,
+        val userId: Int
+    ) : Parcelable
+
     companion object Default {
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
+        private const val EXTRA_TASK = "dev.sanmer.pi.extra.TASK"
 
-        private val pendingTasks = mutableListOf<File>()
+        private fun Intent.putTask(value: Task) =
+            putExtra(EXTRA_TASK, value)
 
-        fun apk(
+        private inline val Intent.taskOrNull: Task?
+            get() = parcelable(EXTRA_TASK)
+
+        private val pendingUris = mutableListOf<Uri>()
+
+        fun start(
             context: Context,
-            archivePath: File,
-            archiveInfo: PackageInfo,
-            sourceInfo: PackageInfo,
-            userId: Int
+            uri: Uri,
+            archiveInfo: PackageInfoLite,
+            fileNames: List<String>,
+            sourceInfo: PackageInfoLite? = null,
+            userId: Int = context.userId
         ) {
-            val task = Task.Apk(
-                archivePath = archivePath,
-                archiveInfo = archiveInfo,
-                userId = userId,
-                sourceInfo = sourceInfo
-            )
-            pendingTasks.add(task.archivePath)
+            pendingUris.add(uri)
             context.startService(
                 Intent(context, InstallService::class.java).also {
-                    it.putTask(task)
-                }
-            )
-        }
-
-        fun appBundle(
-            context: Context,
-            archivePath: File,
-            archiveInfo: PackageInfo,
-            splitConfigs: List<SplitConfig>,
-            userId: Int,
-            sourceInfo: PackageInfo
-        ) {
-            val task = Task.AppBundle(
-                archivePath = archivePath,
-                archiveInfo = archiveInfo,
-                splitConfigs = splitConfigs,
-                userId = userId,
-                sourceInfo = sourceInfo
-            )
-            pendingTasks.add(task.archivePath)
-            context.startService(
-                Intent(context, InstallService::class.java).also {
-                    it.putTask(task)
+                    it.putTask(Task(uri, archiveInfo, fileNames, sourceInfo, userId))
                 }
             )
         }

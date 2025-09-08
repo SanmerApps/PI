@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
-import dev.sanmer.pi.bundle.SplitConfig
+import dev.sanmer.pi.parser.SplitConfig
 
 @Composable
 fun SplitConfigItem(
@@ -61,12 +61,12 @@ fun SplitConfigItem(
 
                 Text(
                     text = buildString {
-                        if (config.isConfigForSplit) {
+                        if (config.configForSplit.isNotEmpty()) {
                             append(config.configForSplit)
                             append(", ")
                         }
 
-                        append(config.displaySize)
+                        append(config.size)
                     },
                     style = MaterialTheme.typography.bodySmall,
                     textDecoration = when {

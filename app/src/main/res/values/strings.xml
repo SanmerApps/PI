@@ -44,9 +44,6 @@
     <string name="install_select_user_title">Select user</string>
 
     <!-- Message -->
-    <string name="parsing_service">Parsing service</string>
-    <string name="message_parsing">Parsing</string>
-    <string name="message_parsing_failed">Parsing failed</string>
     <string name="installation_service">Installation service</string>
     <string name="message_install_succeed">Installation successful</string>
     <string name="message_install_failed">Installation failed</string>
