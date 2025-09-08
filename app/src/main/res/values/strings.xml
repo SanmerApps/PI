@@ -22,8 +22,6 @@
     <string name="settings_service_version">Version %1$d, %2$s</string>
     <string name="settings_service_not_running">Service is not running</string>
     <string name="settings_service_restart">Click to try to restart</string>
-    <string name="settings_automatic_installation">Automatic installation</string>
-    <string name="settings_automatic_installation_desc">Allow update requests from the app itself or authorized apps</string>
     <string name="settings_dark_mode">Dark mode</string>
     <string name="settings_dark_mode_auto">Auto</string>
     <string name="settings_dark_mode_on">On</string>

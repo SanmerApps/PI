@@ -7,9 +7,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class PreferenceRepositoryImpl() : PreferenceRepository {
     override val data = flowOf(Preference())
-
     override suspend fun setProvider(value: Provider) {}
-    override suspend fun setAutomatic(value: Boolean) {}
     override suspend fun setRequester(value: String) {}
     override suspend fun setExecutor(value: String) {}
     override suspend fun setDarkMode(value: DarkMode) {}

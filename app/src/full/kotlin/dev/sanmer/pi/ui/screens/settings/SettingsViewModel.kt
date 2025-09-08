@@ -28,12 +28,6 @@ class SettingsViewModel(
         }
     }
 
-    fun setAutomatic(value: Boolean) {
-        viewModelScope.launch {
-            preferenceRepository.setAutomatic(value)
-        }
-    }
-
     fun setDarkMode(value: DarkMode) {
         viewModelScope.launch {
             preferenceRepository.setDarkMode(value)

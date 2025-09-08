@@ -41,7 +41,6 @@ import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.CheckIcon
 import dev.sanmer.pi.ui.component.SettingNormalItem
-import dev.sanmer.pi.ui.component.SettingSwitchItem
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.provider.LocalPreference
 import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
@@ -100,14 +99,6 @@ fun SettingsScreen(
                     else -> ""
                 },
                 onClick = { workingMode = true }
-            )
-
-            SettingSwitchItem(
-                icon = R.drawable.hand_finger_off,
-                title = stringResource(R.string.settings_automatic_installation),
-                desc = stringResource(R.string.settings_automatic_installation_desc),
-                checked = preference.automatic,
-                onChange = viewModel::setAutomatic
             )
 
             SettingNormalItem(
