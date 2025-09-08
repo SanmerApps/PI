@@ -23,7 +23,6 @@
     <string name="install_config_density_title">Ekran yoğunluğu</string>
     <string name="install_config_language_title">Dil</string>
     <string name="install_config_unspecified_title">Belirtilmemiş</string>
-    <string name="message_parsing_failed">Paket ayrıştırma başarısız oldu</string>
     <string name="installation_service">Servisi yükle</string>
     <string name="message_install_succeed">Yükleme başarılı</string>
     <string name="message_install_failed">Yükleme başarısız</string>

@@ -18,4 +18,6 @@ object ContextCompat {
 
         return context
     }
+
+    internal val context by lazy { getContext() }
 }

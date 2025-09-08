@@ -15,4 +15,7 @@ public class PackageManagerHidden {
 
     @RequiresApi(34)
     public static int INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK;
+
+    @RequiresApi(34)
+    public static int INSTALL_REQUEST_UPDATE_OWNERSHIP;
 }

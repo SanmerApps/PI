@@ -11,7 +11,6 @@
     <string name="settings_service_restart">Cliquer pour essayer de démarrer</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">Système par défaut</string>
-    <string name="message_parsing_failed">Échec de l\'analyse du paquet</string>
     <string name="install_package_title">Paquet d\'installation</string>
     <string name="settings_translation">Participer à la traduction</string>
     <string name="settings_translation_desc">Aidez nous a traduire PI dans vôtre langue</string>

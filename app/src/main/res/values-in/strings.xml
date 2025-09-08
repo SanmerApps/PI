@@ -19,7 +19,6 @@
     <string name="app_action_requester">Pengaju</string>
     <string name="install_config_language_title">Bahasa</string>
     <string name="install_config_unspecified_title">Tidak spesifik</string>
-    <string name="message_parsing_failed">Parsing paket gagal</string>
     <string name="message_install_succeed">Pemasangan berhasil</string>
     <string name="message_install_failed">Pemasangan gagal</string>
     <string name="search_placeholder">Cari…</string>
@@ -31,6 +30,4 @@
     <string name="settings_translation_desc">Bantu kami menerjemahkan PI ke dalam bahasa Anda</string>
     <string name="updated_text">Ketuk untuk membuka apl</string>
     <string name="updated_title">PI Diperbarui</string>
-    <string name="message_parsing">Penguraian</string>
-    <string name="parsing_service">Layanan penguraian</string>
 </resources>

@@ -1,103 +1,134 @@
 package dev.sanmer.pi.ui.screens.install
 
-import android.content.pm.PackageInfo
+import android.content.Context
 import android.content.pm.UserInfo
+import android.net.Uri
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import dev.sanmer.pi.ContextCompat
+import androidx.lifecycle.viewModelScope
 import dev.sanmer.pi.Logger
-import dev.sanmer.pi.PackageInfoCompat.isNotEmpty
-import dev.sanmer.pi.bundle.SplitConfig
-import dev.sanmer.pi.compat.VersionCompat.fileSize
-import dev.sanmer.pi.compat.VersionCompat.getSdkVersionDiff
-import dev.sanmer.pi.compat.VersionCompat.getVersionDiff
-import dev.sanmer.pi.model.IPackageInfo
-import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
-import dev.sanmer.pi.model.Task
+import dev.sanmer.pi.UserHandleCompat
+import dev.sanmer.pi.datastore.model.Provider
+import dev.sanmer.pi.factory.BundleFactory
+import dev.sanmer.pi.factory.VersionFactory
+import dev.sanmer.pi.factory.VersionFactory.Default.version
+import dev.sanmer.pi.ktx.orEmpty
+import dev.sanmer.pi.model.ServiceState
+import dev.sanmer.pi.parser.PackageInfoLite
+import dev.sanmer.pi.parser.SplitConfig
 import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.service.InstallService
-import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class InstallViewModel(
-    private val serviceRepository: ServiceRepository
+    private val serviceRepository: ServiceRepository,
+    private val bundleFactory: BundleFactory,
+    private val versionFactory: VersionFactory
 ) : ViewModel() {
-    private val context by lazy { ContextCompat.getContext() }
-    private val pm by lazy { context.packageManager }
-    private val um by lazy { serviceRepository.getUserManager() }
-
-    private var archivePath = File(".tmp")
-    var sourceInfo by mutableStateOf(IPackageInfo.Default.empty())
+    var serviceState by mutableStateOf<ServiceState>(ServiceState.Pending)
         private set
-    var archiveInfo by mutableStateOf(IPackageInfo.Default.empty())
+    val isServiceReady inline get() = serviceState.isSucceed
+    var loadState by mutableStateOf<LoadState>(LoadState.Pending)
         private set
-    val hasSourceInfo by lazy { sourceInfo.isNotEmpty }
+    val isBundleReady inline get() = loadState is LoadState.Success
+    val isReady inline get() = isServiceReady && isBundleReady
 
-    private val currentInfo by lazy { getPackageInfo(archiveInfo.packageName) }
-    val versionDiff by lazy { currentInfo.getVersionDiff(context, archiveInfo) }
-    val sdkVersionDiff by lazy { currentInfo.getSdkVersionDiff(context, archiveInfo) }
+    var users by mutableStateOf(listOf<UserInfo>())
+        private set
+    var user by mutableStateOf(UserInfo(-1, "", 0))
 
-    private var baseSize = 0L
-    val fileSize by derivedStateOf {
-        (baseSize + requiredConfigs.sumOf { it.file.length() }).fileSize(context)
-    }
+    private var data: BundleFactory.Data? = null
+    private var sizeBytes by mutableLongStateOf(0)
+    val size by derivedStateOf { versionFactory.fileSize(sizeBytes) }
 
     var splitConfigs = listOf<SplitConfig>()
         private set
     private val requiredConfigs = mutableStateListOf<SplitConfig>()
 
-    private var type by mutableStateOf(Type.Apk)
-
-    var users by mutableStateOf(listOf<UserInfoCompat>())
-        private set
-    var user by mutableStateOf(UserInfoCompat.Empty)
-        private set
-
     val logger = Logger.Android("InstallViewModel")
 
     init {
         logger.d("init")
-        loadUsers()
+        serviceObserver()
+    }
+
+    private fun serviceObserver() {
+        viewModelScope.launch {
+            serviceRepository.state.collectLatest {
+                serviceState = it
+                if (it.isSucceed) {
+                    loadUsers()
+                }
+            }
+        }
     }
 
     private fun loadUsers() {
-        runCatching {
-            users = um.getUsers().map(::UserInfoCompat)
-        }.onFailure {
-            logger.w(it)
+        val um = serviceRepository.getUserManager()
+        users = um.getUsers()
+        user = um.getUserInfo(UserHandleCompat.myUserId())
+    }
+
+    fun recreate(provider: Provider) {
+        viewModelScope.launch {
+            serviceRepository.recreate(provider)
         }
     }
 
-    fun updateUser(userInfo: UserInfoCompat) {
-        user = userInfo
-    }
+    private fun BundleFactory.Data.toSuccess(): LoadState.Success {
+        sizeBytes = bundleInfo.sizeBytes + bundleInfo.splitConfigs.sumOf { it.sizeBytes }
+        splitConfigs = bundleInfo.splitConfigs
+        requiredConfigs.addAll(splitConfigs.filter { it.isRequired || it.isRecommended })
 
-    fun load(task: Task) {
-        archivePath = task.archivePath
-        archiveInfo = task.archiveInfo.toIPackageInfo()
-        sourceInfo = task.sourceInfo.toIPackageInfo()
-
-        runCatching {
-            user = UserInfoCompat(um.getUserInfo(task.userId))
-        }.onFailure {
-            logger.w(it)
-        }
-
-        when (task) {
-            is Task.Apk -> {
-                baseSize = archivePath.length()
-            }
-
-            is Task.AppBundle -> {
-                type = Type.AppBundle
-                baseSize = task.baseFile.length()
-                splitConfigs = task.splitConfigs
-                requiredConfigs.addAll(
-                    task.splitConfigs.filter { it.isRequired || it.isRecommended }
+        val sourceInfo = sourceInfo?.run {
+            copy(
+                versionName = (longVersionCode to versionName).version,
+                compileSdkVersionCodename = versionFactory.sdkVersions(
+                    target = targetSdkVersion,
+                    min = minSdkVersion,
+                    compile = compileSdkVersion
                 )
+            )
+        }
+
+        val currentInfo = currentInfo.orEmpty()
+        val archiveInfo = bundleInfo.packageInfo.run {
+            copy(
+                versionName = versionFactory.versionDiff(
+                    that = with(this) { longVersionCode to versionName },
+                    other = with(currentInfo) { longVersionCode to versionName }
+                ),
+                compileSdkVersionCodename = versionFactory.sdkVersionsDiff(
+                    target = targetSdkVersion to currentInfo.targetSdkVersion,
+                    min = minSdkVersion to currentInfo.minSdkVersion,
+                    compile = compileSdkVersion to currentInfo.compileSdkVersion
+                )
+            )
+        }
+
+        return LoadState.Success(
+            sourceInfo = sourceInfo,
+            archiveInfo = archiveInfo
+        )
+    }
+
+    fun loadFromUri(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                loadState = bundleFactory.load(uri)
+                    .also {
+                        data = it
+                    }.toSuccess()
+            }.onFailure {
+                loadState = LoadState.Failure(it)
+                logger.e(it)
             }
         }
     }
@@ -109,65 +140,39 @@ class InstallViewModel(
     fun toggleSplitConfig(config: SplitConfig) {
         if (isRequiredConfig(config)) {
             requiredConfigs.remove(config)
+            sizeBytes -= config.sizeBytes
         } else {
             requiredConfigs.add(config)
+            sizeBytes += config.sizeBytes
         }
     }
 
-    fun install() = when (type) {
-        Type.Apk -> {
-            InstallService.Default.apk(
-                context = context,
-                archivePath = archivePath,
-                archiveInfo = archiveInfo,
-                userId = user.id,
-                sourceInfo = sourceInfo
-            )
+    fun start(context: Context) {
+        val data = checkNotNull(data)
+        val fileNames = if (data.bundleInfo.isZip) {
+            mutableListOf(data.bundleInfo.fileName)
+                .apply { addAll(requiredConfigs.map { it.fileName }) }
+        } else {
+            emptyList()
         }
 
-        Type.AppBundle -> {
-            InstallService.Default.appBundle(
-                context = context,
-                archivePath = archivePath,
-                archiveInfo = archiveInfo,
-                splitConfigs = requiredConfigs,
-                userId = user.id,
-                sourceInfo = sourceInfo
-            )
-        }
-    }
-
-    fun deleteCache() {
-        archivePath.deleteRecursively()
-    }
-
-    private fun getPackageInfo(packageName: String): PackageInfo {
-        return runCatching {
-            pm.getPackageInfo(
-                packageName, 0
-            )
-        }.getOrNull() ?: PackageInfo()
-    }
-
-    enum class Type {
-        Apk,
-        AppBundle
-    }
-
-    class UserInfoCompat(
-        val id: Int,
-        val name: String
-    ) {
-        constructor(userInfo: UserInfo) : this(
-            id = userInfo.id,
-            name = userInfo.name ?: userInfo.id.toString()
+        InstallService.start(
+            context = context,
+            uri = data.uri,
+            archiveInfo = data.bundleInfo.packageInfo,
+            fileNames = fileNames,
+            sourceInfo = data.sourceInfo,
+            userId = user.id
         )
+    }
 
-        companion object Default {
-            val Empty = UserInfoCompat(
-                id = -1,
-                name = ""
-            )
-        }
+    sealed class LoadState {
+        data object Pending : LoadState()
+        data class Success(
+            val sourceInfo: PackageInfoLite?,
+            val archiveInfo: PackageInfoLite
+        ) : LoadState()
+
+        data class Failure(val error: Throwable) : LoadState()
     }
 }

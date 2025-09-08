@@ -15,7 +15,6 @@
     <string name="settings_translation_desc">Ajută-ne să traducem PI în limba ta</string>
     <string name="settings_service_restart">Apasă pentru a solicita pornirea</string>
     <string name="install_config_abi_title">ABI</string>
-    <string name="message_parsing_failed">Analiza pachetului a eșuat</string>
     <string name="message_install_succeed">Instalat cu succes</string>
     <string name="installation_service">Instalează serviciul</string>
     <string name="message_install_failed">Instalarea a eșuat</string>

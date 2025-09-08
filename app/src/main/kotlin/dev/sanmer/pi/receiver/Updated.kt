@@ -66,9 +66,10 @@ class Updated : BroadcastReceiver(), KoinComponent {
             && !PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
         ) return
 
-        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return
         val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        val pending = PendingIntent.getActivity(this, 0, intent, flag)
+        val pending = packageManager.getLaunchIntentForPackage(packageName)?.let {
+            PendingIntent.getActivity(this, 0, it, flag)
+        }
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
             .setContentIntent(pending)

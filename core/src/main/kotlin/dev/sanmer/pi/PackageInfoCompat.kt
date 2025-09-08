@@ -1,16 +1,18 @@
 package dev.sanmer.pi
 
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageInfoHidden
+import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 
 object PackageInfoCompat {
-    private inline val PackageInfo.original
-        get() = Refine.unsafeCast<PackageInfoHidden>(this)
-    
+    private val PackageInfo.original
+        inline get() = Refine.unsafeCast<PackageInfoHidden>(this)
+
     var PackageInfo.versionCodeMajor: Int
         get() = original.versionCodeMajor
         set(v) { original.versionCodeMajor = v }
@@ -65,16 +67,34 @@ object PackageInfoCompat {
         get() = original.isOverlayPackage
 
     val PackageInfo?.isEmpty
-        get() = this?.packageName == null || applicationInfo == null
+        inline get() = this?.packageName == null || applicationInfo == null
 
     val PackageInfo?.isNotEmpty
-        get() = !isEmpty
+        inline get() = !isEmpty
 
     val PackageInfo.isSystemApp: Boolean
-        get() = applicationInfo?.let {
+        inline get() = applicationInfo?.let {
             it.flags and (ApplicationInfo.FLAG_SYSTEM or
                     ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
         } ?: false
 
     fun PackageInfo?.orEmpty() = this ?: PackageInfo()
+
+    val PackageInfo.targetSdkVersion: Int
+        inline get() = applicationInfo?.targetSdkVersion ?: 0
+
+    val PackageInfo.minSdkVersion: Int
+        inline get() = applicationInfo?.minSdkVersion ?: 0
+
+    fun PackageInfo.loadLabel(context: Context): String? {
+        return applicationInfo?.loadLabel(context.packageManager)?.toString()
+    }
+
+    fun PackageInfo.loadUnbadgedIcon(context: Context): Drawable? {
+        return applicationInfo?.loadUnbadgedIcon(context.packageManager)
+    }
+
+    fun composeLongVersionCode(major: Int, minor: Int): Long {
+        return ((major.toLong()) shl 32) or ((minor.toLong()) and 0xffffffffL)
+    }
 }

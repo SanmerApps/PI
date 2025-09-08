@@ -121,7 +121,7 @@ class AppsViewModel(
                 loadState = LoadState.Ready(
                     source.filter {
                         if (key.isNotBlank()) {
-                            it.appLabel.contains(key, ignoreCase = true)
+                            it.label.contains(key, ignoreCase = true)
                                     || it.packageName.contains(key, ignoreCase = true)
                         } else {
                             true

@@ -36,5 +36,7 @@ dependencies {
     implementation(libs.rikka.refine.runtime)
 
     implementation(libs.androidx.annotation)
+    implementation(libs.apache.commons.compress)
+    implementation(libs.appiconloader.iconloaderlib)
     implementation(libs.kotlinx.coroutines.android)
 }

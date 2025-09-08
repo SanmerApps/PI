@@ -19,7 +19,6 @@
     <string name="install_config_density_title">Densidad de pantalla</string>
     <string name="install_config_language_title">Idioma</string>
     <string name="install_config_unspecified_title">Sin especificar</string>
-    <string name="message_parsing_failed">Error al analizar el paquete</string>
     <string name="install_config_abi_title">ABI</string>
     <string name="empty_list">Lista vacía</string>
     <string name="installation_service">Instalar servicio</string>
@@ -31,6 +30,4 @@
     <string name="app_action_executor">Ejecutor</string>
     <string name="updated_title">PI Actualizado</string>
     <string name="updated_text">Toca para abrir la app</string>
-    <string name="parsing_service">Servicio de análisis</string>
-    <string name="message_parsing">Analizando</string>
 </resources>
