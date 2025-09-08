@@ -2,7 +2,7 @@ package dev.sanmer.pi.ktx
 
 import dev.sanmer.pi.parser.PackageInfoLite
 
-fun PackageInfoLite?.orEmpty() = PackageInfoLite(
+fun PackageInfoLite?.orEmpty() = this ?: PackageInfoLite(
     packageName = "",
     versionCode = 0,
     versionCodeMajor = 0,
