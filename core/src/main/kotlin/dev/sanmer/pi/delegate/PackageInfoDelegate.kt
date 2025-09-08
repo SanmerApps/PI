@@ -8,6 +8,7 @@ import dev.sanmer.pi.PackageInfoCompat.compileSdkVersionCodename
 import dev.sanmer.pi.PackageInfoCompat.coreApp
 import dev.sanmer.pi.PackageInfoCompat.isActiveApex
 import dev.sanmer.pi.PackageInfoCompat.isStub
+import dev.sanmer.pi.PackageInfoCompat.loadLabel
 import dev.sanmer.pi.PackageInfoCompat.overlayCategory
 import dev.sanmer.pi.PackageInfoCompat.overlayPriority
 import dev.sanmer.pi.PackageInfoCompat.overlayTarget
@@ -67,10 +68,7 @@ abstract class PackageInfoDelegate(
         }
     }
 
-    val appLabel by lazy {
-        val context = ContextCompat.getContext()
-        applicationInfo?.loadLabel(
-            context.packageManager
-        ).toString()
+    val label by lazy {
+        loadLabel(ContextCompat.context) ?: ""
     }
 }

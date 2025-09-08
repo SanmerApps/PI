@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.VersionedPackage
 import android.os.IBinder
+import android.os.ParcelFileDescriptor
 import android.os.ServiceManager
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
@@ -17,11 +18,11 @@ import dev.sanmer.pi.BuildCompat
 import dev.sanmer.pi.ContextCompat
 import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.IntentReceiverCompat
+import dev.sanmer.pi.ktx.asZipFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class PackageInstallerDelegate(
     private val proxy: IBinder.() -> IBinder = { this }
@@ -183,6 +184,9 @@ class PackageInstallerDelegate(
 
             @get:RequiresApi(34)
             val INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK get() = PackageManagerHidden.INSTALL_BYPASS_LOW_TARGET_SDK_BLOCK
+
+            @get:RequiresApi(34)
+            val INSTALL_REQUEST_UPDATE_OWNERSHIP get() = PackageManagerHidden.INSTALL_REQUEST_UPDATE_OWNERSHIP
         }
     }
 
@@ -191,18 +195,32 @@ class PackageInstallerDelegate(
             commit(sender)
         }
 
-        suspend fun PackageInstaller.Session.write(file: File) = withContext(Dispatchers.IO) {
-            openWrite(file.name, 0, file.length()).use { output ->
-                file.inputStream().buffered().use { input ->
-                    input.copyTo(output)
-                    fsync(output)
-                }
-            }
+        suspend fun PackageInstaller.Session.writeFd(
+            name: String,
+            fd: ParcelFileDescriptor
+        ) = withContext(Dispatchers.IO) {
+            Refine.unsafeCast<PackageInstallerHidden.SessionHidden>(this@writeFd)
+                .write(name, 0, fd.statSize, fd)
         }
 
-        suspend fun PackageInstaller.Session.write(files: List<File>) =
-            withContext(Dispatchers.IO) {
-                files.map { async { write(it) } }.awaitAll()
+        suspend fun PackageInstaller.Session.writeZip(
+            names: List<String>,
+            fd: ParcelFileDescriptor
+        ) = withContext(Dispatchers.IO) {
+            fd.fileDescriptor.asZipFile().use { zip ->
+                zip.entries.toList().map { entry ->
+                    async {
+                        if (entry.name in names) {
+                            zip.getInputStream(entry).use { input ->
+                                openWrite(entry.name, 0, entry.size).use { output ->
+                                    input.copyTo(output)
+                                    fsync(output)
+                                }
+                            }
+                        }
+                    }
+                }.awaitAll()
             }
+        }
     }
 }

@@ -11,6 +11,7 @@ androidxDataStore = "1.1.7"
 androidxDocumentFile = "1.1.0"
 androidxLifecycle = "2.9.3"
 androidxNavigation = "2.9.3"
+apacheCompress = "1.28.0"
 appiconloader = "1.5.0"
 coil = "2.7.0"
 hiddenApiRefine = "4.4.0"
@@ -45,8 +46,9 @@ androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", 
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel-savedstate = { module = "androidx.lifecycle:lifecycle-viewmodel-savedstate", version.ref = "androidxLifecycle" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigation" }
-appiconloader = { module = "me.zhanghai.android.appiconloader:appiconloader", version.ref = "appiconloader" }
+apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apacheCompress" }
 appiconloader-coil = { module = "me.zhanghai.android.appiconloader:appiconloader-coil", version.ref = "appiconloader" }
+appiconloader-iconloaderlib = { module = "me.zhanghai.android.appiconloader:appiconloader-iconloaderlib", version.ref = "appiconloader" }
 coil-kt = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil-kt-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 hiddenApiBypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }

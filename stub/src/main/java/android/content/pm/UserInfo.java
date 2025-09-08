@@ -10,6 +10,10 @@ public class UserInfo implements Parcelable {
     public int id;
     public String name;
 
+    public UserInfo(int id, String name, int flags) {
+        throw new RuntimeException("Stub!");
+    }
+
     public boolean isPrimary() {
         throw new RuntimeException("Stub!");
     }
