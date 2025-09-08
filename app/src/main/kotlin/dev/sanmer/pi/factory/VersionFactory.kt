@@ -12,7 +12,7 @@ class VersionFactory(
     private infix fun <T : Comparable<T>> Pair<T, String?>.compare(
         other: Pair<T, String?>
     ) = when {
-        first == other.second -> value
+        first == other.first -> value
         else -> context.getString(R.string.comparator, value, other.value)
     }
 
@@ -33,7 +33,7 @@ class VersionFactory(
     fun versionDiff(that: Pair<Long, String>, other: Pair<Long, String>): String {
         if (that.first <= 0) return other.version
         if (other.first <= 0) return that.version
-        return that compare other
+        return (that.first to that.version) compare (other.first to other.version)
     }
 
     fun sdkVersionsDiff(

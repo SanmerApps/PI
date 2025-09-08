@@ -102,13 +102,13 @@ class InstallViewModel(
         val archiveInfo = bundleInfo.packageInfo.run {
             copy(
                 versionName = versionFactory.versionDiff(
-                    that = with(this) { longVersionCode to versionName },
-                    other = with(currentInfo) { longVersionCode to versionName }
+                    that = with(currentInfo) { longVersionCode to versionName },
+                    other = with(this) { longVersionCode to versionName }
                 ),
                 compileSdkVersionCodename = versionFactory.sdkVersionsDiff(
-                    target = targetSdkVersion to currentInfo.targetSdkVersion,
-                    min = minSdkVersion to currentInfo.minSdkVersion,
-                    compile = compileSdkVersion to currentInfo.compileSdkVersion
+                    target = currentInfo.targetSdkVersion to targetSdkVersion,
+                    min = currentInfo.minSdkVersion to minSdkVersion,
+                    compile = currentInfo.compileSdkVersion to compileSdkVersion
                 )
             )
         }
