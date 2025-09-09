@@ -211,7 +211,7 @@ class PackageInstallerDelegate(
             names: List<String>,
             fd: ParcelFileDescriptor
         ) = withContext(Dispatchers.IO) {
-            fd.fileDescriptor.asZipFile().use { zip ->
+            fd.asZipFile().use { zip ->
                 zip.entries.toList().map { entry ->
                     async {
                         if (entry.name in names) {

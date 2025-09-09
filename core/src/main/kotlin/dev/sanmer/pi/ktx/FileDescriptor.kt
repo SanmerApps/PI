@@ -1,10 +1,16 @@
 package dev.sanmer.pi.ktx
 
+import android.os.ParcelFileDescriptor
 import android.system.Os
 import android.system.OsConstants
 import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.FileDescriptor
 import java.io.FileInputStream
+
+internal fun ParcelFileDescriptor.asZipFile() = ZipFile.builder()
+    .setIgnoreLocalFileHeader(true)
+    .setSeekableByteChannel(ParcelFileDescriptor.AutoCloseInputStream(this).channel)
+    .get()
 
 internal fun FileDescriptor.asZipFile() = ZipFile.builder()
     .setIgnoreLocalFileHeader(true)
