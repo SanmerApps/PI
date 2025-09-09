@@ -20,8 +20,6 @@ import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.IntentReceiverCompat
 import dev.sanmer.pi.ktx.asZipFile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 
 class PackageInstallerDelegate(
@@ -212,18 +210,16 @@ class PackageInstallerDelegate(
             fd: ParcelFileDescriptor
         ) = withContext(Dispatchers.IO) {
             fd.asZipFile().use { zip ->
-                zip.entries.toList().map { entry ->
-                    async {
-                        if (entry.name in names) {
-                            zip.getInputStream(entry).use { input ->
-                                openWrite(entry.name, 0, entry.size).use { output ->
-                                    input.copyTo(output)
-                                    fsync(output)
-                                }
+                zip.entries.asSequence().forEach { entry ->
+                    if (entry.name in names) {
+                        zip.getInputStream(entry).use { input ->
+                            openWrite(entry.name, 0, entry.size).use { output ->
+                                input.copyTo(output)
+                                fsync(output)
                             }
                         }
                     }
-                }.awaitAll()
+                }
             }
         }
     }

@@ -101,8 +101,17 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val task = intent?.taskOrNull ?: return@launch
-            bundleFactory.openFd(task.uri).use {
-                install(task, it)
+            bundleFactory.openFd(task.uri).use { fd ->
+                runCatching {
+                    install(task, fd)
+                }.onFailure {
+                    logger.e(it)
+                    notifyFailure(
+                        id = task.uri.hashCode(),
+                        appLabel = task.archiveInfo.labelOrDefault,
+                        appIcon = task.archiveInfo.iconOrDefault,
+                    )
+                }
             }
             pendingUris.remove(task.uri)
         }
