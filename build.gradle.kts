@@ -13,7 +13,7 @@ tasks.register<Delete>("clean") {
 }
 
 subprojects {
-    val baseVersionName by extra("1.2.2")
+    val baseVersionName by extra("1.3.0")
 
     apply(plugin = "maven-publish")
     configure<PublishingExtension> {
