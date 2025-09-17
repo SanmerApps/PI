@@ -41,7 +41,11 @@ internal object ResourceParser {
         res: Resources, name: String
     ): String? {
         val resId = getAttributeResourceValue(ANDROID_RESOURCES, name, 0)
-        return runCatching { res.getString(resId) }.getOrNull()
+        return if (resId == 0) {
+            getAttributeValue(ANDROID_RESOURCES, name)
+        } else {
+            runCatching { res.getString(resId) }.getOrNull()
+        }
     }
 
     fun XmlResourceParser.getAttributeResDrawableValue(
