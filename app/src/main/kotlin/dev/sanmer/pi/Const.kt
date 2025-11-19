@@ -8,4 +8,5 @@ object Const {
     const val NOTIFICATION_ID_UPDATED = 1025
 
     const val SHELL = "com.android.shell"
+    const val PLAY_STORE = "com.android.vending"
 }

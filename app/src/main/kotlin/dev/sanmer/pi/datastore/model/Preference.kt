@@ -1,6 +1,5 @@
 package dev.sanmer.pi.datastore.model
 
-import dev.sanmer.pi.Const
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoNumber
 
@@ -11,7 +10,7 @@ data class Preference(
     @ProtoNumber(3)
     val requester: String = "",
     @ProtoNumber(4)
-    val executor: String = Const.SHELL,
+    val executor: String = "",
     @ProtoNumber(5)
     val darkMode: DarkMode = DarkMode.Default
 )

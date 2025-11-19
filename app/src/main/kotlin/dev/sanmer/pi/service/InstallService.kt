@@ -123,17 +123,21 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         fd: ParcelFileDescriptor
     ) = withContext(Dispatchers.IO) {
         val preference = preferenceRepository.data.first()
-        val originating = preference.requester.ifEmpty { task.sourceInfo?.packageName }
-        val originatingUid = originating?.let(::getPackageUid) ?: Process.INVALID_UID
+        val installer = preference.executor.ifEmpty {
+            if (task.fileNames.isNotEmpty()) Const.PLAY_STORE else Const.SHELL
+        }
 
-        pi.setInstallerPackageName(preference.executor)
+        val originating = preference.requester.ifEmpty { task.sourceInfo?.packageName }
+        val originatingUid = originating?.let(::getPackageUid)
+
+        pi.setInstallerPackageName(installer)
         pi.setUserId(task.userId)
 
         val params = createSessionParams()
         params.setAppIcon(task.archiveInfo.iconOrDefault)
         params.setAppLabel(task.archiveInfo.labelOrDefault)
         params.setAppPackageName(task.archiveInfo.packageName)
-        if (originatingUid != Process.INVALID_UID) {
+        if (originatingUid != null) {
             params.setOriginatingUid(originatingUid)
         }
 

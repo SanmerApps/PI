@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.sanmer.pi.Const
 import dev.sanmer.pi.Logger
 import dev.sanmer.pi.PackageInfoCompat.isOverlayPackage
 import dev.sanmer.pi.UserHandleCompat
@@ -181,7 +180,7 @@ class AppsViewModel(
             preferenceRepository.setRequester(if (enable) packageInfo.packageName else "")
 
         override suspend fun setExecutor(enable: Boolean) =
-            preferenceRepository.setExecutor(if (enable) packageInfo.packageName else Const.SHELL)
+            preferenceRepository.setExecutor(if (enable) packageInfo.packageName else "")
     }
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
