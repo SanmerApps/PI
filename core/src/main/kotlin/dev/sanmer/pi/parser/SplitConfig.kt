@@ -190,7 +190,7 @@ sealed class SplitConfig : Parcelable {
             }
 
             val value = lite.tagValue()
-            val abi = ABI.Default.valueOfOrNull(value.uppercase())
+            val abi = ABI.valueOfOrNull(value.uppercase())
             if (abi != null) {
                 return Target(
                     abi = abi,
@@ -200,7 +200,7 @@ sealed class SplitConfig : Parcelable {
                 )
             }
 
-            val dpi = DPI.Default.valueOfOrNull(value.uppercase())
+            val dpi = DPI.valueOfOrNull(value.uppercase())
             if (dpi != null) {
                 return Density(
                     dpi = dpi,

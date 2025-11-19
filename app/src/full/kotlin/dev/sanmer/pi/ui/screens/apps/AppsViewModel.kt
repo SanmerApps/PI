@@ -54,7 +54,7 @@ class AppsViewModel(
     private val logger = Logger.Android("AppsViewModel")
 
     override fun opChanged(op: Int, uid: Int, packageName: String) {
-        logger.d("opChanged<${AppOpsManagerDelegate.Default.opToName(op)}>: $packageName")
+        logger.d("opChanged<${AppOpsManagerDelegate.opToName(op)}>: $packageName")
 
         viewModelScope.launch {
             packagesFlow.tryEmit(getPackages())
@@ -82,7 +82,7 @@ class AppsViewModel(
                         packagesFlow.tryEmit(getPackages())
 
                         aom.startWatchingMode(
-                            op = AppOpsManagerDelegate.Default.OP_REQUEST_INSTALL_PACKAGES,
+                            op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
                             packageName = null,
                             callback = this@AppsViewModel
                         )
@@ -165,7 +165,7 @@ class AppsViewModel(
         override suspend fun setAuthorized() {
             val setMode: (AppOpsManagerDelegate.Mode) -> Unit = {
                 aom.setMode(
-                    op = AppOpsManagerDelegate.Default.OP_REQUEST_INSTALL_PACKAGES,
+                    op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
                     packageInfo = packageInfo,
                     mode = it
                 )
@@ -185,7 +185,7 @@ class AppsViewModel(
     }
 
     private fun PackageInfo.isAuthorized() = aom.checkOpNoThrow(
-        op = AppOpsManagerDelegate.Default.OP_REQUEST_INSTALL_PACKAGES,
+        op = AppOpsManagerDelegate.OP_REQUEST_INSTALL_PACKAGES,
         packageInfo = this
     ).isAllowed
 
