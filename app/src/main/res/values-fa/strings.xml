@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Activity -->
     <string name="install_activity_label">نصب</string>
 
+    <!-- Setup -->
     <string name="setup_title">حالت کار</string>
     <string name="setup_shizuku_desc">نیاز به مجوز ارائه شده توسط Sui یا Shizuku دارد</string>
     <string name="setup_root_desc">نیاز به مجوز روت ارائه شده توسط Magisk، KernelSU یا APatch دارد</string>
 
+    <!-- Apps -->
     <string name="app_action_requester">درخواست کننده</string>
     <string name="app_action_executor">اجرا کننده</string>
     <string name="app_action_authorize">اعطای مجوز</string>
     <string name="app_action_authorized">مجاز شده</string>
 
+    <!-- Settings -->
     <string name="settings_title">تنظیمات</string>
     <string name="settings_service_starting">سرویس در حال راه‌اندازی است</string>
     <string name="settings_service_wait">لطفاً صبر کنید</string>
     <string name="settings_service_running">سرویس در حال اجرا است</string>
     <string name="settings_service_version">نسخه %1$d، %2$s</string>
     <string name="settings_service_not_running">سرویس در حال اجرا نیست</string>
-    <string name="settings_service_restart"> برای راه‌اندازی مجدد کلیک کنید</string>
+    <string name="settings_service_restart">برای راه‌اندازی مجدد کلیک کنید</string>
+    <string name="settings_dark_mode">حالت تاریک</string>
+    <string name="settings_dark_mode_auto">خودکار</string>
+    <string name="settings_dark_mode_on">روشن</string>
+    <string name="settings_dark_mode_off">خاموش</string>
     <string name="settings_language">زبان</string>
     <string name="settings_language_system">پیش‌فرض سیستم</string>
     <string name="settings_translation">مشارکت در ترجمه</string>
     <string name="settings_translation_desc">به ما کمک کنید PI را به زبان خود ترجمه کنید</string>
 
+    <!-- Install -->
     <string name="install_package_title">بسته نصب</string>
     <string name="install_requester_title">درخواست کننده نصب</string>
     <string name="install_config_feature_title">قابلیت پویا</string>
@@ -32,6 +41,7 @@
     <string name="install_config_unspecified_title">مشخص نشده</string>
     <string name="install_select_user_title">انتخاب کاربر</string>
 
+    <!-- Message -->
     <string name="installation_service">سرویس نصب</string>
     <string name="message_install_succeed">نصب موفقیت‌آمیز بود</string>
     <string name="message_install_failed">نصب ناموفق بود</string>
@@ -39,8 +49,8 @@
     <string name="updated_title">PI به‌روز شد</string>
     <string name="updated_text">برای باز کردن برنامه ضربه بزنید</string>
 
+    <!-- Search -->
     <string name="search_placeholder">جستجو…</string>
     <string name="empty_list">لیست خالی است</string>
 
 </resources>
-
