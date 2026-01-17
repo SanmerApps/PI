@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -26,10 +27,10 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-            echo keyStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
-            echo keyAlias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-            echo keyPassword='${{ secrets.KEY_PASSWORD }}' >> signing.properties
-            echo keyStore='${{ github.workspace }}/key.jks' >> signing.properties
+            echo key.store.password='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
+            echo key.alias='${{ secrets.KEY_ALIAS }}' >> signing.properties
+            echo key.password='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+            echo key.store='${{ github.workspace }}/key.jks' >> signing.properties
             echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
           fi
 
@@ -42,61 +43,37 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Build dependencies
+      - name: Build compat
         working-directory: compat
         run: ./gradlew publishToMavenLocal
 
       - name: Build with Gradle
         run: ./gradlew assembleRelease
 
-      - name: Get release name
-        if: success() && github.ref == 'refs/heads/main'
-        id: release-name
-        run: |
-          name=`ls app/build/outputs/apk/full/release/*.apk | awk -F '(/|-full-release.apk)' '{print $7}'` && echo "name=${name}" >> $GITHUB_OUTPUT
-
       - name: Upload full apk
         if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ steps.release-name.outputs.name }}-full
-          path: app/build/outputs/apk/full/release/*.apk*
+          name: full-apk
+          path: app/build/outputs/apk/full/release
 
       - name: Upload full mapping
         if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ steps.release-name.outputs.name }}-full-mapping
+          name: full-mapping
           path: app/build/outputs/mapping/fullRelease
 
       - name: Upload lite apk
         if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ steps.release-name.outputs.name }}-lite
-          path: app/build/outputs/apk/lite/release/*.apk*
+          name: lite-apk
+          path: app/build/outputs/apk/lite/release
 
       - name: Upload lite mapping
         if: success() && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ steps.release-name.outputs.name }}-lite-mapping
+          name: lite-mapping
           path: app/build/outputs/mapping/liteRelease
-
-      - name: Post to channel
-        if: success() && github.ref == 'refs/heads/main'
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-            FULL_FILE=$(find app/build/outputs/apk/full/release -name "*-release.apk")
-            LITE_FILE=$(find app/build/outputs/apk/lite/release -name "*-release.apk")
-            ESCAPED=$(python3 -c 'import json,os; print(json.dumps(os.environ["COMMIT_MESSAGE"]))')
-            curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup" \
-              -F "chat_id=${CHANNEL_ID}" \
-              -F "media=[{\"type\":\"document\",\"media\":\"attach://full\"},{\"type\":\"document\",\"media\":\"attach://lite\",\"caption\":${ESCAPED}}]" \
-              -F "full=@${FULL_FILE}" \
-              -F "lite=@${LITE_FILE}"
-          fi
