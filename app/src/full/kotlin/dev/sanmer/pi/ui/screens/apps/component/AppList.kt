@@ -1,7 +1,6 @@
 package dev.sanmer.pi.ui.screens.apps.component
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,6 +31,7 @@ import dev.sanmer.pi.model.IPackageInfo
 import dev.sanmer.pi.model.IPackageInfo.Default.toIPackageInfo
 import dev.sanmer.pi.ui.component.MenuChip
 import dev.sanmer.pi.ui.ktx.bottom
+import dev.sanmer.pi.ui.ktx.surface
 import dev.sanmer.pi.ui.screens.apps.AppsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -82,7 +81,8 @@ private fun BottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large.bottom(0.dp),
-        dragHandle = null
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = null,
     ) {
         AppItem(
             pi = pi.toIPackageInfo(),
@@ -105,10 +105,10 @@ private fun SettingItem(
 ) = FlowRow(
     modifier = Modifier
         .padding(contentPadding)
-        .clip(shape = MaterialTheme.shapes.medium)
-        .border(
-            border = CardDefaults.outlinedCardBorder(),
-            shape = MaterialTheme.shapes.medium
+        .surface(
+            shape = MaterialTheme.shapes.large,
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            border = CardDefaults.outlinedCardBorder()
         )
         .fillMaxWidth()
         .padding(all = 15.dp),

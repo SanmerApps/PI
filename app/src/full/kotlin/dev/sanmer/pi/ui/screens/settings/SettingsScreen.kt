@@ -129,7 +129,8 @@ private fun WorkingModeBottomSheet(
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
     sheetState = sheetState,
-    shape = MaterialTheme.shapes.large.bottom(0.dp)
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    containerColor = MaterialTheme.colorScheme.surface
 ) {
     val preference = LocalPreference.current
 
@@ -172,7 +173,8 @@ private fun DarkModeBottomSheet(
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
     sheetState = sheetState,
-    shape = MaterialTheme.shapes.large.bottom(0.dp)
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    containerColor = MaterialTheme.colorScheme.surface
 ) {
     val preference = LocalPreference.current
 

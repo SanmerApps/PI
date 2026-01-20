@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -22,6 +23,7 @@ fun PackageInfoItem(
     size: String? = null
 ) = OutlinedCard(
     shape = MaterialTheme.shapes.large,
+    border = CardDefaults.outlinedCardBorder(false)
 ) {
     Row(
         modifier = Modifier

@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,6 +20,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -38,7 +38,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -69,9 +68,9 @@ fun InstallScreen(
     val listState = rememberLazyListState()
     val isScrollingUp by listState.isScrollingUp()
 
-    var select by remember { mutableStateOf(false) }
+    val (select, setSelect) = remember { mutableStateOf(false) }
     if (select) SelectUserItem(
-        onDismiss = { select = false },
+        onDismiss = { setSelect(false) },
         user = viewModel.user,
         users = viewModel.users,
         onChange = viewModel::user::set
@@ -82,7 +81,7 @@ fun InstallScreen(
             TopBar(
                 isReady = viewModel.isReady,
                 user = viewModel.user,
-                onSelectUer = { select = true },
+                onSelectUer = { setSelect(true) },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -339,10 +338,7 @@ private fun TopBar(
                 .height(SuggestionChipDefaults.Height)
                 .padding(end = 15.dp),
             shape = CircleShape,
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant
-            ),
+            border = CardDefaults.outlinedCardBorder(false),
             onClick = onSelectUer,
             icon = {
                 Icon(
