@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
+import dev.sanmer.pi.ui.component.DragHandle
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.ktx.surface
 
@@ -32,8 +33,10 @@ fun SelectUserItem(
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
     shape = MaterialTheme.shapes.large.bottom(0.dp),
-    containerColor = MaterialTheme.colorScheme.surface
+    dragHandle = null
 ) {
+    DragHandle()
+
     Text(
         text = stringResource(id = R.string.install_select_user_title),
         style = MaterialTheme.typography.headlineSmall,
