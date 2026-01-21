@@ -5,6 +5,7 @@ import android.content.pm.UserInfo
 import android.os.IBinder
 import android.os.IUserManager
 import android.os.ServiceManager
+import dev.sanmer.pi.BuildCompat
 
 class UserManagerDelegate(
     private val proxy: IBinder.() -> IBinder = { this }
@@ -16,7 +17,15 @@ class UserManagerDelegate(
     }
 
     fun getUsers(): List<UserInfo> {
-        return userManager.getUsers(true, true, true)
+        return try {
+            userManager.getUsers(true, true, true)
+        } catch (e: NoSuchMethodError) {
+            if (BuildCompat.atLeastB) { //TODO: Remove at SDK 37
+                userManager.getUsers(true)
+            } else {
+                throw IllegalStateException(e)
+            }
+        }
     }
 
     fun getUserInfo(userId: Int): UserInfo {
