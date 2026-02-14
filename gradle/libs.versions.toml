@@ -1,5 +1,5 @@
 [versions]
-androidGradlePlugin = "9.0.0"
+androidGradlePlugin = "9.0.1"
 androidxActivity = "1.12.4"
 androidxAnnotation = "1.9.1"
 androidxAppCompat = "1.7.1"
