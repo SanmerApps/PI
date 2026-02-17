@@ -1,0 +1,36 @@
+name: Dependency Submission
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ "**/libs.versions.toml" ]
+  pull_request:
+    branches: [ "main" ]
+    paths: [ "**/libs.versions.toml" ]
+
+permissions:
+  contents: write
+
+jobs:
+  submit:
+    name: Submit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'jetbrains'
+          java-version: 21
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Submit dependency graph
+        uses: gradle/actions/dependency-submission@v4
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
+          build-scan-terms-of-use-agree: "yes"
