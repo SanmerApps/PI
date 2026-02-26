@@ -54,28 +54,28 @@ jobs:
 
       - name: Upload full apk
         if: success() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: full-apk
           path: app/build/outputs/apk/full/release
 
       - name: Upload full mapping
         if: success() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: full-mapping
           path: app/build/outputs/mapping/fullRelease
 
       - name: Upload lite apk
         if: success() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: lite-apk
           path: app/build/outputs/apk/lite/release
 
       - name: Upload lite mapping
         if: success() && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: lite-mapping
           path: app/build/outputs/mapping/liteRelease
