@@ -16,13 +16,6 @@ updates:
     registries: "*"
     ignore:
       - dependency-name: "self.*"
-    groups:
-      kotlin-ksp:
-        patterns:
-          - "org.jetbrains.kotlin:*"
-          - "org.jetbrains.kotlin.jvm"
-          - "com.google.devtools.ksp"
-          - "com.google.devtools.ksp.gradle.plugin"
 
 registries:
   maven-google:
