@@ -102,6 +102,12 @@ android {
     dependenciesInfo.includeInApk = false
 }
 
+androidComponents.onVariants { variant ->
+    variant.outputs.forEach {
+        it.outputFileName = "PI-${it.versionName.get()}-${it.versionCode.get()}-${variant.flavorName}.apk"
+    }
+}
+
 dependencies {
     compileOnly(project(":stub"))
     implementation(project(":core"))
