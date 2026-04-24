@@ -12,8 +12,8 @@ class ApplicationConventionPlugin : Plugin<Project> {
         apply(plugin = "com.android.application")
 
         extensions.configure<ApplicationExtension> {
-            compileSdk = 36
-            buildToolsVersion = "36.1.0"
+            compileSdk = 37
+            buildToolsVersion = "37.0.0"
 
             defaultConfig {
                 minSdk = 30

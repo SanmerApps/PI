@@ -17,14 +17,9 @@ class UserManagerDelegate(
     }
 
     fun getUsers(): List<UserInfo> {
-        return try {
-            userManager.getUsers(true, true, true)
-        } catch (e: NoSuchMethodError) {
-            if (BuildCompat.atLeastB) { //TODO: Remove at SDK 37
-                userManager.getUsers(true)
-            } else {
-                throw IllegalStateException(e)
-            }
+        return when {
+            BuildCompat.atLeastC -> userManager.getUsers(true)
+            else -> userManager.getUsers(true, true, true)
         }
     }
 

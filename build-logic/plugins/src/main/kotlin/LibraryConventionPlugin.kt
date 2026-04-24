@@ -12,8 +12,8 @@ class LibraryConventionPlugin : Plugin<Project> {
         apply(plugin = "com.android.library")
 
         extensions.configure<LibraryExtension> {
-            compileSdk = 36
-            buildToolsVersion = "36.1.0"
+            compileSdk = 37
+            buildToolsVersion = "37.0.0"
 
             defaultConfig {
                 minSdk = 30
