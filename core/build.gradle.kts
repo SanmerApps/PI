@@ -32,7 +32,7 @@ publishing {
 }
 
 dependencies {
-    compileOnly(projects.stub)
+    compileOnly(project(":stub"))
     implementation(libs.rikka.refine.runtime)
 
     implementation(libs.androidx.annotation)

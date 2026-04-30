@@ -2,9 +2,14 @@ package android.os;
 
 import android.content.pm.UserInfo;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.List;
 
 public interface IUserManager extends IInterface {
+
+    @RequiresApi(37)
+    List<UserInfo> getUsers(boolean excludeDying) throws RemoteException;
 
     List<UserInfo> getUsers(boolean excludePartial, boolean excludeDying, boolean excludePreCreated) throws RemoteException;
 

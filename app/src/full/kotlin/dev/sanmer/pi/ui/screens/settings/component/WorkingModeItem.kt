@@ -36,7 +36,8 @@ fun WorkingModeItem(
     Surface(
         onClick = onClick,
         tonalElevation = if (selected) 4.dp else 0.dp,
-        border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.outline),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
+        color = with(MaterialTheme.colorScheme) { if (selected) secondaryContainer else surface },
         shape = MaterialTheme.shapes.large
     ) {
         Column(

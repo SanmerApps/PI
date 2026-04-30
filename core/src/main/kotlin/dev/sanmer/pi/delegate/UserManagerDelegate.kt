@@ -5,6 +5,7 @@ import android.content.pm.UserInfo
 import android.os.IBinder
 import android.os.IUserManager
 import android.os.ServiceManager
+import dev.sanmer.pi.BuildCompat
 
 class UserManagerDelegate(
     private val proxy: IBinder.() -> IBinder = { this }
@@ -16,7 +17,10 @@ class UserManagerDelegate(
     }
 
     fun getUsers(): List<UserInfo> {
-        return userManager.getUsers(true, true, true)
+        return when {
+            BuildCompat.atLeastC -> userManager.getUsers(true)
+            else -> userManager.getUsers(true, true, true)
+        }
     }
 
     fun getUserInfo(userId: Int): UserInfo {

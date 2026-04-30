@@ -13,7 +13,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
+import dev.sanmer.pi.ui.component.DragHandle
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.ktx.surface
 
@@ -32,8 +32,11 @@ fun SelectUserItem(
     onChange: (UserInfo) -> Unit
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
-    shape = MaterialTheme.shapes.large.bottom(0.dp)
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    dragHandle = null
 ) {
+    DragHandle()
+
     Text(
         text = stringResource(id = R.string.install_select_user_title),
         style = MaterialTheme.typography.headlineSmall,
@@ -66,10 +69,8 @@ fun UserItem(
     modifier = Modifier
         .surface(
             shape = MaterialTheme.shapes.medium,
-            backgroundColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                elevation = if (selected) 3.dp else 0.dp
-            ),
-            border = CardDefaults.outlinedCardBorder()
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+            border = CardDefaults.outlinedCardBorder(false)
         )
         .clickable(enabled = !selected, onClick = onClick)
         .padding(all = 15.dp)

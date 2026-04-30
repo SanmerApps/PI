@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -34,7 +35,8 @@ fun SplitConfigItem(
     OutlinedCard(
         shape = MaterialTheme.shapes.medium,
         onClick = { toggleSplitConfig(config) },
-        enabled = !config.isDisabled
+        enabled = !config.isDisabled,
+        border = CardDefaults.outlinedCardBorder(false)
     ) {
         Row(
             modifier = Modifier

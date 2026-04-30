@@ -40,6 +40,7 @@ import dev.sanmer.pi.datastore.model.DarkMode
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
 import dev.sanmer.pi.ui.component.CheckIcon
+import dev.sanmer.pi.ui.component.DragHandle
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.ktx.bottom
 import dev.sanmer.pi.ui.provider.LocalPreference
@@ -129,9 +130,12 @@ private fun WorkingModeBottomSheet(
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
     sheetState = sheetState,
-    shape = MaterialTheme.shapes.large.bottom(0.dp)
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    dragHandle = null
 ) {
     val preference = LocalPreference.current
+
+    DragHandle()
 
     Text(
         text = stringResource(R.string.setup_title),
@@ -172,9 +176,12 @@ private fun DarkModeBottomSheet(
 ) = ModalBottomSheet(
     onDismissRequest = onDismiss,
     sheetState = sheetState,
-    shape = MaterialTheme.shapes.large.bottom(0.dp)
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    dragHandle = null
 ) {
     val preference = LocalPreference.current
+
+    DragHandle()
 
     Text(
         text = stringResource(R.string.settings_dark_mode),
