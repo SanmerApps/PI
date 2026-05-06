@@ -46,11 +46,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
+import dev.sanmer.pi.datastore.compose.LocalPreference
 import dev.sanmer.pi.ktx.finishActivity
 import dev.sanmer.pi.parser.SplitConfig
 import dev.sanmer.pi.ui.ktx.isScrollingUp
 import dev.sanmer.pi.ui.ktx.plus
-import dev.sanmer.pi.ui.provider.LocalPreference
 import dev.sanmer.pi.ui.screens.install.InstallViewModel.LoadState
 import dev.sanmer.pi.ui.screens.install.component.PackageInfoItem
 import dev.sanmer.pi.ui.screens.install.component.SelectUserItem

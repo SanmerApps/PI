@@ -33,9 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.R
+import dev.sanmer.pi.datastore.compose.LocalPreference
 import dev.sanmer.pi.datastore.model.DarkMode
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
@@ -43,16 +43,14 @@ import dev.sanmer.pi.ui.component.CheckIcon
 import dev.sanmer.pi.ui.component.DragHandle
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.ktx.bottom
-import dev.sanmer.pi.ui.provider.LocalPreference
 import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
 import dev.sanmer.pi.ui.screens.settings.component.ServiceItem
 import dev.sanmer.pi.ui.screens.settings.component.WorkingModeItem
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
-    viewModel: SettingsViewModel = koinViewModel()
+    viewModel: SettingsViewModel,
+    goBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -75,7 +73,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopBar(
-                navController = navController,
+                onBack = goBack,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -213,13 +211,13 @@ private fun DarkModeBottomSheet(
 
 @Composable
 private fun TopBar(
-    navController: NavController,
+    onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(R.string.settings_title)) },
     navigationIcon = {
         IconButton(
-            onClick = { navController.navigateUp() }
+            onClick = onBack
         ) {
             Icon(
                 painter = painterResource(R.drawable.arrow_left),
