@@ -3,9 +3,9 @@ package dev.sanmer.pi.ui
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
-import dev.sanmer.pi.ui.main.MainViewModel
-import dev.sanmer.pi.ui.main.MainViewModel.LoadState
-import dev.sanmer.pi.ui.provider.LocalPreference
+import dev.sanmer.pi.ui.screens.main.MainViewModel
+import dev.sanmer.pi.ui.screens.main.MainViewModel.LoadState
+import dev.sanmer.pi.datastore.compose.LocalPreference
 import dev.sanmer.pi.ui.screens.install.InstallScreen
 import dev.sanmer.pi.ui.theme.AppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel

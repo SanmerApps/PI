@@ -1,4 +1,4 @@
-package dev.sanmer.pi.ui.main
+package dev.sanmer.pi.ui.screens.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

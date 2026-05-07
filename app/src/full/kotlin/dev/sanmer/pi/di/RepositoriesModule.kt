@@ -4,16 +4,12 @@ import dev.sanmer.pi.repository.PreferenceRepository
 import dev.sanmer.pi.repository.PreferenceRepositoryImpl
 import dev.sanmer.pi.repository.ServiceRepository
 import dev.sanmer.pi.repository.ServiceRepositoryImpl
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val Repositories = module {
     includes(DataStore)
-
-    single<PreferenceRepository> {
-        PreferenceRepositoryImpl(get())
-    }
-
-    single<ServiceRepository> {
-        ServiceRepositoryImpl(get())
-    }
+    singleOf(::PreferenceRepositoryImpl) { bind<PreferenceRepository>() }
+    singleOf(::ServiceRepositoryImpl) { bind<ServiceRepository>() }
 }

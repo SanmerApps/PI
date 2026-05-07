@@ -121,8 +121,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.kotlinx.coroutines.android)
@@ -130,9 +128,13 @@ dependencies {
     implementation(libs.xz)
 
     "fullImplementation"(libs.androidx.datastore.core)
+    "fullImplementation"(libs.androidx.lifecycle.viewmodel.navigation3)
+    "fullImplementation"(libs.androidx.navigation3.runtime)
+    "fullImplementation"(libs.androidx.navigation3.ui)
     "fullImplementation"(libs.appiconloader.coil)
     "fullImplementation"(libs.coil.kt)
     "fullImplementation"(libs.coil.kt.compose)
+    "fullImplementation"(libs.koin.compose.navigation3)
     "fullImplementation"(libs.kotlinx.serialization.protobuf)
     "fullImplementation"(libs.sanmer.su)
 

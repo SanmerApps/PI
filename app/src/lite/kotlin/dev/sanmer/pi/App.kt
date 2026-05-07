@@ -1,3 +1,7 @@
 package dev.sanmer.pi
 
-class App : BaseApp()
+import dev.sanmer.pi.di.Factories
+import dev.sanmer.pi.di.Repositories
+import dev.sanmer.pi.ui.di.ViewModels
+
+class App : BaseApp(Factories, Repositories, ViewModels)

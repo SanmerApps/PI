@@ -10,16 +10,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import dev.sanmer.pi.ui.main.MainScreen
-import dev.sanmer.pi.ui.main.MainViewModel
-import dev.sanmer.pi.ui.main.MainViewModel.LoadState
-import dev.sanmer.pi.ui.main.SetupScreen
-import dev.sanmer.pi.ui.provider.LocalPreference
+import dev.sanmer.pi.datastore.compose.LocalPreference
+import dev.sanmer.pi.ui.screens.main.MainScreen
+import dev.sanmer.pi.ui.screens.main.MainViewModel
+import dev.sanmer.pi.ui.screens.main.MainViewModel.LoadState
+import dev.sanmer.pi.ui.screens.main.SetupScreen
 import dev.sanmer.pi.ui.theme.AppTheme
+import org.koin.android.ext.android.get
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.compose.navigation3.getEntryProvider
+import org.koin.androidx.scope.activityRetainedScope
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.scope.Scope
 
-class MainActivity : ComponentActivity() {
-    val viewModel by viewModel<MainViewModel>()
+@OptIn(KoinExperimentalAPI::class)
+class MainActivity : ComponentActivity(), AndroidScopeComponent {
+    override val scope: Scope by activityRetainedScope()
+    private val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -48,7 +56,10 @@ class MainActivity : ComponentActivity() {
                                     setProvider = viewModel::setProvider
                                 )
                             } else {
-                                MainScreen()
+                                MainScreen(
+                                    backStack = get(),
+                                    entryProvider = getEntryProvider()
+                                )
                             }
                         }
                     }
