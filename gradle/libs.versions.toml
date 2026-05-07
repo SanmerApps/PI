@@ -61,6 +61,7 @@ rikka-refine-compiler = { module = "dev.rikka.tools.refine:annotation-processor"
 rikka-refine-runtime = { module = "dev.rikka.tools.refine:runtime", version.ref = "hiddenApiRefine" }
 rikka-shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 rikka-shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
+xz = { module = "org.tukaani:xz", version = "1.12" }
 sanmer-su = { module = "dev.sanmer.su:core", version = "+" }
 
 [plugins]

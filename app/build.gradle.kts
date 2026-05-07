@@ -127,6 +127,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.hiddenApiBypass)
+    implementation(libs.xz)
 
     "fullImplementation"(libs.androidx.datastore.core)
     "fullImplementation"(libs.appiconloader.coil)
