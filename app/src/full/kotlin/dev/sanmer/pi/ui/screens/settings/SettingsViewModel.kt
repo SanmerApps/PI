@@ -1,5 +1,8 @@
 package dev.sanmer.pi.ui.screens.settings
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.pi.Logger
@@ -16,10 +19,21 @@ class SettingsViewModel(
 ) : ViewModel() {
     val state = serviceRepository.state
 
+    var bottomSheet by mutableStateOf(BottomSheet.Closed)
+        private set
+
     private val logger = Logger.Android("SettingsViewModel")
 
     init {
         logger.d("init")
+    }
+
+    fun updateBottomSheet(block: (BottomSheet) -> BottomSheet) {
+        bottomSheet = block(bottomSheet)
+    }
+
+    fun closeBottomSheet() {
+        bottomSheet = BottomSheet.Closed
     }
 
     fun setProvider(value: Provider) {
@@ -39,5 +53,11 @@ class SettingsViewModel(
             val preference = preferenceRepository.data.first()
             serviceRepository.recreate(preference.provider)
         }
+    }
+
+    enum class BottomSheet {
+        Closed,
+        WorkingMode,
+        DarkMode;
     }
 }

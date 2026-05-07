@@ -22,9 +22,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -43,6 +40,7 @@ import dev.sanmer.pi.ui.component.CheckIcon
 import dev.sanmer.pi.ui.component.DragHandle
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.ktx.bottom
+import dev.sanmer.pi.ui.screens.settings.SettingsViewModel.BottomSheet
 import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
 import dev.sanmer.pi.ui.screens.settings.component.ServiceItem
 import dev.sanmer.pi.ui.screens.settings.component.WorkingModeItem
@@ -58,17 +56,18 @@ fun SettingsScreen(
     val preference = LocalPreference.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    var workingMode by remember { mutableStateOf(false) }
-    if (workingMode) WorkingModeBottomSheet(
-        onDismiss = { workingMode = false },
-        setProvider = viewModel::setProvider
-    )
+    when (viewModel.bottomSheet) {
+        BottomSheet.Closed -> Unit
+        BottomSheet.WorkingMode -> WorkingModeBottomSheet(
+            onDismiss = viewModel::closeBottomSheet,
+            setProvider = viewModel::setProvider
+        )
 
-    var darkMode by remember { mutableStateOf(false) }
-    if (darkMode) DarkModeBottomSheet(
-        onDismiss = { darkMode = false },
-        setDarkMode = viewModel::setDarkMode
-    )
+        BottomSheet.DarkMode -> DarkModeBottomSheet(
+            onDismiss = viewModel::closeBottomSheet,
+            setDarkMode = viewModel::setDarkMode
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -97,14 +96,14 @@ fun SettingsScreen(
                     Provider.Shizuku -> stringResource(R.string.setup_shizuku_title)
                     else -> ""
                 },
-                onClick = { workingMode = true }
+                onClick = { viewModel.updateBottomSheet { BottomSheet.WorkingMode } }
             )
 
             SettingNormalItem(
                 icon = R.drawable.moon,
                 title = stringResource(R.string.settings_dark_mode),
                 desc = stringResource(preference.darkMode.text),
-                onClick = { darkMode = true }
+                onClick = { viewModel.updateBottomSheet { BottomSheet.DarkMode } }
             )
 
             LanguageItem(context = context)
