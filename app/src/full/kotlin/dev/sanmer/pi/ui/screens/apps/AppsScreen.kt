@@ -23,21 +23,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import dev.sanmer.pi.R
 import dev.sanmer.pi.ui.component.Failed
 import dev.sanmer.pi.ui.component.Loading
 import dev.sanmer.pi.ui.component.PageIndicator
 import dev.sanmer.pi.ui.component.SearchTopBar
-import dev.sanmer.pi.ui.ktx.navigateSingleTopTo
-import dev.sanmer.pi.ui.main.Screen
+import dev.sanmer.pi.ui.screens.Screen
 import dev.sanmer.pi.ui.screens.apps.component.AppList
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppsScreen(
-    navController: NavController,
-    viewModel: AppsViewModel = koinViewModel()
+    viewModel: AppsViewModel,
+    goTo: (Screen) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
@@ -58,7 +55,7 @@ fun AppsScreen(
                 onQueryChange = viewModel::search,
                 onOpenSearch = viewModel::openSearch,
                 onCloseSearch = viewModel::closeSearch,
-                navController = navController,
+                onSettings = { goTo(Screen.Settings) },
                 scrollBehavior = scrollBehavior
             )
         }
@@ -106,7 +103,7 @@ private fun TopBar(
     onQueryChange: (String) -> Unit,
     onOpenSearch: () -> Unit,
     onCloseSearch: () -> Unit,
-    navController: NavController,
+    onSettings: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
     var query by remember { mutableStateOf("") }
@@ -137,7 +134,7 @@ private fun TopBar(
             }
 
             IconButton(
-                onClick = { navController.navigateSingleTopTo(Screen.Settings) }
+                onClick = onSettings
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.settings_2),

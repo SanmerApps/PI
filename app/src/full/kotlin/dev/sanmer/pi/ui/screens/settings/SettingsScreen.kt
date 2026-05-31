@@ -22,9 +22,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -33,9 +30,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.R
+import dev.sanmer.pi.datastore.compose.LocalPreference
 import dev.sanmer.pi.datastore.model.DarkMode
 import dev.sanmer.pi.datastore.model.Provider
 import dev.sanmer.pi.ktx.viewUrl
@@ -43,16 +40,15 @@ import dev.sanmer.pi.ui.component.CheckIcon
 import dev.sanmer.pi.ui.component.DragHandle
 import dev.sanmer.pi.ui.component.SettingNormalItem
 import dev.sanmer.pi.ui.ktx.bottom
-import dev.sanmer.pi.ui.provider.LocalPreference
+import dev.sanmer.pi.ui.screens.settings.SettingsViewModel.BottomSheet
 import dev.sanmer.pi.ui.screens.settings.component.LanguageItem
 import dev.sanmer.pi.ui.screens.settings.component.ServiceItem
 import dev.sanmer.pi.ui.screens.settings.component.WorkingModeItem
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
-    viewModel: SettingsViewModel = koinViewModel()
+    viewModel: SettingsViewModel,
+    goBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -60,22 +56,23 @@ fun SettingsScreen(
     val preference = LocalPreference.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
-    var workingMode by remember { mutableStateOf(false) }
-    if (workingMode) WorkingModeBottomSheet(
-        onDismiss = { workingMode = false },
-        setProvider = viewModel::setProvider
-    )
+    when (viewModel.bottomSheet) {
+        BottomSheet.Closed -> Unit
+        BottomSheet.WorkingMode -> WorkingModeBottomSheet(
+            onDismiss = viewModel::closeBottomSheet,
+            setProvider = viewModel::setProvider
+        )
 
-    var darkMode by remember { mutableStateOf(false) }
-    if (darkMode) DarkModeBottomSheet(
-        onDismiss = { darkMode = false },
-        setDarkMode = viewModel::setDarkMode
-    )
+        BottomSheet.DarkMode -> DarkModeBottomSheet(
+            onDismiss = viewModel::closeBottomSheet,
+            setDarkMode = viewModel::setDarkMode
+        )
+    }
 
     Scaffold(
         topBar = {
             TopBar(
-                navController = navController,
+                onBack = goBack,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -99,14 +96,14 @@ fun SettingsScreen(
                     Provider.Shizuku -> stringResource(R.string.setup_shizuku_title)
                     else -> ""
                 },
-                onClick = { workingMode = true }
+                onClick = { viewModel.updateBottomSheet { BottomSheet.WorkingMode } }
             )
 
             SettingNormalItem(
                 icon = R.drawable.moon,
                 title = stringResource(R.string.settings_dark_mode),
                 desc = stringResource(preference.darkMode.text),
-                onClick = { darkMode = true }
+                onClick = { viewModel.updateBottomSheet { BottomSheet.DarkMode } }
             )
 
             LanguageItem(context = context)
@@ -213,13 +210,13 @@ private fun DarkModeBottomSheet(
 
 @Composable
 private fun TopBar(
-    navController: NavController,
+    onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(R.string.settings_title)) },
     navigationIcon = {
         IconButton(
-            onClick = { navController.navigateUp() }
+            onClick = onBack
         ) {
             Icon(
                 painter = painterResource(R.drawable.arrow_left),

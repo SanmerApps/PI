@@ -5,15 +5,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import dev.sanmer.pi.di.Factories
-import dev.sanmer.pi.di.Repositories
-import dev.sanmer.pi.di.ViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.module.Module
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
-abstract class BaseApp : Application() {
+abstract class BaseApp(vararg modules: Module) : Application() {
+    private val modules = modules.toList()
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels(this)
@@ -21,7 +21,7 @@ abstract class BaseApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@BaseApp)
-            modules(Repositories, Factories, ViewModel)
+            modules(modules)
         }
     }
 

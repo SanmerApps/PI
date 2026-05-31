@@ -1,16 +1,16 @@
 [versions]
-androidGradlePlugin = "9.2.0"
+androidGradlePlugin = "9.2.1"
 androidxActivity = "1.13.0"
 androidxAnnotation = "1.10.0"
 androidxAppCompat = "1.7.1"
-androidxCompose = "1.11.0"
+androidxCompose = "1.11.2"
 androidxComposeMaterial3 = "1.4.0"
 androidxCore = "1.18.0"
 androidxCoreSplashscreen = "1.2.0"
 androidxDataStore = "1.2.1"
 androidxDocumentFile = "1.1.0"
 androidxLifecycle = "2.10.0"
-androidxNavigation = "2.9.8"
+androidxNavigation3 = "1.1.2"
 apacheCompress = "1.28.0"
 appiconloader = "1.5.0"
 coil = "2.7.0"
@@ -44,8 +44,9 @@ androidx-documentfile = { module = "androidx.documentfile:documentfile", version
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-androidx-lifecycle-viewmodel-savedstate = { module = "androidx.lifecycle:lifecycle-viewmodel-savedstate", version.ref = "androidxLifecycle" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigation" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidxLifecycle" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "androidxNavigation3" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidxNavigation3" }
 apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apacheCompress" }
 appiconloader-coil = { module = "me.zhanghai.android.appiconloader:appiconloader-coil", version.ref = "appiconloader" }
 appiconloader-iconloaderlib = { module = "me.zhanghai.android.appiconloader:appiconloader-iconloaderlib", version.ref = "appiconloader" }
@@ -54,6 +55,7 @@ coil-kt-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 hiddenApiBypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-compose-navigation3 = { module = "io.insert-koin:koin-compose-navigation3", version.ref = "koin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 rikka-refine-annotation = { module = "dev.rikka.tools.refine:annotation", version.ref = "hiddenApiRefine" }
@@ -61,6 +63,7 @@ rikka-refine-compiler = { module = "dev.rikka.tools.refine:annotation-processor"
 rikka-refine-runtime = { module = "dev.rikka.tools.refine:runtime", version.ref = "hiddenApiRefine" }
 rikka-shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 rikka-shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
+xz = { module = "org.tukaani:xz", version = "1.12" }
 sanmer-su = { module = "dev.sanmer.su:core", version = "+" }
 
 [plugins]
