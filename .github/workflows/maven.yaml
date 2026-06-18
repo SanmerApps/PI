@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.ref_name }}
 
       - name: Checkout compat
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: SanmerApps/ServiceManagerCompat
           path: compat
