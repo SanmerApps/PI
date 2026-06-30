@@ -1,3 +1,3 @@
--keepclassmembers class dev.sanmer.pi.delegate.AppOpsManagerDelegate$AppOpsActiveCallbackDelegate { public <methods>; }
--keepclassmembers class dev.sanmer.pi.delegate.PackageInstallerDelegate$SessionCallbackDelegate { public <methods>; }
--keepclassmembers class dev.sanmer.pi.IntentReceiverCompat$IIntentSenderDelegate { public <methods>; }
+-keep,allowoptimization,allowobfuscation public class * extends com.android.internal.app.IAppOpsCallback$Stub { public <methods>; }
+-keep,allowoptimization,allowobfuscation public class * extends android.content.pm.IPackageInstallerCallback$Stub { public <methods>; }
+-keep,allowoptimization,allowobfuscation public class * extends android.content.IIntentSender$Stub { public <methods>; }
