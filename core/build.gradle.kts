@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.self.library)
     alias(libs.plugins.rikka.refine)
     alias(libs.plugins.kotlin.parcelize)
-    `maven-publish`
 }
 
 android {
@@ -10,24 +9,6 @@ android {
 
     defaultConfig {
         consumerProguardFile("proguard-rules.pro")
-    }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
-}
-
-publishing {
-    publications {
-        register<MavenPublication>("core") {
-            artifactId = "core"
-
-            afterEvaluate {
-                from(components.getByName("release"))
-            }
-        }
     }
 }
 

@@ -10,28 +10,3 @@ plugins {
 tasks.register<Delete>("clean") {
     delete(layout.buildDirectory)
 }
-
-subprojects {
-    val baseVersionName by extra("1.3.1")
-
-    apply(plugin = "maven-publish")
-    configure<PublishingExtension> {
-        publications {
-            all {
-                group = "dev.sanmer.pi"
-                version = baseVersionName
-            }
-        }
-
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/SanmerApps/PI")
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                }
-            }
-        }
-    }
-}
