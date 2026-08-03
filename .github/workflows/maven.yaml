@@ -35,7 +35,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
         with:
           build-scan-publish: false
           build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
