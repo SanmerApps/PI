@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui
 
-import android.app.ComponentCaller
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -17,7 +16,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
     val viewModel by viewModel<MainViewModel>()
 
-    override fun onNewIntent(intent: Intent, caller: ComponentCaller) {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
         intent.data?.let { viewModel.fromUri(this, it) }
     }
 
