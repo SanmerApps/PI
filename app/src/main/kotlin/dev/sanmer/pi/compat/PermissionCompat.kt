@@ -1,11 +1,12 @@
 package dev.sanmer.pi.compat
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.activity.result.ActivityResultRegistryOwner
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import dev.sanmer.pi.ktx.findActivity
 import java.util.UUID
 
 object PermissionCompat {
@@ -34,6 +35,15 @@ object PermissionCompat {
         context = context,
         permissions = listOf(permission)
     ).allGranted
+
+    private fun Context.findActivity(): Activity? {
+        var context = this
+        while (context is ContextWrapper) {
+            if (context is Activity) return context
+            context = context.baseContext
+        }
+        return null
+    }
 
     fun requestPermissions(
         context: Context,

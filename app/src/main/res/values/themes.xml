@@ -21,13 +21,4 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
-
-    <style name="DialogTheme" parent="@style/AppTheme">
-        <item name="android:colorBackground">?colorBackgroundFloating</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-    </style>
-
 </resources>

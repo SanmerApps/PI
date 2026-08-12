@@ -1,56 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Activity -->
-    <string name="install_activity_label">安装</string>
-
-    <!-- Setup -->
-    <string name="setup_title">工作模式</string>
-    <string name="setup_shizuku_desc">需要由 Sui 或 Shizuku 提供权限</string>
-    <string name="setup_root_desc">需要由 Magisk，KernelSU 或 APatch 提供 Root 权限</string>
-
-    <!-- Apps -->
-    <string name="app_action_requester">请求者</string>
-    <string name="app_action_executor">执行者</string>
-    <string name="app_action_authorize">授权</string>
-    <string name="app_action_authorized">已授权</string>
-
-    <!-- Settings -->
-    <string name="settings_title">设置</string>
-    <string name="settings_service_starting">服务正在启动</string>
-    <string name="settings_service_wait">请耐心等待</string>
-    <string name="settings_service_running">服务正在运行</string>
-    <string name="settings_service_version">版本 %1$d，%2$s</string>
-    <string name="settings_service_not_running">服务未运行</string>
-    <string name="settings_service_restart">点击尝试启动</string>
-    <string name="settings_dark_mode">深色模式</string>
-    <string name="settings_dark_mode_auto">自动</string>
-    <string name="settings_dark_mode_on">开启</string>
-    <string name="settings_dark_mode_off">关闭</string>
-    <string name="settings_language">语言</string>
-    <string name="settings_language_system">系统默认</string>
-    <string name="settings_translation">参与翻译</string>
-    <string name="settings_translation_desc">帮助我们将 PI 翻译至您的语言</string>
-
-    <!-- Install -->
-    <string name="install_package_title">安装包</string>
-    <string name="install_requester_title">请求者</string>
-    <string name="install_config_feature_title">动态特征</string>
-    <string name="install_config_abi_title">ABI</string>
-    <string name="install_config_density_title">屏幕密度</string>
-    <string name="install_config_language_title">语言</string>
-    <string name="install_config_unspecified_title">未知</string>
-    <string name="install_select_user_title">选择用户</string>
-
-    <!-- Message -->
     <string name="installation_service">安装服务</string>
-    <string name="message_install_succeed">安装成功</string>
-    <string name="message_install_failed">安装失败</string>
-    <string name="message_optimizing">正在优化</string>
-    <string name="updated_title">PI 已完成更新</string>
-    <string name="updated_text">点按即可打开应用</string>
-
-    <!-- Search -->
-    <string name="search_placeholder">搜索…</string>
-    <string name="empty_list">空列表</string>
-
+    <string name="optimizing">优化中</string>
 </resources>

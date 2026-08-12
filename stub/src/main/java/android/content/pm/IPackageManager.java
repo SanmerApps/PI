@@ -46,9 +46,13 @@ public interface IPackageManager extends IInterface {
 
     int checkPermission(String permName, String pkgName, int userId) throws RemoteException;
 
-    boolean performDexOptMode(String packageName, boolean checkProfiles, String targetCompilerFilter, boolean force, boolean bootComplete, String splitName) throws RemoteException;
+    void grantRuntimePermission(String packageName, String permissionName, int userId) throws RemoteException;
+
+    void revokeRuntimePermission(String packageName, String permissionName, int userId, String reason) throws RemoteException;
 
     void clearApplicationProfileData(String packageName) throws RemoteException;
+
+    boolean performDexOptMode(String packageName, boolean checkProfiles, String targetCompilerFilter, boolean force, boolean bootComplete, String splitName) throws RemoteException;
 
     abstract class Stub extends Binder implements IPackageManager {
 

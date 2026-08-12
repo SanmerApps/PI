@@ -9,69 +9,51 @@ import android.content.pm.PackageInstaller
 import android.content.pm.PackageInstaller.SessionInfo
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.content.res.AssetFileDescriptor
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.os.Parcelable
-import android.os.Process
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dev.sanmer.pi.Const
-import dev.sanmer.pi.ContextCompat.userId
 import dev.sanmer.pi.Logger
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
-import dev.sanmer.pi.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.commit
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.writeFd
-import dev.sanmer.pi.delegate.PackageInstallerDelegate.Default.writeZip
-import dev.sanmer.pi.factory.BundleFactory
+import dev.sanmer.pi.core.compat.ContextCompat.userId
+import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
+import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.commit
+import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
+import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeZip
+import dev.sanmer.pi.core.parser.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
-import dev.sanmer.pi.parser.PackageInfoLite
-import dev.sanmer.pi.repository.PreferenceRepository
-import dev.sanmer.pi.repository.ServiceRepository
+import dev.sanmer.pi.ktx.versionDisplay
+import dev.sanmer.pi.repository.SuRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.seconds
 
 class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelegate.SessionCallback {
-    private val preferenceRepository by inject<PreferenceRepository>()
-    private val serviceRepository by inject<ServiceRepository>()
-    private val bundleFactory by inject<BundleFactory>()
+    private val suRepository by inject<SuRepository>()
+    private val pm by lazy { suRepository.getPackageManager() }
+    private val pi by lazy { suRepository.getPackageInstaller() }
     private val nm by lazy { NotificationManagerCompat.from(this) }
-    private val pm by lazy { serviceRepository.getPackageManager() }
-    private val pi by lazy { serviceRepository.getPackageInstaller() }
 
     private val logger = Logger.Android("InstallService")
 
-    init {
-        lifecycleScope.launch {
-            while (currentCoroutineContext().isActive) {
-                if (pendingUris.isEmpty()) stopSelf()
-                delay(5.seconds)
-            }
-        }
-    }
-
     override fun onProgressChanged(sessionId: Int, progress: Float) {
-        val session = pi.getSessionInfo(sessionId)
-
+        val session = pi.getSessionInfo(sessionId) ?: return
         notifyProgress(
             id = sessionId,
-            appLabel = session?.label ?: sessionId.toString(),
-            appIcon = session?.appIcon,
+            icon = session.appIcon,
+            label = session.label,
             progress = progress
         )
     }
@@ -82,7 +64,7 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     override fun onCreate() {
         logger.d("onCreate")
         super.onCreate()
-        pi.registerCallback(this)
+        pi.registerCallback(this, userId)
         setForeground()
     }
 
@@ -101,57 +83,46 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             val task = intent?.taskOrNull ?: return@launch
-            bundleFactory.openFd(task.uri).use { fd ->
-                runCatching {
-                    install(task, fd)
-                }.onFailure {
-                    logger.e(it)
-                    notifyFailure(
-                        id = task.uri.hashCode(),
-                        appLabel = task.archiveInfo.labelOrDefault,
-                        appIcon = task.archiveInfo.iconOrDefault,
-                    )
-                }
+            runCatching {
+                val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return@launch
+                fd.use { install(task, it) }
+            }.onFailure {
+                notifyFailure(
+                    id = task.uri.hashCode(),
+                    packageInfo = task.packageInfo,
+                    error = it
+                )
             }
-            pendingUris.remove(task.uri)
+            pendingPackageNames.remove(task.packageInfo.packageName)
+            if (pendingPackageNames.isEmpty()) {
+                delay(5.seconds)
+                if (pendingPackageNames.isEmpty()) stopSelf()
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
     private suspend fun install(
         task: Task,
-        fd: ParcelFileDescriptor
-    ) = withContext(Dispatchers.IO) {
-        val preference = preferenceRepository.data.first()
-        val installer = preference.executor.ifEmpty {
-            if (task.fileNames.isNotEmpty()) Const.PLAY_STORE else Const.SHELL
-        }
-
-        val originating = preference.requester.ifEmpty { task.sourceInfo?.packageName }
-        val originatingUid = originating?.let(::getPackageUid)
-
-        pi.setInstallerPackageName(installer)
-        pi.setUserId(task.userId)
-
+        fd: AssetFileDescriptor
+    ) {
         val params = createSessionParams()
-        params.setAppIcon(task.archiveInfo.iconOrDefault)
-        params.setAppLabel(task.archiveInfo.labelOrDefault)
-        params.setAppPackageName(task.archiveInfo.packageName)
-        if (originatingUid != null) {
-            params.setOriginatingUid(originatingUid)
-        }
+        params.setAppIcon(task.packageInfo.iconOrDefault)
+        params.setAppLabel(task.packageInfo.labelOrDefault)
+        params.setAppPackageName(task.packageInfo.packageName)
+        params.setOriginatingUri(task.uri)
 
-        val sessionId = pi.createSession(params)
+        val sessionId = pi.createSession(params, task.installerPackageName, userId)
         notifyProgress(
             id = sessionId,
-            appLabel = task.archiveInfo.labelOrDefault,
-            appIcon = task.archiveInfo.iconOrDefault,
+            icon = task.packageInfo.iconOrDefault,
+            label = task.packageInfo.labelOrDefault,
             progress = 0f
         )
 
         val session = pi.openSession(sessionId)
         if (task.fileNames.isEmpty()) {
-            session.writeFd(task.archiveInfo.packageName, fd)
+            session.writeFd(task.packageInfo.packageName, fd)
         } else {
             session.writeZip(task.fileNames, fd)
         }
@@ -161,45 +132,29 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
             PackageInstaller.EXTRA_STATUS,
             PackageInstaller.STATUS_FAILURE
         )
-
-        when (status) {
-            PackageInstaller.STATUS_SUCCESS -> {
-                notifyOptimizing(
-                    id = sessionId,
-                    appLabel = task.archiveInfo.labelOrDefault,
-                    appIcon = task.archiveInfo.iconOrDefault
-                )
-
-                optimize(task.archiveInfo.packageName)
-
-                notifySuccess(
-                    id = sessionId,
-                    appLabel = task.archiveInfo.labelOrDefault,
-                    appIcon = task.archiveInfo.iconOrDefault,
-                    packageName = task.archiveInfo.packageName
-                )
-            }
-
-            else -> {
-                val msg = result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
-                logger.e("Failed to install ${task.archiveInfo.packageName}, $msg")
-                notifyFailure(
-                    id = sessionId,
-                    appLabel = task.archiveInfo.labelOrDefault,
-                    appIcon = task.archiveInfo.iconOrDefault,
-                )
-            }
+        check(status == PackageInstaller.STATUS_SUCCESS) {
+            result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE).orEmpty()
         }
+
+        notifyOptimizing(
+            id = sessionId,
+            packageInfo = task.packageInfo
+        )
+        optimize(
+            packageName = task.packageInfo.packageName
+        )
+        notifySuccess(
+            id = sessionId,
+            packageInfo = task.packageInfo
+        )
     }
 
-    private suspend fun optimize(packageName: String) = withContext(Dispatchers.IO) {
+    private fun optimize(packageName: String) {
         runCatching {
             pm.clearApplicationProfileData(packageName)
-            pm.performDexOpt(packageName).also {
-                if (!it) logger.e("Failed to optimize $packageName")
-            }
-        }.onFailure { error ->
-            logger.e(error)
+            pm.performDexOpt(packageName)
+        }.onFailure {
+            logger.e(it)
         }.getOrDefault(false)
     }
 
@@ -226,17 +181,8 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         return params
     }
 
-    private fun getPackageUid(packageName: String): Int {
-        if (packageName.isEmpty()) return Process.INVALID_UID
-        return runCatching {
-            pm.getPackageUid(packageName, 0, userId)
-        }.getOrDefault(
-            Process.INVALID_UID
-        )
-    }
-
     private fun setForeground() {
-        val notification = newNotificationBuilder()
+        val notification = notificationBuilder()
             .setContentTitle(getText(R.string.installation_service))
             .setSilent(true)
             .setOngoing(true)
@@ -254,13 +200,13 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
 
     private fun notifyProgress(
         id: Int,
-        appLabel: CharSequence,
-        appIcon: Bitmap?,
+        icon: Bitmap?,
+        label: CharSequence,
         progress: Float
     ) {
-        val notification = newNotificationBuilder()
-            .setLargeIcon(appIcon)
-            .setContentTitle(appLabel)
+        val notification = notificationBuilder()
+            .setLargeIcon(icon)
+            .setContentTitle(label)
             .setProgress(100, (100 * progress).toInt(), false)
             .setSilent(true)
             .setOngoing(true)
@@ -272,13 +218,12 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
 
     private fun notifyOptimizing(
         id: Int,
-        appLabel: CharSequence,
-        appIcon: Bitmap?
+        packageInfo: PackageInfoLite
     ) {
-        val notification = newNotificationBuilder()
-            .setLargeIcon(appIcon)
-            .setContentTitle(appLabel)
-            .setContentText(getString(R.string.message_optimizing))
+        val notification = notificationBuilder()
+            .setLargeIcon(packageInfo.icon)
+            .setContentTitle(packageInfo.labelOrDefault)
+            .setContentText(getString(R.string.optimizing))
             .setSilent(true)
             .setOngoing(true)
             .setGroup(GROUP_KEY)
@@ -289,18 +234,16 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
 
     private fun notifySuccess(
         id: Int,
-        appLabel: CharSequence,
-        appIcon: Bitmap?,
-        packageName: String
+        packageInfo: PackageInfoLite
     ) {
-        val pending = pm.getLaunchIntentForPackage(packageName, userId)?.let {
+        val pending = pm.getLaunchIntentForPackage(packageInfo.packageName, userId)?.let {
             PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
         }
 
-        val notification = newNotificationBuilder()
-            .setLargeIcon(appIcon)
-            .setContentTitle(appLabel)
-            .setContentText(getText(R.string.message_install_succeed))
+        val notification = notificationBuilder()
+            .setLargeIcon(packageInfo.icon)
+            .setContentTitle(packageInfo.labelOrDefault)
+            .setContentText(packageInfo.versionDisplay())
             .setContentIntent(pending)
             .setSilent(true)
             .setAutoCancel(true)
@@ -311,19 +254,21 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
 
     private fun notifyFailure(
         id: Int,
-        appLabel: CharSequence,
-        appIcon: Bitmap?
+        packageInfo: PackageInfoLite,
+        error: Throwable
     ) {
-        val notification = newNotificationBuilder()
-            .setLargeIcon(appIcon)
-            .setContentTitle(appLabel)
-            .setContentText(getText(R.string.message_install_failed))
+        val notification = notificationBuilder()
+            .setLargeIcon(packageInfo.icon)
+            .setContentTitle(packageInfo.labelOrDefault)
+            .setContentText(error.message ?: error.javaClass.name)
+            .setSilent(false)
+            .setOngoing(false)
             .build()
 
         notify(id, notification)
     }
 
-    private fun newNotificationBuilder() =
+    private fun notificationBuilder() =
         NotificationCompat.Builder(applicationContext, Const.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
 
@@ -337,10 +282,9 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     @Parcelize
     private data class Task(
         val uri: Uri,
-        val archiveInfo: PackageInfoLite,
         val fileNames: List<String>,
-        val sourceInfo: PackageInfoLite?,
-        val userId: Int
+        val packageInfo: PackageInfoLite,
+        val installerPackageName: String
     ) : Parcelable
 
     companion object Default {
@@ -353,22 +297,41 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         private inline val Intent.taskOrNull: Task?
             get() = parcelable(EXTRA_TASK)
 
-        private val pendingUris = mutableListOf<Uri>()
+        private val pendingPackageNames = mutableListOf<String>()
 
         fun start(
             context: Context,
             uri: Uri,
-            archiveInfo: PackageInfoLite,
             fileNames: List<String>,
-            sourceInfo: PackageInfoLite? = null,
-            userId: Int = context.userId
+            packageInfo: PackageInfoLite,
+            installerPackageName: String
         ) {
-            pendingUris.add(uri)
-            context.startService(
-                Intent(context, InstallService::class.java).also {
-                    it.putTask(Task(uri, archiveInfo, fileNames, sourceInfo, userId))
+            fun start() {
+                if (pendingPackageNames.contains(packageInfo.packageName)) return
+                pendingPackageNames.add(packageInfo.packageName)
+                context.startService(
+                    Intent(context, InstallService::class.java).also {
+                        it.putTask(
+                            Task(
+                                uri = uri,
+                                fileNames = fileNames,
+                                packageInfo = packageInfo,
+                                installerPackageName = installerPackageName
+                            )
+                        )
+                    }
+                )
+            }
+            if (BuildCompat.atLeastT) {
+                PermissionCompat.requestPermission(
+                    context = context,
+                    permission = Manifest.permission.POST_NOTIFICATIONS
+                ) { allowed ->
+                    if (allowed) start()
                 }
-            )
+            } else {
+                start()
+            }
         }
     }
 }

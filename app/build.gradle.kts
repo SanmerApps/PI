@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import java.time.Instant
 
 plugins {
@@ -25,23 +26,7 @@ android {
 
     androidResources {
         generateLocaleConfig = true
-        localeFilters += listOf(
-            "en",
-            "ar",
-            "es",
-            "fa",
-            "fr",
-            "in",
-            "iw",
-            "pt",
-            "pt-rBR",
-            "ro",
-            "ru",
-            "su",
-            "tr",
-            "vi",
-            "zh-rCN"
-        )
+        localeFilters += listOf("en", "zh-rCN")
     }
 
     val releaseSigning = if (hasReleaseKeyStore()) {
@@ -59,30 +44,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            optimization {
+                enable = true
+            }
         }
 
         all {
             signingConfig = releaseSigning
-            buildConfigField("String", "GIT_SHA", "\"$gitCommitSha\"")
-            buildConfigField("long", "BUILD_TIME", Instant.now().toEpochMilli().toString())
-        }
-    }
-
-    flavorDimensions += "feature"
-    productFlavors {
-        create("full") {
-            dimension = "feature"
-        }
-
-        create("lite") {
-            dimension = "feature"
-            applicationIdSuffix = ".lite"
         }
     }
 
@@ -103,14 +71,23 @@ android {
 }
 
 androidComponents.onVariants { variant ->
-    variant.outputs.forEach {
-        it.outputFileName = "PI-${it.versionName.get()}-${it.versionCode.get()}-${variant.flavorName}.apk"
+    variant.buildConfigFields?.apply {
+        put("GIT_SHA", BuildConfigField("String", "\"$gitCommitSha\"", null))
+        put("BUILD_TIME", BuildConfigField("long", Instant.now().toEpochMilli().toString(), null))
+    }
+
+    variant.outputs.forEach { output ->
+        output.outputFileName =
+            output.versionName.zip(output.versionCode) { versionName, versionCode ->
+                "PI-$versionName-$versionCode-${variant.buildType}.apk"
+            }
     }
 }
 
 dependencies {
     compileOnly(project(":stub"))
     implementation(project(":core"))
+    implementation(project(":su"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
@@ -126,18 +103,4 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.hiddenApiBypass)
     implementation(libs.xz)
-
-    "fullImplementation"(libs.androidx.datastore.core)
-    "fullImplementation"(libs.androidx.lifecycle.viewmodel.navigation3)
-    "fullImplementation"(libs.androidx.navigation3.runtime)
-    "fullImplementation"(libs.androidx.navigation3.ui)
-    "fullImplementation"(libs.appiconloader.coil)
-    "fullImplementation"(libs.coil.kt)
-    "fullImplementation"(libs.coil.kt.compose)
-    "fullImplementation"(libs.koin.compose.navigation3)
-    "fullImplementation"(libs.kotlinx.serialization.protobuf)
-    "fullImplementation"(libs.sanmer.su)
-
-    "liteImplementation"(libs.rikka.shizuku.api)
-    "liteImplementation"(libs.rikka.shizuku.provider)
 }

@@ -8,7 +8,7 @@ android {
     namespace = "dev.sanmer.pi.core"
 
     defaultConfig {
-        consumerProguardFile("proguard-rules.pro")
+        consumerProguardFile("proguard-rules.keep")
     }
 }
 
