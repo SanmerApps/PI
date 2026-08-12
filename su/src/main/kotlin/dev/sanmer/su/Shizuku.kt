@@ -8,34 +8,24 @@ import kotlinx.coroutines.withContext
 import rikka.shizuku.ShizukuBinderWrapper
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import rikka.shizuku.Shizuku as RikkaShizuku
+import rikka.shizuku.Shizuku as Raw
 
 object Shizuku {
     class Wrapper internal constructor() : BinderWrapper {
-        override fun getUid(): Int {
-            return RikkaShizuku.getUid()
-        }
-
-        override fun getSELinuxContext(): String {
-            return RikkaShizuku.getSELinuxContext().orEmpty()
-        }
-
-        override fun wrap(original: IBinder): IBinder {
-            return ShizukuBinderWrapper(original)
-        }
+        override fun wrap(original: IBinder): IBinder = ShizukuBinderWrapper(original)
     }
 
     suspend fun launch() = withContext(Dispatchers.Main) {
         suspendCancellableCoroutine { continuation ->
-            if (RikkaShizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+            if (Raw.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
                 return@suspendCancellableCoroutine continuation.resume(Wrapper())
             }
-            val listener = object : RikkaShizuku.OnRequestPermissionResultListener {
+            val listener = object : Raw.OnRequestPermissionResultListener {
                 override fun onRequestPermissionResult(
                     requestCode: Int,
                     grantResult: Int
                 ) {
-                    RikkaShizuku.removeRequestPermissionResultListener(this)
+                    Raw.removeRequestPermissionResultListener(this)
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
                         continuation.resume(Wrapper())
                     } else {
@@ -43,11 +33,11 @@ object Shizuku {
                     }
                 }
             }
-            RikkaShizuku.addRequestPermissionResultListener(listener)
+            Raw.addRequestPermissionResultListener(listener)
+            Raw.requestPermission(listener.hashCode())
             continuation.invokeOnCancellation {
-                RikkaShizuku.removeRequestPermissionResultListener(listener)
+                Raw.removeRequestPermissionResultListener(listener)
             }
-            RikkaShizuku.requestPermission(listener.hashCode())
         }
     }
 }

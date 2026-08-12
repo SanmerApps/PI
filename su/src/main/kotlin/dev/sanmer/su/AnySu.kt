@@ -16,6 +16,8 @@ object AnySu {
         return runCatching {
             Shizuku.launch()
         }.fallback {
+            Dhizuku.launch(context)
+        }.fallback {
             withTimeout(10.seconds) {
                 LibSu.launch(context)
             }

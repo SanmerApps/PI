@@ -2,6 +2,7 @@ package dev.sanmer.pi.repository
 
 import android.content.Context
 import android.os.IBinder
+import android.util.Log
 import dev.sanmer.pi.core.delegate.AppOpsManagerDelegate
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
@@ -26,6 +27,8 @@ class SuRepositoryImpl(
         _state.update {
             loadData {
                 AnySu.launch(context)
+            }.onFailure {
+                Log.e("SU", it.stackTraceToString())
             }
         }
     }

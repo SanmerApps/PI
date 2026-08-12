@@ -11,8 +11,6 @@ android {
 }
 
 dependencies {
-    compileOnly(project(":stub"))
-
     implementation(libs.androidx.annotation)
     implementation(libs.kotlinx.coroutines.android)
 
@@ -21,4 +19,6 @@ dependencies {
 
     implementation(libs.rikka.shizuku.api)
     implementation(libs.rikka.shizuku.provider)
+
+    implementation(libs.iamr0s.dhizuku.api)
 }

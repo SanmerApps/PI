@@ -112,7 +112,14 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         params.setAppPackageName(task.packageInfo.packageName)
         params.setOriginatingUri(task.uri)
 
-        val sessionId = pi.createSession(params, task.installerPackageName, userId)
+        val ownerPackageName = suRepository.state.value
+            .getOrElse({ it.ownerPackageName }) { "" }
+
+        val sessionId = pi.createSession(
+            params = params,
+            installerPackageName = ownerPackageName.ifEmpty { task.installerPackageName },
+            userId = userId
+        )
         notifyProgress(
             id = sessionId,
             icon = task.packageInfo.iconOrDefault,
@@ -136,13 +143,15 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
             result.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE).orEmpty()
         }
 
-        notifyOptimizing(
-            id = sessionId,
-            packageInfo = task.packageInfo
-        )
-        optimize(
-            packageName = task.packageInfo.packageName
-        )
+        if (ownerPackageName.isEmpty()) {
+            notifyOptimizing(
+                id = sessionId,
+                packageInfo = task.packageInfo
+            )
+            optimize(
+                packageName = task.packageInfo.packageName
+            )
+        }
         notifySuccess(
             id = sessionId,
             packageInfo = task.packageInfo

@@ -3,7 +3,6 @@ package dev.sanmer.su
 import android.os.IBinder
 
 interface BinderWrapper {
-    fun getUid(): Int
-    fun getSELinuxContext(): String
+    val ownerPackageName: String get() = ""
     fun wrap(original: IBinder): IBinder
 }

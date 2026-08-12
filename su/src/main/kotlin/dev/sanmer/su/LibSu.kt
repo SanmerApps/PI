@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.Parcel
-import android.os.SELinux
-import android.system.Os
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ipc.RootService
 import kotlinx.coroutines.Dispatchers
@@ -33,12 +31,6 @@ object LibSu {
     }
 
     private class ServiceImpl : IService.Stub() {
-        override fun getUid() = Os.getuid()
-
-        override fun getPid() = Os.getpid()
-
-        override fun getSELinuxContext(): String = SELinux.getContext()
-
         override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int) =
             if (code == BINDER_TRANSACTION) {
                 data.enforceInterface(DESCRIPTOR)
@@ -111,20 +103,10 @@ object LibSu {
     class Wrapper internal constructor(
         private val service: IService
     ) : BinderWrapper {
-        override fun getUid(): Int {
-            return service.uid
-        }
-
-        override fun getSELinuxContext(): String {
-            return service.seLinuxContext
-        }
-
-        override fun wrap(original: IBinder): IBinder {
-            return BinderImpl(
-                bearer = service.asBinder(),
-                original = original
-            )
-        }
+        override fun wrap(original: IBinder): IBinder = BinderImpl(
+            bearer = service.asBinder(),
+            original = original
+        )
     }
 
     suspend fun launch(context: Context) = withContext(Dispatchers.Main) {
