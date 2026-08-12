@@ -20,6 +20,8 @@ import dev.sanmer.pi.core.compat.IntentReceiverCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.zip.ZipFile
+import java.io.InputStream
+import java.io.OutputStream
 
 class PackageInstallerDelegate(
     private val proxy: IBinder.() -> IBinder = { this }
@@ -174,13 +176,32 @@ class PackageInstallerDelegate(
             commit(sender)
         }
 
+        private inline fun InputStream.copyTo(
+            out: OutputStream,
+            bufferSize: Int = DEFAULT_BUFFER_SIZE,
+            onProgress: (Long) -> Unit
+        ): Long {
+            var bytesCopied: Long = 0
+            val buffer = ByteArray(bufferSize)
+            var bytes = read(buffer)
+            while (bytes >= 0) {
+                out.write(buffer, 0, bytes)
+                bytesCopied += bytes
+                onProgress(bytesCopied)
+                bytes = read(buffer)
+            }
+            return bytesCopied
+        }
+
         suspend fun PackageInstaller.Session.writeFd(
             name: String,
-            fd: AssetFileDescriptor
+            fd: AssetFileDescriptor,
+            onProgress: (Long, Long) -> Unit = { _, _ -> }
         ) = withContext(Dispatchers.IO) {
             fd.createInputStream().use { input ->
-                openWrite(name, 0, fd.length).use { output ->
-                    input.copyTo(output)
+                val length = fd.length
+                openWrite(name, 0, length).use { output ->
+                    input.copyTo(output) { onProgress(length, it) }
                     fsync(output)
                 }
             }
@@ -188,7 +209,8 @@ class PackageInstallerDelegate(
 
         suspend fun PackageInstaller.Session.writeZip(
             names: List<String>,
-            fd: AssetFileDescriptor
+            fd: AssetFileDescriptor,
+            onProgress: (String, Long, Long) -> Unit = { _, _, _ -> }
         ) = withContext(Dispatchers.IO) {
             ZipFile.builder()
                 .setIgnoreLocalFileHeader(true)
@@ -199,7 +221,7 @@ class PackageInstallerDelegate(
                         if (entry.name in names) {
                             zip.getInputStream(entry).use { input ->
                                 openWrite(entry.name, 0, entry.size).use { output ->
-                                    input.copyTo(output)
+                                    input.copyTo(output) { onProgress(entry.name, entry.size, it) }
                                     fsync(output)
                                 }
                             }
