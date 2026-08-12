@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="installation_service">安装服务</string>
+    <string name="installing">安装中</string>
     <string name="optimizing">优化中</string>
 </resources>

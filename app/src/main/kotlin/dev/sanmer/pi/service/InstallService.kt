@@ -9,7 +9,6 @@ import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.AssetFileDescriptor
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Parcelable
 import androidx.core.app.NotificationCompat
@@ -29,15 +28,12 @@ import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeZip
 import dev.sanmer.pi.core.parser.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
+import dev.sanmer.pi.ktx.sampleIf
 import dev.sanmer.pi.ktx.versionDisplay
 import dev.sanmer.pi.repository.SuRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.IgnoredOnParcel
@@ -47,8 +43,7 @@ import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(FlowPreview::class)
-class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelegate.SessionCallback {
+class InstallService : LifecycleService(), KoinComponent {
     private val suRepository by inject<SuRepository>()
     private val pm by lazy { suRepository.getPackageManager() }
     private val pi by lazy { suRepository.getPackageInstaller() }
@@ -60,12 +55,25 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
 
     init {
         lifecycleScope.launch {
-            taskState.onEach {
+            taskState.sampleIf(500.milliseconds) {
+                it is TaskState.Progress
+            }.collect {
                 when (it) {
+                    TaskState.None -> {}
                     is TaskState.Progress -> notify(it.id) {
-                        setLargeIcon(it.icon)
-                        setContentTitle(it.label)
-                        setProgress(100, (100 * it.progress).toInt(), false)
+                        setLargeIcon(it.packageInfo.icon)
+                        setContentTitle(it.packageInfo.label)
+                        setContentText(it.fileName)
+                        setProgress(it.fileSize.toInt(), it.copied.toInt(), false)
+                        setSilent(true)
+                        setOngoing(true)
+                        setGroup(GROUP_KEY)
+                    }
+
+                    is TaskState.Installing -> notify(it.id) {
+                        setLargeIcon(it.packageInfo.icon)
+                        setContentTitle(it.packageInfo.label)
+                        setContentText(getString(R.string.installing))
                         setSilent(true)
                         setOngoing(true)
                         setGroup(GROUP_KEY)
@@ -94,24 +102,9 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
                         setContentTitle(it.packageInfo.labelOrDefault)
                         setContentText(it.error.message ?: it.error.javaClass.name)
                         setSilent(false)
-                        setOngoing(false)
-                    }
-
-                    else -> {}
-                }
-            }.filterIsInstance<TaskState.IoProgress>()
-                .sample(500.milliseconds)
-                .collect {
-                    notify(it.id) {
-                        setLargeIcon(it.packageInfo.icon)
-                        setContentTitle(it.packageInfo.label)
-                        setContentText(it.fileName)
-                        setProgress(it.fileSize.toInt(), it.copied.toInt(), false)
-                        setSilent(true)
-                        setOngoing(true)
-                        setGroup(GROUP_KEY)
                     }
                 }
+            }
         }
     }
 
@@ -126,7 +119,6 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     override fun onCreate() {
         logger.d("onCreate")
         super.onCreate()
-        pi.registerCallback(this, userId)
 
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
             .setSmallIcon(R.drawable.launcher_outline)
@@ -144,7 +136,6 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
     }
 
     override fun onDestroy() {
-        pi.unregisterCallback(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         logger.d("onDestroy")
         super.onDestroy()
@@ -180,18 +171,6 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onProgressChanged(sessionId: Int, progress: Float) {
-        val session = pi.getSessionInfo(sessionId) ?: return
-        taskState.update {
-            TaskState.Progress(
-                id = sessionId,
-                icon = session.appIcon,
-                label = session.appLabel ?: "",
-                progress = progress
-            )
-        }
-    }
-
     private suspend fun install(
         task: Task,
         fd: AssetFileDescriptor
@@ -214,30 +193,36 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
         val session = pi.openSession(task.id)
         if (task.fileNames.isEmpty()) {
             session.writeFd(task.packageInfo.packageName, fd) { fileSize, copied ->
-                taskState.update {
-                    TaskState.IoProgress(
+                taskState.tryEmit(
+                    TaskState.Progress(
                         id = task.id,
                         packageInfo = task.packageInfo,
                         fileName = null,
                         fileSize = fileSize,
                         copied = copied
                     )
-                }
+                )
             }
         } else {
             session.writeZip(task.fileNames, fd) { fileName, fileSize, copied ->
-                taskState.update {
-                    TaskState.IoProgress(
+                taskState.tryEmit(
+                    TaskState.Progress(
                         id = task.id,
                         packageInfo = task.packageInfo,
                         fileName = fileName,
                         fileSize = fileSize,
                         copied = copied
                     )
-                }
+                )
             }
         }
 
+        taskState.update {
+            TaskState.Installing(
+                id = task.id,
+                packageInfo = task.packageInfo
+            )
+        }
         val result = session.commit()
         val status = result.getIntExtra(
             PackageInstaller.EXTRA_STATUS,
@@ -322,7 +307,7 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
             override val id: Int = 0
         }
 
-        class IoProgress(
+        class Progress(
             override val id: Int,
             val packageInfo: PackageInfoLite,
             val fileName: CharSequence?,
@@ -330,11 +315,9 @@ class InstallService : LifecycleService(), KoinComponent, PackageInstallerDelega
             val copied: Long
         ) : TaskState
 
-        class Progress(
+        class Installing(
             override val id: Int,
-            val icon: Bitmap?,
-            val label: CharSequence,
-            val progress: Float
+            val packageInfo: PackageInfoLite,
         ) : TaskState
 
         class Optimizing(
