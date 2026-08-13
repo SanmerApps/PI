@@ -28,20 +28,20 @@ import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeZip
 import dev.sanmer.pi.core.parser.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
-import dev.sanmer.pi.ktx.sampleIf
 import dev.sanmer.pi.ktx.versionDisplay
 import dev.sanmer.pi.repository.SuRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 class InstallService : LifecycleService(), KoinComponent {
     private val suRepository by inject<SuRepository>()
@@ -49,72 +49,34 @@ class InstallService : LifecycleService(), KoinComponent {
     private val pi by lazy { suRepository.getPackageInstaller() }
     private val nm by lazy { NotificationManagerCompat.from(this) }
 
-    private val taskState = MutableStateFlow<TaskState>(TaskState.None)
+    private val runningMutex = Mutex()
+    private val runningTask = mutableListOf<String>()
 
     private val logger = Logger.Android("InstallService")
 
-    init {
-        lifecycleScope.launch {
-            taskState.sampleIf(500.milliseconds) {
-                it is TaskState.Progress
-            }.collect {
-                when (it) {
-                    TaskState.None -> {}
-                    is TaskState.Progress -> notify(it.id) {
-                        setLargeIcon(it.packageInfo.icon)
-                        setContentTitle(it.packageInfo.label)
-                        setContentText(it.fileName)
-                        setProgress(it.fileSize.toInt(), it.copied.toInt(), false)
-                        setSilent(true)
-                        setOngoing(true)
-                        setGroup(GROUP_KEY)
-                    }
-
-                    is TaskState.Installing -> notify(it.id) {
-                        setLargeIcon(it.packageInfo.icon)
-                        setContentTitle(it.packageInfo.label)
-                        setContentText(getString(R.string.installing))
-                        setSilent(true)
-                        setOngoing(true)
-                        setGroup(GROUP_KEY)
-                    }
-
-                    is TaskState.Optimizing -> notify(it.id) {
-                        setLargeIcon(it.packageInfo.icon)
-                        setContentTitle(it.packageInfo.labelOrDefault)
-                        setContentText(getString(R.string.optimizing))
-                        setSilent(true)
-                        setOngoing(true)
-                        setGroup(GROUP_KEY)
-                    }
-
-                    is TaskState.Success -> notify(it.id) {
-                        setLargeIcon(it.packageInfo.icon)
-                        setContentTitle(it.packageInfo.labelOrDefault)
-                        setContentText(it.packageInfo.versionDisplay())
-                        setContentIntent(it.pendingIntent)
-                        setSilent(true)
-                        setAutoCancel(true)
-                    }
-
-                    is TaskState.Failure -> notify(it.id) {
-                        setLargeIcon(it.packageInfo.icon)
-                        setContentTitle(it.packageInfo.labelOrDefault)
-                        setContentText(it.error.message ?: it.error.javaClass.name)
-                        setSilent(false)
-                    }
+    private suspend inline fun autoStopSelf(task: Task, block: (Task) -> Unit) {
+        if (!runningMutex.withLock {
+                runningTask.contains(task.packageInfo.packageName).also {
+                    if (!it) runningTask.add(task.packageInfo.packageName)
                 }
+            }) {
+            block(task)
+            if (runningMutex.withLock {
+                    runningTask.remove(task.packageInfo.packageName)
+                    runningTask.isEmpty()
+                }) {
+                delay(5.seconds)
+                if (runningMutex.withLock { runningTask.isEmpty() }) stopSelf()
             }
         }
     }
 
     @SuppressLint("MissingPermission")
-    private inline fun notify(id: Int, block: NotificationCompat.Builder.() -> Unit) {
-        val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
-        builder.setSmallIcon(R.drawable.launcher_outline)
-        builder.block()
-        nm.notify(id, builder.build())
-    }
+    private fun notify(
+        id: Int,
+        builder: NotificationCompat.Builder,
+        block: NotificationCompat.Builder.() -> NotificationCompat.Builder
+    ) = nm.notify(id, builder.block().build())
 
     override fun onCreate() {
         logger.d("onCreate")
@@ -129,7 +91,7 @@ class InstallService : LifecycleService(), KoinComponent {
             .setGroupSummary(true)
         ServiceCompat.startForeground(
             this,
-            Const.NOTIFICATION_ID_INSTALL,
+            builder.hashCode(),
             builder.build(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
         )
@@ -148,24 +110,31 @@ class InstallService : LifecycleService(), KoinComponent {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
-            val task = intent?.taskOrNull ?: return@launch
-            runCatching {
-                val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return@launch
-                fd.use { install(task, it) }
-            }.onFailure { error ->
-                logger.w(error)
-                taskState.update {
-                    TaskState.Failure(
-                        id = task.id,
-                        packageInfo = task.packageInfo,
-                        error = error
-                    )
+            autoStopSelf(intent?.taskOrNull ?: return@launch) { task ->
+                val builder = NotificationCompat.Builder(
+                    applicationContext,
+                    Const.CHANNEL_ID_INSTALL
+                ).apply {
+                    setSmallIcon(R.drawable.launcher_outline)
+                    setLargeIcon(task.packageInfo.icon)
+                    setContentTitle(task.packageInfo.labelOrDefault)
+                    setOngoing(true)
+                    setSilent(true)
+                    setGroup(GROUP_KEY)
                 }
-            }
-            pendingPackageNames.remove(task.packageInfo.packageName)
-            if (pendingPackageNames.isEmpty()) {
-                delay(5.seconds)
-                if (pendingPackageNames.isEmpty()) stopSelf()
+
+                runCatching {
+                    contentResolver.openAssetFileDescriptor(task.uri, "r")?.use { fd ->
+                        install(task, fd, builder)
+                    }
+                }.onFailure { error ->
+                    logger.w(error)
+                    notify(task.id, builder) {
+                        setContentText(error.message ?: error.javaClass.name)
+                        setOngoing(false)
+                        setSilent(false)
+                    }
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -173,7 +142,8 @@ class InstallService : LifecycleService(), KoinComponent {
 
     private suspend fun install(
         task: Task,
-        fd: AssetFileDescriptor
+        fd: AssetFileDescriptor,
+        builder: NotificationCompat.Builder
     ) {
         val params = createSessionParams()
         params.setAppIcon(task.packageInfo.iconOrDefault)
@@ -191,37 +161,32 @@ class InstallService : LifecycleService(), KoinComponent {
         )
 
         val session = pi.openSession(task.id)
+        var lastNotify = TimeSource.Monotonic.markNow()
+        val period = 500.milliseconds
         if (task.fileNames.isEmpty()) {
             session.writeFd(task.packageInfo.packageName, fd) { fileSize, copied ->
-                taskState.tryEmit(
-                    TaskState.Progress(
-                        id = task.id,
-                        packageInfo = task.packageInfo,
-                        fileName = null,
-                        fileSize = fileSize,
-                        copied = copied
-                    )
-                )
+                if (lastNotify.elapsedNow() > period) {
+                    notify(task.id, builder) {
+                        setProgress(fileSize.toInt(), copied.toInt(), false)
+                    }
+                    lastNotify = TimeSource.Monotonic.markNow()
+                }
             }
         } else {
             session.writeZip(task.fileNames, fd) { fileName, fileSize, copied ->
-                taskState.tryEmit(
-                    TaskState.Progress(
-                        id = task.id,
-                        packageInfo = task.packageInfo,
-                        fileName = fileName,
-                        fileSize = fileSize,
-                        copied = copied
-                    )
-                )
+                if (lastNotify.elapsedNow() > period) {
+                    notify(task.id, builder) {
+                        setContentText(fileName)
+                        setProgress(fileSize.toInt(), copied.toInt(), false)
+                    }
+                    lastNotify = TimeSource.Monotonic.markNow()
+                }
             }
         }
 
-        taskState.update {
-            TaskState.Installing(
-                id = task.id,
-                packageInfo = task.packageInfo
-            )
+        notify(task.id, builder) {
+            setProgress(0, 0, false)
+            setContentText(getString(R.string.installing))
         }
         val result = session.commit()
         val status = result.getIntExtra(
@@ -233,27 +198,17 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         if (ownerPackageName.isEmpty()) {
-            taskState.update {
-                TaskState.Optimizing(
-                    id = task.id,
-                    packageInfo = task.packageInfo
-                )
+            notify(task.id, builder) {
+                setContentText(getString(R.string.optimizing))
             }
-            optimize(
-                packageName = task.packageInfo.packageName
-            )
+            optimize(task.packageInfo.packageName)
         }
 
-        val launcher = pm.getLaunchIntentForPackage(task.packageInfo.packageName, userId)
-        val pendingIntent = launcher?.let {
-            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
-        }
-        taskState.update {
-            TaskState.Success(
-                id = task.id,
-                packageInfo = task.packageInfo,
-                pendingIntent = pendingIntent
-            )
+        notify(task.id, builder) {
+            setContentText(task.packageInfo.versionDisplay())
+            setContentIntent(launchApp(task.packageInfo.packageName))
+            setSilent(false)
+            setAutoCancel(true)
         }
     }
 
@@ -264,6 +219,11 @@ class InstallService : LifecycleService(), KoinComponent {
         }.onFailure {
             logger.w(it)
         }
+    }
+
+    private fun launchApp(packageName: String): PendingIntent? {
+        val intent = pm.getLaunchIntentForPackage(packageName, userId) ?: return null
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     private fun createSessionParams(): PackageInstaller.SessionParams {
@@ -300,44 +260,6 @@ class InstallService : LifecycleService(), KoinComponent {
         var id = uri.hashCode()
     }
 
-    private sealed interface TaskState {
-        val id: Int
-
-        object None : TaskState {
-            override val id: Int = 0
-        }
-
-        class Progress(
-            override val id: Int,
-            val packageInfo: PackageInfoLite,
-            val fileName: CharSequence?,
-            val fileSize: Long,
-            val copied: Long
-        ) : TaskState
-
-        class Installing(
-            override val id: Int,
-            val packageInfo: PackageInfoLite,
-        ) : TaskState
-
-        class Optimizing(
-            override val id: Int,
-            val packageInfo: PackageInfoLite,
-        ) : TaskState
-
-        class Success(
-            override val id: Int,
-            val packageInfo: PackageInfoLite,
-            val pendingIntent: PendingIntent?
-        ) : TaskState
-
-        class Failure(
-            override val id: Int,
-            val packageInfo: PackageInfoLite,
-            val error: Throwable
-        ) : TaskState
-    }
-
     companion object Default {
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
         private const val EXTRA_TASK = "dev.sanmer.pi.extra.TASK"
@@ -348,8 +270,6 @@ class InstallService : LifecycleService(), KoinComponent {
         private inline val Intent.taskOrNull: Task?
             get() = parcelable(EXTRA_TASK)
 
-        private val pendingPackageNames = mutableListOf<String>()
-
         fun start(
             context: Context,
             uri: Uri,
@@ -358,8 +278,6 @@ class InstallService : LifecycleService(), KoinComponent {
             installerPackageName: String
         ) {
             fun start() {
-                if (pendingPackageNames.contains(packageInfo.packageName)) return
-                pendingPackageNames.add(packageInfo.packageName)
                 context.startService(
                     Intent(context, InstallService::class.java).also {
                         it.putTask(
