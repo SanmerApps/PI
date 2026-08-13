@@ -16,10 +16,12 @@ object Shizuku {
     }
 
     suspend fun launch() = withContext(Dispatchers.Main) {
+        check(Raw.pingBinder()) { "Shizuku lost" }
+        if (Raw.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+            return@withContext Wrapper()
+        }
+
         suspendCancellableCoroutine { continuation ->
-            if (Raw.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-                return@suspendCancellableCoroutine continuation.resume(Wrapper())
-            }
             val listener = object : Raw.OnRequestPermissionResultListener {
                 override fun onRequestPermissionResult(
                     requestCode: Int,

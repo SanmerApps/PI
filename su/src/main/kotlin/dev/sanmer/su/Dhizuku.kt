@@ -18,15 +18,10 @@ object Dhizuku {
     }
 
     suspend fun launch(context: Context) = withContext(Dispatchers.Main) {
+        check(Raw.init(context)) { "Dhizuku lost" }
+        if (Raw.isPermissionGranted()) return@withContext Wrapper()
+
         suspendCancellableCoroutine { continuation ->
-            if (!Raw.init(context)) {
-                return@suspendCancellableCoroutine continuation.resumeWithException(
-                    IllegalStateException("Dhizuku lost")
-                )
-            }
-            if (Raw.isPermissionGranted()) {
-                return@suspendCancellableCoroutine continuation.resume(Wrapper())
-            }
             val listener = object : DhizukuRequestPermissionListener() {
                 override fun onRequestPermission(grantResult: Int) {
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {

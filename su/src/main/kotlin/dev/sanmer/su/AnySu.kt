@@ -1,8 +1,6 @@
 package dev.sanmer.su
 
 import android.content.Context
-import kotlinx.coroutines.withTimeout
-import kotlin.time.Duration.Companion.seconds
 
 object AnySu {
     private inline fun <T> Result<T>.fallback(block: () -> T): Result<T> {
@@ -18,9 +16,7 @@ object AnySu {
         }.fallback {
             Dhizuku.launch(context)
         }.fallback {
-            withTimeout(10.seconds) {
-                LibSu.launch(context)
-            }
+            LibSu.launch(context)
         }.getOrThrow()
     }
 }

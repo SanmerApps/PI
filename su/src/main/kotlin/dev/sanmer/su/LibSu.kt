@@ -16,16 +16,11 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 object LibSu {
-    internal const val BINDER_TRANSACTION = 84398154
-
-    private class ShellInitializer : Shell.Initializer() {
-        override fun onInit(context: Context, shell: Shell) = shell.isRoot
-    }
+    private const val BINDER_TRANSACTION = 84398154
 
     init {
         Shell.setDefaultBuilder(
             Shell.Builder.create()
-                .setInitializers(ShellInitializer::class.java)
                 .setTimeout(10)
         )
     }
@@ -109,7 +104,18 @@ object LibSu {
         )
     }
 
+    private suspend fun getShell() = withContext(Dispatchers.IO) {
+        suspendCancellableCoroutine { continuation ->
+            Shell.getShell {
+                continuation.resume(it)
+            }
+        }
+    }
+
     suspend fun launch(context: Context) = withContext(Dispatchers.Main) {
+        val shell = getShell()
+        check(shell.isRoot) { "LibSu rejected" }
+
         suspendCancellableCoroutine { continuation ->
             val intent = Intent(context, Service::class.java)
             val connection = object : ServiceConnection {
@@ -119,15 +125,11 @@ object LibSu {
                 }
 
                 override fun onServiceDisconnected(name: ComponentName) {
-                    continuation.resumeWithException(
-                        IllegalStateException("IService destroyed")
-                    )
+                    continuation.resumeWithException(IllegalStateException("IService destroyed"))
                 }
 
                 override fun onBindingDied(name: ComponentName?) {
-                    continuation.resumeWithException(
-                        IllegalStateException("IService destroyed")
-                    )
+                    continuation.resumeWithException(IllegalStateException("IService destroyed"))
                 }
             }
             RootService.bind(intent, connection)
