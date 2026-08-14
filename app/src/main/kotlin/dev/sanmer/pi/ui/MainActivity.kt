@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.ui.main.MainScreen
 import dev.sanmer.pi.ui.main.MainViewModel
 import dev.sanmer.pi.ui.theme.AppTheme
@@ -18,7 +19,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent.data?.let { viewModel.fromUri(this, it) }
+        (intent.data ?: intent.parcelable(Intent.EXTRA_STREAM))?.let {
+            viewModel.fromUri(this, it)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +31,9 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
 
-        intent.data?.let { viewModel.fromUri(this, it) }
+        (intent.data ?: intent.parcelable(Intent.EXTRA_STREAM))?.let {
+            viewModel.fromUri(this, it)
+        }
 
         setContent {
             AppTheme {
