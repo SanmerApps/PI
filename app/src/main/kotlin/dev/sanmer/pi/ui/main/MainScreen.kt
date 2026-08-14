@@ -270,13 +270,8 @@ private fun PackageInfoList(
                         }
                         PackageInfoItem(
                             packageInfo = first,
-                            onClick = {
-                                if (fileNames.size > 1) {
-                                    onViewZip(uri, packageInfo)
-                                } else {
-                                    onZip(uri, first, fileNames.first())
-                                }
-                            },
+                            onClick = { onZip(uri, first, fileNames.first()) },
+                            onLongClick = { onViewZip(uri, packageInfo) },
                             label = "ZIP"
                         )
                     }
