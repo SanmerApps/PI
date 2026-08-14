@@ -35,11 +35,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
@@ -124,12 +122,24 @@ class InstallService : LifecycleService(), KoinComponent {
                 }
 
                 runCatching {
-                    contentResolver.openAssetFileDescriptor(task.uri, "r")?.use { fd ->
-                        install(task, fd, builder)
+                    val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return@launch
+                    install(
+                        task = task,
+                        fd = fd,
+                        startId = startId,
+                        builder = builder
+                    )
+                    fd.close()
+                    notify(startId, builder) {
+                        setContentText(task.packageInfo.versionDisplay())
+                        setContentIntent(launchApp(task.packageInfo.packageName))
+                        setOngoing(false)
+                        setSilent(false)
+                        setAutoCancel(true)
                     }
                 }.onFailure { error ->
-                    logger.w(error)
-                    notify(task.id, builder) {
+                    logger.e(error)
+                    notify(startId, builder) {
                         setContentText(error.message ?: error.javaClass.name)
                         setOngoing(false)
                         setSilent(false)
@@ -143,6 +153,7 @@ class InstallService : LifecycleService(), KoinComponent {
     private suspend fun install(
         task: Task,
         fd: AssetFileDescriptor,
+        startId: Int,
         builder: NotificationCompat.Builder
     ) {
         val params = createSessionParams()
@@ -154,37 +165,32 @@ class InstallService : LifecycleService(), KoinComponent {
         val ownerPackageName = suRepository.state.value
             .getOrElse({ it.ownerPackageName }) { "" }
 
-        task.id = pi.createSession(
-            params = params,
-            installerPackageName = ownerPackageName.ifEmpty { task.installerPackageName },
-            userId = userId
+        val session = pi.openSession(
+            pi.createSession(
+                params = params,
+                installerPackageName = ownerPackageName.ifEmpty { task.installerPackageName },
+                userId = userId
+            )
         )
 
-        val session = pi.openSession(task.id)
+        val period = 1.seconds
         var lastNotify = TimeSource.Monotonic.markNow()
-        val period = 500.milliseconds
-        if (task.fileNames.isEmpty()) {
-            session.writeFd(task.packageInfo.packageName, fd) { fileSize, copied ->
-                if (lastNotify.elapsedNow() > period) {
-                    notify(task.id, builder) {
-                        setProgress(fileSize.toInt(), copied.toInt(), false)
-                    }
-                    lastNotify = TimeSource.Monotonic.markNow()
+        val sizeBytes = task.sizeBytes.toInt()
+        val onProgress: (Long) -> Unit = { copied ->
+            if (lastNotify.elapsedNow() >= period) {
+                notify(startId, builder) {
+                    setProgress(sizeBytes, copied.toInt(), false)
                 }
-            }
-        } else {
-            session.writeZip(task.fileNames, fd) { fileName, fileSize, copied ->
-                if (lastNotify.elapsedNow() > period) {
-                    notify(task.id, builder) {
-                        setContentText(fileName)
-                        setProgress(fileSize.toInt(), copied.toInt(), false)
-                    }
-                    lastNotify = TimeSource.Monotonic.markNow()
-                }
+                lastNotify = TimeSource.Monotonic.markNow()
             }
         }
+        if (task.fileNames.isEmpty()) {
+            session.writeFd(task.packageInfo.packageName, fd, onProgress)
+        } else {
+            session.writeZip(task.fileNames, fd, onProgress)
+        }
 
-        notify(task.id, builder) {
+        notify(startId, builder) {
             setProgress(0, 0, false)
             setContentText(getString(R.string.installing))
         }
@@ -198,17 +204,10 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         if (ownerPackageName.isEmpty()) {
-            notify(task.id, builder) {
+            notify(startId, builder) {
                 setContentText(getString(R.string.optimizing))
             }
             optimize(task.packageInfo.packageName)
-        }
-
-        notify(task.id, builder) {
-            setContentText(task.packageInfo.versionDisplay())
-            setContentIntent(launchApp(task.packageInfo.packageName))
-            setSilent(false)
-            setAutoCancel(true)
         }
     }
 
@@ -217,7 +216,7 @@ class InstallService : LifecycleService(), KoinComponent {
             pm.clearApplicationProfileData(packageName)
             pm.performDexOpt(packageName)
         }.onFailure {
-            logger.w(it)
+            logger.d(it)
         }
     }
 
@@ -253,16 +252,14 @@ class InstallService : LifecycleService(), KoinComponent {
     private data class Task(
         val uri: Uri,
         val fileNames: List<String>,
+        val sizeBytes: Long,
         val packageInfo: PackageInfoLite,
         val installerPackageName: String
-    ) : Parcelable {
-        @IgnoredOnParcel
-        var id = uri.hashCode()
-    }
+    ) : Parcelable
 
     companion object Default {
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
-        private const val EXTRA_TASK = "dev.sanmer.pi.extra.TASK"
+        private const val EXTRA_TASK = "dev.sanmer.pi.extra.INSTALL_TASK"
 
         private fun Intent.putTask(value: Task) =
             putExtra(EXTRA_TASK, value)
@@ -274,6 +271,7 @@ class InstallService : LifecycleService(), KoinComponent {
             context: Context,
             uri: Uri,
             fileNames: List<String>,
+            sizeBytes: Long,
             packageInfo: PackageInfoLite,
             installerPackageName: String
         ) {
@@ -282,10 +280,11 @@ class InstallService : LifecycleService(), KoinComponent {
                     Intent(context, InstallService::class.java).also {
                         it.putTask(
                             Task(
-                                uri = uri,
-                                fileNames = fileNames,
-                                packageInfo = packageInfo,
-                                installerPackageName = installerPackageName
+                                uri,
+                                fileNames,
+                                sizeBytes,
+                                packageInfo,
+                                installerPackageName
                             )
                         )
                     }

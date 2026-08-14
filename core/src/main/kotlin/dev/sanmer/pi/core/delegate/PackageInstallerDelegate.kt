@@ -196,12 +196,11 @@ class PackageInstallerDelegate(
         suspend fun PackageInstaller.Session.writeFd(
             name: String,
             fd: AssetFileDescriptor,
-            onProgress: (Long, Long) -> Unit = { _, _ -> }
+            onProgress: (Long) -> Unit = {}
         ) = withContext(Dispatchers.IO) {
             fd.createInputStream().use { input ->
-                val length = fd.length
-                openWrite(name, 0, length).use { output ->
-                    input.copyTo(output) { onProgress(length, it) }
+                openWrite(name, 0, fd.length).use { output ->
+                    input.copyTo(output) { onProgress(it) }
                     fsync(output)
                 }
             }
@@ -210,18 +209,19 @@ class PackageInstallerDelegate(
         suspend fun PackageInstaller.Session.writeZip(
             names: List<String>,
             fd: AssetFileDescriptor,
-            onProgress: (String, Long, Long) -> Unit = { _, _, _ -> }
+            onProgress: (Long) -> Unit = {}
         ) = withContext(Dispatchers.IO) {
             ZipFile.builder()
                 .setIgnoreLocalFileHeader(true)
                 .setSeekableByteChannel(fd.createInputStream().channel)
                 .get()
                 .use { zip ->
+                    var copied = 0L
                     zip.entries.iterator().forEach { entry ->
                         if (entry.name in names) {
                             zip.getInputStream(entry).use { input ->
                                 openWrite(entry.name, 0, entry.size).use { output ->
-                                    input.copyTo(output) { onProgress(entry.name, entry.size, it) }
+                                    copied += input.copyTo(output) { onProgress(copied + it) }
                                     fsync(output)
                                 }
                             }

@@ -140,6 +140,7 @@ class MainViewModel(
             context = context,
             uri = uri,
             fileNames = emptyList(),
+            sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
             installerPackageName = Const.SHELL
         )
@@ -148,10 +149,19 @@ class MainViewModel(
     }
 
     fun install(context: Context, uri: Uri, apks: IPackageInfo.Apks) {
+        val filenames = fileNames.getValue(uri)
+        val sizeBytes = apks.splitConfigs.sumOf {
+            if (filenames.contains(it.fileName)) {
+                it.sizeBytes
+            } else {
+                0L
+            }
+        }
         InstallService.start(
             context = context,
             uri = uri,
-            fileNames = fileNames.getValue(uri),
+            fileNames = filenames,
+            sizeBytes = apks.base.sizeBytes + sizeBytes,
             packageInfo = apks.base.packageInfo,
             installerPackageName = Const.PLAY_STORE
         )
@@ -168,16 +178,19 @@ class MainViewModel(
             context = context,
             uri = uri,
             fileNames = listOf(fileName),
+            sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
             installerPackageName = Const.SHELL
         )
-        val fileNames = fileNames.getValue(uri)
-        fileNames.remove(fileName)
-        if (fileNames.isEmpty()) {
-            content = Content.Main
+        val filenames = fileNames.getValue(uri)
+        filenames.remove(fileName)
+        if (filenames.isEmpty()) {
+            if (content is Content.Zip) {
+                content = Content.Main
+            }
             uris.remove(uri)
             packageInfos.remove(uri)
-            this.fileNames.remove(uri)
+            fileNames.remove(uri)
         }
     }
 
