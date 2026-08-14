@@ -7,6 +7,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.RequiresApi;
 
+@RequiresApi(30)
 public interface IPermissionManager extends IInterface {
 
     void grantRuntimePermission(String packageName, String permissionName, int userId) throws RemoteException;

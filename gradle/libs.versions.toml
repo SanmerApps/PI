@@ -7,21 +7,19 @@ androidxCompose = "1.11.4"
 androidxComposeMaterial3 = "1.4.0"
 androidxCore = "1.19.0"
 androidxCoreSplashscreen = "1.2.0"
-androidxDataStore = "1.2.1"
 androidxDocumentFile = "1.1.0"
 androidxLifecycle = "2.11.0"
-androidxNavigation3 = "1.1.5"
 apacheCompress = "1.28.0"
 appiconloader = "1.5.0"
-coil = "2.7.0"
 hiddenApiRefine = "4.4.0"
 hiddenApiBypass = "6.1"
-koin = "4.2.1"
-kotlin = "2.3.21"
-kotlinxCoroutines = "1.10.2"
-kotlinxSerialization = "1.11.0"
+koin = "4.2.2"
+kotlin = "2.4.10"
+kotlinxCoroutines = "1.11.0"
 ksp = "2.3.7"
+libsu = "6.0.0"
 shizuku = "13.1.5"
+dhizuku = "2.6.0"
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
@@ -39,32 +37,25 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 androidx-compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "androidxCompose" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidxCoreSplashscreen" }
-androidx-datastore-core = { module = "androidx.datastore:datastore", version.ref = "androidxDataStore" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "androidxDocumentFile" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidxLifecycle" }
-androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "androidxNavigation3" }
-androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidxNavigation3" }
 apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apacheCompress" }
-appiconloader-coil = { module = "me.zhanghai.android.appiconloader:appiconloader-coil", version.ref = "appiconloader" }
 appiconloader-iconloaderlib = { module = "me.zhanghai.android.appiconloader:appiconloader-iconloaderlib", version.ref = "appiconloader" }
-coil-kt = { module = "io.coil-kt:coil", version.ref = "coil" }
-coil-kt-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 hiddenApiBypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
-koin-compose-navigation3 = { module = "io.insert-koin:koin-compose-navigation3", version.ref = "koin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
-kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
+libsu-core = { module = "com.github.topjohnwu.libsu:core", version.ref = "libsu" }
+libsu-service = { module = "com.github.topjohnwu.libsu:service", version.ref = "libsu" }
 rikka-refine-annotation = { module = "dev.rikka.tools.refine:annotation", version.ref = "hiddenApiRefine" }
 rikka-refine-compiler = { module = "dev.rikka.tools.refine:annotation-processor", version.ref = "hiddenApiRefine" }
 rikka-refine-runtime = { module = "dev.rikka.tools.refine:runtime", version.ref = "hiddenApiRefine" }
 rikka-shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 rikka-shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
+iamr0s-dhizuku-api = { module = "io.github.iamr0s:Dhizuku-API", version.ref = "dhizuku" }
 xz = { module = "org.tukaani:xz", version = "1.12" }
-sanmer-su = { module = "dev.sanmer.su:core", version = "+" }
 
 [plugins]
 self-application = { id = "self.application", version = "unspecified" }

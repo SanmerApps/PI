@@ -1,56 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Activity -->
-    <string name="install_activity_label">Install</string>
-
-    <!-- Setup -->
-    <string name="setup_title">Working mode</string>
-    <string name="setup_shizuku_desc">Requires permission provided by Sui or Shizuku</string>
-    <string name="setup_root_desc">Requires Root permissions provided by Magisk, KernelSU or APatch</string>
-
-    <!-- Apps -->
-    <string name="app_action_requester">Requester</string>
-    <string name="app_action_executor">Executor</string>
-    <string name="app_action_authorize">Authorize</string>
-    <string name="app_action_authorized">Authorized</string>
-
-    <!-- Settings -->
-    <string name="settings_title">Settings</string>
-    <string name="settings_service_starting">Service is starting</string>
-    <string name="settings_service_wait">Please wait</string>
-    <string name="settings_service_running">Service is running</string>
-    <string name="settings_service_version">Version %1$d, %2$s</string>
-    <string name="settings_service_not_running">Service is not running</string>
-    <string name="settings_service_restart">Click to try to restart</string>
-    <string name="settings_dark_mode">Dark mode</string>
-    <string name="settings_dark_mode_auto">Auto</string>
-    <string name="settings_dark_mode_on">On</string>
-    <string name="settings_dark_mode_off">Off</string>
-    <string name="settings_language">Language</string>
-    <string name="settings_language_system">System default</string>
-    <string name="settings_translation">Participate in translation</string>
-    <string name="settings_translation_desc">Help us translate PI into your language</string>
-
-    <!-- Install -->
-    <string name="install_package_title">Installation package</string>
-    <string name="install_requester_title">Installation requester</string>
-    <string name="install_config_feature_title">Dynamic feature</string>
-    <string name="install_config_abi_title">ABI</string>
-    <string name="install_config_density_title">Screen density</string>
-    <string name="install_config_language_title">Language</string>
-    <string name="install_config_unspecified_title">Unspecified</string>
-    <string name="install_select_user_title">Select user</string>
-
-    <!-- Message -->
     <string name="installation_service">Installation service</string>
-    <string name="message_install_succeed">Installation successful</string>
-    <string name="message_install_failed">Installation failed</string>
-    <string name="message_optimizing">Optimizing</string>
-    <string name="updated_title">PI updated</string>
-    <string name="updated_text">Tap to open app</string>
-
-    <!-- Search -->
-    <string name="search_placeholder">Search…</string>
-    <string name="empty_list">Empty list</string>
-
+    <string name="installing">Installing</string>
+    <string name="optimizing">Optimizing</string>
 </resources>

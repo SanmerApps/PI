@@ -25,13 +25,8 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven("https://jitpack.io")
-        mavenLocal {
-            content {
-                includeGroup("dev.sanmer.su")
-            }
-        }
     }
 }
 
 rootProject.name = "PI"
-include(":stub", ":core", ":app")
+include(":stub", ":core", ":su", ":app")
