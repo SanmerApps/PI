@@ -3,4 +3,6 @@
     <string name="installation_service">安装服务</string>
     <string name="installing">安装中</string>
     <string name="optimizing">优化中</string>
+    <string name="failed">失败</string>
+    <string name="retry">重试</string>
 </resources>

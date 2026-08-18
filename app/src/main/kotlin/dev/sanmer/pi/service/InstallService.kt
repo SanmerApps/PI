@@ -132,17 +132,24 @@ class InstallService : LifecycleService(), KoinComponent {
                     fd.close()
                     notify(startId, builder) {
                         setContentText(task.packageInfo.versionDisplay())
-                        setContentIntent(launchApp(task.packageInfo.packageName))
+                        setContentIntent(launch(task.packageInfo.packageName))
+                        setAutoCancel(true)
                         setOngoing(false)
                         setSilent(false)
-                        setAutoCancel(true)
+                        setGroup(null)
                     }
                 }.onFailure { error ->
                     logger.e(error)
                     notify(startId, builder) {
-                        setContentText(error.message ?: error.javaClass.name)
+                        setContentText(getString(R.string.failed))
+                        setStyle(
+                            NotificationCompat.BigTextStyle()
+                                .bigText(error.message ?: error.javaClass.name)
+                        )
+                        addAction(0, getString(R.string.retry), install(task.uri))
                         setOngoing(false)
                         setSilent(false)
+                        setGroup(null)
                     }
                 }
             }
@@ -220,11 +227,6 @@ class InstallService : LifecycleService(), KoinComponent {
         }
     }
 
-    private fun launchApp(packageName: String): PendingIntent? {
-        val intent = pm.getLaunchIntentForPackage(packageName, userId) ?: return null
-        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-    }
-
     private fun createSessionParams(): PackageInstaller.SessionParams {
         val params = PackageInstallerDelegate.SessionParams(
             PackageInstaller.SessionParams.MODE_FULL_INSTALL
@@ -246,6 +248,16 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         return params
+    }
+
+    private fun launch(packageName: String): PendingIntent? {
+        val intent = pm.getLaunchIntentForPackage(packageName, userId) ?: return null
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    }
+
+    private fun install(uri: Uri): PendingIntent? {
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     @Parcelize

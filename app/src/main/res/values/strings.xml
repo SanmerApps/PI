@@ -3,4 +3,6 @@
     <string name="installation_service">Installation service</string>
     <string name="installing">Installing</string>
     <string name="optimizing">Optimizing</string>
+    <string name="failed">Failed</string>
+    <string name="retry">Retry</string>
 </resources>
