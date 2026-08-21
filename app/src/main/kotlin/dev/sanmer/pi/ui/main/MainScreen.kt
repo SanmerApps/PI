@@ -1,7 +1,6 @@
 package dev.sanmer.pi.ui.main
 
 import android.net.Uri
-import android.text.format.Formatter
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
@@ -55,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sanmer.pi.R
 import dev.sanmer.pi.core.parser.IPackageInfo
 import dev.sanmer.pi.core.parser.SplitConfig
+import dev.sanmer.pi.ktx.formatFileSize
 import dev.sanmer.pi.ktx.sdkVersionDiff
 import dev.sanmer.pi.ktx.versionDiff
 import dev.sanmer.pi.model.LoadData
@@ -365,14 +365,13 @@ private fun PackageInfoItem(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        val context = LocalContext.current
         val sdkVersion by remember(
             packageInfo.packageInfo.packageName,
             packageInfo.currentPackageInfo?.packageName
         ) {
             derivedStateOf {
                 (packageInfo.currentPackageInfo sdkVersionDiff packageInfo.packageInfo) +
-                        " Size: ${Formatter.formatFileSize(context, packageInfo.sizeBytes)}"
+                        " Size: ${packageInfo.sizeBytes.formatFileSize()}"
             }
         }
         Text(
@@ -461,10 +460,9 @@ private fun SplitConfigItem(
             style = MaterialTheme.typography.titleMedium
         )
 
-        val context = LocalContext.current
         val size by remember(splitConfig.fileName) {
             derivedStateOf {
-                Formatter.formatFileSize(context, splitConfig.sizeBytes)
+                splitConfig.sizeBytes.formatFileSize()
             }
         }
 
