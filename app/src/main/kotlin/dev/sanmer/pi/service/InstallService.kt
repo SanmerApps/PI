@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
+import android.content.pm.UserInfo
 import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.os.Parcelable
@@ -21,7 +22,6 @@ import dev.sanmer.pi.Logger
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
-import dev.sanmer.pi.core.compat.ContextCompat.userId
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.commit
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
@@ -31,6 +31,8 @@ import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.ktx.versionDisplay
 import dev.sanmer.pi.repository.SuRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -109,49 +111,15 @@ class InstallService : LifecycleService(), KoinComponent {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch(Dispatchers.IO) {
             autoStopSelf(intent?.taskOrNull ?: return@launch) { task ->
-                val builder = NotificationCompat.Builder(
-                    applicationContext,
-                    Const.CHANNEL_ID_INSTALL
-                ).apply {
-                    setSmallIcon(R.drawable.launcher_outline)
-                    setLargeIcon(task.packageInfo.icon)
-                    setContentTitle(task.packageInfo.labelOrDefault)
-                    setOngoing(true)
-                    setSilent(true)
-                    setGroup(GROUP_KEY)
-                }
-
-                runCatching {
-                    val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return@launch
-                    install(
-                        task = task,
-                        fd = fd,
-                        startId = startId,
-                        builder = builder
-                    )
-                    fd.close()
-                    notify(startId, builder) {
-                        setContentText(task.packageInfo.versionDisplay())
-                        setContentIntent(launch(task.packageInfo.packageName))
-                        setAutoCancel(true)
-                        setOngoing(false)
-                        setSilent(false)
-                        setGroup(null)
-                    }
-                }.onFailure { error ->
-                    logger.e(error)
-                    notify(startId, builder) {
-                        setContentText(getString(R.string.failed))
-                        setStyle(
-                            NotificationCompat.BigTextStyle()
-                                .bigText(error.message ?: error.javaClass.name)
+                task.users.map { user ->
+                    async(Dispatchers.IO) {
+                        install(
+                            task = task,
+                            user = user,
+                            startId = startId + user.id
                         )
-                        addAction(0, getString(R.string.retry), install(task.uri))
-                        setOngoing(false)
-                        setSilent(false)
-                        setGroup(null)
                     }
-                }
+                }.awaitAll()
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -159,7 +127,60 @@ class InstallService : LifecycleService(), KoinComponent {
 
     private suspend fun install(
         task: Task,
+        user: UserInfo,
+        startId: Int
+    ) {
+        val builder = NotificationCompat.Builder(
+            applicationContext,
+            Const.CHANNEL_ID_INSTALL
+        ).apply {
+            setSmallIcon(R.drawable.launcher_outline)
+            setSubText(user.name)
+            setLargeIcon(task.packageInfo.icon)
+            setContentTitle(task.packageInfo.labelOrDefault)
+            setOngoing(true)
+            setSilent(true)
+            setGroup(GROUP_KEY)
+        }
+
+        runCatching {
+            val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return
+            install(
+                task = task,
+                fd = fd,
+                userId = user.id,
+                startId = startId,
+                builder = builder
+            )
+            fd.close()
+            notify(startId, builder) {
+                setContentText(task.packageInfo.versionDisplay())
+                setContentIntent(launch(task.packageInfo.packageName, user.id))
+                setAutoCancel(true)
+                setOngoing(false)
+                setSilent(false)
+                setGroup(null)
+            }
+        }.onFailure { error ->
+            logger.e(error)
+            notify(startId, builder) {
+                setContentText(getString(R.string.failed))
+                setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(error.message ?: error.javaClass.name)
+                )
+                addAction(0, getString(R.string.retry), install(task.uri))
+                setOngoing(false)
+                setSilent(false)
+                setGroup(null)
+            }
+        }
+    }
+
+    private suspend fun install(
+        task: Task,
         fd: AssetFileDescriptor,
+        userId: Int,
         startId: Int,
         builder: NotificationCompat.Builder
     ) {
@@ -250,7 +271,7 @@ class InstallService : LifecycleService(), KoinComponent {
         return params
     }
 
-    private fun launch(packageName: String): PendingIntent? {
+    private fun launch(packageName: String, userId: Int): PendingIntent? {
         val intent = pm.getLaunchIntentForPackage(packageName, userId) ?: return null
         return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
@@ -266,7 +287,8 @@ class InstallService : LifecycleService(), KoinComponent {
         val fileNames: List<String>,
         val sizeBytes: Long,
         val packageInfo: PackageInfoLite,
-        val installerPackageName: String
+        val installerPackageName: String,
+        val users: List<UserInfo>
     ) : Parcelable
 
     companion object Default {
@@ -285,7 +307,8 @@ class InstallService : LifecycleService(), KoinComponent {
             fileNames: List<String>,
             sizeBytes: Long,
             packageInfo: PackageInfoLite,
-            installerPackageName: String
+            installerPackageName: String,
+            users: List<UserInfo>
         ) {
             fun start() {
                 context.startService(
@@ -296,7 +319,8 @@ class InstallService : LifecycleService(), KoinComponent {
                                 fileNames,
                                 sizeBytes,
                                 packageInfo,
-                                installerPackageName
+                                installerPackageName,
+                                users
                             )
                         )
                     }

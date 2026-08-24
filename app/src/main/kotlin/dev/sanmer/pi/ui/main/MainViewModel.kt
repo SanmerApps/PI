@@ -1,6 +1,7 @@
 package dev.sanmer.pi.ui.main
 
 import android.content.Context
+import android.content.pm.UserInfo
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -14,6 +15,8 @@ import androidx.lifecycle.viewModelScope
 import dev.sanmer.pi.Const
 import dev.sanmer.pi.Logger
 import dev.sanmer.pi.core.compat.ContextCompat.userId
+import dev.sanmer.pi.core.compat.UserHandleCompat
+import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.core.parser.IPackageInfo
 import dev.sanmer.pi.core.parser.PackageInfoLite
 import dev.sanmer.pi.core.parser.PackageParser
@@ -36,13 +39,31 @@ class MainViewModel(
     private val packageInfos = mutableStateMapOf<Uri, LoadData<IPackageInfo>>()
     private val fileNames = mutableStateMapOf<Uri, SnapshotStateList<String>>()
 
+    val users = mutableStateListOf<UserInfo>()
+    private val targetUsers = mutableStateListOf<Int>()
+
     var content by mutableStateOf<Content>(Content.Main)
 
     private val logger = Logger.Android("MainViewModel")
 
     init {
         logger.d("init")
+        loadUsers()
         launchSu()
+    }
+
+    private fun loadUsers() {
+        viewModelScope.launch {
+            suRepository.state.collect {
+                it.onSuccess { wrapper ->
+                    val um = UserManagerDelegate { wrapper.wrap(this) }
+                    users.clear()
+                    users.addAll(um.getUsers())
+                    targetUsers.clear()
+                    targetUsers.add(UserHandleCompat.myUserId())
+                }
+            }
+        }
     }
 
     private fun IPackageInfo.Apk.addCurrentPackageInfo(context: Context) =
@@ -55,6 +76,16 @@ class MainViewModel(
                 null
             }
         )
+
+    fun isUserSelected(user: UserInfo) = targetUsers.contains(user.id)
+
+    fun pickUser(user: UserInfo) {
+        if (isUserSelected(user)) {
+            targetUsers.remove(user.id)
+        } else {
+            targetUsers.add(user.id)
+        }
+    }
 
     fun packageInfo(uri: Uri) = packageInfos.getOrElse(uri) { LoadData.Pending }
 
@@ -142,7 +173,8 @@ class MainViewModel(
             fileNames = emptyList(),
             sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
-            installerPackageName = Const.SHELL
+            installerPackageName = Const.SHELL,
+            users = users.filter(::isUserSelected)
         )
         uris.remove(uri)
         packageInfos.remove(uri)
@@ -151,11 +183,7 @@ class MainViewModel(
     fun install(context: Context, uri: Uri, apks: IPackageInfo.Apks) {
         val filenames = fileNames.getValue(uri)
         val sizeBytes = apks.splitConfigs.sumOf {
-            if (filenames.contains(it.fileName)) {
-                it.sizeBytes
-            } else {
-                0L
-            }
+            if (filenames.contains(it.fileName)) it.sizeBytes else 0L
         }
         InstallService.start(
             context = context,
@@ -163,7 +191,8 @@ class MainViewModel(
             fileNames = filenames,
             sizeBytes = apks.base.sizeBytes + sizeBytes,
             packageInfo = apks.base.packageInfo,
-            installerPackageName = Const.PLAY_STORE
+            installerPackageName = Const.PLAY_STORE,
+            users = users.filter(::isUserSelected)
         )
         if (content is Content.Apks) {
             content = Content.Main
@@ -180,7 +209,8 @@ class MainViewModel(
             fileNames = listOf(fileName),
             sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
-            installerPackageName = Const.SHELL
+            installerPackageName = Const.SHELL,
+            users = users.filter(::isUserSelected)
         )
         val filenames = fileNames.getValue(uri)
         filenames.remove(fileName)

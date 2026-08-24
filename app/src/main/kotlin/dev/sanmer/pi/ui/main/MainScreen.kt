@@ -1,5 +1,6 @@
 package dev.sanmer.pi.ui.main
 
+import android.content.pm.UserInfo
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -17,6 +18,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -58,6 +60,7 @@ import dev.sanmer.pi.ktx.formatFileSize
 import dev.sanmer.pi.ktx.sdkVersionDiff
 import dev.sanmer.pi.ktx.versionDiff
 import dev.sanmer.pi.model.LoadData
+import dev.sanmer.pi.ui.component.FilterItem
 import dev.sanmer.pi.ui.component.LabelText
 import dev.sanmer.pi.ui.ktx.plus
 import dev.sanmer.pi.ui.ktx.surface
@@ -145,6 +148,9 @@ private fun MainContent(
     ) { state ->
         state.onSuccess {
             if (viewModel.uris.isNotEmpty()) PackageInfoList(
+                users = viewModel.users,
+                isUserSelected = viewModel::isUserSelected,
+                onPickUser = viewModel::pickUser,
                 uris = viewModel.uris,
                 packageInfo = viewModel::packageInfo,
                 fileNames = viewModel::fileNames,
@@ -203,6 +209,9 @@ private fun Placeholder(
 
 @Composable
 private fun PackageInfoList(
+    users: List<UserInfo>,
+    isUserSelected: (UserInfo) -> Boolean,
+    onPickUser: (UserInfo) -> Unit,
     uris: List<Uri>,
     packageInfo: (Uri) -> LoadData<IPackageInfo>,
     fileNames: (Uri) -> List<String>,
@@ -219,6 +228,28 @@ private fun PackageInfoList(
     verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
     reverseLayout = true
 ) {
+    item {
+        if (users.size > 1) FlowRow(
+            modifier = Modifier
+                .surface(
+                    shape = MaterialTheme.shapes.large,
+                    backgroundColor = MaterialTheme.colorScheme.surface,
+                    border = CardDefaults.outlinedCardBorder(false)
+                )
+                .padding(15.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            users.forEach {
+                FilterItem(
+                    selected = isUserSelected(it),
+                    onClick = { onPickUser(it) },
+                    label = it.name
+                )
+            }
+        }
+    }
+
     items(
         items = uris,
         key = { it }
