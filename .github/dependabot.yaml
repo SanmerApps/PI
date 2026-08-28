@@ -1,24 +1,17 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "21:00"
-    labels: [ "github_actions" ]
-
-  - package-ecosystem: gradle
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
       interval: daily
-      time: "21:00"
-    labels: [ "dependencies" ]
-    registries: "*"
-    ignore:
-      - dependency-name: "self.*"
+      time: "22:00"
+    labels: [ github_actions ]
 
-registries:
-  maven-google:
-    type: "maven-repository"
-    url: "https://maven.google.com"
-    replaces-base: true
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: daily
+      time: "22:00"
+    labels: [ dependencies ]
+    ignore:
+      - dependency-name: self.*
