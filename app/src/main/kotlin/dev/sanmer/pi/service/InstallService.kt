@@ -83,7 +83,7 @@ class InstallService : LifecycleService(), KoinComponent {
         super.onCreate()
 
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
-            .setSmallIcon(R.drawable.launcher_outline)
+            .setSmallIcon(R.drawable.box_arrow_down)
             .setContentTitle(getText(R.string.installation_service))
             .setSilent(true)
             .setOngoing(true)
@@ -134,7 +134,7 @@ class InstallService : LifecycleService(), KoinComponent {
             applicationContext,
             Const.CHANNEL_ID_INSTALL
         ).apply {
-            setSmallIcon(R.drawable.launcher_outline)
+            setSmallIcon(R.drawable.box_arrow_down)
             setSubText(user.name)
             setLargeIcon(task.packageInfo.icon)
             setContentTitle(task.packageInfo.labelOrDefault)

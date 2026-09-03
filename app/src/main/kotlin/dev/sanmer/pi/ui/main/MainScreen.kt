@@ -161,14 +161,14 @@ private fun MainContent(
                 onViewApks = { uri, apks -> viewModel.content = Content.Apks(uri, apks) },
                 onViewZip = { uri, zip -> viewModel.content = Content.Zip(uri, zip.packageInfos) }
             ) else Placeholder(
-                painter = painterResource(R.drawable.rosette_discount_check),
+                painter = painterResource(R.drawable.seal_check_fill),
                 contentPadding = contentPadding,
                 tint = MaterialTheme.colorScheme.primary,
                 enabled = false
             )
         }.onFailure {
             Placeholder(
-                painter = painterResource(R.drawable.rosette_discount),
+                painter = painterResource(R.drawable.seal_warning_fill),
                 contentPadding = contentPadding,
                 tint = MaterialTheme.colorScheme.error,
                 onClick = viewModel::launchSu
@@ -471,10 +471,10 @@ private fun SplitConfigItem(
     Icon(
         painter = painterResource(
             when (splitConfig.type) {
-                SplitConfig.Type.Feature -> R.drawable.point
+                SplitConfig.Type.Feature -> R.drawable.subtract
                 is SplitConfig.Type.Abi -> R.drawable.cpu
-                is SplitConfig.Type.Density -> R.drawable.device_screen
-                is SplitConfig.Type.Language -> R.drawable.language
+                is SplitConfig.Type.Density -> R.drawable.image
+                is SplitConfig.Type.Language -> R.drawable.translate
                 SplitConfig.Type.Unspecified -> R.drawable.question_mark
             }
         ),
@@ -520,14 +520,14 @@ private fun SplitConfigItem(
 
     when {
         isSelected -> Icon(
-            painter = painterResource(R.drawable.circle_check),
+            painter = painterResource(R.drawable.check_circle_fill),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(30.dp)
         )
 
         splitConfig.isDisabled -> Icon(
-            painter = painterResource(R.drawable.circle_x),
+            painter = painterResource(R.drawable.x_circle_fill),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.outlineVariant,
             modifier = Modifier.size(30.dp)
