@@ -25,6 +25,7 @@ import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.model.LoadData.Default.loadData
 import dev.sanmer.pi.repository.SuRepository
 import dev.sanmer.pi.service.InstallService
+import dev.sanmer.su.BinderWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -38,8 +39,7 @@ class MainViewModel(
     private val packageInfos = mutableStateMapOf<Uri, LoadData<IPackageInfo>>()
     private val fileNames = hashMapOf<Uri, SnapshotStateList<String>>()
 
-    var users = emptyList<UserInfo>()
-        private set
+    val users = mutableListOf<UserInfo>()
     private val targetUsers = mutableStateListOf<Int>()
 
     var content by mutableStateOf<Content>(Content.Loading)
@@ -49,7 +49,6 @@ class MainViewModel(
     init {
         logger.d("init")
         loadSuState()
-        loadUsers()
         launchSu()
     }
 
@@ -57,22 +56,22 @@ class MainViewModel(
         viewModelScope.launch {
             suRepository.state.collect {
                 when (it) {
-                    is LoadData.Success<*> if (uris.isEmpty()) -> content = Content.Success
-                    is LoadData.Failure -> content = Content.Failure
-                    else -> {}
-                }
-            }
-        }
-    }
+                    is LoadData.Success<BinderWrapper> -> {
+                        runCatching {
+                            val um = UserManagerDelegate { it.value.wrap(this) }
+                            users.clear()
+                            users.addAll(um.getUsers())
+                            targetUsers.clear()
+                            targetUsers.add(UserHandleCompat.myUserId())
+                        }
+                        content = if (uris.isEmpty()) Content.Success else Content.Uris
+                    }
 
-    private fun loadUsers() {
-        viewModelScope.launch {
-            suRepository.state.collect {
-                it.onSuccess { wrapper ->
-                    val um = UserManagerDelegate { wrapper.wrap(this) }
-                    users = um.getUsers()
-                    targetUsers.clear()
-                    targetUsers.add(UserHandleCompat.myUserId())
+                    is LoadData.Failure -> {
+                        content = Content.Failure
+                    }
+
+                    else -> {}
                 }
             }
         }
@@ -125,7 +124,6 @@ class MainViewModel(
     fun fromUri(context: Context, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             if (uris.contains(uri)) return@launch
-            if (uris.isEmpty()) content = Content.Uris
             uris.add(uri)
             packageInfos[uri] = LoadData.Loading
             packageInfos[uri] = loadData {
@@ -133,6 +131,8 @@ class MainViewModel(
                 val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
 
                 suRepository.state.first { it.isSuccess }
+                content = Content.Uris
+
                 when (val packageInfo = fd.use(PackageParser::loadPackage)) {
                     is IPackageInfo.Apk -> packageInfo.addCurrentPackageInfo(context)
 
@@ -182,7 +182,9 @@ class MainViewModel(
             sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
             installerPackageName = Const.SHELL,
-            users = users.filter(::isUserSelected)
+            users = users.filter(::isUserSelected).ifEmpty {
+                listOf(UserInfo(context.userId, null, 0))
+            }
         )
         uris.remove(uri)
         packageInfos.remove(uri)
@@ -203,7 +205,9 @@ class MainViewModel(
             sizeBytes = apks.base.sizeBytes + sizeBytes,
             packageInfo = apks.base.packageInfo,
             installerPackageName = Const.PLAY_STORE,
-            users = users.filter(::isUserSelected)
+            users = users.filter(::isUserSelected).ifEmpty {
+                listOf(UserInfo(context.userId, null, 0))
+            }
         )
         uris.remove(uri)
         packageInfos.remove(uri)
@@ -223,7 +227,9 @@ class MainViewModel(
             sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
             installerPackageName = Const.SHELL,
-            users = users.filter(::isUserSelected)
+            users = users.filter(::isUserSelected).ifEmpty {
+                listOf(UserInfo(context.userId, null, 0))
+            }
         )
         val filenames = fileNames.getValue(uri)
         filenames.remove(fileName)

@@ -11,6 +11,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.ui.main.MainScreen
 import dev.sanmer.pi.ui.main.MainViewModel
+import dev.sanmer.pi.ui.main.MainViewModel.Content
 import dev.sanmer.pi.ui.theme.AppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         enableEdgeToEdge(
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
         )
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
         (intent.data ?: intent.parcelable(Intent.EXTRA_STREAM))?.let {
             viewModel.fromUri(this, it)
         }
+
+        splashScreen.setKeepOnScreenCondition { viewModel.content == Content.Loading }
 
         setContent {
             AppTheme {

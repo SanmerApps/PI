@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.R
 import dev.sanmer.pi.core.parser.IPackageInfo
@@ -292,15 +291,13 @@ private fun SharedTransitionScope.PackageInfoList(
             }.onFailure { error ->
                 val text by remember(uri) {
                     derivedStateOf {
-                        error.stackTraceToString()
+                        "${error.javaClass.name}(${error.message.orEmpty()})"
                     }
                 }
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .fillMaxWidth()
                         .surface(
