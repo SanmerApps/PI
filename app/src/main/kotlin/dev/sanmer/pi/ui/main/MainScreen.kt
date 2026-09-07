@@ -4,8 +4,10 @@ import android.content.pm.UserInfo
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -52,7 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sanmer.pi.R
 import dev.sanmer.pi.core.parser.IPackageInfo
 import dev.sanmer.pi.core.parser.SplitConfig
@@ -69,109 +70,91 @@ import dev.sanmer.pi.ui.main.MainViewModel.Content
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
+) = SharedTransitionLayout {
+    MainContent(
+        viewModel = viewModel,
+        contentPadding = WindowInsets.systemBars.asPaddingValues()
+    )
+}
+
+@Composable
+private fun SharedTransitionScope.MainContent(
+    viewModel: MainViewModel,
+    contentPadding: PaddingValues
 ) = AnimatedContent(
     modifier = Modifier
-        .animateContentSize()
-        .background(
-            color = MaterialTheme.colorScheme.background
-        )
+        .background(MaterialTheme.colorScheme.background)
         .fillMaxSize(),
     targetState = viewModel.content,
     transitionSpec = {
+        val towards = when (viewModel.content) {
+            is Content.Zip, is Content.Apks -> SlideDirection.Up
+            else -> SlideDirection.Down
+        }
         slideIntoContainer(
-            towards = with(SlideDirection) {
-                if (viewModel.content == Content.Main) Down else Up
-            },
+            towards = towards,
             animationSpec = tween(600)
         ) togetherWith slideOutOfContainer(
-            towards = with(SlideDirection) {
-                if (viewModel.content == Content.Main) Down else Up
-            },
+            towards = towards,
             animationSpec = tween(600)
         )
-    },
-    contentAlignment = Alignment.Center
+    }
 ) { content ->
     val context = LocalContext.current
     when (content) {
-        Content.Main -> MainContent(
-            viewModel = viewModel,
-            contentPadding = WindowInsets.systemBars.asPaddingValues()
+        Content.Loading -> {}
+
+        Content.Success -> Placeholder(
+            painter = painterResource(R.drawable.seal_check_fill),
+            contentPadding = contentPadding,
+            tint = MaterialTheme.colorScheme.primary,
+            enabled = false
+        )
+
+        Content.Failure -> Placeholder(
+            painter = painterResource(R.drawable.seal_warning_fill),
+            contentPadding = contentPadding,
+            tint = MaterialTheme.colorScheme.error,
+            onClick = viewModel::launchSu
+        )
+
+        Content.Uris -> PackageInfoList(
+            users = viewModel.users,
+            isUserSelected = viewModel::isUserSelected,
+            onPickUser = viewModel::pickUser,
+            uris = viewModel.uris,
+            packageInfo = viewModel::packageInfo,
+            fileNames = viewModel::fileNames,
+            onApk = { uri, apk -> viewModel.install(context, uri, apk) },
+            onApks = { uri, apks -> viewModel.install(context, uri, apks) },
+            onZip = { uri, apk, fileName -> viewModel.install(context, uri, apk, fileName) },
+            onViewApks = { uri, apks -> viewModel.content = Content.Apks(uri, apks) },
+            onViewZip = { uri, zip -> viewModel.content = Content.Zip(uri, zip.packageInfos) },
+            contentPadding = contentPadding,
+            animatedContentScope = this@AnimatedContent
         )
 
         is Content.Apks -> {
-            BackHandler { viewModel.content = Content.Main }
+            BackHandler { viewModel.content = Content.Uris }
             ApksContent(
                 base = content.packageInfo.base,
                 onApks = { viewModel.install(context, content.uri, content.packageInfo) },
                 splitConfigs = content.packageInfo.splitConfigs,
                 isSplitSelected = { viewModel.isSplitSelected(content.uri, it) },
                 onPickSplit = { viewModel.pickSplit(content.uri, it) },
-                contentPadding = WindowInsets.systemBars.asPaddingValues()
+                contentPadding = contentPadding,
+                animatedContentScope = this@AnimatedContent
             )
         }
 
         is Content.Zip -> {
-            BackHandler { viewModel.content = Content.Main }
+            BackHandler { viewModel.content = Content.Uris }
             ZipContent(
                 fileNames = viewModel.fileNames(content.uri),
                 packageInfo = content.packageInfos::getValue,
                 onZip = { apk, fileName -> viewModel.install(context, content.uri, apk, fileName) },
-                contentPadding = WindowInsets.systemBars.asPaddingValues()
-            )
-        }
-    }
-}
-
-@Composable
-private fun MainContent(
-    viewModel: MainViewModel,
-    contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    AnimatedContent(
-        modifier = modifier,
-        targetState = state,
-        transitionSpec = {
-            slideIntoContainer(
-                towards = SlideDirection.Up,
-                animationSpec = tween(600)
-            ) togetherWith slideOutOfContainer(
-                towards = SlideDirection.Up,
-                animationSpec = tween(600)
-            )
-        },
-        contentAlignment = Alignment.Center
-    ) { state ->
-        state.onSuccess {
-            if (viewModel.uris.isNotEmpty()) PackageInfoList(
-                users = viewModel.users,
-                isUserSelected = viewModel::isUserSelected,
-                onPickUser = viewModel::pickUser,
-                uris = viewModel.uris,
-                packageInfo = viewModel::packageInfo,
-                fileNames = viewModel::fileNames,
                 contentPadding = contentPadding,
-                onApk = { uri, apk -> viewModel.install(context, uri, apk) },
-                onApks = { uri, apks -> viewModel.install(context, uri, apks) },
-                onZip = { uri, apk, fileName -> viewModel.install(context, uri, apk, fileName) },
-                onViewApks = { uri, apks -> viewModel.content = Content.Apks(uri, apks) },
-                onViewZip = { uri, zip -> viewModel.content = Content.Zip(uri, zip.packageInfos) }
-            ) else Placeholder(
-                painter = painterResource(R.drawable.seal_check_fill),
-                contentPadding = contentPadding,
-                tint = MaterialTheme.colorScheme.primary,
-                enabled = false
-            )
-        }.onFailure {
-            Placeholder(
-                painter = painterResource(R.drawable.seal_warning_fill),
-                contentPadding = contentPadding,
-                tint = MaterialTheme.colorScheme.error,
-                onClick = viewModel::launchSu
+                animatedContentScope = this@AnimatedContent
             )
         }
     }
@@ -181,13 +164,12 @@ private fun MainContent(
 private fun Placeholder(
     painter: Painter,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier,
     contentDescription: String? = null,
     tint: Color = LocalContentColor.current,
     enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) = Box(
-    modifier = modifier
+    modifier = Modifier
         .padding(contentPadding)
         .fillMaxSize(),
     contentAlignment = Alignment.Center
@@ -208,7 +190,7 @@ private fun Placeholder(
 }
 
 @Composable
-private fun PackageInfoList(
+private fun SharedTransitionScope.PackageInfoList(
     users: List<UserInfo>,
     isUserSelected: (UserInfo) -> Boolean,
     onPickUser: (UserInfo) -> Unit,
@@ -221,15 +203,15 @@ private fun PackageInfoList(
     onViewApks: (Uri, IPackageInfo.Apks) -> Unit,
     onViewZip: (Uri, IPackageInfo.Zip) -> Unit,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
+    animatedContentScope: AnimatedContentScope
 ) = LazyColumn(
-    modifier = modifier.fillMaxSize(),
+    modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(15.dp) + contentPadding,
     verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
     reverseLayout = true
 ) {
-    item {
-        if (users.size > 1) FlowRow(
+    if (users.size > 1) item {
+        FlowRow(
             modifier = Modifier
                 .surface(
                     shape = MaterialTheme.shapes.large,
@@ -282,28 +264,31 @@ private fun PackageInfoList(
                     is IPackageInfo.Apk -> PackageInfoItem(
                         packageInfo = packageInfo,
                         onClick = { onApk(uri, packageInfo) },
-                        label = "APK"
+                        label = "APK",
+                        animatedContentScope = animatedContentScope
                     )
 
                     is IPackageInfo.Apks -> PackageInfoItem(
                         packageInfo = packageInfo.base,
                         onClick = { onApks(uri, packageInfo) },
                         onLongClick = { onViewApks(uri, packageInfo) },
-                        label = "APKS"
+                        label = "APKS",
+                        animatedContentScope = animatedContentScope
                     )
 
                     is IPackageInfo.Zip -> {
                         val fileNames = fileNames(uri)
                         val first by remember(uri, fileNames) {
                             derivedStateOf {
-                                packageInfo.packageInfos.getValue(fileNames.first())
+                                packageInfo.packageInfos.getValue(fileNames[0])
                             }
                         }
                         PackageInfoItem(
                             packageInfo = first,
-                            onClick = { onZip(uri, first, fileNames.first()) },
+                            onClick = { onZip(uri, first, fileNames[0]) },
                             onLongClick = { onViewZip(uri, packageInfo) },
-                            label = "ZIP"
+                            label = "ZIP",
+                            animatedContentScope = animatedContentScope
                         )
                     }
                 }
@@ -334,13 +319,18 @@ private fun PackageInfoList(
 }
 
 @Composable
-private fun PackageInfoItem(
+private fun SharedTransitionScope.PackageInfoItem(
     packageInfo: IPackageInfo.Apk,
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
-    label: String = ""
+    label: String = "",
+    animatedContentScope: AnimatedContentScope
 ) = Row(
     modifier = Modifier
+        .sharedElement(
+            sharedContentState = rememberSharedContentState(packageInfo.packageInfo.packageName),
+            animatedVisibilityScope = animatedContentScope
+        )
         .fillMaxWidth()
         .surface(
             shape = MaterialTheme.shapes.large,
@@ -415,23 +405,23 @@ private fun PackageInfoItem(
 }
 
 @Composable
-private fun ApksContent(
+private fun SharedTransitionScope.ApksContent(
     base: IPackageInfo.Apk,
     onApks: () -> Unit,
     splitConfigs: List<SplitConfig>,
     isSplitSelected: (SplitConfig) -> Boolean,
     onPickSplit: (SplitConfig) -> Unit,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
+    animatedContentScope: AnimatedContentScope
 ) = LazyColumn(
-    modifier = modifier,
     contentPadding = PaddingValues(15.dp) + contentPadding,
     verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
 ) {
     item {
         PackageInfoItem(
             packageInfo = base,
-            onClick = onApks
+            onClick = onApks,
+            animatedContentScope = animatedContentScope
         )
     }
 
@@ -536,14 +526,13 @@ private fun SplitConfigItem(
 }
 
 @Composable
-private fun ZipContent(
+private fun SharedTransitionScope.ZipContent(
     fileNames: List<String>,
     packageInfo: (String) -> IPackageInfo.Apk,
     onZip: (IPackageInfo.Apk, String) -> Unit,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
+    animatedContentScope: AnimatedContentScope
 ) = LazyColumn(
-    modifier = modifier,
     contentPadding = PaddingValues(15.dp) + contentPadding,
     verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
 ) {
@@ -558,7 +547,8 @@ private fun ZipContent(
         }
         PackageInfoItem(
             packageInfo = packageInfo,
-            onClick = { onZip(packageInfo, fileName) }
+            onClick = { onZip(packageInfo, fileName) },
+            animatedContentScope = animatedContentScope
         )
     }
 }

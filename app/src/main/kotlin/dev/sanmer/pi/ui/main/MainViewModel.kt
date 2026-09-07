@@ -32,24 +32,37 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val suRepository: SuRepository
 ) : ViewModel() {
-    val state = suRepository.state
     private val pm by lazy { suRepository.getPackageManager() }
 
     val uris = mutableStateListOf<Uri>()
     private val packageInfos = mutableStateMapOf<Uri, LoadData<IPackageInfo>>()
-    private val fileNames = mutableStateMapOf<Uri, SnapshotStateList<String>>()
+    private val fileNames = hashMapOf<Uri, SnapshotStateList<String>>()
 
-    val users = mutableStateListOf<UserInfo>()
+    var users = emptyList<UserInfo>()
+        private set
     private val targetUsers = mutableStateListOf<Int>()
 
-    var content by mutableStateOf<Content>(Content.Main)
+    var content by mutableStateOf<Content>(Content.Loading)
 
     private val logger = Logger.Android("MainViewModel")
 
     init {
         logger.d("init")
+        loadSuState()
         loadUsers()
         launchSu()
+    }
+
+    private fun loadSuState() {
+        viewModelScope.launch {
+            suRepository.state.collect {
+                when (it) {
+                    is LoadData.Success<*> if (uris.isEmpty()) -> content = Content.Success
+                    is LoadData.Failure -> content = Content.Failure
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun loadUsers() {
@@ -57,8 +70,7 @@ class MainViewModel(
             suRepository.state.collect {
                 it.onSuccess { wrapper ->
                     val um = UserManagerDelegate { wrapper.wrap(this) }
-                    users.clear()
-                    users.addAll(um.getUsers())
+                    users = um.getUsers()
                     targetUsers.clear()
                     targetUsers.add(UserHandleCompat.myUserId())
                 }
@@ -113,18 +125,14 @@ class MainViewModel(
     fun fromUri(context: Context, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             if (uris.contains(uri)) return@launch
+            if (uris.isEmpty()) content = Content.Uris
             uris.add(uri)
             packageInfos[uri] = LoadData.Loading
             packageInfos[uri] = loadData {
                 val cr = context.contentResolver
-                val fd = cr.openAssetFileDescriptor(uri, "r")
-                if (fd == null) {
-                    uris.remove(uri)
-                    packageInfos.remove(uri)
-                    return@launch
-                }
+                val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
 
-                state.first { it.isSuccess }
+                suRepository.state.first { it.isSuccess }
                 when (val packageInfo = fd.use(PackageParser::loadPackage)) {
                     is IPackageInfo.Apk -> packageInfo.addCurrentPackageInfo(context)
 
@@ -178,6 +186,9 @@ class MainViewModel(
         )
         uris.remove(uri)
         packageInfos.remove(uri)
+        if (uris.isEmpty()) {
+            content = Content.Success
+        }
     }
 
     fun install(context: Context, uri: Uri, apks: IPackageInfo.Apks) {
@@ -194,12 +205,14 @@ class MainViewModel(
             installerPackageName = Const.PLAY_STORE,
             users = users.filter(::isUserSelected)
         )
-        if (content is Content.Apks) {
-            content = Content.Main
-        }
         uris.remove(uri)
         packageInfos.remove(uri)
         fileNames.remove(uri)
+        if (uris.isEmpty()) {
+            content = Content.Success
+        } else if (content is Content.Apks) {
+            content = Content.Uris
+        }
     }
 
     fun install(context: Context, uri: Uri, apk: IPackageInfo.Apk, fileName: String) {
@@ -215,17 +228,22 @@ class MainViewModel(
         val filenames = fileNames.getValue(uri)
         filenames.remove(fileName)
         if (filenames.isEmpty()) {
-            if (content is Content.Zip) {
-                content = Content.Main
-            }
             uris.remove(uri)
             packageInfos.remove(uri)
             fileNames.remove(uri)
+            if (uris.isEmpty()) {
+                content = Content.Success
+            } else if (content is Content.Zip) {
+                content = Content.Uris
+            }
         }
     }
 
     sealed interface Content {
-        data object Main : Content
+        data object Loading : Content
+        data object Success : Content
+        data object Failure : Content
+        data object Uris : Content
 
         data class Apks(
             val uri: Uri,
