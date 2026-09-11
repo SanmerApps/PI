@@ -16,6 +16,11 @@ updates:
     registries: "*"
     ignore:
       - dependency-name: "self.*"
+    cooldown:
+      exclude:
+        - "com.android.*"
+        - "com.google.*"
+        - "androidx.*"
 
 registries:
   maven-google:
