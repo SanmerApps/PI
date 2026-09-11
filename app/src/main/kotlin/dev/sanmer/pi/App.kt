@@ -5,11 +5,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import dev.sanmer.pi.di.Repositories
-import dev.sanmer.pi.di.ViewModels
+import dev.sanmer.pi.di.ViewModelsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class App : Application() {
@@ -18,9 +18,9 @@ class App : Application() {
         createNotificationChannels(this)
         HiddenApiBypass.setHiddenApiExemptions("")
         startKoin {
-            androidLogger()
+            androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.INFO)
             androidContext(this@App)
-            modules(Repositories, ViewModels)
+            modules(ViewModelsModule)
         }
     }
 

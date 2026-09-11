@@ -3,11 +3,6 @@ package dev.sanmer.pi.repository
 import android.content.Context
 import android.os.IBinder
 import android.util.Log
-import dev.sanmer.pi.core.delegate.AppOpsManagerDelegate
-import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.core.delegate.PackageManagerDelegate
-import dev.sanmer.pi.core.delegate.PermissionManagerDelegate
-import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.model.LoadData.Default.loadData
 import dev.sanmer.su.AnySu
@@ -33,15 +28,8 @@ class SuRepositoryImpl(
         }
     }
 
-    private fun IBinder.proxy() = state.value.getOrElse({ it.wrap(this) }) { this }
+    override val ownerPackageName: String
+        get() = state.value.getOrElse({ it.ownerPackageName }) { super.ownerPackageName }
 
-    override fun getAppOpsManager() = AppOpsManagerDelegate { proxy() }
-
-    override fun getPackageManager() = PackageManagerDelegate { proxy() }
-
-    override fun getPackageInstaller() = PackageInstallerDelegate { proxy() }
-
-    override fun getPermissionManager() = PermissionManagerDelegate { proxy() }
-
-    override fun getUserManager() = UserManagerDelegate { proxy() }
+    override fun wrap(original: IBinder) = state.value.getOrElse({ it.wrap(original) }) { original }
 }

@@ -4,6 +4,7 @@ import java.time.Instant
 plugins {
     alias(libs.plugins.self.application)
     alias(libs.plugins.self.compose)
+    alias(libs.plugins.koin)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -12,14 +13,13 @@ val baseVersionName = "2.0.1"
 val gitCommitTag = gitCommitTag()
 val gitCommitSha = gitCommitSha()
 val gitCommitNum = gitCommitNum()
-val devSuffix = if (gitCommitTag.isEmpty()) ".dev" else ""
 
 android {
     namespace = "dev.sanmer.pi"
 
     defaultConfig {
         applicationId = namespace
-        versionName = "${baseVersionName}.${gitCommitSha}${devSuffix}"
+        versionName = baseVersionName + if (gitCommitTag.isEmpty()) ".$gitCommitSha" else ""
         versionCode = gitCommitNum
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
     }
@@ -55,9 +55,6 @@ android {
     }
 
     packaging {
-        jniLibs.excludes += setOf(
-            "**/libdatastore_shared_counter.so"
-        )
         resources.excludes += setOf(
             "META-INF/**",
             "kotlin/**",
@@ -103,8 +100,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
+    implementation(libs.koin.annotations)
     implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.hiddenApiBypass)
     implementation(libs.xz)

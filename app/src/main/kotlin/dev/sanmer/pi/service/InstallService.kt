@@ -26,10 +26,10 @@ import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.commit
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeZip
+import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import dev.sanmer.pi.core.parser.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.ktx.versionDisplay
-import dev.sanmer.pi.repository.SuRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -39,15 +39,16 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.parcelize.Parcelize
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.koin.core.component.get
+import org.koin.core.qualifier.named
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
 class InstallService : LifecycleService(), KoinComponent {
-    private val suRepository by inject<SuRepository>()
-    private val pm by lazy { suRepository.getPackageManager() }
-    private val pi by lazy { suRepository.getPackageInstaller() }
-    private val nm by lazy { NotificationManagerCompat.from(this) }
+    private val ownerPackageName = get<String>(named("ownerPackageName"))
+    private val packageManager = get<PackageManagerDelegate>()
+    private val packageInstaller = get<PackageInstallerDelegate>()
+    private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     private val runningMutex = Mutex()
     private val runningTask = mutableListOf<String>()
@@ -76,7 +77,7 @@ class InstallService : LifecycleService(), KoinComponent {
         id: Int,
         builder: NotificationCompat.Builder,
         block: NotificationCompat.Builder.() -> NotificationCompat.Builder
-    ) = nm.notify(id, builder.block().build())
+    ) = notificationManager.notify(id, builder.block().build())
 
     override fun onCreate() {
         logger.d("onCreate")
@@ -190,11 +191,8 @@ class InstallService : LifecycleService(), KoinComponent {
         params.setAppPackageName(task.packageInfo.packageName)
         params.setOriginatingUri(task.uri)
 
-        val ownerPackageName = suRepository.state.value
-            .getOrElse({ it.ownerPackageName }) { "" }
-
-        val session = pi.openSession(
-            pi.createSession(
+        val session = packageInstaller.openSession(
+            packageInstaller.createSession(
                 params = params,
                 installerPackageName = ownerPackageName.ifEmpty { task.installerPackageName },
                 userId = userId
@@ -241,8 +239,8 @@ class InstallService : LifecycleService(), KoinComponent {
 
     private fun optimize(packageName: String) {
         runCatching {
-            pm.clearApplicationProfileData(packageName)
-            pm.performDexOpt(packageName)
+            packageManager.clearApplicationProfileData(packageName)
+            packageManager.performDexOpt(packageName)
         }.onFailure {
             logger.d(it)
         }
@@ -272,7 +270,7 @@ class InstallService : LifecycleService(), KoinComponent {
     }
 
     private fun launch(packageName: String, userId: Int): PendingIntent? {
-        val intent = pm.getLaunchIntentForPackage(packageName, userId) ?: return null
+        val intent = packageManager.getLaunchIntentForPackage(packageName, userId) ?: return null
         return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
