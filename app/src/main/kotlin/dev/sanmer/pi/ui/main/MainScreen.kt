@@ -346,7 +346,12 @@ private fun SharedTransitionScope.PackageInfoItem(
         Image(
             bitmap = packageInfo.packageInfo.iconOrDefault.asImageBitmap(),
             contentDescription = null,
-            modifier = Modifier.size(45.dp)
+            modifier = Modifier
+                .sharedElement(
+                    sharedContentState = rememberSharedContentState("Image-${packageInfo.packageInfo.packageName}"),
+                    animatedVisibilityScope = animatedContentScope
+                )
+                .size(45.dp)
         )
 
         if (label.isNotEmpty()) LabelText(
