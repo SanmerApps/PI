@@ -16,6 +16,7 @@ import dev.sanmer.pi.Const
 import dev.sanmer.pi.Logger
 import dev.sanmer.pi.core.compat.ContextCompat.userId
 import dev.sanmer.pi.core.compat.UserHandleCompat
+import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.core.parser.IPackageInfo
 import dev.sanmer.pi.core.parser.PackageInfoLite
@@ -31,10 +32,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val suRepository: SuRepository
+    private val suRepository: SuRepository,
+    private val packageManager: PackageManagerDelegate,
+    private val userManager: UserManagerDelegate
 ) : ViewModel() {
-    private val pm by lazy { suRepository.getPackageManager() }
-
     val uris = mutableStateListOf<Uri>()
     private val packageInfos = mutableStateMapOf<Uri, LoadData<IPackageInfo>>()
     private val fileNames = hashMapOf<Uri, SnapshotStateList<String>>()
@@ -58,9 +59,8 @@ class MainViewModel(
                 when (it) {
                     is LoadData.Success<BinderWrapper> -> {
                         runCatching {
-                            val um = UserManagerDelegate { it.value.wrap(this) }
                             users.clear()
-                            users.addAll(um.getUsers())
+                            users.addAll(userManager.getUsers())
                             targetUsers.clear()
                             targetUsers.add(UserHandleCompat.myUserId())
                         }
@@ -80,7 +80,7 @@ class MainViewModel(
     private fun IPackageInfo.Apk.addCurrentPackageInfo(context: Context) =
         copy(
             currentPackageInfo = try {
-                pm.getPackageInfo(
+                packageManager.getPackageInfo(
                     packageInfo.packageName, 0, context.userId
                 ).let { PackageInfoLite.from(context, it) }
             } catch (_: Throwable) {
