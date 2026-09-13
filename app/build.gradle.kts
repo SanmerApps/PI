@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-val baseVersionName = "2.0.1"
+val baseVersionName = "2.0.2"
 val gitCommitTag = gitCommitTag()
 val gitCommitSha = gitCommitSha()
 val gitCommitNum = gitCommitNum()
