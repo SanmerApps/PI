@@ -458,15 +458,7 @@ private fun SplitConfigItem(
     horizontalArrangement = Arrangement.spacedBy(15.dp)
 ) {
     Icon(
-        painter = painterResource(
-            when (splitConfig.type) {
-                SplitConfig.Type.Feature -> R.drawable.subtract
-                is SplitConfig.Type.Abi -> R.drawable.cpu
-                is SplitConfig.Type.Density -> R.drawable.image
-                is SplitConfig.Type.Language -> R.drawable.translate
-                SplitConfig.Type.Unspecified -> R.drawable.question_mark
-            }
-        ),
+        painter = splitConfig.type.icon(),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.tertiary,
         modifier = Modifier.size(30.dp)
@@ -492,6 +484,20 @@ private fun SplitConfigItem(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                splitConfig.requiredSplitTypes.forEach {
+                    Icon(
+                        painter = it.icon(),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
         } else {
             Text(
                 text = splitConfig.configForSplit,
@@ -523,6 +529,17 @@ private fun SplitConfigItem(
         )
     }
 }
+
+@Composable
+private fun SplitConfig.Type.icon() = painterResource(
+    when (this) {
+        SplitConfig.Type.Feature -> R.drawable.subtract
+        is SplitConfig.Type.Abi -> R.drawable.cpu
+        is SplitConfig.Type.Density -> R.drawable.image
+        is SplitConfig.Type.Language -> R.drawable.translate
+        SplitConfig.Type.Unspecified -> R.drawable.question_mark
+    }
+)
 
 @Composable
 private fun SharedTransitionScope.ZipContent(

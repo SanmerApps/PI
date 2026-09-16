@@ -22,24 +22,16 @@ internal object ResourceParser {
         return next().takeIf { it != XmlPullParser.END_DOCUMENT }
     }
 
-    fun XmlResourceParser.getAttributeValue(
-        namespace: String?, name: String, defaultValue: String
-    ): String {
-        return getAttributeValue(namespace, name) ?: defaultValue
-    }
-
     fun XmlResourceParser.getAttributeResStringValue(
         res: Resources, name: String
     ): String? {
         val resId = getAttributeResourceValue(ANDROID_RESOURCES, name, 0)
         return if (resId == 0) {
             getAttributeValue(ANDROID_RESOURCES, name)
-        } else {
-            try {
-                res.getString(resId)
-            } catch (_: Throwable) {
-                null
-            }
+        } else try {
+            res.getString(resId)
+        } catch (_: Throwable) {
+            null
         }
     }
 
@@ -71,41 +63,47 @@ internal object ResourceParser {
     }
 
     fun parseSplit(parser: XmlResourceParser): SplitConfigLite {
-        var packageName = ""
-        var splitName = ""
-        var configForSplit = ""
+        var packageName: String? = null
+        var splitName: String? = null
+        var configForSplit: String? = null
         var versionCode = -1
         var isFeatureSplit = false
+        val requiredSplitTypes = mutableListOf<String>()
 
         parser.fold(
             onManifest = {
-                packageName = getAttributeValue(null, "package", "")
-                splitName = getAttributeValue(null, "split", "")
-                configForSplit = getAttributeValue(null, "configForSplit", "")
+                packageName = getAttributeValue(null, "package")
+                splitName = getAttributeValue(null, "split")
+                configForSplit = getAttributeValue(null, "configForSplit")
                 versionCode = getAttributeIntValue(ANDROID_RESOURCES, "versionCode", 0)
-                isFeatureSplit =
-                    getAttributeBooleanValue(ANDROID_RESOURCES, "isFeatureSplit", false)
+                isFeatureSplit = getAttributeBooleanValue(
+                    ANDROID_RESOURCES, "isFeatureSplit", false
+                )
+                getAttributeValue(ANDROID_RESOURCES, "requiredSplitTypes")?.let {
+                    if (it.isNotEmpty()) requiredSplitTypes.addAll(it.split(','))
+                }
             },
             onUsesSdk = {},
             onApplication = {}
         )
 
         return SplitConfigLite(
-            packageName = packageName,
-            splitName = splitName,
-            configForSplit = configForSplit,
+            packageName = packageName.orEmpty(),
+            splitName = splitName.orEmpty(),
+            configForSplit = configForSplit.orEmpty(),
             versionCode = versionCode,
-            isFeatureSplit = isFeatureSplit
+            isFeatureSplit = isFeatureSplit,
+            requiredSplitTypes = requiredSplitTypes.toList()
         )
     }
 
     fun parsePackage(parser: XmlResourceParser, res: Resources): PackageInfoLite {
-        var packageName = ""
+        var packageName: String? = null
         var versionCode = -1
         var versionCodeMajor = -1
-        var versionName = ""
+        var versionName: String? = null
         var compileSdkVersion = -1
-        var compileSdkVersionCodename = ""
+        var compileSdkVersionCodename: String? = null
         var minSdkVersion = -1
         var targetSdkVersion = -1
         var label: String? = null
@@ -113,13 +111,14 @@ internal object ResourceParser {
 
         parser.fold(
             onManifest = {
-                packageName = getAttributeValue(null, "package", "")
+                packageName = getAttributeValue(null, "package")
                 versionCode = getAttributeIntValue(ANDROID_RESOURCES, "versionCode", 0)
                 versionCodeMajor = getAttributeIntValue(ANDROID_RESOURCES, "versionCodeMajor", 0)
-                versionName = getAttributeValue(ANDROID_RESOURCES, "versionName", "")
+                versionName = getAttributeValue(ANDROID_RESOURCES, "versionName")
                 compileSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "compileSdkVersion", 0)
-                compileSdkVersionCodename =
-                    getAttributeValue(ANDROID_RESOURCES, "compileSdkVersionCodename", "")
+                compileSdkVersionCodename = getAttributeValue(
+                    ANDROID_RESOURCES, "compileSdkVersionCodename"
+                )
             },
             onUsesSdk = {
                 minSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "minSdkVersion", 0)
@@ -132,12 +131,12 @@ internal object ResourceParser {
         )
 
         return PackageInfoLite(
-            packageName = packageName,
+            packageName = packageName.orEmpty(),
             versionCode = versionCode,
             versionCodeMajor = versionCodeMajor,
-            versionName = versionName,
+            versionName = versionName.orEmpty(),
             compileSdkVersion = compileSdkVersion,
-            compileSdkVersionCodename = compileSdkVersionCodename,
+            compileSdkVersionCodename = compileSdkVersionCodename.orEmpty(),
             minSdkVersion = minSdkVersion,
             targetSdkVersion = targetSdkVersion,
             label = label,

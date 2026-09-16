@@ -14,6 +14,7 @@ data class SplitConfig(
     val type: Type,
     val name: String,
     val configForSplit: String,
+    val requiredSplitTypes: List<Type>,
     val isDisabled: Boolean,
     val isRecommended: Boolean
 ) : Parcelable {
@@ -24,7 +25,8 @@ data class SplitConfig(
         }
 
         @Parcelize
-        data class Abi(val abi: SplitConfig.Abi) : Type {
+        @JvmInline
+        value class Abi(val abi: SplitConfig.Abi) : Type {
             override fun compareTo(other: Type) = when (other) {
                 Feature -> 1
                 is Abi -> abi.compareTo(other.abi)
@@ -33,7 +35,8 @@ data class SplitConfig(
         }
 
         @Parcelize
-        data class Density(val density: SplitConfig.Density) : Type {
+        @JvmInline
+        value class Density(val density: SplitConfig.Density) : Type {
             override fun compareTo(other: Type) = when (other) {
                 Feature, is Abi -> 1
                 is Density -> density.compareTo(other.density)
@@ -42,7 +45,8 @@ data class SplitConfig(
         }
 
         @Parcelize
-        data class Language(val locale: Locale) : Type {
+        @JvmInline
+        value class Language(val locale: Locale) : Type {
             override fun compareTo(other: Type) = when (other) {
                 Feature, is Abi, is Density -> 1
                 is Language -> locale.language.compareTo(other.locale.language)
@@ -63,10 +67,21 @@ data class SplitConfig(
         X86("x86"),
         X86_64("x86_64");
 
-        fun isRequired() = value == Build.SUPPORTED_ABIS[0]
+        fun isRequired() = this == default
         fun isEnabled() = value in Build.SUPPORTED_ABIS
 
         companion object Default {
+            val default by lazy {
+                when (val abi = Build.SUPPORTED_ABIS[0]) {
+                    "arm64-v8a" -> ARM64_V8A
+                    "armeabi-v7a" -> ARMEABI_V7A
+                    "armeabi" -> ARMEABI
+                    "x86" -> X86
+                    "x86_64" -> X86_64
+                    else -> throw IllegalArgumentException(abi)
+                }
+            }
+
             fun valueOfOrNull(value: String) = try {
                 valueOf(value)
             } catch (_: IllegalArgumentException) {
@@ -84,10 +99,10 @@ data class SplitConfig(
         XXHDPI("${DisplayMetrics.DENSITY_XXHIGH} dpi"),
         XXXHDPI("${DisplayMetrics.DENSITY_XXXHIGH} dpi");
 
-        fun isRequired() = this == screenDensity
+        fun isRequired() = this == default
 
         companion object Default {
-            val screenDensity by lazy {
+            val default by lazy {
                 val densityDpi = Resources.getSystem().displayMetrics.densityDpi
                 when {
                     densityDpi <= DisplayMetrics.DENSITY_LOW -> LDPI
@@ -129,12 +144,21 @@ data class SplitConfig(
             fileName: String,
             sizeBytes: Long
         ): SplitConfig {
+            val requiredSplitTypes = splitConfig.requiredSplitTypes.map {
+                when (it) {
+                    "${splitConfig.splitName}__abi" -> Type.Abi(Abi.default)
+                    "${splitConfig.splitName}__density" -> Type.Density(Density.default)
+                    else -> Type.Unspecified
+                }
+            }
+
             if (splitConfig.isFeatureSplit) return SplitConfig(
                 fileName = fileName,
                 sizeBytes = sizeBytes,
                 type = Type.Feature,
                 name = splitConfig.splitName,
                 configForSplit = "",
+                requiredSplitTypes = requiredSplitTypes,
                 isDisabled = false,
                 isRecommended = true
             )
@@ -147,6 +171,7 @@ data class SplitConfig(
                 type = Type.Abi(abi),
                 name = abi.value,
                 configForSplit = splitConfig.configForSplit,
+                requiredSplitTypes = requiredSplitTypes,
                 isDisabled = !abi.isEnabled(),
                 isRecommended = abi.isRequired()
             )
@@ -158,6 +183,7 @@ data class SplitConfig(
                 type = Type.Density(density),
                 name = density.value,
                 configForSplit = splitConfig.configForSplit,
+                requiredSplitTypes = requiredSplitTypes,
                 isDisabled = false,
                 isRecommended = density.isRequired()
             )
@@ -169,6 +195,7 @@ data class SplitConfig(
                 type = Type.Language(locale),
                 name = locale.localizedDisplayName,
                 configForSplit = splitConfig.configForSplit,
+                requiredSplitTypes = requiredSplitTypes,
                 isDisabled = locale !in Locale.getAvailableLocales(),
                 isRecommended = locale.language == Locale.getDefault().language
             )
@@ -179,6 +206,7 @@ data class SplitConfig(
                 type = Type.Unspecified,
                 name = splitConfig.splitName,
                 configForSplit = splitConfig.configForSplit,
+                requiredSplitTypes = requiredSplitTypes,
                 isDisabled = false,
                 isRecommended = true
             )

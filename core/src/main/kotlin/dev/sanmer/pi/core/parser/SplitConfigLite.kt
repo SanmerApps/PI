@@ -9,5 +9,6 @@ data class SplitConfigLite(
     val splitName: String,
     val configForSplit: String,
     val versionCode: Int,
-    val isFeatureSplit: Boolean
+    val isFeatureSplit: Boolean,
+    val requiredSplitTypes: List<String>
 ) : Parcelable
