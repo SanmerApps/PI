@@ -216,7 +216,8 @@ private fun SharedTransitionScope.PackageInfoList(
                 )
                 .padding(15.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             users.forEach {
                 FilterItem(
