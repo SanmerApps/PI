@@ -3,6 +3,7 @@ package dev.sanmer.pi.ui.main
 import android.content.Context
 import android.content.pm.UserInfo
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -13,7 +14,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.pi.Const
-import dev.sanmer.pi.Logger
 import dev.sanmer.pi.core.compat.ContextCompat.userId
 import dev.sanmer.pi.core.compat.UserHandleCompat
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
@@ -45,10 +45,8 @@ class MainViewModel(
 
     var content by mutableStateOf<Content>(Content.Loading)
 
-    private val logger = Logger.Android("MainViewModel")
-
     init {
-        logger.d("init")
+        Log.d(TAG, "init")
         loadSuState()
         launchSu()
     }
@@ -169,7 +167,7 @@ class MainViewModel(
                     }
                 }
             }.onFailure {
-                logger.e(it)
+                Log.e(TAG, "fromUri $uri", it)
             }
         }
     }
@@ -260,5 +258,9 @@ class MainViewModel(
             val uri: Uri,
             val packageInfos: Map<String, IPackageInfo.Apk>
         ) : Content
+    }
+
+    private companion object Default {
+        const val TAG = "MainViewModel"
     }
 }

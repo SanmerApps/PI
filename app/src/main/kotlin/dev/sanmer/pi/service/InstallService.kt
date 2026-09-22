@@ -12,13 +12,13 @@ import android.content.pm.UserInfo
 import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.os.Parcelable
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dev.sanmer.pi.Const
-import dev.sanmer.pi.Logger
 import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
@@ -53,8 +53,6 @@ class InstallService : LifecycleService(), KoinComponent {
     private val runningMutex = Mutex()
     private val runningTask = mutableListOf<String>()
 
-    private val logger = Logger.Android("InstallService")
-
     private suspend inline fun autoStopSelf(task: Task, block: (Task) -> Unit) {
         if (!runningMutex.withLock {
                 runningTask.contains(task.packageInfo.packageName).also {
@@ -80,7 +78,7 @@ class InstallService : LifecycleService(), KoinComponent {
     ) = notificationManager.notify(id, builder.block().build())
 
     override fun onCreate() {
-        logger.d("onCreate")
+        Log.d(TAG, "onCreate")
         super.onCreate()
 
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_INSTALL)
@@ -100,7 +98,7 @@ class InstallService : LifecycleService(), KoinComponent {
 
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        logger.d("onDestroy")
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
     }
 
@@ -163,7 +161,7 @@ class InstallService : LifecycleService(), KoinComponent {
                 setGroup(null)
             }
         }.onFailure { error ->
-            logger.e(error)
+            Log.e(TAG, "install ${task.packageInfo.packageName}", error)
             notify(startId, builder) {
                 setContentText(getString(R.string.failed))
                 setStyle(
@@ -242,7 +240,7 @@ class InstallService : LifecycleService(), KoinComponent {
             packageManager.clearApplicationProfileData(packageName)
             packageManager.performDexOpt(packageName)
         }.onFailure {
-            logger.d(it)
+            Log.e(TAG, "optimize $packageName", it)
         }
     }
 
@@ -290,6 +288,7 @@ class InstallService : LifecycleService(), KoinComponent {
     ) : Parcelable
 
     companion object Default {
+        private const val TAG = "InstallService"
         private const val GROUP_KEY = "dev.sanmer.pi.INSTALL_SERVICE_GROUP_KEY"
         private const val EXTRA_TASK = "dev.sanmer.pi.extra.INSTALL_TASK"
 
