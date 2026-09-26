@@ -39,8 +39,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -275,11 +273,7 @@ private fun SharedTransitionScope.PackageInfoList(
 
                     is IPackageInfo.Zip -> {
                         val fileNames = fileNames(uri)
-                        val first by remember(uri, fileNames) {
-                            derivedStateOf {
-                                packageInfo.packageInfos.getValue(fileNames[0])
-                            }
-                        }
+                        val first = packageInfo.packageInfos.getValue(fileNames[0])
                         PackageInfoItem(
                             packageInfo = first,
                             onClick = { onZip(uri, first, fileNames[0]) },
@@ -290,13 +284,10 @@ private fun SharedTransitionScope.PackageInfoList(
                     }
                 }
             }.onFailure { error ->
-                val text by remember(uri) {
-                    derivedStateOf {
-                        "${error.javaClass.name}(${error.message.orEmpty()})"
-                    }
-                }
                 Text(
-                    text = text,
+                    text = remember(uri) {
+                        "${error.javaClass.name}(${error.message.orEmpty()})"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
@@ -372,31 +363,19 @@ private fun SharedTransitionScope.PackageInfoItem(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        val version by remember(
-            packageInfo.packageInfo.packageName,
-            packageInfo.currentPackageInfo?.packageName
-        ) {
-            derivedStateOf {
-                packageInfo.currentPackageInfo versionDiff packageInfo.packageInfo
-            }
-        }
         Text(
-            text = version,
+            text = remember(packageInfo.packageInfo.packageName) {
+                packageInfo.currentPackageInfo versionDiff packageInfo.packageInfo
+            },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        val sdkVersion by remember(
-            packageInfo.packageInfo.packageName,
-            packageInfo.currentPackageInfo?.packageName
-        ) {
-            derivedStateOf {
+        Text(
+            text = remember(packageInfo.packageInfo.packageName) {
                 (packageInfo.currentPackageInfo sdkVersionDiff packageInfo.packageInfo) +
                         " Size: ${packageInfo.sizeBytes.formatFileSize()}"
-            }
-        }
-        Text(
-            text = sdkVersion,
+            },
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -473,15 +452,11 @@ private fun SplitConfigItem(
             style = MaterialTheme.typography.titleMedium
         )
 
-        val size by remember(splitConfig.fileName) {
-            derivedStateOf {
-                splitConfig.sizeBytes.formatFileSize()
-            }
-        }
-
         if (splitConfig.configForSplit.isEmpty()) {
             Text(
-                text = size,
+                text = remember(splitConfig.fileName) {
+                    splitConfig.sizeBytes.formatFileSize()
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -507,7 +482,9 @@ private fun SplitConfigItem(
             )
 
             Text(
-                text = size,
+                text = remember(splitConfig.fileName) {
+                    splitConfig.sizeBytes.formatFileSize()
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -557,11 +534,7 @@ private fun SharedTransitionScope.ZipContent(
         items = fileNames,
         key = { it }
     ) { fileName ->
-        val packageInfo by remember(fileName) {
-            derivedStateOf {
-                packageInfo(fileName)
-            }
-        }
+        val packageInfo = packageInfo(fileName)
         PackageInfoItem(
             packageInfo = packageInfo,
             onClick = { onZip(packageInfo, fileName) },
