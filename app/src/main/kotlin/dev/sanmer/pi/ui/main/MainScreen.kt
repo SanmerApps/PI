@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -59,7 +60,6 @@ import dev.sanmer.pi.ktx.versionDiff
 import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.ui.component.FilterItem
 import dev.sanmer.pi.ui.component.LabelText
-import dev.sanmer.pi.ui.ktx.plus
 import dev.sanmer.pi.ui.ktx.surface
 import dev.sanmer.pi.ui.main.MainViewModel.Content
 
