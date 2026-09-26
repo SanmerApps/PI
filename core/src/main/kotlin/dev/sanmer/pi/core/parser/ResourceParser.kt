@@ -4,8 +4,8 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import dev.sanmer.pi.core.ktx.dp
-import dev.sanmer.pi.core.res.AppIconLoader
+import dev.sanmer.pi.core.compat.ContextCompat
+import dev.sanmer.pi.core.res.AppIconFactory
 import org.xmlpull.v1.XmlPullParser
 
 internal object ResourceParser {
@@ -15,8 +15,8 @@ internal object ResourceParser {
     const val TAG_USES_SDK = "uses-sdk"
     const val TAG_APPLICATION = "application"
 
-    private val appIconLoader by lazy { AppIconLoader(45.dp) }
-    fun Drawable.toIcon() = appIconLoader.loadIcon(this)
+    private val factory by lazy { AppIconFactory(45, ContextCompat.getContext()) }
+    fun Drawable.toAppIcon() = factory.createBadgedIcon(this)
 
     fun XmlResourceParser.nextOrNull(): Int? {
         return next().takeIf { it != XmlPullParser.END_DOCUMENT }
@@ -126,7 +126,7 @@ internal object ResourceParser {
             },
             onApplication = {
                 label = getAttributeResStringValue(res, "label")
-                icon = getAttributeResDrawableValue(res, "icon")?.toIcon()
+                icon = getAttributeResDrawableValue(res, "icon")?.toAppIcon()
             }
         )
 

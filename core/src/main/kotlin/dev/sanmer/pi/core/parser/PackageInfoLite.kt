@@ -13,7 +13,7 @@ import dev.sanmer.pi.core.compat.PackageInfoCompat.loadUnbadgedIcon
 import dev.sanmer.pi.core.compat.PackageInfoCompat.minSdkVersion
 import dev.sanmer.pi.core.compat.PackageInfoCompat.targetSdkVersion
 import dev.sanmer.pi.core.compat.PackageInfoCompat.versionCodeMajor
-import dev.sanmer.pi.core.parser.ResourceParser.toIcon
+import dev.sanmer.pi.core.parser.ResourceParser.toAppIcon
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
@@ -46,7 +46,7 @@ data class PackageInfoLite(
     val iconOrDefault by lazy {
         icon ?: Resources.getSystem()
             .getDrawable(android.R.drawable.sym_def_app_icon, null)
-            .toIcon()
+            .toAppIcon()
     }
 
     companion object Default {
@@ -63,7 +63,7 @@ data class PackageInfoLite(
             minSdkVersion = packageInfo.minSdkVersion,
             targetSdkVersion = packageInfo.targetSdkVersion,
             label = packageInfo.loadLabel(context),
-            icon = packageInfo.loadUnbadgedIcon(context)?.toIcon()
+            icon = packageInfo.loadUnbadgedIcon(context)?.toAppIcon()
         )
     }
 }
