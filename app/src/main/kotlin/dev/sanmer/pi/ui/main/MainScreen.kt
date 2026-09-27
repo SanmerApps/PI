@@ -511,11 +511,11 @@ private fun SplitConfigItem(
 @Composable
 private fun SplitConfig.Type.icon() = painterResource(
     when (this) {
-        SplitConfig.Type.Feature -> R.drawable.subtract
+        is SplitConfig.Type.Feature -> R.drawable.subtract
         is SplitConfig.Type.Abi -> R.drawable.cpu
         is SplitConfig.Type.Density -> R.drawable.image
         is SplitConfig.Type.Language -> R.drawable.translate
-        SplitConfig.Type.Unspecified -> R.drawable.question_mark
+        is SplitConfig.Type.Unspecified -> R.drawable.question_mark
     }
 )
 

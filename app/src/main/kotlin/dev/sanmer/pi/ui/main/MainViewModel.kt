@@ -75,17 +75,6 @@ class MainViewModel(
         }
     }
 
-    private fun IPackageInfo.Apk.addCurrentPackageInfo(context: Context) =
-        copy(
-            currentPackageInfo = try {
-                packageManager.getPackageInfo(
-                    packageInfo.packageName, 0, context.userId
-                ).let { PackageInfoLite.from(context, it) }
-            } catch (_: Throwable) {
-                null
-            }
-        )
-
     fun isUserSelected(user: UserInfo) = targetUsers.contains(user.id)
 
     fun pickUser(user: UserInfo) {
@@ -107,7 +96,6 @@ class MainViewModel(
         val fileNames = fileNames[uri] ?: return
         if (fileNames.contains(splitConfig.fileName)) {
             fileNames.remove(splitConfig.fileName)
-            fileNames.removeAll(fileNames.filter { it.contains(splitConfig.name) })
         } else {
             fileNames.add(splitConfig.fileName)
         }
@@ -116,6 +104,39 @@ class MainViewModel(
     fun launchSu() {
         viewModelScope.launch {
             suRepository.launch()
+        }
+    }
+
+    private fun IPackageInfo.Apk.addCurrentPackageInfo(context: Context) =
+        copy(
+            currentPackageInfo = try {
+                packageManager.getPackageInfo(
+                    packageInfo.packageName, 0, context.userId
+                ).let { PackageInfoLite.from(context, it) }
+            } catch (_: Throwable) {
+                null
+            }
+        )
+
+    private fun List<SplitConfig>.pickRecommended(
+        action: (SplitConfig) -> Unit
+    ) = forEach { splitConfig ->
+        if (splitConfig.configForSplit.isEmpty() || splitConfig.type is SplitConfig.Type.Language) {
+            if (splitConfig.isRecommended) action(splitConfig)
+        }
+
+        if (splitConfig.requiredSplitTypes.isNotEmpty()) {
+            val configsForSplit = filter { it.configForSplit == splitConfig.name }
+                .sortedBy { it.type }
+
+            splitConfig.requiredSplitTypes.forEach { type ->
+                val requiredSplit = requireNotNull(
+                    configsForSplit.firstOrNull {
+                        it.type == type || (it.type like type && !it.isDisabled)
+                    }
+                ) { "${splitConfig.name} required $type but ${configsForSplit.map { it.type }}" }
+                action(requiredSplit)
+            }
         }
     }
 
@@ -135,17 +156,16 @@ class MainViewModel(
                     is IPackageInfo.Apk -> packageInfo.addCurrentPackageInfo(context)
 
                     is IPackageInfo.Apks -> {
-                        fileNames[uri] = packageInfo.splitConfigs
-                            .mapNotNull { if (it.isRecommended) it.fileName else null }
-                            .toMutableStateList()
-                            .apply { add(PackageParser.BASE_APK) }
+                        val filenames = mutableStateListOf(PackageParser.BASE_APK)
+                        packageInfo.splitConfigs.pickRecommended { filenames.add(it.fileName) }
+                        fileNames[uri] = filenames
 
                         packageInfo.copy(
                             base = packageInfo.base.addCurrentPackageInfo(context),
                             splitConfigs = packageInfo.splitConfigs.sortedWith(
                                 compareBy<SplitConfig> {
                                     when (it.type) {
-                                        SplitConfig.Type.Feature -> it.name
+                                        is SplitConfig.Type.Feature -> it.name
                                         else -> it.configForSplit
                                     }
                                 }.thenBy {
@@ -156,8 +176,7 @@ class MainViewModel(
                     }
 
                     is IPackageInfo.Zip -> {
-                        fileNames[uri] = packageInfo.packageInfos.keys
-                            .toMutableStateList()
+                        fileNames[uri] = packageInfo.packageInfos.keys.toMutableStateList()
 
                         IPackageInfo.Zip(
                             packageInfo.packageInfos.mapValues { (_, packageInfo) ->

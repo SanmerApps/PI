@@ -4,6 +4,8 @@ import android.content.res.Resources
 import android.os.Build
 import android.os.Parcelable
 import android.util.DisplayMetrics
+import dev.sanmer.pi.core.compat.ContextCompat
+import dev.sanmer.pi.core.compat.LocaleListCompat
 import kotlinx.parcelize.Parcelize
 import java.util.Locale
 
@@ -19,8 +21,17 @@ data class SplitConfig(
     val isRecommended: Boolean
 ) : Parcelable {
     sealed interface Type : Parcelable, Comparable<Type> {
+        infix fun like(other: Type) = when (this) {
+            is Feature -> other is Feature
+            is Abi -> other is Abi
+            is Density -> other is Density
+            is Language -> other is Language
+            is Unspecified -> other is Unspecified
+        }
+
         @Parcelize
-        data object Feature : Type {
+        @JvmInline
+        value class Feature(val splitName: String) : Type {
             override fun compareTo(other: Type) = -1
         }
 
@@ -28,7 +39,7 @@ data class SplitConfig(
         @JvmInline
         value class Abi(val abi: SplitConfig.Abi) : Type {
             override fun compareTo(other: Type) = when (other) {
-                Feature -> 1
+                is Feature -> 1
                 is Abi -> abi.compareTo(other.abi)
                 else -> -1
             }
@@ -38,7 +49,7 @@ data class SplitConfig(
         @JvmInline
         value class Density(val density: SplitConfig.Density) : Type {
             override fun compareTo(other: Type) = when (other) {
-                Feature, is Abi -> 1
+                is Feature, is Abi -> 1
                 is Density -> density.compareTo(other.density)
                 else -> -1
             }
@@ -48,14 +59,15 @@ data class SplitConfig(
         @JvmInline
         value class Language(val locale: Locale) : Type {
             override fun compareTo(other: Type) = when (other) {
-                Feature, is Abi, is Density -> 1
+                is Feature, is Abi, is Density -> 1
                 is Language -> locale.language.compareTo(other.locale.language)
                 else -> -1
             }
         }
 
         @Parcelize
-        data object Unspecified : Type {
+        @JvmInline
+        value class Unspecified(val splitName: String) : Type {
             override fun compareTo(other: Type) = 1
         }
     }
@@ -67,18 +79,20 @@ data class SplitConfig(
         X86("x86"),
         X86_64("x86_64");
 
-        fun isRequired() = this == default
-        fun isEnabled() = value in Build.SUPPORTED_ABIS
+        fun isRequired() = this == systemAbis[0]
+        fun isEnabled() = this in systemAbis
 
         companion object Default {
-            val default by lazy {
-                when (val abi = Build.SUPPORTED_ABIS[0]) {
-                    "arm64-v8a" -> ARM64_V8A
-                    "armeabi-v7a" -> ARMEABI_V7A
-                    "armeabi" -> ARMEABI
-                    "x86" -> X86
-                    "x86_64" -> X86_64
-                    else -> throw IllegalArgumentException(abi)
+            internal val systemAbis by lazy {
+                Build.SUPPORTED_ABIS.map {
+                    when (it) {
+                        "arm64-v8a" -> ARM64_V8A
+                        "armeabi-v7a" -> ARMEABI_V7A
+                        "armeabi" -> ARMEABI
+                        "x86" -> X86
+                        "x86_64" -> X86_64
+                        else -> throw IllegalArgumentException(it)
+                    }
                 }
             }
 
@@ -99,10 +113,10 @@ data class SplitConfig(
         XXHDPI("${DisplayMetrics.DENSITY_XXHIGH} dpi"),
         XXXHDPI("${DisplayMetrics.DENSITY_XXXHIGH} dpi");
 
-        fun isRequired() = this == default
+        fun isRequired() = this == systemDensity
 
         companion object Default {
-            val default by lazy {
+            internal val systemDensity by lazy {
                 val densityDpi = Resources.getSystem().displayMetrics.densityDpi
                 when {
                     densityDpi <= DisplayMetrics.DENSITY_LOW -> LDPI
@@ -124,6 +138,10 @@ data class SplitConfig(
     }
 
     companion object Default {
+        internal val systemLocales by lazy {
+            LocaleListCompat.getSystemLocales(ContextCompat.getContext())
+        }
+
         val Locale.localizedDisplayName: String
             inline get() = getDisplayName(this)
                 .replaceFirstChar {
@@ -134,7 +152,7 @@ data class SplitConfig(
                     }
                 }
 
-        fun SplitConfigLite.typeName(): String {
+        internal fun SplitConfigLite.typeName(): String {
             val value = splitName.removeSurrounding("${configForSplit}.", "")
             return value.removeSurrounding("config.", "")
         }
@@ -146,16 +164,16 @@ data class SplitConfig(
         ): SplitConfig {
             val requiredSplitTypes = splitConfig.requiredSplitTypes.map {
                 when (it) {
-                    "${splitConfig.splitName}__abi" -> Type.Abi(Abi.default)
-                    "${splitConfig.splitName}__density" -> Type.Density(Density.default)
-                    else -> Type.Unspecified
+                    "${splitConfig.splitName}__abi" -> Type.Abi(Abi.systemAbis[0])
+                    "${splitConfig.splitName}__density" -> Type.Density(Density.systemDensity)
+                    else -> Type.Unspecified(splitConfig.splitName)
                 }
             }
 
             if (splitConfig.isFeatureSplit) return SplitConfig(
                 fileName = fileName,
                 sizeBytes = sizeBytes,
-                type = Type.Feature,
+                type = Type.Feature(splitConfig.splitName),
                 name = splitConfig.splitName,
                 configForSplit = "",
                 requiredSplitTypes = requiredSplitTypes,
@@ -196,14 +214,14 @@ data class SplitConfig(
                 name = locale.localizedDisplayName,
                 configForSplit = splitConfig.configForSplit,
                 requiredSplitTypes = requiredSplitTypes,
-                isDisabled = locale !in Locale.getAvailableLocales(),
-                isRecommended = locale.language == Locale.getDefault().language
+                isDisabled = false,
+                isRecommended = systemLocales.any { it.language == locale.language }
             )
 
             return SplitConfig(
                 fileName = fileName,
                 sizeBytes = sizeBytes,
-                type = Type.Unspecified,
+                type = Type.Unspecified(splitConfig.splitName),
                 name = splitConfig.splitName,
                 configForSplit = splitConfig.configForSplit,
                 requiredSplitTypes = requiredSplitTypes,
