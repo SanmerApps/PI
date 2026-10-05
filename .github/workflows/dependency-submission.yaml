@@ -3,10 +3,14 @@ name: Dependency Submission
 on:
   push:
     branches: [ "main" ]
-    paths: [ "**/libs.versions.toml" ]
+    paths:
+      - "**/libs.versions.toml"
+      - ".github/workflows/**"
   pull_request:
     branches: [ "main" ]
-    paths: [ "**/libs.versions.toml" ]
+    paths:
+      - "**/libs.versions.toml"
+      - ".github/workflows/**"
 
 permissions:
   contents: write
@@ -17,9 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
       - name: Set up JDK
         uses: actions/setup-java@v6
         with:
@@ -28,7 +29,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Submit dependency graph
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Submit
         uses: gradle/actions/dependency-submission@v6
         with:
           build-scan-publish: true
