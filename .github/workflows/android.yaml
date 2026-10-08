@@ -17,8 +17,6 @@ jobs:
         with:
           distribution: 'jetbrains'
           java-version: 21
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -26,17 +24,6 @@ jobs:
           build-scan-publish: false
           build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
           build-scan-terms-of-use-agree: "yes"
-
-      - name: Set up signing key
-        if: github.ref == 'refs/heads/main'
-        run: |
-          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-            echo key.store.password='${{ secrets.KEY_STORE_PASSWORD }}' > signing.properties
-            echo key.alias='${{ secrets.KEY_ALIAS }}' >> signing.properties
-            echo key.password='${{ secrets.KEY_PASSWORD }}' >> signing.properties
-            echo key.store='${{ github.workspace }}/key.jks' >> signing.properties
-            echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
-          fi
 
       - name: Checkout
         uses: actions/checkout@v7
@@ -46,6 +33,13 @@ jobs:
       - name: Build
         id: build
         run: |
+          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
+            echo key.store.password='${{ secrets.KEY_STORE_PASSWORD }}' > signing.properties
+            echo key.alias='${{ secrets.KEY_ALIAS }}' >> signing.properties
+            echo key.password='${{ secrets.KEY_PASSWORD }}' >> signing.properties
+            echo key.store='${{ github.workspace }}/key.jks' >> signing.properties
+            echo ${{ secrets.KEY_STORE }} | base64 --decode > ${{ github.workspace }}/key.jks
+          fi
           ./gradlew assembleRelease
           name=`ls app/build/outputs/apk/release/*.apk | awk -F '(/|.apk)' '{print $6}'` && echo "name=${name}" >> $GITHUB_OUTPUT
 
@@ -66,16 +60,12 @@ jobs:
       - name: Publish to Telegram channel
         if: success() && github.ref == 'refs/heads/main'
         continue-on-error: true
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-            RELEASE_FILE=$(find app/build/outputs/apk/release -name "*.apk")
-            ESCAPED=$(python3 -c 'import json,os; print(json.dumps(os.environ["COMMIT_MESSAGE"]))')
-            curl -v "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup" \
-              -F "chat_id=${CHANNEL_ID}" \
+            RELEASE=$(find app/build/outputs/apk/release -name "*.apk")
+            ESCAPED=$(python3 -c 'import json,os; print(json.dumps("${{ github.event.head_commit.message }}"))')
+            curl -v "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMediaGroup" \
+              -F "chat_id=${{ secrets.CHANNEL_ID }}" \
               -F "media=[{\"type\":\"document\",\"media\":\"attach://release\",\"caption\":${ESCAPED}}]" \
-              -F "release=@${RELEASE_FILE}"
+              -F "release=@${RELEASE}"
           fi
