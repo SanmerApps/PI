@@ -26,7 +26,6 @@ import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.model.LoadData.Default.loadData
 import dev.sanmer.pi.repository.SuRepository
 import dev.sanmer.pi.service.InstallService
-import dev.sanmer.su.BinderWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -47,30 +46,27 @@ class MainViewModel(
 
     init {
         Log.d(TAG, "init")
-        loadSuState()
         launchSu()
     }
 
-    private fun loadSuState() {
+    fun launchSu() {
         viewModelScope.launch {
-            suRepository.state.collect {
-                when (it) {
-                    is LoadData.Success<BinderWrapper> -> {
-                        runCatching {
-                            users.clear()
-                            users.addAll(userManager.getUsers())
-                            targetUsers.clear()
-                            targetUsers.add(UserHandleCompat.myUserId())
-                        }
-                        content = if (uris.isEmpty()) Content.Success else Content.Uris
+            when (suRepository.state.first()) {
+                is LoadData.Success<*> -> {
+                    runCatching {
+                        users.clear()
+                        users.addAll(userManager.getUsers())
+                        targetUsers.clear()
+                        targetUsers.add(UserHandleCompat.myUserId())
                     }
-
-                    is LoadData.Failure -> {
-                        content = Content.Failure
-                    }
-
-                    else -> {}
+                    content = if (uris.isEmpty()) Content.Success else Content.Uris
                 }
+
+                is LoadData.Failure -> {
+                    content = Content.Failure
+                }
+
+                else -> {}
             }
         }
     }
@@ -101,19 +97,14 @@ class MainViewModel(
         }
     }
 
-    fun launchSu() {
-        viewModelScope.launch {
-            suRepository.launch()
-        }
-    }
-
     private fun IPackageInfo.Apk.addCurrentPackageInfo(context: Context) =
         copy(
             currentPackageInfo = try {
                 packageManager.getPackageInfo(
                     packageInfo.packageName, 0, context.userId
                 ).let { PackageInfoLite.from(context, it) }
-            } catch (_: Throwable) {
+            } catch (e: Throwable) {
+                Log.w(TAG, "getPackageInfo(${packageInfo.packageName})", e)
                 null
             }
         )

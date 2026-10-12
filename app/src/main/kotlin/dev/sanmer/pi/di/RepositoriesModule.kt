@@ -16,27 +16,27 @@ import org.koin.plugin.module.dsl.single
 val RepositoriesModule = module {
     single<SuRepositoryImpl>() binds arrayOf(SuRepository::class, BinderWrapper::class)
 
-    single(named("ownerPackageName")) {
+    factory(named("ownerPackageName")) {
         get<BinderWrapper>().ownerPackageName
     }
 
-    single {
+    factory {
         AppOpsManagerDelegate { get<BinderWrapper>().wrap(this) }
     }
 
-    single {
+    factory {
         PackageManagerDelegate { get<BinderWrapper>().wrap(this) }
     }
 
-    single {
+    factory {
         PackageInstallerDelegate { get<BinderWrapper>().wrap(this) }
     }
 
-    single {
+    factory {
         PermissionManagerDelegate { get<BinderWrapper>().wrap(this) }
     }
 
-    single {
+    factory {
         UserManagerDelegate { get<BinderWrapper>().wrap(this) }
     }
 }

@@ -6,5 +6,4 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface SuRepository : BinderWrapper {
     val state: StateFlow<LoadData<BinderWrapper>>
-    suspend fun launch()
 }
