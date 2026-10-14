@@ -11,8 +11,8 @@ import dev.rikka.tools.refine.Refine
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-object IntentReceiverCompat {
-    class IIntentSenderDelegate(
+object IntentSenderCompat {
+    class Delegate(
         private val onSend: (Intent) -> Unit
     ) : IIntentSender.Stub() {
         override fun send(
@@ -29,7 +29,7 @@ object IntentReceiverCompat {
     }
 
     fun delegate(onSend: (Intent) -> Unit): IntentSender {
-        val original = IIntentSenderDelegate(onSend)
+        val original = Delegate(onSend)
         return Refine.unsafeCast(IntentSenderHidden(original))
     }
 

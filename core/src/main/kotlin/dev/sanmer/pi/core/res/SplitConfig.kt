@@ -1,4 +1,4 @@
-package dev.sanmer.pi.core.parser
+package dev.sanmer.pi.core.res
 
 import android.content.res.Resources
 import android.os.Build

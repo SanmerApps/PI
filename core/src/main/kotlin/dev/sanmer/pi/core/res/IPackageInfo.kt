@@ -1,4 +1,4 @@
-package dev.sanmer.pi.core.parser
+package dev.sanmer.pi.core.res
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -6,9 +6,9 @@ import kotlinx.parcelize.Parcelize
 sealed interface IPackageInfo : Parcelable {
     @Parcelize
     data class Apk(
-        val currentPackageInfo: PackageInfoLite? = null,
         val packageInfo: PackageInfoLite,
-        val sizeBytes: Long
+        val sizeBytes: Long,
+        val currentPackageInfo: PackageInfoLite = packageInfo,
     ) : IPackageInfo
 
     @Parcelize

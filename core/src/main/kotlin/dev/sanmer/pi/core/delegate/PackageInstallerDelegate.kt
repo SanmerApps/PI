@@ -16,7 +16,7 @@ import android.os.ServiceManager
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.pi.core.compat.BuildCompat
-import dev.sanmer.pi.core.compat.IntentReceiverCompat
+import dev.sanmer.pi.core.compat.IntentSenderCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -96,7 +96,7 @@ class PackageInstallerDelegate(
         packageName: String,
         installerPackageName: String,
         userId: Int
-    ) = IntentReceiverCompat.onDelegate { sender ->
+    ) = IntentSenderCompat.onDelegate { sender ->
         packageInstaller.uninstall(
             VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
             installerPackageName,
@@ -172,7 +172,7 @@ class PackageInstallerDelegate(
 
     companion object Default {
         @SuppressLint("RequestInstallPackagesPolicy")
-        suspend fun PackageInstaller.Session.commit() = IntentReceiverCompat.onDelegate { sender ->
+        suspend fun PackageInstaller.Session.commit() = IntentSenderCompat.onDelegate { sender ->
             commit(sender)
         }
 

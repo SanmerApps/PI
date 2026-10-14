@@ -141,18 +141,18 @@ class AppOpsManagerDelegate(
     class OpEntry internal constructor(
         private val original: AppOpsManagerHidden.OpEntry
     ) {
-        val op = original.op
-        val opStr = original.opStr
-        val mode = original.mode
-        val time = original.time
+        val op get() = original.op
+        val opStr get() = original.opStr
+        val mode get() = original.mode
+        val time get() = original.time
     }
 
     class PackageOps internal constructor(
         private val original: AppOpsManagerHidden.PackageOps
     ) {
-        val packageName = original.packageName
-        val uid = original.uid
-        val ops by lazy { original.ops.map { OpEntry(it) } }
+        val packageName get() = original.packageName
+        val uid get() = original.uid
+        val ops get() = original.ops.map { OpEntry(it) }
     }
 
     companion object Default {

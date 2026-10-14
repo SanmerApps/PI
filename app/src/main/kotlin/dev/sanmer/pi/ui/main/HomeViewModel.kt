@@ -13,15 +13,13 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.sanmer.pi.Const
 import dev.sanmer.pi.core.compat.ContextCompat.userId
 import dev.sanmer.pi.core.compat.UserHandleCompat
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import dev.sanmer.pi.core.delegate.UserManagerDelegate
-import dev.sanmer.pi.core.parser.IPackageInfo
-import dev.sanmer.pi.core.parser.PackageInfoLite
-import dev.sanmer.pi.core.parser.PackageParser
-import dev.sanmer.pi.core.parser.SplitConfig
+import dev.sanmer.pi.core.res.IPackageInfo
+import dev.sanmer.pi.core.res.PackageParser
+import dev.sanmer.pi.core.res.SplitConfig
 import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.model.LoadData.Default.loadData
 import dev.sanmer.pi.repository.SuRepository
@@ -30,10 +28,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class MainViewModel(
+class HomeViewModel(
     private val suRepository: SuRepository,
     private val packageManager: PackageManagerDelegate,
-    private val userManager: UserManagerDelegate
+    private val userManager: UserManagerDelegate,
+    private val packageParser: PackageParser
 ) : ViewModel() {
     val uris = mutableStateListOf<Uri>()
     private val packageInfos = mutableStateMapOf<Uri, LoadData<IPackageInfo>>()
@@ -59,7 +58,7 @@ class MainViewModel(
                         targetUsers.clear()
                         targetUsers.add(UserHandleCompat.myUserId())
                     }
-                    content = if (uris.isEmpty()) Content.Success else Content.Uris
+                    if (content != Content.Uris) content = Content.Success
                 }
 
                 is LoadData.Failure -> {
@@ -97,17 +96,16 @@ class MainViewModel(
         }
     }
 
-    private fun IPackageInfo.Apk.addCurrentPackageInfo(context: Context) =
+    private fun IPackageInfo.Apk.updateCurrentPackageInfo(context: Context) = try {
         copy(
-            currentPackageInfo = try {
-                packageManager.getPackageInfo(
-                    packageInfo.packageName, 0, context.userId
-                ).let { PackageInfoLite.from(context, it) }
-            } catch (e: Throwable) {
-                Log.w(TAG, "getPackageInfo(${packageInfo.packageName})", e)
-                null
-            }
+            currentPackageInfo = packageManager.getPackageInfo(
+                packageInfo.packageName, 0, context.userId
+            ).let { packageParser.createPackageLite(it, false) }
         )
+    } catch (e: Throwable) {
+        Log.w(TAG, "getPackageInfo(${packageInfo.packageName})", e)
+        this
+    }
 
     private fun List<SplitConfig>.pickRecommended(
         action: (SplitConfig) -> Unit
@@ -133,18 +131,15 @@ class MainViewModel(
 
     fun fromUri(context: Context, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (uris.contains(uri)) return@launch
-            uris.add(uri)
+            suRepository.state.first { it.isSuccess }
+            if (uris.contains(uri)) return@launch else uris.add(uri)
+            if (context != Content.Uris) content = Content.Uris
             packageInfos[uri] = LoadData.Loading
             packageInfos[uri] = loadData {
                 val cr = context.contentResolver
                 val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
-
-                suRepository.state.first { it.isSuccess }
-                content = Content.Uris
-
-                when (val packageInfo = fd.use(PackageParser::loadPackage)) {
-                    is IPackageInfo.Apk -> packageInfo.addCurrentPackageInfo(context)
+                when (val packageInfo = fd.use(packageParser::parse)) {
+                    is IPackageInfo.Apk -> packageInfo.updateCurrentPackageInfo(context)
 
                     is IPackageInfo.Apks -> {
                         val filenames = mutableStateListOf(PackageParser.BASE_APK)
@@ -152,7 +147,7 @@ class MainViewModel(
                         fileNames[uri] = filenames
 
                         packageInfo.copy(
-                            base = packageInfo.base.addCurrentPackageInfo(context),
+                            base = packageInfo.base.updateCurrentPackageInfo(context),
                             splitConfigs = packageInfo.splitConfigs.sortedWith(
                                 compareBy<SplitConfig> {
                                     when (it.type) {
@@ -171,7 +166,7 @@ class MainViewModel(
 
                         IPackageInfo.Zip(
                             packageInfo.packageInfos.mapValues { (_, packageInfo) ->
-                                packageInfo.addCurrentPackageInfo(context)
+                                packageInfo.updateCurrentPackageInfo(context)
                             }
                         )
                     }
@@ -189,7 +184,6 @@ class MainViewModel(
             fileNames = emptyList(),
             sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
-            installerPackageName = Const.SHELL,
             users = users.filter(::isUserSelected).ifEmpty {
                 listOf(UserInfo(context.userId, null, 0))
             }
@@ -212,7 +206,6 @@ class MainViewModel(
             fileNames = filenames,
             sizeBytes = apks.base.sizeBytes + sizeBytes,
             packageInfo = apks.base.packageInfo,
-            installerPackageName = Const.PLAY_STORE,
             users = users.filter(::isUserSelected).ifEmpty {
                 listOf(UserInfo(context.userId, null, 0))
             }
@@ -234,7 +227,6 @@ class MainViewModel(
             fileNames = listOf(fileName),
             sizeBytes = apk.sizeBytes,
             packageInfo = apk.packageInfo,
-            installerPackageName = Const.SHELL,
             users = users.filter(::isUserSelected).ifEmpty {
                 listOf(UserInfo(context.userId, null, 0))
             }
@@ -271,6 +263,6 @@ class MainViewModel(
     }
 
     private companion object Default {
-        const val TAG = "MainViewModel"
+        const val TAG = "HomeViewModel"
     }
 }
