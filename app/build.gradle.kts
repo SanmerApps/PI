@@ -55,6 +55,9 @@ android {
     }
 
     packaging {
+        jniLibs.excludes += setOf(
+            "**/libdatastore_shared_counter.so"
+        )
         resources.excludes += setOf(
             "META-INF/**",
             "kotlin/**",
