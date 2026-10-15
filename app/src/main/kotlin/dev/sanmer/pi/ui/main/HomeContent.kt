@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
@@ -63,81 +64,84 @@ import dev.sanmer.pi.ui.ktx.surface
 import dev.sanmer.pi.ui.main.HomeViewModel.Content
 
 @Composable
-fun SharedTransitionScope.HomeContent(
+fun HomeContent(
     viewModel: HomeViewModel,
     contentPadding: PaddingValues
-) = AnimatedContent(
-    modifier = Modifier.fillMaxSize(),
-    targetState = viewModel.content,
-    transitionSpec = {
-        val towards = when (viewModel.content) {
-            is Content.Zip, is Content.Apks -> SlideDirection.Up
-            else -> SlideDirection.Down
-        }
-        slideIntoContainer(
-            towards = towards,
-            animationSpec = tween(600)
-        ) togetherWith slideOutOfContainer(
-            towards = towards,
-            animationSpec = tween(600)
-        )
-    }
-) { content ->
-    val context = LocalContext.current
-    when (content) {
-        Content.Loading -> {}
+) = SharedTransitionLayout {
+    AnimatedContent(
+        modifier = Modifier.fillMaxSize(),
+        targetState = viewModel.content,
+        transitionSpec = {
+            val towards = when (viewModel.content) {
+                is Content.Zip, is Content.Apks -> SlideDirection.Up
+                else -> SlideDirection.Down
+            }
+            slideIntoContainer(
+                towards = towards,
+                animationSpec = tween(600)
+            ) togetherWith slideOutOfContainer(
+                towards = towards,
+                animationSpec = tween(600)
+            )
+        },
+        contentAlignment = Alignment.Center
+    ) { content ->
+        val context = LocalContext.current
+        when (content) {
+            Content.Loading -> {}
 
-        Content.Success -> Placeholder(
-            painter = painterResource(R.drawable.seal_check_fill),
-            contentPadding = contentPadding,
-            tint = MaterialTheme.colorScheme.primary
-        )
+            Content.Success -> Placeholder(
+                painter = painterResource(R.drawable.seal_check_fill),
+                contentPadding = contentPadding,
+                tint = MaterialTheme.colorScheme.primary
+            )
 
-        Content.Failure -> Placeholder(
-            painter = painterResource(R.drawable.seal_warning_fill),
-            contentPadding = contentPadding,
-            tint = MaterialTheme.colorScheme.error,
-            onClick = viewModel::launchSu
-        )
+            Content.Failure -> Placeholder(
+                painter = painterResource(R.drawable.seal_warning_fill),
+                contentPadding = contentPadding,
+                tint = MaterialTheme.colorScheme.error,
+                onClick = viewModel::launchSu
+            )
 
-        Content.Uris -> PackageInfoList(
-            users = viewModel.users,
-            isUserSelected = viewModel::isUserSelected,
-            onPickUser = viewModel::pickUser,
-            uris = viewModel.uris,
-            packageInfo = viewModel::packageInfo,
-            fileNames = viewModel::fileNames,
-            onApk = { uri, apk -> viewModel.install(context, uri, apk) },
-            onApks = { uri, apks -> viewModel.install(context, uri, apks) },
-            onZip = { uri, apk, fileName -> viewModel.install(context, uri, apk, fileName) },
-            onViewApks = { uri, apks -> viewModel.content = Content.Apks(uri, apks) },
-            onViewZip = { uri, zip -> viewModel.content = Content.Zip(uri, zip.packageInfos) },
-            contentPadding = contentPadding,
-            animatedContentScope = this@AnimatedContent
-        )
-
-        is Content.Apks -> {
-            BackHandler { viewModel.content = Content.Uris }
-            ApksContent(
-                base = content.packageInfo.base,
-                onApks = { viewModel.install(context, content.uri, content.packageInfo) },
-                splitConfigs = content.packageInfo.splitConfigs,
-                isSplitSelected = { viewModel.isSplitSelected(content.uri, it) },
-                onPickSplit = { viewModel.pickSplit(content.uri, it) },
+            Content.Uris -> PackageInfoList(
+                users = viewModel.users,
+                isUserSelected = viewModel::isUserSelected,
+                onPickUser = viewModel::pickUser,
+                uris = viewModel.uris,
+                packageInfo = viewModel::packageInfo,
+                fileNames = viewModel::fileNames,
+                onApk = { uri, apk -> viewModel.install(context, uri, apk) },
+                onApks = { uri, apks -> viewModel.install(context, uri, apks) },
+                onZip = { uri, apk, fileName -> viewModel.install(context, uri, apk, fileName) },
+                onViewApks = { uri, apks -> viewModel.content = Content.Apks(uri, apks) },
+                onViewZip = { uri, zip -> viewModel.content = Content.Zip(uri, zip.packageInfos) },
                 contentPadding = contentPadding,
                 animatedContentScope = this@AnimatedContent
             )
-        }
 
-        is Content.Zip -> {
-            BackHandler { viewModel.content = Content.Uris }
-            ZipContent(
-                fileNames = viewModel.fileNames(content.uri),
-                packageInfo = content.packageInfos::getValue,
-                onZip = { apk, fileName -> viewModel.install(context, content.uri, apk, fileName) },
-                contentPadding = contentPadding,
-                animatedContentScope = this@AnimatedContent
-            )
+            is Content.Apks -> {
+                BackHandler { viewModel.content = Content.Uris }
+                ApksContent(
+                    base = content.packageInfo.base,
+                    onApks = { viewModel.install(context, content.uri, content.packageInfo) },
+                    splitConfigs = content.packageInfo.splitConfigs,
+                    isSplitSelected = { viewModel.isSplitSelected(content.uri, it) },
+                    onPickSplit = { viewModel.pickSplit(content.uri, it) },
+                    contentPadding = contentPadding,
+                    animatedContentScope = this@AnimatedContent
+                )
+            }
+
+            is Content.Zip -> {
+                BackHandler { viewModel.content = Content.Uris }
+                ZipContent(
+                    fileNames = viewModel.fileNames(content.uri),
+                    packageInfo = content.packageInfos::getValue,
+                    onZip = { apk, name -> viewModel.install(context, content.uri, apk, name) },
+                    contentPadding = contentPadding,
+                    animatedContentScope = this@AnimatedContent
+                )
+            }
         }
     }
 }
@@ -150,9 +154,7 @@ private fun Placeholder(
     tint: Color = LocalContentColor.current,
     onClick: (() -> Unit)? = null
 ) = Box(
-    modifier = Modifier
-        .padding(contentPadding)
-        .fillMaxSize(),
+    modifier = Modifier.padding(contentPadding),
     contentAlignment = Alignment.Center
 ) {
     Icon(
@@ -186,7 +188,6 @@ private fun SharedTransitionScope.PackageInfoList(
     contentPadding: PaddingValues,
     animatedContentScope: AnimatedContentScope
 ) = LazyColumn(
-    modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(15.dp) + contentPadding,
     verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically),
     reverseLayout = true
@@ -222,9 +223,9 @@ private fun SharedTransitionScope.PackageInfoList(
             targetState = packageInfo(uri),
             transitionSpec = {
                 scaleIn(
-                    animationSpec = tween(500)
+                    animationSpec = tween(600)
                 ) togetherWith scaleOut(
-                    animationSpec = tween(500)
+                    animationSpec = tween(600)
                 )
             },
             contentAlignment = Alignment.Center

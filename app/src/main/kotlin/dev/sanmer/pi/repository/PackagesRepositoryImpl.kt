@@ -101,12 +101,12 @@ class PackagesRepositoryImpl(
                             getPackageInfo(state.packageName, flags)
                         )
                     }.onFailure {
-                        Log.e(TAG, "Added(${state.packageName})", it)
+                        Log.e(TAG, "Update(${state.packageName})", it)
                     }
                 }
 
                 is PackageState.Remove -> {
-                    Log.d(TAG, "Removed(${state.packageName})")
+                    Log.d(TAG, "Remove(${state.packageName})")
                     installedPackages.remove(state.packageName)
                 }
             }
@@ -121,12 +121,11 @@ class PackagesRepositoryImpl(
         updatePackages(it, flags) { values.toList() }
     }
 
-    override fun getPackageInfoAsFlow(packageName: String, flags: Int) =
-        packageStateFlow.onStart {
-            emit(PackageState.Update(packageName))
-        }.mapNotNull {
-            updatePackages(it, flags) { get(packageName) }
-        }
+    override fun getPackageInfoAsFlow(packageName: String, flags: Int) = packageStateFlow.onStart {
+        emit(PackageState.Update(packageName))
+    }.mapNotNull {
+        updatePackages(it, flags) { get(packageName) }
+    }
 
     private val pm = context.packageManager
     override fun loadLabel(packageInfo: PackageInfo) =

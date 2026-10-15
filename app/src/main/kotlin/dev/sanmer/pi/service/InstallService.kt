@@ -114,7 +114,7 @@ class InstallService : LifecycleService(), KoinComponent {
         lifecycleScope.launch(Dispatchers.IO) {
             autoStopSelf(intent?.taskOrNull ?: return@launch) { task ->
                 task.users.map { user ->
-                    async(Dispatchers.IO) {
+                    async {
                         install(
                             task = task,
                             user = user,

@@ -2,6 +2,7 @@ package dev.sanmer.pi.ui.main
 
 import android.content.pm.PackageInfo
 import android.util.Log
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,8 +32,10 @@ class PackagesViewModel(
     var preference by mutableStateOf(Preference())
         private set
 
-    val textFieldState = TextFieldState()
-    private val queryFlow = snapshotFlow { textFieldState.text }
+    val query = TextFieldState()
+    private val queryFlow = snapshotFlow { query.text }
+
+    val listState = LazyListState()
 
     init {
         Log.d(TAG, "init")
@@ -59,18 +62,20 @@ class PackagesViewModel(
                 }
                 .combine(queryFlow) { list, query -> list to query }
                 .collectLatest { (list, query) ->
-                    packageInfos = LoadData.Success(
-                        if (query.isNotEmpty()) {
+                    if (query.isNotEmpty()) {
+                        packageInfos = LoadData.Success(
                             list.filter {
                                 it.packageName.contains(
-                                    query,
-                                    ignoreCase = true
+                                    query, ignoreCase = true
                                 ) || packagesRepository.loadLabel(it).contains(
                                     query, ignoreCase = true
                                 ) || it.applicationInfo?.uid?.toString() == query
                             }
-                        } else list
-                    )
+                        )
+                    } else {
+                        packageInfos = LoadData.Success(list)
+                        listState.requestScrollToItem(0)
+                    }
                 }
         }
     }

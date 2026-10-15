@@ -1,6 +1,5 @@
 package dev.sanmer.pi.ui.main
 
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +24,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun MainScreen(
     viewModel: HomeViewModel
-) = SharedTransitionLayout {
+) {
     val pagerState = rememberPagerState { 2 }
 
     Scaffold(

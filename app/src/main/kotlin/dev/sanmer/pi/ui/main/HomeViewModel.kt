@@ -96,10 +96,10 @@ class HomeViewModel(
         }
     }
 
-    private fun IPackageInfo.Apk.updateCurrentPackageInfo(context: Context) = try {
+    private fun IPackageInfo.Apk.updateCurrentPackageInfo(userId: Int) = try {
         copy(
             currentPackageInfo = packageManager.getPackageInfo(
-                packageInfo.packageName, 0, context.userId
+                packageInfo.packageName, 0, userId
             ).let { packageParser.createPackageLite(it, false) }
         )
     } catch (e: Throwable) {
@@ -134,12 +134,13 @@ class HomeViewModel(
             suRepository.state.first { it.isSuccess }
             if (uris.contains(uri)) return@launch else uris.add(uri)
             if (context != Content.Uris) content = Content.Uris
+
             packageInfos[uri] = LoadData.Loading
             packageInfos[uri] = loadData {
                 val cr = context.contentResolver
                 val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
                 when (val packageInfo = fd.use(packageParser::parse)) {
-                    is IPackageInfo.Apk -> packageInfo.updateCurrentPackageInfo(context)
+                    is IPackageInfo.Apk -> packageInfo.updateCurrentPackageInfo(context.userId)
 
                     is IPackageInfo.Apks -> {
                         val filenames = mutableStateListOf(PackageParser.BASE_APK)
@@ -147,7 +148,7 @@ class HomeViewModel(
                         fileNames[uri] = filenames
 
                         packageInfo.copy(
-                            base = packageInfo.base.updateCurrentPackageInfo(context),
+                            base = packageInfo.base.updateCurrentPackageInfo(context.userId),
                             splitConfigs = packageInfo.splitConfigs.sortedWith(
                                 compareBy<SplitConfig> {
                                     when (it.type) {
@@ -166,7 +167,7 @@ class HomeViewModel(
 
                         IPackageInfo.Zip(
                             packageInfo.packageInfos.mapValues { (_, packageInfo) ->
-                                packageInfo.updateCurrentPackageInfo(context)
+                                packageInfo.updateCurrentPackageInfo(context.userId)
                             }
                         )
                     }

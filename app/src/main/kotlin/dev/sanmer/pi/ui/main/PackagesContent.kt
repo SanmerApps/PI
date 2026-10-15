@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalIconButton
@@ -61,15 +60,15 @@ fun PackagesContent(
     viewModel: PackagesViewModel,
     contentPadding: PaddingValues
 ) = Box(
-    modifier = Modifier.fillMaxSize()
+    modifier = Modifier.fillMaxSize(),
+    contentAlignment = Alignment.Center
 ) {
-    val lazyListState = rememberLazyListState()
     val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
 
     viewModel.packageInfos.onSuccess { packageInfos ->
         PackageInfoList(
-            state = lazyListState,
+            state = viewModel.listState,
             packageInfos = packageInfos,
             preference = viewModel.preference,
             setOriginatingPackageName = viewModel::setOriginatingPackageName,
@@ -85,7 +84,7 @@ fun PackagesContent(
         state = searchBarState,
         inputField = {
             SearchBarDefaults.InputField(
-                textFieldState = viewModel.textFieldState,
+                textFieldState = viewModel.query,
                 searchBarState = searchBarState,
                 onSearch = {},
                 leadingIcon = {
@@ -99,8 +98,7 @@ fun PackagesContent(
                         IconButton(
                             onClick = {
                                 scope.launch { searchBarState.animateToCollapsed() }
-                                viewModel.textFieldState.clearText()
-                                lazyListState.requestScrollToItem(0)
+                                viewModel.query.clearText()
                             }
                         ) {
                             Icon(
@@ -125,7 +123,6 @@ private fun PackageInfoList(
     contentPadding: PaddingValues
 ) = LazyColumn(
     state = state,
-    modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(15.dp) + contentPadding,
     verticalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterVertically)
 ) {

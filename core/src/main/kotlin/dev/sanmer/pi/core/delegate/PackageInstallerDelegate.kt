@@ -145,14 +145,13 @@ class PackageInstallerDelegate(
     class SessionParams(
         mode: Int
     ) : PackageInstaller.SessionParams(mode) {
-        private val original by lazy {
-            Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)
-        }
+        private val original
+            inline get() = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)
 
         var installFlags: Int
             get() = original.installFlags
             set(flags) {
-                original.installFlags = installFlags or flags
+                original.installFlags = original.installFlags or flags
             }
 
         companion object Default {
