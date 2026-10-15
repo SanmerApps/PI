@@ -12,6 +12,7 @@ import android.content.pm.UserInfo
 import android.content.res.AssetFileDescriptor
 import android.net.Uri
 import android.os.Parcelable
+import android.os.Process
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -27,13 +28,14 @@ import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.commit
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeZip
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
-import dev.sanmer.pi.core.parser.PackageInfoLite
+import dev.sanmer.pi.core.res.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
-import dev.sanmer.pi.ktx.versionDisplay
+import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -48,6 +50,7 @@ class InstallService : LifecycleService(), KoinComponent {
     private val ownerPackageName = get<String>(named("ownerPackageName"))
     private val packageManager = get<PackageManagerDelegate>()
     private val packageInstaller = get<PackageInstallerDelegate>()
+    private val preferenceRepository = get<PreferenceRepository>()
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     private val runningMutex = Mutex()
@@ -111,7 +114,7 @@ class InstallService : LifecycleService(), KoinComponent {
         lifecycleScope.launch(Dispatchers.IO) {
             autoStopSelf(intent?.taskOrNull ?: return@launch) { task ->
                 task.users.map { user ->
-                    async(Dispatchers.IO) {
+                    async {
                         install(
                             task = task,
                             user = user,
@@ -136,7 +139,7 @@ class InstallService : LifecycleService(), KoinComponent {
             setSmallIcon(R.drawable.box_arrow_down)
             setSubText(user.name)
             setLargeIcon(task.packageInfo.icon)
-            setContentTitle(task.packageInfo.labelOrDefault)
+            setContentTitle(task.packageInfo.label)
             setOngoing(true)
             setSilent(true)
             setGroup(GROUP_KEY)
@@ -153,7 +156,7 @@ class InstallService : LifecycleService(), KoinComponent {
             )
             fd.close()
             notify(startId, builder) {
-                setContentText(task.packageInfo.versionDisplay())
+                setContentText("${task.packageInfo.versionName} (${task.packageInfo.versionCode})")
                 setContentIntent(launch(task.packageInfo.packageName, user.id))
                 setAutoCancel(true)
                 setOngoing(false)
@@ -183,16 +186,23 @@ class InstallService : LifecycleService(), KoinComponent {
         startId: Int,
         builder: NotificationCompat.Builder
     ) {
+        val preference = preferenceRepository.data.first()
         val params = createSessionParams()
-        params.setAppIcon(task.packageInfo.iconOrDefault)
-        params.setAppLabel(task.packageInfo.labelOrDefault)
+        params.setAppIcon(task.packageInfo.icon)
+        params.setAppLabel(task.packageInfo.label)
         params.setAppPackageName(task.packageInfo.packageName)
-        params.setOriginatingUri(task.uri)
+
+        if (preference.originatingPackageName.isNotEmpty()) runCatching {
+            val uid = packageManager.getPackageUid(preference.originatingPackageName, 0, userId)
+            if (uid != Process.INVALID_UID) params.setOriginatingUid(uid)
+        }
 
         val session = packageInstaller.openSession(
             packageInstaller.createSession(
                 params = params,
-                installerPackageName = ownerPackageName.ifEmpty { task.installerPackageName },
+                installerPackageName = ownerPackageName
+                    .ifEmpty { preference.installerPackageName }
+                    .ifEmpty { task.packageInfo.packageName },
                 userId = userId
             )
         )
@@ -283,7 +293,6 @@ class InstallService : LifecycleService(), KoinComponent {
         val fileNames: List<String>,
         val sizeBytes: Long,
         val packageInfo: PackageInfoLite,
-        val installerPackageName: String,
         val users: List<UserInfo>
     ) : Parcelable
 
@@ -304,7 +313,6 @@ class InstallService : LifecycleService(), KoinComponent {
             fileNames: List<String>,
             sizeBytes: Long,
             packageInfo: PackageInfoLite,
-            installerPackageName: String,
             users: List<UserInfo>
         ) {
             fun start() {
@@ -316,7 +324,6 @@ class InstallService : LifecycleService(), KoinComponent {
                                 fileNames,
                                 sizeBytes,
                                 packageInfo,
-                                installerPackageName,
                                 users
                             )
                         )

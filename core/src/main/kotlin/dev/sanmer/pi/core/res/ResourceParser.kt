@@ -1,22 +1,22 @@
-package dev.sanmer.pi.core.parser
+package dev.sanmer.pi.core.res
 
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import dev.sanmer.pi.core.compat.ContextCompat
-import dev.sanmer.pi.core.res.AppIconFactory
+import dev.sanmer.pi.core.compat.PackageInfoCompat
 import org.xmlpull.v1.XmlPullParser
 
-internal object ResourceParser {
-    const val ANDROID_MANIFEST = "AndroidManifest.xml"
-    const val ANDROID_RESOURCES = "http://schemas.android.com/apk/res/android"
-    const val TAG_MANIFEST = "manifest"
-    const val TAG_USES_SDK = "uses-sdk"
-    const val TAG_APPLICATION = "application"
-
-    private val factory by lazy { AppIconFactory(45, ContextCompat.getContext()) }
-    fun Drawable.toAppIcon() = factory.createBadgedIcon(this)
+internal class ResourceParser(
+    val toBitmap: (Drawable) -> Bitmap
+) {
+    companion object Default {
+        const val ANDROID_MANIFEST = "AndroidManifest.xml"
+        const val ANDROID_RESOURCES = "http://schemas.android.com/apk/res/android"
+        const val TAG_MANIFEST = "manifest"
+        const val TAG_USES_SDK = "uses-sdk"
+        const val TAG_APPLICATION = "application"
+    }
 
     fun XmlResourceParser.nextOrNull(): Int? {
         return next().takeIf { it != XmlPullParser.END_DOCUMENT }
@@ -87,9 +87,12 @@ internal object ResourceParser {
             onApplication = {}
         )
 
+        require(packageName != null) { "Expect packageName" }
+        require(splitName != null) { "Expect splitName" }
+        require(versionCode > 0) { "Expect versionCode" }
         return SplitConfigLite(
-            packageName = packageName.orEmpty(),
-            splitName = splitName.orEmpty(),
+            packageName = packageName,
+            splitName = splitName,
             configForSplit = configForSplit.orEmpty(),
             versionCode = versionCode,
             isFeatureSplit = isFeatureSplit,
@@ -103,7 +106,6 @@ internal object ResourceParser {
         var versionCodeMajor = -1
         var versionName: String? = null
         var compileSdkVersion = -1
-        var compileSdkVersionCodename: String? = null
         var minSdkVersion = -1
         var targetSdkVersion = -1
         var label: String? = null
@@ -116,9 +118,6 @@ internal object ResourceParser {
                 versionCodeMajor = getAttributeIntValue(ANDROID_RESOURCES, "versionCodeMajor", 0)
                 versionName = getAttributeValue(ANDROID_RESOURCES, "versionName")
                 compileSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "compileSdkVersion", 0)
-                compileSdkVersionCodename = getAttributeValue(
-                    ANDROID_RESOURCES, "compileSdkVersionCodename"
-                )
             },
             onUsesSdk = {
                 minSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "minSdkVersion", 0)
@@ -126,17 +125,17 @@ internal object ResourceParser {
             },
             onApplication = {
                 label = getAttributeResStringValue(res, "label")
-                icon = getAttributeResDrawableValue(res, "icon")?.toAppIcon()
+                icon = getAttributeResDrawableValue(res, "icon")?.let(toBitmap)
             }
         )
 
+        require(packageName != null) { "Expect packageName" }
+        require(versionCode > 0) { "Expect versionCode" }
         return PackageInfoLite(
-            packageName = packageName.orEmpty(),
-            versionCode = versionCode,
-            versionCodeMajor = versionCodeMajor,
+            packageName = packageName,
+            versionCode = PackageInfoCompat.composeLongVersionCode(versionCodeMajor, versionCode),
             versionName = versionName.orEmpty(),
             compileSdkVersion = compileSdkVersion,
-            compileSdkVersionCodename = compileSdkVersionCodename.orEmpty(),
             minSdkVersion = minSdkVersion,
             targetSdkVersion = targetSdkVersion,
             label = label,

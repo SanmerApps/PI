@@ -8,8 +8,8 @@ import dev.sanmer.pi.core.compat.ContextCompat.userId
 import me.zhanghai.android.appiconloader.iconloaderlib.BaseIconFactory
 
 class AppIconFactory(
-    iconSize: Int,
-    context: Context
+    context: Context,
+    iconSize: Int
 ) : BaseIconFactory(
     context,
     context.resources.configuration.densityDpi,

@@ -16,7 +16,7 @@ import android.os.ServiceManager
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.pi.core.compat.BuildCompat
-import dev.sanmer.pi.core.compat.IntentReceiverCompat
+import dev.sanmer.pi.core.compat.IntentSenderCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.zip.ZipFile
@@ -96,7 +96,7 @@ class PackageInstallerDelegate(
         packageName: String,
         installerPackageName: String,
         userId: Int
-    ) = IntentReceiverCompat.onDelegate { sender ->
+    ) = IntentSenderCompat.onDelegate { sender ->
         packageInstaller.uninstall(
             VersionedPackage(packageName, PackageManager.VERSION_CODE_HIGHEST),
             installerPackageName,
@@ -145,14 +145,13 @@ class PackageInstallerDelegate(
     class SessionParams(
         mode: Int
     ) : PackageInstaller.SessionParams(mode) {
-        private val original by lazy {
-            Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)
-        }
+        private val original
+            inline get() = Refine.unsafeCast<PackageInstallerHidden.SessionParamsHidden>(this)
 
         var installFlags: Int
             get() = original.installFlags
             set(flags) {
-                original.installFlags = installFlags or flags
+                original.installFlags = original.installFlags or flags
             }
 
         companion object Default {
@@ -172,7 +171,7 @@ class PackageInstallerDelegate(
 
     companion object Default {
         @SuppressLint("RequestInstallPackagesPolicy")
-        suspend fun PackageInstaller.Session.commit() = IntentReceiverCompat.onDelegate { sender ->
+        suspend fun PackageInstaller.Session.commit() = IntentSenderCompat.onDelegate { sender ->
             commit(sender)
         }
 
