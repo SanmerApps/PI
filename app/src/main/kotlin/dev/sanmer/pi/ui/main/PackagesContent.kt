@@ -202,7 +202,7 @@ private fun PackageInfoItem(
         modifier = Modifier.weight(1f)
     ) {
         val context = LocalContext.current
-        val appLabel = remember(packageInfo.packageName, packageInfo.longVersionCode) {
+        val appLabel = remember(packageInfo.packageName) {
             packageInfo.applicationInfo?.loadLabel(context.packageManager)?.toString()
         }
 
@@ -234,7 +234,7 @@ private fun PackageInfoItem(
         )
 
         Text(
-            text = remember(packageInfo.packageName, packageInfo.longVersionCode) {
+            text = remember(packageInfo.packageName) {
                 packageInfo.versionDisplay()
             },
             style = MaterialTheme.typography.bodySmall,
@@ -242,7 +242,7 @@ private fun PackageInfoItem(
         )
 
         Text(
-            text = remember(packageInfo.packageName, packageInfo.longVersionCode) {
+            text = remember(packageInfo.packageName) {
                 packageInfo.sdkVersion()
             },
             style = MaterialTheme.typography.labelSmall,
