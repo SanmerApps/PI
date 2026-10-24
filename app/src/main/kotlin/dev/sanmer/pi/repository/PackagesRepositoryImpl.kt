@@ -1,12 +1,13 @@
 package dev.sanmer.pi.repository
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.util.Log
-import androidx.core.content.ContextCompat
+import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.core.compat.ContextCompat.userId
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import kotlinx.coroutines.Dispatchers
@@ -51,11 +52,13 @@ class PackagesRepositoryImpl(
             addDataScheme("package")
         }
 
-        ContextCompat.registerReceiver(
-            context,
+        if (BuildCompat.atLeastT) context.registerReceiver(
             packageReceiver,
             packageFilter,
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            Context.RECEIVER_NOT_EXPORTED
+        ) else @SuppressLint("UnspecifiedRegisterReceiverFlag") context.registerReceiver(
+            packageReceiver,
+            packageFilter,
         )
         awaitClose {
             context.unregisterReceiver(packageReceiver)
