@@ -24,8 +24,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v6
         with:
-          distribution: 'jetbrains'
-          java-version: 21
+          distribution: jetbrains
+          java-version: 25
 
       - name: Checkout
         uses: actions/checkout@v7
