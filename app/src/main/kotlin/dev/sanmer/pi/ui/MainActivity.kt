@@ -10,7 +10,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.ui.main.HomeViewModel
-import dev.sanmer.pi.ui.main.HomeViewModel.Content
 import dev.sanmer.pi.ui.main.MainScreen
 import dev.sanmer.pi.ui.theme.AppTheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -36,7 +35,7 @@ class MainActivity : ComponentActivity() {
             viewModel.fromUri(this, it)
         }
 
-        splashScreen.setKeepOnScreenCondition { viewModel.content == Content.Loading }
+        splashScreen.setKeepOnScreenCondition { viewModel.state.isLoading }
 
         setContent {
             AppTheme {

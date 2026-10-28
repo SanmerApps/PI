@@ -20,13 +20,15 @@ import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.core.res.IPackageInfo
 import dev.sanmer.pi.core.res.PackageParser
 import dev.sanmer.pi.core.res.SplitConfig
+import dev.sanmer.pi.ktx.removeLastIf
 import dev.sanmer.pi.model.LoadData
-import dev.sanmer.pi.model.LoadData.Default.loadData
 import dev.sanmer.pi.repository.SuRepository
 import dev.sanmer.pi.service.InstallService
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class HomeViewModel(
     private val suRepository: SuRepository,
@@ -34,6 +36,9 @@ class HomeViewModel(
     private val userManager: UserManagerDelegate,
     private val packageParser: PackageParser
 ) : ViewModel() {
+    var state by mutableStateOf<LoadData<Unit>>(LoadData.Loading)
+        private set
+
     val uris = mutableStateListOf<Uri>()
     private val packageInfos = mutableStateMapOf<Uri, LoadData<IPackageInfo>>()
     private val fileNames = hashMapOf<Uri, SnapshotStateList<String>>()
@@ -41,7 +46,9 @@ class HomeViewModel(
     val users = mutableListOf<UserInfo>()
     private val targetUsers = mutableStateListOf<Int>()
 
-    var content by mutableStateOf<Content>(Content.Loading)
+    val backStack = mutableStateListOf<Content>(Content.Home)
+    private var backStackSize = backStack.size
+    val isBack get() = backStack.size.let { it < backStackSize.apply { backStackSize = it } }
 
     init {
         Log.d(TAG, "init")
@@ -50,19 +57,10 @@ class HomeViewModel(
 
     fun launchSu() {
         viewModelScope.launch {
-            when (suRepository.state.first()) {
-                is LoadData.Success<*> -> {
-                    runCatching {
-                        users.clear()
-                        users.addAll(userManager.getUsers())
-                        targetUsers.clear()
-                        targetUsers.add(UserHandleCompat.myUserId())
-                    }
-                    if (content != Content.Uris) content = Content.Success
-                }
-
-                is LoadData.Failure -> {
-                    content = Content.Failure
+            when (suRepository.state.first().also { state = it.map {} }) {
+                is LoadData.Success<*> -> runCatching {
+                    users.addAll(userManager.getUsers())
+                    targetUsers.add(UserHandleCompat.myUserId())
                 }
 
                 else -> {}
@@ -131,12 +129,10 @@ class HomeViewModel(
 
     fun fromUri(context: Context, uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            suRepository.state.first { it.isSuccess }
             if (uris.contains(uri)) return@launch else uris.add(uri)
-            if (context != Content.Uris) content = Content.Uris
-
             packageInfos[uri] = LoadData.Loading
-            packageInfos[uri] = loadData {
+            suRepository.state.first { it.isSuccess }
+            runCatching {
                 val cr = context.contentResolver
                 val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
                 when (val packageInfo = fd.use(packageParser::parse)) {
@@ -172,8 +168,15 @@ class HomeViewModel(
                         )
                     }
                 }
+            }.onSuccess {
+                packageInfos[uri] = LoadData.Success(it)
             }.onFailure {
+                packageInfos[uri] = LoadData.Failure(it)
                 Log.e(TAG, "fromUri $uri", it)
+
+                delay(5.seconds)
+                uris.remove(uri)
+                packageInfos.remove(uri)
             }
         }
     }
@@ -191,9 +194,6 @@ class HomeViewModel(
         )
         uris.remove(uri)
         packageInfos.remove(uri)
-        if (uris.isEmpty()) {
-            content = Content.Success
-        }
     }
 
     fun install(context: Context, uri: Uri, apks: IPackageInfo.Apks) {
@@ -214,11 +214,7 @@ class HomeViewModel(
         uris.remove(uri)
         packageInfos.remove(uri)
         fileNames.remove(uri)
-        if (uris.isEmpty()) {
-            content = Content.Success
-        } else if (content is Content.Apks) {
-            content = Content.Uris
-        }
+        backStack.removeLastIf { it is Content.Apks }
     }
 
     fun install(context: Context, uri: Uri, apk: IPackageInfo.Apk, fileName: String) {
@@ -238,19 +234,12 @@ class HomeViewModel(
             uris.remove(uri)
             packageInfos.remove(uri)
             fileNames.remove(uri)
-            if (uris.isEmpty()) {
-                content = Content.Success
-            } else if (content is Content.Zip) {
-                content = Content.Uris
-            }
+            backStack.removeLastIf { it is Content.Zip }
         }
     }
 
     sealed interface Content {
-        data object Loading : Content
-        data object Success : Content
-        data object Failure : Content
-        data object Uris : Content
+        data object Home : Content
 
         data class Apks(
             val uri: Uri,

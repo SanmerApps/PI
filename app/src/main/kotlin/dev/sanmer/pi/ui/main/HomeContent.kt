@@ -70,57 +70,67 @@ fun HomeContent(
 ) = SharedTransitionLayout {
     AnimatedContent(
         modifier = Modifier.fillMaxSize(),
-        targetState = viewModel.content,
+        targetState = viewModel.backStack.last(),
         transitionSpec = {
-            val towards = when (viewModel.content) {
-                is Content.Zip, is Content.Apks -> SlideDirection.Up
-                else -> SlideDirection.Down
+            when {
+                viewModel.isBack -> slideIntoContainer(
+                    towards = SlideDirection.Down,
+                    animationSpec = tween(450)
+                ) togetherWith slideOutOfContainer(
+                    towards = SlideDirection.Up,
+                    animationSpec = tween(450)
+                )
+
+                else -> slideIntoContainer(
+                    towards = SlideDirection.Up,
+                    animationSpec = tween(450)
+                ) togetherWith slideOutOfContainer(
+                    towards = SlideDirection.Down,
+                    animationSpec = tween(450)
+                )
             }
-            slideIntoContainer(
-                towards = towards,
-                animationSpec = tween(600)
-            ) togetherWith slideOutOfContainer(
-                towards = towards,
-                animationSpec = tween(600)
-            )
         },
         contentAlignment = Alignment.Center
     ) { content ->
         val context = LocalContext.current
         when (content) {
-            Content.Loading -> {}
+            Content.Home -> when (viewModel.state) {
+                is LoadData.Success<*> if (viewModel.uris.isEmpty()) -> Placeholder(
+                    painter = painterResource(R.drawable.seal_check_fill),
+                    contentPadding = contentPadding,
+                    tint = MaterialTheme.colorScheme.primary
+                )
 
-            Content.Success -> Placeholder(
-                painter = painterResource(R.drawable.seal_check_fill),
-                contentPadding = contentPadding,
-                tint = MaterialTheme.colorScheme.primary
-            )
+                is LoadData.Failure -> Placeholder(
+                    painter = painterResource(R.drawable.seal_warning_fill),
+                    contentPadding = contentPadding,
+                    tint = MaterialTheme.colorScheme.error,
+                    onClick = viewModel::launchSu
+                )
 
-            Content.Failure -> Placeholder(
-                painter = painterResource(R.drawable.seal_warning_fill),
-                contentPadding = contentPadding,
-                tint = MaterialTheme.colorScheme.error,
-                onClick = viewModel::launchSu
-            )
-
-            Content.Uris -> PackageInfoList(
-                users = viewModel.users,
-                isUserSelected = viewModel::isUserSelected,
-                onPickUser = viewModel::pickUser,
-                uris = viewModel.uris,
-                packageInfo = viewModel::packageInfo,
-                fileNames = viewModel::fileNames,
-                onApk = { uri, apk -> viewModel.install(context, uri, apk) },
-                onApks = { uri, apks -> viewModel.install(context, uri, apks) },
-                onZip = { uri, apk, fileName -> viewModel.install(context, uri, apk, fileName) },
-                onViewApks = { uri, apks -> viewModel.content = Content.Apks(uri, apks) },
-                onViewZip = { uri, zip -> viewModel.content = Content.Zip(uri, zip.packageInfos) },
-                contentPadding = contentPadding,
-                animatedContentScope = this@AnimatedContent
-            )
+                else -> PackageInfoList(
+                    users = viewModel.users,
+                    isUserSelected = viewModel::isUserSelected,
+                    onPickUser = viewModel::pickUser,
+                    uris = viewModel.uris,
+                    packageInfo = viewModel::packageInfo,
+                    fileNames = viewModel::fileNames,
+                    onApk = { uri, apk -> viewModel.install(context, uri, apk) },
+                    onApks = { uri, apks -> viewModel.install(context, uri, apks) },
+                    onZip = { uri, apk, name -> viewModel.install(context, uri, apk, name) },
+                    onViewApks = { uri, apks ->
+                        viewModel.backStack.add(Content.Apks(uri, apks))
+                    },
+                    onViewZip = { uri, zip ->
+                        viewModel.backStack.add(Content.Zip(uri, zip.packageInfos))
+                    },
+                    contentPadding = contentPadding,
+                    animatedContentScope = this@AnimatedContent
+                )
+            }
 
             is Content.Apks -> {
-                BackHandler { viewModel.content = Content.Uris }
+                BackHandler { viewModel.backStack.removeLastOrNull() }
                 ApksContent(
                     base = content.packageInfo.base,
                     onApks = { viewModel.install(context, content.uri, content.packageInfo) },
@@ -133,7 +143,7 @@ fun HomeContent(
             }
 
             is Content.Zip -> {
-                BackHandler { viewModel.content = Content.Uris }
+                BackHandler { viewModel.backStack.removeLastOrNull() }
                 ZipContent(
                     fileNames = viewModel.fileNames(content.uri),
                     packageInfo = content.packageInfos::getValue,
@@ -223,9 +233,9 @@ private fun SharedTransitionScope.PackageInfoList(
             targetState = packageInfo(uri),
             transitionSpec = {
                 scaleIn(
-                    animationSpec = tween(600)
+                    animationSpec = tween(450)
                 ) togetherWith scaleOut(
-                    animationSpec = tween(600)
+                    animationSpec = tween(450)
                 )
             },
             contentAlignment = Alignment.Center

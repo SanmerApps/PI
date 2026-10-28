@@ -24,6 +24,15 @@ sealed class LoadData<out V> {
         return (this as? Success)?.value?.let(transform) ?: defaultValue()
     }
 
+    inline fun <R> map(transform: (V) -> R): LoadData<R> {
+        return if (this is Success) {
+            Success(transform(value))
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            this as LoadData<R>
+        }
+    }
+
     inline fun onPending(action: () -> Unit): LoadData<V> {
         if (this == Pending) action()
         return this
