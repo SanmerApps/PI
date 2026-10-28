@@ -34,8 +34,12 @@ import dev.sanmer.pi.repository.PreferenceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -44,7 +48,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.qualifier.named
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
 
 class InstallService : LifecycleService(), KoinComponent {
     private val ownerPackageName = get<String>(named("ownerPackageName"))
@@ -185,7 +188,7 @@ class InstallService : LifecycleService(), KoinComponent {
         userId: Int,
         startId: Int,
         builder: NotificationCompat.Builder
-    ) {
+    ) = coroutineScope {
         val preference = preferenceRepository.data.first()
         val params = createSessionParams()
         params.setAppIcon(task.packageInfo.icon)
@@ -207,22 +210,28 @@ class InstallService : LifecycleService(), KoinComponent {
             )
         )
 
-        val period = 1.seconds
-        var lastNotify = TimeSource.Monotonic.markNow()
-        val sizeBytes = task.sizeBytes.toInt()
-        val onProgress: (Long) -> Unit = { copied ->
-            if (lastNotify.elapsedNow() >= period) {
+        val channel = Channel<Long>(Channel.CONFLATED)
+        val consumer = launch {
+            val sizeBytes = task.sizeBytes.toInt()
+            while (isActive) {
+                val copied = channel.receive()
                 notify(startId, builder) {
                     setProgress(sizeBytes, copied.toInt(), false)
                 }
-                lastNotify = TimeSource.Monotonic.markNow()
+                delay(1.seconds)
             }
         }
+
         if (task.fileNames.isEmpty()) {
-            session.writeFd(task.packageInfo.packageName, fd, onProgress)
+            session.writeFd(task.packageInfo.packageName, fd) { copied ->
+                channel.trySend(copied)
+            }
         } else {
-            session.writeZip(task.fileNames, fd, onProgress)
+            session.writeZip(task.fileNames, fd) { copied ->
+                channel.trySend(copied)
+            }
         }
+        consumer.cancelAndJoin()
 
         notify(startId, builder) {
             setProgress(0, 0, false)
