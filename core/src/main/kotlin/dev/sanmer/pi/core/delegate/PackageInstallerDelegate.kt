@@ -1,6 +1,5 @@
 package dev.sanmer.pi.core.delegate
 
-import android.annotation.SuppressLint
 import android.content.pm.IPackageInstaller
 import android.content.pm.IPackageInstallerCallback
 import android.content.pm.IPackageInstallerSession
@@ -10,18 +9,12 @@ import android.content.pm.PackageInstallerHidden
 import android.content.pm.PackageManager
 import android.content.pm.PackageManagerHidden
 import android.content.pm.VersionedPackage
-import android.content.res.AssetFileDescriptor
 import android.os.IBinder
 import android.os.ServiceManager
 import androidx.annotation.RequiresApi
 import dev.rikka.tools.refine.Refine
 import dev.sanmer.pi.core.compat.BuildCompat
 import dev.sanmer.pi.core.compat.IntentSenderCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.apache.commons.compress.archivers.zip.ZipFile
-import java.io.InputStream
-import java.io.OutputStream
 
 class PackageInstallerDelegate(
     private val proxy: IBinder.() -> IBinder = { this }
@@ -166,67 +159,6 @@ class PackageInstallerDelegate(
 
             @get:RequiresApi(34)
             val INSTALL_REQUEST_UPDATE_OWNERSHIP get() = PackageManagerHidden.INSTALL_REQUEST_UPDATE_OWNERSHIP
-        }
-    }
-
-    companion object Default {
-        @SuppressLint("RequestInstallPackagesPolicy")
-        suspend fun PackageInstaller.Session.commit() = IntentSenderCompat.onDelegate { sender ->
-            commit(sender)
-        }
-
-        private inline fun InputStream.copyTo(
-            out: OutputStream,
-            bufferSize: Int = DEFAULT_BUFFER_SIZE,
-            onProgress: (Long) -> Unit
-        ): Long {
-            var bytesCopied: Long = 0
-            val buffer = ByteArray(bufferSize)
-            var bytes = read(buffer)
-            while (bytes >= 0) {
-                out.write(buffer, 0, bytes)
-                bytesCopied += bytes
-                onProgress(bytesCopied)
-                bytes = read(buffer)
-            }
-            return bytesCopied
-        }
-
-        suspend fun PackageInstaller.Session.writeFd(
-            name: String,
-            fd: AssetFileDescriptor,
-            onProgress: (Long) -> Unit = {}
-        ) = withContext(Dispatchers.IO) {
-            fd.createInputStream().use { input ->
-                openWrite(name, 0, fd.length).use { output ->
-                    input.copyTo(output) { onProgress(it) }
-                    fsync(output)
-                }
-            }
-        }
-
-        suspend fun PackageInstaller.Session.writeZip(
-            names: List<String>,
-            fd: AssetFileDescriptor,
-            onProgress: (Long) -> Unit = {}
-        ) = withContext(Dispatchers.IO) {
-            ZipFile.builder()
-                .setIgnoreLocalFileHeader(true)
-                .setSeekableByteChannel(fd.createInputStream().channel)
-                .get()
-                .use { zip ->
-                    var copied = 0L
-                    zip.entries.iterator().forEach { entry ->
-                        if (entry.name in names) {
-                            zip.getInputStream(entry).use { input ->
-                                openWrite(entry.name, 0, entry.size).use { output ->
-                                    copied += input.copyTo(output) { onProgress(copied + it) }
-                                    fsync(output)
-                                }
-                            }
-                        }
-                    }
-                }
         }
     }
 }

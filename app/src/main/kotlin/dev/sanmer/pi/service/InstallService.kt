@@ -24,10 +24,10 @@ import dev.sanmer.pi.R
 import dev.sanmer.pi.compat.BuildCompat
 import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
-import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.commit
-import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeFd
-import dev.sanmer.pi.core.delegate.PackageInstallerDelegate.Default.writeZip
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
+import dev.sanmer.pi.core.ktx.commit
+import dev.sanmer.pi.core.ktx.writeFd
+import dev.sanmer.pi.core.ktx.writeZip
 import dev.sanmer.pi.core.res.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.repository.PreferenceRepository
