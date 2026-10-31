@@ -28,7 +28,7 @@ kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.12.0"
 libsu = "6.0.0"
 shizuku = "13.1.5"
-dhizuku = "2.6.0"
+dhizuku = "2.7.0"
 xz = "1.12"
 
 [libraries]
