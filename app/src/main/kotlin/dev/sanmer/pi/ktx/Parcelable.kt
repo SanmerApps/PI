@@ -9,5 +9,11 @@ import androidx.core.os.BundleCompat
 inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? =
     IntentCompat.getParcelableExtra(this, key, T::class.java)
 
+inline fun <reified T : Parcelable> Intent.parcelableArrayList(key: String): List<T> =
+    IntentCompat.getParcelableArrayListExtra(this, key, T::class.java).orEmpty()
+
 inline fun <reified T : Parcelable> Bundle.parcelable(key: String): T? =
     BundleCompat.getParcelable(this, key, T::class.java)
+
+inline fun <reified T : Parcelable> Bundle.parcelableArrayList(key: String): List<T> =
+    BundleCompat.getParcelableArrayList(this, key, T::class.java).orEmpty()
