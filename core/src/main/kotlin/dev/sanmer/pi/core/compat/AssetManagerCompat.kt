@@ -13,6 +13,10 @@ object AssetManagerCompat {
         Refine.unsafeCast<AssetManagerHidden>(this)
             .setApkAssets(apkAssets, invalidateCaches)
 
+    fun new(apkAssets: Array<ApkAssets>, invalidateCaches: Boolean) = new().apply {
+        setApkAssets(apkAssets, invalidateCaches)
+    }
+
     val AssetManager.resources: Resources
         get() {
             val sys = Resources.getSystem()

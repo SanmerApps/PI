@@ -105,6 +105,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.appiconloader)
+    implementation(libs.appiconloader.iconloaderlib)
     implementation(platform(libs.coil.bom))
     implementation(libs.coil.compose)
     implementation(platform(libs.koin.bom))

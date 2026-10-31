@@ -3,107 +3,109 @@ package dev.sanmer.pi.core.res
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.res.AssetFileDescriptor
+import android.util.Log
 import dev.sanmer.pi.core.compat.AssetManagerCompat
 import dev.sanmer.pi.core.compat.AssetManagerCompat.resources
-import dev.sanmer.pi.core.compat.AssetManagerCompat.setApkAssets
 import dev.sanmer.pi.core.compat.PackageInfoCompat.compileSdkVersion
 import dev.sanmer.pi.core.compat.PackageInfoCompat.loadLabel
 import dev.sanmer.pi.core.compat.PackageInfoCompat.loadUnbadgedIcon
 import dev.sanmer.pi.core.compat.PackageInfoCompat.minSdkVersion
 import dev.sanmer.pi.core.compat.PackageInfoCompat.targetSdkVersion
 import dev.sanmer.pi.core.compat.XmlBlockCompat
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import dev.sanmer.pi.core.res.ResourceParser.getPackageInfoLite
+import dev.sanmer.pi.core.res.ResourceParser.getSplitConfigLite
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
-import kotlin.io.readBytes
-import kotlin.use
 
 class PackageParser(
-    private val context: Context,
-    private val iconSize: Int
+    private val factory: ResourceParser.BitmapFactory
 ) {
     companion object Default {
+        const val ANDROID_MANIFEST_XML = "AndroidManifest.xml"
         const val BASE_APK = "base.apk"
-    }
 
-    private val resourceParser by lazy {
-        val factory = AppIconFactory(context, iconSize)
-        ResourceParser { factory.createBadgedIcon(it) }
-    }
+        fun PackageInfo.toPackageLite() = PackageInfoLite(
+            packageName = packageName,
+            versionCode = longVersionCode,
+            versionName = versionName.orEmpty(),
+            compileSdkVersion = compileSdkVersion,
+            minSdkVersion = minSdkVersion,
+            targetSdkVersion = targetSdkVersion,
+            label = null,
+            icon = null
+        )
 
-    @Throws(FileNotFoundException::class)
-    internal fun ZipArchiveInputStream.find(name: String): ZipArchiveEntry {
-        while (true) {
-            val entry = nextEntry ?: break
-            if (entry.name == name) return entry
+        internal fun parseSplit(stream: InputStream): SplitConfigLite {
+            ZipArchiveInputStream(stream).use { zip ->
+                for (entry in zip) {
+                    if (entry.name == ANDROID_MANIFEST_XML) {
+                        return XmlBlockCompat.newParser(zip.readBytes()) { parser ->
+                            parser.getSplitConfigLite()
+                        }
+                    }
+                }
+                throw FileNotFoundException(ANDROID_MANIFEST_XML)
+            }
         }
-        throw FileNotFoundException(name)
     }
 
-    fun createPackageLite(
-        packageInfo: PackageInfo,
-        loadRes: Boolean = true
-    ) = PackageInfoLite(
-        packageName = packageInfo.packageName,
-        versionCode = packageInfo.longVersionCode,
-        versionName = packageInfo.versionName.orEmpty(),
-        compileSdkVersion = packageInfo.compileSdkVersion,
-        minSdkVersion = packageInfo.minSdkVersion,
-        targetSdkVersion = packageInfo.targetSdkVersion,
-        label = if (loadRes) packageInfo.loadLabel(context) else null,
-        icon = if (loadRes) packageInfo.loadUnbadgedIcon(context)
-            ?.let(resourceParser.toBitmap) else null
+    fun PackageInfo.toPackageLite(context: Context) = PackageInfoLite(
+        packageName = packageName,
+        versionCode = longVersionCode,
+        versionName = versionName.orEmpty(),
+        compileSdkVersion = compileSdkVersion,
+        minSdkVersion = minSdkVersion,
+        targetSdkVersion = targetSdkVersion,
+        label = loadLabel(context),
+        icon = loadUnbadgedIcon(context)?.let { factory.toBitmap(it) }
     )
 
-    fun parseSplitLite(fd: AssetFileDescriptor) = ApkAssetsSource.Fd(fd).use { source ->
-        val asset = source.get()
-        asset.openXml(ResourceParser.ANDROID_MANIFEST).use {
-            resourceParser.parseSplit(it)
+    fun parseApk(fd: AssetFileDescriptor): PackageInfoLite {
+        return ApkAssetsDelegate.Fd(fd.length, fd.fileDescriptor, false).use { apkAssets ->
+            val assetManager = AssetManagerCompat.new(arrayOf(apkAssets.get()), false)
+            assetManager.openXmlResourceParser(ANDROID_MANIFEST_XML).use { parser ->
+                parser.getPackageInfoLite(assetManager.resources, factory)
+            }
         }
     }
 
-    fun parseSplitLite(stream: InputStream) = ZipArchiveInputStream(stream).use { zip ->
-        zip.find(ResourceParser.ANDROID_MANIFEST)
-        XmlBlockCompat.newParser(zip.readBytes()).use {
-            resourceParser.parseSplit(it)
+    fun parseApk(context: Context, stream: InputStream): PackageInfoLite {
+        val temp = File.createTempFile("stream", "", context.externalCacheDir)
+        return try {
+            temp.outputStream().use { stream.copyTo(it) }
+            ApkAssetsDelegate.Path(temp.absolutePath, false).use { apkAssets ->
+                val assetManager = AssetManagerCompat.new(arrayOf(apkAssets.get()), false)
+                assetManager.openXmlResourceParser(ANDROID_MANIFEST_XML).use { parser ->
+                    parser.getPackageInfoLite(assetManager.resources, factory)
+                }
+            }
+        } finally {
+            if (temp.delete()) {
+                Log.d("PackageParser", "Deleted $temp")
+            }
         }
     }
 
-    fun parsePackageLite(source: ApkAssetsSource): PackageInfoLite {
-        val asset = source.get()
-        val assets = AssetManagerCompat.new()
-        assets.setApkAssets(arrayOf(asset), false)
-        return asset.openXml(ResourceParser.ANDROID_MANIFEST).use {
-            resourceParser.parsePackage(it, assets.resources)
-        }
-    }
-
-    fun parsePackageLite(fd: AssetFileDescriptor) = ApkAssetsSource.Fd(fd)
-        .use(::parsePackageLite)
-
-    fun parsePackageLite(stream: InputStream) = ApkAssetsSource.Stream(stream, context.cacheDir)
-        .use(::parsePackageLite)
-
-    internal fun parseApks(zip: ZipFile): IPackageInfo.Apks? {
+    internal fun parseApks(context: Context, zip: ZipFile): IPackageInfo.Apks? {
         val entry = zip.getEntry(BASE_APK) ?: return null
-        val packageInfo = parsePackageLite(zip.getInputStream(entry))
         val base = IPackageInfo.Apk(
-            packageInfo = packageInfo,
+            packageInfo = parseApk(context, zip.getInputStream(entry)),
             sizeBytes = entry.size
         )
 
         val splitConfigs = mutableListOf<SplitConfig>()
-        zip.entries.iterator().forEach { entry ->
-            if (entry.name.endsWith(".apk") && entry.name != BASE_APK) runCatching {
-                splitConfigs.add(
-                    SplitConfig.from(
-                        splitConfig = parseSplitLite(zip.getInputStream(entry)),
-                        fileName = entry.name,
-                        sizeBytes = entry.size
-                    )
+        for (entry in zip.entries) {
+            if (entry.name != BASE_APK && entry.name.endsWith(".apk")) runCatching {
+                splitConfigs += SplitConfig.from(
+                    splitConfig = parseSplit(zip.getInputStream(entry)),
+                    fileName = entry.name,
+                    sizeBytes = entry.size
                 )
+            }.onFailure {
+                Log.d("PackageParser", "parseSplit(${entry.name})", it)
             }
         }
 
@@ -113,29 +115,31 @@ class PackageParser(
         )
     }
 
-    fun parse(fd: AssetFileDescriptor) = ZipFile.builder()
+    fun parse(context: Context, fd: AssetFileDescriptor) = ZipFile.Builder()
         .setIgnoreLocalFileHeader(true)
         .setSeekableByteChannel(fd.createInputStream().channel)
         .get().use { zip ->
-            val xml = zip.getEntry(ResourceParser.ANDROID_MANIFEST)
-            if (xml != null) return@use IPackageInfo.Apk(
-                packageInfo = parsePackageLite(fd),
-                sizeBytes = fd.length
-            )
+            if (zip.getEntry(ANDROID_MANIFEST_XML) != null) {
+                return@use IPackageInfo.Apk(
+                    packageInfo = parseApk(fd),
+                    sizeBytes = fd.length
+                )
+            }
 
-            val packageInfo = parseApks(zip)
+            val packageInfo = parseApks(context, zip)
             if (packageInfo != null) return@use packageInfo
 
             val packageInfos = hashMapOf<String, IPackageInfo.Apk>()
-            zip.entries.iterator().forEach { entry ->
+            for (entry in zip.entries) {
                 if (entry.name.endsWith(".apk")) runCatching {
                     packageInfos[entry.name] = IPackageInfo.Apk(
-                        packageInfo = parsePackageLite(zip.getInputStream(entry)),
-                        sizeBytes = entry.size,
+                        packageInfo = parseApk(context, zip.getInputStream(entry)),
+                        sizeBytes = entry.size
                     )
+                }.onFailure {
+                    Log.d("PackageParser", "parseApk(${entry.name})", it)
                 }
             }
-
             if (packageInfos.isEmpty()) throw FileNotFoundException("*.apk")
             IPackageInfo.Zip(packageInfos)
         }

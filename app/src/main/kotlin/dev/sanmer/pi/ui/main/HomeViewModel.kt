@@ -19,6 +19,7 @@ import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.core.res.IPackageInfo
 import dev.sanmer.pi.core.res.PackageParser
+import dev.sanmer.pi.core.res.PackageParser.Default.toPackageLite
 import dev.sanmer.pi.core.res.SplitConfig
 import dev.sanmer.pi.ktx.removeLastIf
 import dev.sanmer.pi.model.LoadData
@@ -98,7 +99,7 @@ class HomeViewModel(
         copy(
             currentPackageInfo = packageManager.getPackageInfo(
                 packageInfo.packageName, 0, userId
-            ).let { packageParser.createPackageLite(it, false) }
+            ).toPackageLite()
         )
     } catch (e: Throwable) {
         Log.w(TAG, "getPackageInfo(${packageInfo.packageName})", e)
@@ -135,7 +136,7 @@ class HomeViewModel(
             runCatching {
                 val cr = context.contentResolver
                 val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
-                when (val packageInfo = fd.use(packageParser::parse)) {
+                when (val packageInfo = fd.use { packageParser.parse(context, fd) }) {
                     is IPackageInfo.Apk -> packageInfo.updateCurrentPackageInfo(context.userId)
 
                     is IPackageInfo.Apks -> {

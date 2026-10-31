@@ -7,46 +7,16 @@ import android.graphics.drawable.Drawable
 import dev.sanmer.pi.core.compat.PackageInfoCompat
 import org.xmlpull.v1.XmlPullParser
 
-internal class ResourceParser(
-    val toBitmap: (Drawable) -> Bitmap
-) {
-    companion object Default {
-        const val ANDROID_MANIFEST = "AndroidManifest.xml"
-        const val ANDROID_RESOURCES = "http://schemas.android.com/apk/res/android"
-        const val TAG_MANIFEST = "manifest"
-        const val TAG_USES_SDK = "uses-sdk"
-        const val TAG_APPLICATION = "application"
-    }
+object ResourceParser {
+    const val NS_RESOURCES = "http://schemas.android.com/apk/res/android"
+    const val TAG_MANIFEST = "manifest"
+    const val TAG_USES_SDK = "uses-sdk"
+    const val TAG_APPLICATION = "application"
 
-    fun XmlResourceParser.nextOrNull(): Int? {
-        return next().takeIf { it != XmlPullParser.END_DOCUMENT }
-    }
+    inline fun <reified P : XmlResourceParser> P.nextOrNull() =
+        next().takeIf { it != XmlPullParser.END_DOCUMENT }
 
-    fun XmlResourceParser.getAttributeResStringValue(
-        res: Resources, name: String
-    ): String? {
-        val resId = getAttributeResourceValue(ANDROID_RESOURCES, name, 0)
-        return if (resId == 0) {
-            getAttributeValue(ANDROID_RESOURCES, name)
-        } else try {
-            res.getString(resId)
-        } catch (_: Throwable) {
-            null
-        }
-    }
-
-    fun XmlResourceParser.getAttributeResDrawableValue(
-        res: Resources, name: String
-    ): Drawable? {
-        val resId = getAttributeResourceValue(ANDROID_RESOURCES, name, 0)
-        return try {
-            res.getDrawable(resId, null)
-        } catch (_: Throwable) {
-            null
-        }
-    }
-
-    inline fun <reified P : XmlResourceParser> P.fold(
+    inline fun <reified P : XmlResourceParser> P.foldAndroidManifest(
         onManifest: P.() -> Unit,
         onUsesSdk: P.() -> Unit,
         onApplication: P.() -> Unit
@@ -62,7 +32,7 @@ internal class ResourceParser(
         }
     }
 
-    fun parseSplit(parser: XmlResourceParser): SplitConfigLite {
+    inline fun <reified P : XmlResourceParser> P.getSplitConfigLite(): SplitConfigLite {
         var packageName: String? = null
         var splitName: String? = null
         var configForSplit: String? = null
@@ -70,17 +40,15 @@ internal class ResourceParser(
         var isFeatureSplit = false
         val requiredSplitTypes = mutableListOf<String>()
 
-        parser.fold(
+        foldAndroidManifest(
             onManifest = {
                 packageName = getAttributeValue(null, "package")
                 splitName = getAttributeValue(null, "split")
                 configForSplit = getAttributeValue(null, "configForSplit")
-                versionCode = getAttributeIntValue(ANDROID_RESOURCES, "versionCode", 0)
-                isFeatureSplit = getAttributeBooleanValue(
-                    ANDROID_RESOURCES, "isFeatureSplit", false
-                )
-                getAttributeValue(ANDROID_RESOURCES, "requiredSplitTypes")?.let {
-                    if (it.isNotEmpty()) requiredSplitTypes.addAll(it.split(','))
+                versionCode = getAttributeIntValue(NS_RESOURCES, "versionCode", 0)
+                isFeatureSplit = getAttributeBooleanValue(NS_RESOURCES, "isFeatureSplit", false)
+                getAttributeValue(NS_RESOURCES, "requiredSplitTypes")?.let {
+                    requiredSplitTypes.addAll(it.split(','))
                 }
             },
             onUsesSdk = {},
@@ -100,7 +68,14 @@ internal class ResourceParser(
         )
     }
 
-    fun parsePackage(parser: XmlResourceParser, res: Resources): PackageInfoLite {
+    fun interface BitmapFactory {
+        fun toBitmap(drawable: Drawable): Bitmap
+    }
+
+    inline fun <reified P : XmlResourceParser> P.getPackageInfoLite(
+        resources: Resources,
+        factory: BitmapFactory
+    ): PackageInfoLite {
         var packageName: String? = null
         var versionCode = -1
         var versionCodeMajor = -1
@@ -111,21 +86,29 @@ internal class ResourceParser(
         var label: String? = null
         var icon: Bitmap? = null
 
-        parser.fold(
+        foldAndroidManifest(
             onManifest = {
                 packageName = getAttributeValue(null, "package")
-                versionCode = getAttributeIntValue(ANDROID_RESOURCES, "versionCode", 0)
-                versionCodeMajor = getAttributeIntValue(ANDROID_RESOURCES, "versionCodeMajor", 0)
-                versionName = getAttributeValue(ANDROID_RESOURCES, "versionName")
-                compileSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "compileSdkVersion", 0)
+                versionCode = getAttributeIntValue(NS_RESOURCES, "versionCode", 0)
+                versionCodeMajor = getAttributeIntValue(NS_RESOURCES, "versionCodeMajor", 0)
+                versionName = getAttributeValue(NS_RESOURCES, "versionName")
+                compileSdkVersion = getAttributeIntValue(NS_RESOURCES, "compileSdkVersion", 0)
             },
             onUsesSdk = {
-                minSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "minSdkVersion", 0)
-                targetSdkVersion = getAttributeIntValue(ANDROID_RESOURCES, "targetSdkVersion", 0)
+                minSdkVersion = getAttributeIntValue(NS_RESOURCES, "minSdkVersion", 0)
+                targetSdkVersion = getAttributeIntValue(NS_RESOURCES, "targetSdkVersion", 0)
             },
             onApplication = {
-                label = getAttributeResStringValue(res, "label")
-                icon = getAttributeResDrawableValue(res, "icon")?.let(toBitmap)
+                val labelId = getAttributeResourceValue(NS_RESOURCES, "label", 0)
+                if (labelId == 0) {
+                    label = getAttributeValue(NS_RESOURCES, "label")
+                } else runCatching {
+                    label = resources.getString(labelId)
+                }
+                val iconId = getAttributeResourceValue(NS_RESOURCES, "icon", 0)
+                if (iconId != 0) runCatching {
+                    icon = factory.toBitmap(resources.getDrawable(iconId, null))
+                }
             }
         )
 

@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.self.library)
-    alias(libs.plugins.rikka.refine)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.rikka.refine)
 }
 
 android {
@@ -14,10 +14,8 @@ android {
 
 dependencies {
     compileOnly(project(":stub"))
-    implementation(libs.rikka.refine.runtime)
-
     implementation(libs.androidx.annotation)
     implementation(libs.apache.commons.compress)
-    implementation(libs.appiconloader.iconloaderlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.rikka.refine.runtime)
 }
