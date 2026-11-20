@@ -29,3 +29,6 @@ private fun signingProperties(rootDir: File): Properties {
     }
     return properties
 }
+
+val String.versionMajor get() = substringBeforeLast('.')
+val String.versionMinor get() = substringAfterLast('.', "")
