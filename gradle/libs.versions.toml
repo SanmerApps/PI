@@ -1,10 +1,9 @@
 [versions]
 versionName = "2.0.4"
-compileSdk = "37"
+compileSdk = "37.2"
 targetSdk = "37"
 minSdk = "29"
 buildToolsVersion = "37.0.0"
-javaVersion = "25"
 
 androidGradlePlugin = "9.5.1"
 androidxActivity = "1.13.0"

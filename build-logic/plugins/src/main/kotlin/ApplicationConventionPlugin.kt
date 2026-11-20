@@ -14,20 +14,22 @@ class ApplicationConventionPlugin : Plugin<Project> {
         apply(plugin = "com.android.application")
 
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-        val javaVersion = JavaVersion.toVersion(
-            libs.findVersion("javaVersion").get().requiredVersion.toInt()
-        )
+        val compileSdk = libs.findVersion("compileSdk").get().requiredVersion
+        val targetSdk = libs.findVersion("targetSdk").get().requiredVersion
+        val minSdk = libs.findVersion("minSdk").get().requiredVersion
+        val buildToolsVersion = libs.findVersion("buildToolsVersion").get().requiredVersion
         val kotlinVersion = KotlinVersion.fromVersion(
-            libs.findVersion("kotlin").get().requiredVersion.substringBeforeLast('.')
+            libs.findVersion("kotlin").get().requiredVersion.versionMajor
         )
 
         extensions.configure<ApplicationExtension> {
-            compileSdk = libs.findVersion("compileSdk").get().requiredVersion.toInt()
-            buildToolsVersion = libs.findVersion("buildToolsVersion").get().requiredVersion
+            this.compileSdk = compileSdk.versionMajor.toInt()
+            this.compileSdkMinor = compileSdk.versionMinor.toIntOrNull()
+            this.buildToolsVersion = buildToolsVersion
 
             defaultConfig {
-                targetSdk = libs.findVersion("targetSdk").get().requiredVersion.toInt()
-                minSdk = libs.findVersion("minSdk").get().requiredVersion.toInt()
+                this.targetSdk = targetSdk.toInt()
+                this.minSdk = minSdk.toInt()
             }
 
             buildFeatures {
@@ -35,8 +37,8 @@ class ApplicationConventionPlugin : Plugin<Project> {
             }
 
             compileOptions {
-                sourceCompatibility = javaVersion
-                targetCompatibility = javaVersion
+                sourceCompatibility = JavaVersion.current()
+                targetCompatibility = JavaVersion.current()
             }
         }
 
