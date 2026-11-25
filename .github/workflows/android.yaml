@@ -27,9 +27,8 @@ jobs:
 
       - name: Set up Android NDK
         run: |
-          echo "ANDROID_NDK_ROOT=${ANDROID_NDK_LATEST_HOME}" >> $GITHUB_ENV
-          NDK_BUILD="$(ls ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/)"
-          NDK_PATH="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/${NDK_BUILD}/bin"
+          NDK_BUILD="$(ls ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/)"
+          NDK_PATH="${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/${NDK_BUILD}/bin"
           echo "${NDK_PATH}" >> $GITHUB_PATH
           ${NDK_PATH}/clang --version
 
