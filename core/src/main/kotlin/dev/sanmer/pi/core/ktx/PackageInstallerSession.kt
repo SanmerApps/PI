@@ -2,69 +2,64 @@ package dev.sanmer.pi.core.ktx
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageInstaller
-import android.content.res.AssetFileDescriptor
+import android.os.ParcelFileDescriptor
 import dev.sanmer.pi.core.compat.IntentSenderCompat
+import dev.sanmer.zip.ZipFile
+import dev.sanmer.zip.io.asDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.commons.compress.archivers.zip.ZipFile
-import java.io.InputStream
-import java.io.OutputStream
+import kotlinx.io.Buffer
+import kotlinx.io.asSink
+import kotlinx.io.bytestring.decodeToString
 
 @SuppressLint("RequestInstallPackagesPolicy")
 suspend fun PackageInstaller.Session.commit() = IntentSenderCompat.onDelegate { sender ->
     commit(sender)
 }
 
-private inline fun InputStream.copyTo(
-    out: OutputStream,
-    bufferSize: Int = DEFAULT_BUFFER_SIZE,
-    onProgress: (Long) -> Unit
-): Long {
-    var bytesCopied: Long = 0
-    val buffer = ByteArray(bufferSize)
-    var bytes = read(buffer)
-    while (bytes >= 0) {
-        out.write(buffer, 0, bytes)
-        bytesCopied += bytes
-        onProgress(bytesCopied)
-        bytes = read(buffer)
-    }
-    return bytesCopied
-}
-
 suspend fun PackageInstaller.Session.writeFd(
     name: String,
-    fd: AssetFileDescriptor,
+    pfd: ParcelFileDescriptor,
     onProgress: (Long) -> Unit = {}
 ) = withContext(Dispatchers.IO) {
-    fd.createInputStream().use { input ->
-        openWrite(name, 0, fd.length).use { output ->
-            input.copyTo(output) { onProgress(it) }
-            fsync(output)
-        }
+    val input = ParcelFileDescriptor.AutoCloseInputStream(pfd)
+    val output = openWrite(name, 0, pfd.statSize)
+    var copied = 0L
+    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+    var bytes = input.read(buffer)
+    while (bytes >= 0) {
+        output.write(buffer, 0, bytes)
+        copied += bytes
+        onProgress(copied)
+        bytes = input.read(buffer)
     }
+    fsync(output)
+    output.close()
 }
 
 suspend fun PackageInstaller.Session.writeZip(
     names: List<String>,
-    fd: AssetFileDescriptor,
+    pfd: ParcelFileDescriptor,
     onProgress: (Long) -> Unit = {}
 ) = withContext(Dispatchers.IO) {
-    ZipFile.Builder()
-        .setIgnoreLocalFileHeader(true)
-        .setSeekableByteChannel(fd.createInputStream().channel)
-        .get()
-        .use { zip ->
-            var copied = 0L
-            for (entry in zip.entries) {
-                if (entry.name in names) {
-                    zip.getInputStream(entry).use { input ->
-                        openWrite(entry.name, 0, entry.size).use { output ->
-                            copied += input.copyTo(output) { onProgress(copied + it) }
-                            fsync(output)
-                        }
-                    }
-                }
-            }
+    val zip = ZipFile.of(pfd.asDataSource())
+    var copied = 0L
+    for (record in zip.records) {
+        val name = record.name.decodeToString(Charsets.UTF_8)
+        if (name !in names) continue
+        val source = zip.getSource(record)
+        val output = openWrite(name, 0, record.uncompressedSize.toLong())
+        val sink = output.asSink()
+        val buffer = Buffer()
+        var bytes = source.readAtMostTo(buffer, DEFAULT_BUFFER_SIZE.toLong())
+        while (bytes >= 0) {
+            sink.write(buffer, bytes)
+            copied += bytes
+            onProgress(copied)
+            bytes = source.readAtMostTo(buffer, DEFAULT_BUFFER_SIZE.toLong())
         }
+        fsync(output)
+        output.close()
+        source.close()
+    }
 }

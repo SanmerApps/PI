@@ -1,0 +1,6 @@
+-keep class dev.sanmer.zip.CRC32$Native {
+    native <methods>;
+}
+-keep class dev.sanmer.zip.Inflater$Native {
+    native <methods>;
+}

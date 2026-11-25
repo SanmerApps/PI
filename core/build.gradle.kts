@@ -14,8 +14,8 @@ android {
 
 dependencies {
     compileOnly(project(":stub"))
+    implementation(project(":zip"))
     implementation(libs.androidx.annotation)
-    implementation(libs.apache.commons.compress)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.rikka.refine.runtime)
 }

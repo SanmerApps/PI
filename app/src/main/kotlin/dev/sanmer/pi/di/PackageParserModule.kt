@@ -2,6 +2,7 @@ package dev.sanmer.pi.di
 
 import androidx.compose.ui.unit.dp
 import dev.sanmer.pi.coil.AppIconFactory
+import dev.sanmer.pi.core.res.PackageInfoLite
 import dev.sanmer.pi.core.res.PackageParser
 import dev.sanmer.pi.core.res.ResourceParser
 import org.koin.android.ext.koin.androidContext
@@ -13,6 +14,10 @@ val PackageParserModule = module {
     }
 
     single {
-        PackageParser(get())
+        PackageInfoLite.Builder(get())
+    }
+
+    single {
+        PackageParser(androidContext(), get())
     }
 }

@@ -29,4 +29,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "PI"
-include(":stub", ":core", ":su", ":app")
+include(":stub", ":core", ":su", ":zip", ":app")

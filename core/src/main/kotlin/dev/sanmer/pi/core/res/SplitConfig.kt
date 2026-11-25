@@ -166,7 +166,7 @@ data class SplitConfig(
                 when (it) {
                     "${splitConfig.splitName}__abi" -> Type.Abi(Abi.systemAbis[0])
                     "${splitConfig.splitName}__density" -> Type.Density(Density.systemDensity)
-                    else -> Type.Unspecified(splitConfig.splitName)
+                    else -> throw IllegalArgumentException("${splitConfig.requiredSplitTypes}")
                 }
             }
 

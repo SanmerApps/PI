@@ -9,8 +9,8 @@ import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.pm.UserInfo
-import android.content.res.AssetFileDescriptor
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.os.Parcelable
 import android.os.Process
 import android.util.Log
@@ -149,15 +149,17 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         runCatching {
-            val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return
-            install(
-                task = task,
-                fd = fd,
-                userId = user.id,
-                startId = startId,
-                builder = builder
-            )
-            fd.close()
+            checkNotNull(contentResolver.openFileDescriptor(task.uri, "r")) {
+                "Provider crashed"
+            }.use { pfd ->
+                install(
+                    task = task,
+                    pfd = pfd,
+                    userId = user.id,
+                    startId = startId,
+                    builder = builder
+                )
+            }
             notify(startId, builder) {
                 setContentText("${task.packageInfo.versionName} (${task.packageInfo.versionCode})")
                 setContentIntent(launch(task.packageInfo.packageName, user.id))
@@ -184,7 +186,7 @@ class InstallService : LifecycleService(), KoinComponent {
 
     private suspend fun install(
         task: Task,
-        fd: AssetFileDescriptor,
+        pfd: ParcelFileDescriptor,
         userId: Int,
         startId: Int,
         builder: NotificationCompat.Builder
@@ -223,14 +225,15 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         if (task.fileNames.isEmpty()) {
-            session.writeFd(task.packageInfo.packageName, fd) { copied ->
+            session.writeFd(task.packageInfo.packageName, pfd) { copied ->
                 channel.trySend(copied)
             }
         } else {
-            session.writeZip(task.fileNames, fd) { copied ->
+            session.writeZip(task.fileNames, pfd) { copied ->
                 channel.trySend(copied)
             }
         }
+        pfd.close()
         consumer.cancelAndJoin()
 
         notify(startId, builder) {
