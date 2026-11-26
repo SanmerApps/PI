@@ -48,6 +48,14 @@ class Inflater(bits: Int) {
         )
     }
 
+    fun inflate(
+        inBytes: ByteArray,
+        outBytes: ByteArray,
+        flush: Flush
+    ) = ReturnCode(
+        Native.inflate(inBytes, 0, inBytes.size, outBytes, 0, outBytes.size, flush.value)
+    )
+
     @OptIn(UnsafeIoApi::class)
     fun inflate(inBuffer: Buffer, outBuffer: Buffer, flush: Flush): Pair<ReturnCode, Int> {
         val ret: ReturnCode

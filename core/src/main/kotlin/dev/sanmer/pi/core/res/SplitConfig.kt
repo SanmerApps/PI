@@ -162,11 +162,11 @@ data class SplitConfig(
             fileName: String,
             sizeBytes: Long
         ): SplitConfig {
-            val requiredSplitTypes = splitConfig.requiredSplitTypes.map {
+            val requiredSplitTypes = splitConfig.requiredSplitTypes.mapNotNull {
                 when (it) {
                     "${splitConfig.splitName}__abi" -> Type.Abi(Abi.systemAbis[0])
                     "${splitConfig.splitName}__density" -> Type.Density(Density.systemDensity)
-                    else -> throw IllegalArgumentException("${splitConfig.requiredSplitTypes}")
+                    else -> null
                 }
             }
 

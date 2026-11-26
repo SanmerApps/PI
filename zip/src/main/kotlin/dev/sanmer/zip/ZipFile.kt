@@ -10,7 +10,7 @@ import dev.sanmer.zip.io.asSource
 import kotlinx.io.RawSource
 import kotlinx.io.bytestring.ByteString
 
-class ZipFile internal constructor(
+class ZipFile private constructor(
     private val dataSource: DataSource,
     private val cdRecords: Map<ByteString, CentralDirectoryRecord>
 ) {
@@ -64,9 +64,9 @@ class ZipFile internal constructor(
     )
 
     fun getDataSource(cdRecord: CentralDirectoryRecord) = when (cdRecord.compressionMethod) {
-        CompressionMethod.STORE -> getRawDataSource(cdRecord)
+        CompressionMethod.Store -> getRawDataSource(cdRecord)
 
-        CompressionMethod.DEFLATE -> DeflateDataSource.of(
+        CompressionMethod.Deflate -> DeflateDataSource.of(
             dataSource = getRawDataSource(cdRecord),
             uncompressedSize = cdRecord.mUncompressedSize.toLong()
         )
@@ -82,9 +82,8 @@ class ZipFile internal constructor(
             require(dataSource.length >= EofCentralDirectoryRecord.FIX_HEADER_SIZE_BYTES) { "Not Zip" }
 
             val eofCDRecord = EofCentralDirectoryRecord.find(
-                source = dataSource.source(
-                    offset = (dataSource.length - maxTailSize).coerceAtLeast(0)
-                ).asSource(),
+                source = dataSource.source((dataSource.length - maxTailSize).coerceAtLeast(0))
+                    .asSource(),
                 maxTailSize = maxTailSize
             )
 
@@ -100,13 +99,13 @@ class ZipFile internal constructor(
         }
 
         fun RawSource.uncompress(method: CompressionMethod) = when (method) {
-            CompressionMethod.STORE -> this
-            CompressionMethod.DEFLATE -> InflaterSource(
+            CompressionMethod.Store -> this
+            CompressionMethod.Deflate -> InflaterSource(
                 source = this,
                 inflater = Inflater(-Inflater.MAX_WINDOW_BITS)
             )
 
-            else -> throw IllegalArgumentException("Unsupported compressionMethod: $method")
+            else -> throw IllegalArgumentException("Unsupported compressionMethod: ${method.value}")
         }
     }
 }

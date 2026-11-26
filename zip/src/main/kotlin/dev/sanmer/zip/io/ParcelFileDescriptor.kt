@@ -32,7 +32,7 @@ private class FileDescriptorSource(
 fun ParcelFileDescriptor.asSource(): RawSource = FileDescriptorSource(fileDescriptor)
 
 private class ParcelFileDescriptorDataSource(
-    private val pfd: ParcelFileDescriptor,
+    internal val pfd: ParcelFileDescriptor,
     override val length: Long
 ) : DataSource {
     constructor(
@@ -66,3 +66,5 @@ private class ParcelFileDescriptorDataSource(
 }
 
 fun ParcelFileDescriptor.asDataSource(): DataSource = ParcelFileDescriptorDataSource(this)
+
+val DataSource.pfdOrNull get() = (this as? ParcelFileDescriptorDataSource)?.pfd

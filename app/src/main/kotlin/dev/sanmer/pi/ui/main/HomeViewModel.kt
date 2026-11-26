@@ -20,12 +20,14 @@ import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.core.res.IPackageInfo
 import dev.sanmer.pi.core.res.PackageInfoLite
 import dev.sanmer.pi.core.res.PackageParser
+import dev.sanmer.pi.core.res.PackageParser.DecompressionStrategy
 import dev.sanmer.pi.core.res.ResourceParser.BASE_APK
 import dev.sanmer.pi.core.res.SplitConfig
 import dev.sanmer.pi.ktx.removeLastIf
 import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.repository.SuRepository
 import dev.sanmer.pi.service.InstallService
+import dev.sanmer.zip.io.asDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -140,8 +142,8 @@ class HomeViewModel(
                     "Provider crashed"
                 }.use { pfd ->
                     packageParser.parse(
-                        raw = PackageParser.RawDataSource.Pfd(pfd),
-                        strategy = PackageParser.DecompressionStrategy.InMemory
+                        dataSource = pfd.asDataSource(),
+                        strategy = DecompressionStrategy.InMemory
                     )
                 }
                 when (packageInfo) {

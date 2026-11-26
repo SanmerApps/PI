@@ -12,7 +12,9 @@ value class CRC32 private constructor(val value: UInt) {
         return CRC32(Native.crc32(value.toInt(), bytes, offset, length).toUInt())
     }
 
-    fun update(bytes: ByteArray) = update(bytes, 0, bytes.size)
+    fun update(bytes: ByteArray) = CRC32(
+        Native.crc32(value.toInt(), bytes, 0, bytes.size).toUInt()
+    )
 
     private object Native {
         init {

@@ -9,7 +9,7 @@ private class LimitedSource(
     private val source: RawSource,
     private val byteCount: Long
 ) : RawSource {
-    private var remaining: Long = byteCount
+    private var remaining = byteCount
 
     override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
         if (remaining == 0L) return -1L

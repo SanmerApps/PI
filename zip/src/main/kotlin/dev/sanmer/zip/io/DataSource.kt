@@ -4,7 +4,9 @@ import kotlinx.io.RawSource
 
 interface DataSource : AutoCloseable {
     val length: Long
+
     fun source(offset: Long = 0): RawSource
+
     fun read(bytes: ByteArray, byteOffset: Int, byteCount: Int, offset: Long = 0): Int
 
     fun source(offset: Long = 0, byteCount: Long = length): RawSource {
@@ -19,8 +21,8 @@ interface DataSource : AutoCloseable {
 }
 
 private class SliceDataSource(
-    val dataSource: DataSource,
-    val offset: Long,
+    private val dataSource: DataSource,
+    private val offset: Long,
     override val length: Long
 ) : DataSource {
     override fun source(offset: Long): RawSource {

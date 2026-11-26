@@ -65,9 +65,7 @@ class EofCentralDirectoryRecord internal constructor(
             val bufferSize = minOf(maxTailSize, DEFAULT_BUFFER_SIZE).toLong()
             val buffer = Buffer()
             while (source.readAtMostTo(buffer, bufferSize) != -1L) {
-                if (buffer.size > maxTailSize) {
-                    buffer.skip(buffer.size - maxTailSize)
-                }
+                if (buffer.size > maxTailSize) buffer.skip(buffer.size - maxTailSize)
             }
             val bytes = buffer.peek().readByteArray()
             require(bytes.size >= FIX_HEADER_SIZE_BYTES) { "Not EofCentralDirectoryRecord" }
@@ -80,13 +78,8 @@ class EofCentralDirectoryRecord internal constructor(
                     val commentSize = (bytes[i + 20].toInt() and 0xFF) or
                             ((bytes[i + 21].toInt() and 0xFF) shl 8)
                     if (i + FIX_HEADER_SIZE_BYTES + commentSize == bytes.size.toLong()) {
-                        val buffer = buffer.peek()
                         buffer.skip(i.toLong())
-                        try {
-                            return read(buffer)
-                        } catch (_: IllegalArgumentException) {
-
-                        }
+                        return read(buffer)
                     }
                 }
             }

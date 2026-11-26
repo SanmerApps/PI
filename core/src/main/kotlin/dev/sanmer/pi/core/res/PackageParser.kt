@@ -2,10 +2,7 @@ package dev.sanmer.pi.core.res
 
 import android.content.Context
 import android.content.res.ApkAssets
-import android.os.ParcelFileDescriptor
 import android.os.ProxyFileDescriptorCallback
-import android.system.ErrnoException
-import android.system.OsConstants
 import android.util.Log
 import dev.sanmer.pi.core.compat.BuildCompat
 import dev.sanmer.pi.core.res.ResourceParser.ANDROID_MANIFEST_XML
@@ -21,9 +18,10 @@ import dev.sanmer.zip.common.CentralDirectoryRecord
 import dev.sanmer.zip.common.CompressionMethod
 import dev.sanmer.zip.common.LocalFileRecord.Builder.findLocalFileRecord
 import dev.sanmer.zip.io.DataSource
-import dev.sanmer.zip.io.asDataSource
 import dev.sanmer.zip.io.asSource
 import dev.sanmer.zip.io.limited
+import dev.sanmer.zip.io.pfdOrNull
+import kotlinx.io.buffered
 import kotlinx.io.bytestring.decodeToString
 import kotlinx.io.bytestring.endsWith
 import kotlinx.io.readByteArray
@@ -33,57 +31,37 @@ class PackageParser(
     private val context: Context,
     private val builder: PackageInfoLite.Builder
 ) {
-    sealed interface RawDataSource {
-        fun asDataSource(): DataSource
-
-        @JvmInline
-        value class Pfd(val pfd: ParcelFileDescriptor) : RawDataSource {
-            override fun asDataSource() = pfd.asDataSource()
-        }
-
-        @JvmInline
-        value class Value(val value: DataSource) : RawDataSource {
-            override fun asDataSource() = value
-        }
-    }
-
     enum class DecompressionStrategy {
         TempFile,
         InMemory
     }
 
     private class DataSourceCallback(
-        val dataSource: DataSource,
+        private val dataSource: DataSource
     ) : ProxyFileDescriptorCallback() {
         override fun onGetSize() = dataSource.length
 
-        override fun onRead(offset: Long, size: Int, data: ByteArray): Int {
-            return try {
-                dataSource.read(data, 0, size, offset)
-            } catch (e: Throwable) {
-                throw ErrnoException("onRead", OsConstants.EBADF, e)
-            }
-        }
+        override fun onRead(offset: Long, size: Int, data: ByteArray) =
+            dataSource.read(data, 0, size, offset)
 
         override fun onRelease() {}
     }
 
     private inline fun <R> openStore(
-        raw: RawDataSource,
         zip: ZipFile,
         record: CentralDirectoryRecord,
         block: (ApkAssets) -> R
-    ) = when {
-        BuildCompat.atLeastR && raw is RawDataSource.Pfd -> ApkAssetsDelegate.Builder.openFd(
-            fd = raw.pfd.fileDescriptor,
+    ): R {
+        val pfd = zip.asDataSource().pfdOrNull
+        if (pfd != null && BuildCompat.atLeastR) return ApkAssetsDelegate.Builder.openFd(
+            fd = pfd.fileDescriptor,
             offset = zip.dataOffset(record),
             length = record.compressedSize.toLong(),
             autoClose = false,
             friendlyName = record.name.decodeToString(Charsets.UTF_8),
             block = block
         )
-
-        else -> ApkAssetsDelegate.Builder.openFd(
+        return ApkAssetsDelegate.Builder.openFd(
             context = context,
             callback = DataSourceCallback(zip.getRawDataSource(record)),
             friendlyName = record.name.decodeToString(Charsets.UTF_8),
@@ -101,7 +79,7 @@ class PackageParser(
             source = InflaterSource(
                 source = zip.getRawSource(record),
                 inflater = Inflater(-Inflater.MAX_WINDOW_BITS)
-            ),
+            ).buffered(),
             cacheDir = context.externalCacheDir,
             block = block
         )
@@ -120,20 +98,18 @@ class PackageParser(
     }
 
     private inline fun <R> open(
-        raw: RawDataSource,
         zip: ZipFile,
         record: CentralDirectoryRecord,
         strategy: DecompressionStrategy,
         block: (ApkAssets) -> R
     ) = when (record.compressionMethod) {
-        CompressionMethod.STORE -> openStore(
-            raw = raw,
+        CompressionMethod.Store -> openStore(
             zip = zip,
             record = record,
             block = block
         )
 
-        CompressionMethod.DEFLATE -> openDeflate(
+        CompressionMethod.Deflate -> openDeflate(
             zip = zip,
             record = record,
             strategy = strategy,
@@ -163,12 +139,12 @@ class PackageParser(
         val source = InflaterSource(
             source = zip.getRawSource(record),
             inflater = Inflater(-Inflater.MAX_WINDOW_BITS)
-        ).asSource()
+        ).buffered()
         val record = source.findLocalFileRecord { it.name == ANDROID_MANIFEST_XML_BYTES }
             ?: throw FileNotFoundException(ANDROID_MANIFEST_XML)
         val data = source.limited(record.compressedSize.toLong())
             .uncompress(record.compressionMethod)
-            .asSource()
+            .buffered()
             .readByteArray()
         return block(data)
     }
@@ -178,13 +154,13 @@ class PackageParser(
         record: CentralDirectoryRecord,
         block: (ByteArray) -> R
     ) = when (record.compressionMethod) {
-        CompressionMethod.STORE -> readStore(
+        CompressionMethod.Store -> readStore(
             zip = zip,
             record = record,
             block = block
         )
 
-        CompressionMethod.DEFLATE -> readDeflate(
+        CompressionMethod.Deflate -> readDeflate(
             zip = zip,
             record = record,
             block = block
@@ -193,15 +169,17 @@ class PackageParser(
         else -> throw IllegalArgumentException("Unsupported compressionMethod: ${record.compressionMethod}")
     }
 
-    fun parse(raw: RawDataSource, strategy: DecompressionStrategy): IPackageInfo {
-        val zip = ZipFile.of(raw.asDataSource())
+    fun parse(dataSource: DataSource, strategy: DecompressionStrategy): IPackageInfo {
+        val zip = ZipFile.of(dataSource)
 
         if (ANDROID_MANIFEST_XML_BYTES in zip) {
-            val packageInfo = if (raw is RawDataSource.Pfd) ApkAssetsDelegate.Builder.openFd(
-                fd = raw.pfd.fileDescriptor,
-                autoClose = false,
-                block = builder::fromApkAssets
-            ) else ApkAssetsDelegate.Builder.openFd(
+            val packageInfo = dataSource.pfdOrNull?.let { pfd ->
+                ApkAssetsDelegate.Builder.openFd(
+                    fd = pfd.fileDescriptor,
+                    autoClose = false,
+                    block = builder::fromApkAssets
+                )
+            } ?: ApkAssetsDelegate.Builder.openFd(
                 context = context,
                 callback = DataSourceCallback(zip.asDataSource()),
                 block = builder::fromApkAssets
@@ -215,7 +193,6 @@ class PackageParser(
 
         zip[BASE_APK_BYTES]?.let { record ->
             val packageInfo = open(
-                raw = raw,
                 zip = zip,
                 record = record,
                 strategy = strategy,
@@ -257,7 +234,6 @@ class PackageParser(
         val packageInfos = hashMapOf<String, IPackageInfo.Apk>()
         for (record in zip.records) if (record.name.endsWith(APK_EXTENSION_BYTES)) try {
             val packageInfo = open(
-                raw = raw,
                 zip = zip,
                 record = record,
                 strategy = strategy,

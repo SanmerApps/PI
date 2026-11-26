@@ -12,8 +12,7 @@ import android.system.Os
 import android.util.Log
 import androidx.annotation.RequiresApi
 import dev.sanmer.pi.core.compat.BuildCompat
-import dev.sanmer.zip.io.asSource
-import kotlinx.io.RawSource
+import kotlinx.io.Source
 import kotlinx.io.asSink
 import java.io.File
 import java.io.FileDescriptor
@@ -106,14 +105,14 @@ sealed interface ApkAssetsDelegate : AutoCloseable {
 
     object Builder {
         inline fun <R> createTemp(
-            source: RawSource,
+            source: Source,
             cacheDir: File?,
             block: (ApkAssets) -> R
         ): R {
             val temp = File.createTempFile("stream", "", cacheDir)
             return try {
                 temp.outputStream().use { output ->
-                    source.asSource().use { source ->
+                    source.use { source ->
                         source.transferTo(output.asSink())
                     }
                 }

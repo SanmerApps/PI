@@ -1,11 +1,11 @@
 package dev.sanmer.zip
 
 import dev.sanmer.zip.io.DataSource
-import dev.sanmer.zip.io.asSource
 import dev.sanmer.zip.io.checkBounds
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
 import kotlinx.io.Source
+import kotlinx.io.buffered
 import kotlinx.io.readByteArray
 
 class DeflateDataSource private constructor(
@@ -34,7 +34,7 @@ class DeflateDataSource private constructor(
     override fun source(offset: Long): Source {
         checkBounds(length, offset)
         val (point, inflater) = inflater(offset)
-        val source = InflaterSource(dataSource.source(point.inOffset), inflater).asSource()
+        val source = InflaterSource(dataSource.source(point.inOffset), inflater).buffered()
         source.skip(offset - point.outOffset)
         return source
     }

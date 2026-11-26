@@ -33,4 +33,6 @@ class InflaterSource2(
         source.close()
         inflater.end()
     }
+
+    override fun toString() = "InflaterSource2($source)"
 }

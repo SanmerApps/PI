@@ -100,9 +100,7 @@ class CentralDirectoryRecord internal constructor(
                     val record = read(source)
                     put(record.mName, record)
                 } catch (e: Throwable) {
-                    throw IllegalArgumentException(
-                        "Not CentralDirectoryRecord at index $i", e
-                    )
+                    throw IllegalArgumentException("Not CentralDirectoryRecord at index $i", e)
                 }
             }
         }
