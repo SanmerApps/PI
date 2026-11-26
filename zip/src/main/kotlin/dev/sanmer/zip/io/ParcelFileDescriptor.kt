@@ -15,13 +15,10 @@ private class FileDescriptorSource(
     @OptIn(UnsafeIoApi::class)
     override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
         if (byteCount == 0L) return 0L
-        val read: Int
-        UnsafeBufferOperations.writeToTail(sink, 1) { bytes, pos, limit ->
+        return UnsafeBufferOperations.writeToTail(sink, 1) { bytes, pos, limit ->
             val maxToCopy = minOf(byteCount, (limit - pos).toLong()).toInt()
-            read = Os.read(fd, bytes, pos, maxToCopy)
-            if (read == -1) 0 else read
-        }
-        return read.toLong()
+            Os.read(fd, bytes, pos, maxToCopy)
+        }.toLong()
     }
 
     override fun close() {}
