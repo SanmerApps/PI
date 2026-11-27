@@ -12,6 +12,8 @@ private class LimitedSource(
     private var remaining = byteCount
 
     override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
+        checkByteCount(byteCount)
+        if (byteCount == 0L) return 0L
         if (remaining == 0L) return -1L
         val maxToCopy = minOf(byteCount, remaining)
         val read = source.readAtMostTo(sink, maxToCopy)

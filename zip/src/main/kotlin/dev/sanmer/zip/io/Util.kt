@@ -20,3 +20,7 @@ internal inline fun checkBounds(size: Int, offset: Int, length: Int) =
 
 internal inline fun checkBounds(size: Int, offset: Int) =
     checkBounds(size.toLong(), offset.toLong())
+
+internal inline fun checkByteCount(byteCount: Long) {
+    require(byteCount >= 0) { "Expect byteCount >= 0, but $$byteCount" }
+}

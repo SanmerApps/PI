@@ -28,7 +28,7 @@ suspend fun PackageInstaller.Session.write(
     val sink = output.asSink()
     val buffer = Buffer()
     var bytes = source.readAtMostTo(buffer, DEFAULT_BUFFER_SIZE.toLong())
-    while (bytes > 0) {
+    while (bytes > 0L) {
         sink.write(buffer, bytes)
         copied += bytes
         onProgress(copied)
@@ -53,7 +53,7 @@ suspend fun PackageInstaller.Session.write(
         val sink = output.asSink()
         val buffer = Buffer()
         var bytes = source.readAtMostTo(buffer, DEFAULT_BUFFER_SIZE.toLong())
-        while (bytes > 0) {
+        while (bytes > 0L) {
             sink.write(buffer, bytes)
             copied += bytes
             onProgress(copied)

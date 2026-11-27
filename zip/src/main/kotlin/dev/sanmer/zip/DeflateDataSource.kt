@@ -2,6 +2,7 @@ package dev.sanmer.zip
 
 import dev.sanmer.zip.io.DataSource
 import dev.sanmer.zip.io.checkBounds
+import dev.sanmer.zip.io.checkByteCount
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
 import kotlinx.io.Source
@@ -46,6 +47,8 @@ class DeflateDataSource private constructor(
         offset: Long
     ): Int {
         checkBounds(length, offset)
+        checkByteCount(byteCount.toLong())
+        if (byteCount == 0) return 0
         val source = source(offset)
         var read = 0
         while (read < byteCount) {
@@ -106,7 +109,7 @@ class DeflateDataSource private constructor(
             val inBuffer = Buffer()
             val outBuffer = Buffer()
             source.readAtMostTo(inBuffer, WINDOW_SIZE.toLong())
-            while (inBuffer.size != 0L) {
+            while (inBuffer.size > 0L) {
                 val (ret, outLen) = inflater.inflate(inBuffer, outBuffer, Inflater.Flush.Block)
                 check(ret == Inflater.ReturnCode.Ok) { ret }
                 if (outBuffer.size > WINDOW_SIZE) outBuffer.skip(outLen.toLong())

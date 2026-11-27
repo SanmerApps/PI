@@ -14,11 +14,13 @@ private class FileDescriptorSource(
 ) : RawSource {
     @OptIn(UnsafeIoApi::class)
     override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
+        checkByteCount(byteCount)
         if (byteCount == 0L) return 0L
-        return UnsafeBufferOperations.writeToTail(sink, 1) { bytes, pos, limit ->
+        val read = UnsafeBufferOperations.writeToTail(sink, 1) { bytes, pos, limit ->
             val maxToCopy = minOf(byteCount, (limit - pos).toLong()).toInt()
             Os.read(fd, bytes, pos, maxToCopy)
-        }.toLong()
+        }
+        return if (read == 0) -1L else read.toLong()
     }
 
     override fun close() {}
@@ -54,6 +56,8 @@ private class ParcelFileDescriptorDataSource(
         offset: Long
     ): Int {
         checkBounds(length, offset)
+        checkByteCount(byteCount.toLong())
+        if (byteCount == 0) return 0
         return Os.pread(pfd.fileDescriptor, bytes, byteOffset, byteCount, offset)
     }
 

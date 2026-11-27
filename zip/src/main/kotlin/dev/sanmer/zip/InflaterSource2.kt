@@ -1,5 +1,6 @@
 package dev.sanmer.zip
 
+import dev.sanmer.zip.io.checkByteCount
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
 import kotlinx.io.UnsafeIoApi
@@ -14,8 +15,10 @@ class InflaterSource2(
 
     @OptIn(UnsafeIoApi::class)
     override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
-        val read = source.readAtMostTo(buffer, byteCount - buffer.size)
-        if (buffer.size == 0L) return read
+        checkByteCount(byteCount)
+        if (byteCount == 0L) return 0L
+        source.readAtMostTo(buffer, byteCount - buffer.size)
+        if (buffer.size == 0L) return -1L
         return UnsafeBufferOperations.writeToTail(sink, 1) { outBytes, outPos, outLimit ->
             val outLength = outLimit - outPos
             val produced: Int

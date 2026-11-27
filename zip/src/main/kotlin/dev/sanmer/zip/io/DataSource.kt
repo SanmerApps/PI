@@ -37,6 +37,8 @@ private class SliceDataSource(
         offset: Long
     ): Int {
         checkBounds(length, offset)
+        checkByteCount(byteCount.toLong())
+        if (byteCount == 0) return 0
         return dataSource.read(bytes, byteOffset, byteCount, this.offset + offset)
     }
 
