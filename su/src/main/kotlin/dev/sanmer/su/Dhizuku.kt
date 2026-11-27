@@ -13,8 +13,8 @@ import com.rosan.dhizuku.api.Dhizuku as Raw
 
 object Dhizuku {
     class Wrapper internal constructor() : BinderWrapper {
-        override val ownerPackageName get() = Raw.getOwnerPackageName()
-        override fun wrap(original: IBinder) = Raw.binderWrapper(original)
+        override val ownerPackageName: String get() = Raw.getOwnerPackageName()
+        override fun wrap(original: IBinder): IBinder = Raw.binderWrapper(original)
     }
 
     suspend fun launch(context: Context) = withContext(Dispatchers.Main) {
@@ -24,8 +24,9 @@ object Dhizuku {
         suspendCancellableCoroutine { continuation ->
             val listener = object : DhizukuRequestPermissionListener() {
                 override fun onRequestPermission(grantResult: Int) {
+                    if (continuation.isCompleted) return
                     if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                        if (!continuation.isCompleted) continuation.resume(Wrapper())
+                        continuation.resume(Wrapper())
                     } else {
                         continuation.resumeWithException(IllegalStateException("Dhizuku rejected"))
                     }
