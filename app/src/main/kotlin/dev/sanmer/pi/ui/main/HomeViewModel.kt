@@ -18,13 +18,16 @@ import dev.sanmer.pi.core.compat.UserHandleCompat
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import dev.sanmer.pi.core.delegate.UserManagerDelegate
 import dev.sanmer.pi.core.res.IPackageInfo
+import dev.sanmer.pi.core.res.PackageInfoLite
 import dev.sanmer.pi.core.res.PackageParser
-import dev.sanmer.pi.core.res.PackageParser.Default.toPackageLite
+import dev.sanmer.pi.core.res.PackageParser.DecompressionStrategy
+import dev.sanmer.pi.core.res.ResourceParser.BASE_APK
 import dev.sanmer.pi.core.res.SplitConfig
 import dev.sanmer.pi.ktx.removeLastIf
 import dev.sanmer.pi.model.LoadData
 import dev.sanmer.pi.repository.SuRepository
 import dev.sanmer.pi.service.InstallService
+import dev.sanmer.zip.io.asDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -97,9 +100,9 @@ class HomeViewModel(
 
     private fun IPackageInfo.Apk.updateCurrentPackageInfo(userId: Int) = try {
         copy(
-            currentPackageInfo = packageManager.getPackageInfo(
-                packageInfo.packageName, 0, userId
-            ).toPackageLite()
+            currentPackageInfo = PackageInfoLite.Builder.fromPackageInfo(
+                packageManager.getPackageInfo(packageInfo.packageName, 0, userId)
+            )
         )
     } catch (e: Throwable) {
         Log.w(TAG, "getPackageInfo(${packageInfo.packageName})", e)
@@ -135,12 +138,19 @@ class HomeViewModel(
             suRepository.state.first { it.isSuccess }
             runCatching {
                 val cr = context.contentResolver
-                val fd = requireNotNull(cr.openAssetFileDescriptor(uri, "r")) { uri }
-                when (val packageInfo = fd.use { packageParser.parse(context, fd) }) {
+                val packageInfo = requireNotNull(cr.openFileDescriptor(uri, "r")) {
+                    "Provider crashed"
+                }.use { pfd ->
+                    packageParser.parse(
+                        dataSource = pfd.asDataSource(),
+                        strategy = DecompressionStrategy.InMemory
+                    )
+                }
+                when (packageInfo) {
                     is IPackageInfo.Apk -> packageInfo.updateCurrentPackageInfo(context.userId)
 
                     is IPackageInfo.Apks -> {
-                        val filenames = mutableStateListOf(PackageParser.BASE_APK)
+                        val filenames = mutableStateListOf(BASE_APK)
                         packageInfo.splitConfigs.pickRecommended { filenames.add(it.fileName) }
                         fileNames[uri] = filenames
 

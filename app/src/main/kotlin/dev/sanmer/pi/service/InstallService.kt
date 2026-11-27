@@ -9,8 +9,8 @@ import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.pm.UserInfo
-import android.content.res.AssetFileDescriptor
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.os.Parcelable
 import android.os.Process
 import android.util.Log
@@ -26,11 +26,12 @@ import dev.sanmer.pi.compat.PermissionCompat
 import dev.sanmer.pi.core.delegate.PackageInstallerDelegate
 import dev.sanmer.pi.core.delegate.PackageManagerDelegate
 import dev.sanmer.pi.core.ktx.commit
-import dev.sanmer.pi.core.ktx.writeFd
-import dev.sanmer.pi.core.ktx.writeZip
+import dev.sanmer.pi.core.ktx.write
 import dev.sanmer.pi.core.res.PackageInfoLite
 import dev.sanmer.pi.ktx.parcelable
 import dev.sanmer.pi.repository.PreferenceRepository
+import dev.sanmer.zip.io.asDataSource
+import dev.sanmer.zip.io.asSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -149,15 +150,17 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         runCatching {
-            val fd = contentResolver.openAssetFileDescriptor(task.uri, "r") ?: return
-            install(
-                task = task,
-                fd = fd,
-                userId = user.id,
-                startId = startId,
-                builder = builder
-            )
-            fd.close()
+            checkNotNull(contentResolver.openFileDescriptor(task.uri, "r")) {
+                "Provider crashed"
+            }.use { pfd ->
+                install(
+                    task = task,
+                    pfd = pfd,
+                    userId = user.id,
+                    startId = startId,
+                    builder = builder
+                )
+            }
             notify(startId, builder) {
                 setContentText("${task.packageInfo.versionName} (${task.packageInfo.versionCode})")
                 setContentIntent(launch(task.packageInfo.packageName, user.id))
@@ -184,7 +187,7 @@ class InstallService : LifecycleService(), KoinComponent {
 
     private suspend fun install(
         task: Task,
-        fd: AssetFileDescriptor,
+        pfd: ParcelFileDescriptor,
         userId: Int,
         startId: Int,
         builder: NotificationCompat.Builder
@@ -223,14 +226,22 @@ class InstallService : LifecycleService(), KoinComponent {
         }
 
         if (task.fileNames.isEmpty()) {
-            session.writeFd(task.packageInfo.packageName, fd) { copied ->
+            session.write(
+                name = task.packageInfo.packageName,
+                source = pfd.asSource(),
+                length = pfd.statSize
+            ) { copied ->
                 channel.trySend(copied)
             }
         } else {
-            session.writeZip(task.fileNames, fd) { copied ->
+            session.write(
+                names = task.fileNames,
+                dataSource = pfd.asDataSource()
+            ) { copied ->
                 channel.trySend(copied)
             }
         }
+        pfd.close()
         consumer.cancelAndJoin()
 
         notify(startId, builder) {

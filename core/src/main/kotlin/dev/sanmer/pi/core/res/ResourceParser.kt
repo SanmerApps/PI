@@ -5,9 +5,18 @@ import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import dev.sanmer.pi.core.compat.PackageInfoCompat
+import kotlinx.io.bytestring.encodeToByteString
 import org.xmlpull.v1.XmlPullParser
 
 object ResourceParser {
+    const val ANDROID_MANIFEST_XML = "AndroidManifest.xml"
+    const val BASE_APK = "base.apk"
+    const val APK_EXTENSION = ".apk"
+
+    val ANDROID_MANIFEST_XML_BYTES by lazy { ANDROID_MANIFEST_XML.encodeToByteString(Charsets.UTF_8) }
+    val BASE_APK_BYTES by lazy { BASE_APK.encodeToByteString(Charsets.UTF_8) }
+    val APK_EXTENSION_BYTES by lazy { APK_EXTENSION.encodeToByteString(Charsets.UTF_8) }
+
     const val NS_RESOURCES = "http://schemas.android.com/apk/res/android"
     const val TAG_MANIFEST = "manifest"
     const val TAG_USES_SDK = "uses-sdk"
@@ -48,7 +57,7 @@ object ResourceParser {
                 versionCode = getAttributeIntValue(NS_RESOURCES, "versionCode", 0)
                 isFeatureSplit = getAttributeBooleanValue(NS_RESOURCES, "isFeatureSplit", false)
                 getAttributeValue(NS_RESOURCES, "requiredSplitTypes")?.let {
-                    requiredSplitTypes.addAll(it.split(','))
+                    if (it.isNotEmpty()) requiredSplitTypes.addAll(it.split(','))
                 }
             },
             onUsesSdk = {},

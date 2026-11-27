@@ -1,0 +1,19 @@
+[package]
+name = "z-rs"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "z_rs"
+crate-type = ["cdylib"]
+
+[profile.release]
+strip = "symbols"
+lto = "fat"
+panic = "abort"
+codegen-units = 1
+
+[dependencies]
+bytes = "1"
+typed-jni = { git = "https://github.com/SanmerDev/typed-jni-rs.git", rev = "70653820c01442c28cf3e598f7ad9d4a80fadab1", default-features = false, features = ["std"] }
+zlib-rs = { version = "0.6", default-features = false, features = ["std", "__internal-api"] }

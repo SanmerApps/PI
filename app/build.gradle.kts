@@ -116,5 +116,4 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.hiddenApiBypass)
-    implementation(libs.xz)
 }

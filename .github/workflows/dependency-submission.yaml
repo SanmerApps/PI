@@ -2,12 +2,12 @@ name: Dependency Submission
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
     paths:
       - "**/libs.versions.toml"
       - ".github/workflows/**"
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
     paths:
       - "**/libs.versions.toml"
       - ".github/workflows/**"
@@ -34,5 +34,5 @@ jobs:
         uses: gradle/actions/dependency-submission@v6
         with:
           build-scan-publish: true
-          build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
-          build-scan-terms-of-use-agree: "yes"
+          build-scan-terms-of-use-url: https://gradle.com/help/legal-terms-of-use
+          build-scan-terms-of-use-agree: yes

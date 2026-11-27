@@ -15,7 +15,6 @@ androidxCoreSplashscreen = "1.2.0"
 androidxDataStore = "1.3.0"
 androidxDocumentFile = "1.1.0"
 androidxLifecycle = "2.11.1"
-apacheCompress = "1.28.0"
 appiconloader = "1.5.0"
 coil = "3.6.3"
 hiddenApiRefine = "4.4.0"
@@ -24,11 +23,11 @@ koin = "4.2.2"
 koinPlugin = "1.2.3"
 kotlin = "2.4.21"
 kotlinxCoroutines = "1.11.0"
+kotlinxIO = "0.9.3"
 kotlinxSerialization = "1.13.0"
 libsu = "6.0.0"
 shizuku = "13.1.5"
 dhizuku = "2.7.0"
-xz = "1.12"
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
@@ -51,7 +50,6 @@ androidx-documentfile = { module = "androidx.documentfile:documentfile", version
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apacheCompress" }
 appiconloader = { module = "me.zhanghai.android.appiconloader:appiconloader", version.ref = "appiconloader" }
 appiconloader-iconloaderlib = { module = "me.zhanghai.android.appiconloader:appiconloader-iconloaderlib", version.ref = "appiconloader" }
 coil-bom = { module = "io.coil-kt.coil3:coil-bom", version.ref = "coil" }
@@ -63,6 +61,7 @@ koin-annotations = { module = "io.insert-koin:koin-annotations" }
 koin-compose = { module = "io.insert-koin:koin-compose" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIO" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 libsu-core = { module = "com.github.topjohnwu.libsu:core", version.ref = "libsu" }
 libsu-service = { module = "com.github.topjohnwu.libsu:service", version.ref = "libsu" }
@@ -72,7 +71,6 @@ rikka-refine-runtime = { module = "dev.rikka.tools.refine:runtime", version.ref 
 rikka-shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 rikka-shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 iamr0s-dhizuku-api = { module = "io.github.iamr0s:Dhizuku-API", version.ref = "dhizuku" }
-xz = { module = "org.tukaani:xz", version.ref = "xz" }
 
 [plugins]
 self-application = { id = "self.application" }

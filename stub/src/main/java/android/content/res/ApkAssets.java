@@ -27,6 +27,13 @@ public class ApkAssets {
 
     @RequiresApi(30)
     public static @NonNull ApkAssets loadFromFd(@NonNull FileDescriptor fd,
+                                                @NonNull String friendlyName, int flags,
+                                                @Nullable AssetsProvider assets) {
+        throw new RuntimeException("Stub!");
+    }
+
+    @RequiresApi(30)
+    public static @NonNull ApkAssets loadFromFd(@NonNull FileDescriptor fd,
                                                 @NonNull String friendlyName, long offset, long length, int flags,
                                                 @Nullable AssetsProvider assets) {
         throw new RuntimeException("Stub!");
