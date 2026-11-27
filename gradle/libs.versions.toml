@@ -27,7 +27,7 @@ kotlinxIO = "0.9.3"
 kotlinxSerialization = "1.13.0"
 libsu = "6.0.0"
 shizuku = "13.1.5"
-dhizuku = "2.7.0"
+dhizuku = "2.8.0"
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
