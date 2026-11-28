@@ -31,4 +31,3 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "build-logic"
-include(":plugins")

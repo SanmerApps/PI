@@ -5,6 +5,7 @@ import androidx.datastore.core.Serializer
 import dev.sanmer.pi.datastore.model.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.encodeToByteArray
@@ -12,6 +13,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import java.io.InputStream
 import java.io.OutputStream
 
+@OptIn(ExperimentalSerializationApi::class)
 class PreferenceSerializer : Serializer<Preference> {
     override val defaultValue = Preference()
 

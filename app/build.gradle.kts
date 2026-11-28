@@ -3,8 +3,8 @@ import java.time.Instant
 
 plugins {
     alias(libs.plugins.self.application)
-    alias(libs.plugins.self.compose)
     alias(libs.plugins.koin)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -22,6 +22,11 @@ android {
         versionName = baseVersionName + if (gitCommitTag.isEmpty()) ".$gitCommitSha" else ""
         versionCode = gitCommitNum
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
+    }
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
     }
 
     androidResources {
